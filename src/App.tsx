@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { createRef } from 'react';
 import './App.css';
 import CubesVisualisation from './components/CubesVisualisation';
 
 class App extends React.Component
 {
+  child = createRef<CubesVisualisation>();
   render()
   {
     return (<div className="App">
@@ -26,7 +27,7 @@ class App extends React.Component
             >React </a> </span>
         </p>
       </header>
-      <CubesVisualisation ref="child"></CubesVisualisation>
+      <CubesVisualisation ref={this.child}></CubesVisualisation>
       <div className="slidecontainer">
         <input type="range" min="1" max="30" className="slider" id="myRange" defaultValue="15" onChange={this.accesChild}/>
         <span>Die Höhe der Balken wird zufällig generiert</span>
@@ -35,8 +36,9 @@ class App extends React.Component
     );
   };
   accesChild=()=>{
-    this.refs.child.randomnizeBarHeights();
-
+    if(this.child.current){
+      this.child.current.randomnizeBarHeights();
+    }
   }
 }
 

@@ -1,44 +1,64 @@
 import React from 'react';
 import * as THREE from 'three';
-import OrbitControls from 'three-orbitcontrols';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 
-class CubesVisualisation extends React.Component
-{
-    render()
-    {
-        return (<div id="cubes-visualisation"></div>);
-    };
 
-    componentDidMount()
-    {
-        this.initVis();
-        this.loopVis();
-    };
-    componentWillUnmount()
-    {
-        window.cancelAnimationFrame(this.frameId);
-        document.getElementById("cubes-visualisation").removeChild(this.renderer.domElement);
-    };
+interface IProps{
 
-    initVis()
-    {
+}
+class CubesVisualisation extends React.Component<IProps> {
+
+    scene: THREE.Scene;
+    camera: THREE.PerspectiveCamera;
+    mouse: THREE.Vector2;
+    INTERSECTED: any;
+    renderer: THREE.WebGLRenderer;
+    raycaster: THREE.Raycaster;
+    controls: OrbitControls;
+    bars: any[];
+    frameId: number;
+
+    constructor(props:IProps) {
+        super(props);
         this.scene = new THREE.Scene();
-        this.scene.background = new THREE.Color(0xffffff);
         this.camera = new THREE.PerspectiveCamera(75, 900 / 700, 0.1, 3000);
-        this.mouse = new THREE.Vector2();
-        this.INTERSECTED = null;
-
         // set initial camera position
         this.camera.position.set(1050, 516, 1397);
-
+        this.mouse = new THREE.Vector2();
+        this.INTERSECTED = null;
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
-        this.renderer.setSize(900, 700);
-        document.getElementById("cubes-visualisation").appendChild(this.renderer.domElement);
-
         this.raycaster = new THREE.Raycaster();
 
         // allows movement with mouseclicks 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+        this.bars = [];
+        this.frameId = 0
+
+    }
+    render() {
+        return (<div id="cubes-visualisation"></div>);
+    };
+
+    componentDidMount() {
+        this.initVis();
+        this.loopVis();
+    };
+    componentWillUnmount() {
+        window.cancelAnimationFrame(this.frameId);
+        const visFromDom = document.getElementById("cubes-visualisation");
+        if (visFromDom) {
+            visFromDom.removeChild(this.renderer.domElement);
+        }
+    };
+
+    initVis() {
+
+        this.scene.background = new THREE.Color(0xffffff);
+
+        this.renderer.setSize(900, 700);
+
+        const visFromDom = document.getElementById("cubes-visualisation");
+        if (visFromDom) visFromDom.appendChild(this.renderer.domElement);
 
         // eventlistener for mouse movement. is needed for onHower and onClick logic
         document.addEventListener('mousemove', this.onHover, false);
@@ -46,13 +66,12 @@ class CubesVisualisation extends React.Component
 
         this.createLight();
 
-        this.bars = [];
+
 
         // creating the cubes, just for prototyping
         var countX = 50, countY = 50, spacingIncrement = 20, spacing = 0;
 
-        for (let index = 0; index < countY; index++)
-        {
+        for (let index = 0; index < countY; index++) {
             var randomColor = "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
             this.createBar(countX, spacing, randomColor);
             spacing += spacingIncrement;
@@ -61,11 +80,9 @@ class CubesVisualisation extends React.Component
 
     };
 
-    createBar(total, z, color)
-    {
+    createBar(total : number, z :number, color: string) {
 
-        for (var i = 0; i < total; i += 1)
-        {
+        for (var i = 0; i < total; i += 1) {
 
             var geometry = new THREE.BoxGeometry(10, 10, 10);
             geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 5, z));
@@ -95,13 +112,9 @@ class CubesVisualisation extends React.Component
         }
     };
 
-    createLight()
-    {
+    createLight() {
         var ambient = new THREE.AmbientLight(0x999999);
-        var spot = new THREE.SpotLight({
-            color: 0xffffff,
-            intensity: 100
-        });
+        var spot = new THREE.SpotLight(0xffffff, 1);
 
         spot.position.set(0, 4000, 0);
         spot.castShadow = true;
@@ -109,16 +122,13 @@ class CubesVisualisation extends React.Component
         this.scene.add(ambient, spot);
     }
 
-    randomnizeBarHeights()
-    {
-        for (let index = 0; index < this.bars.length; index++)
-        {
+    randomnizeBarHeights() {
+        for (let index = 0; index < this.bars.length; index++) {
             this.bars[index].scale.y = Math.floor(Math.random() * 20) + 1;
         }
     };
 
-    onHover = (event) =>
-    {
+    onHover = (event: any) => {
         // calculate mouse position in normalized device coordinates acordign to scene width and height
         // (-1 to +1) for both components
         this.mouse.x = ((event.clientX - this.renderer.domElement.offsetLeft) / this.renderer.domElement.width) * 2 - 1;
@@ -133,11 +143,10 @@ class CubesVisualisation extends React.Component
         // interaction on hover
         this.changeColorOfHoveredCube(intersects);
     };
-    onCubeclick = (event) =>
-    {
+    onCubeclick = (event: any) => {
         // check if middle mouse button was clicked
-        if (event.which === 2)
-        {
+        if (event.which === 2) {
+            // TODO: Double code, needs refactoring, see onHover Function 
             this.mouse.x = ((event.clientX - this.renderer.domElement.offsetLeft) / this.renderer.domElement.width) * 2 - 1;
             this.mouse.y = -((event.clientY - this.renderer.domElement.offsetTop) / this.renderer.domElement.height) * 2 + 1;
 
@@ -147,20 +156,16 @@ class CubesVisualisation extends React.Component
             // calculate objects intersecting the picking ray
             var intersects = this.raycaster.intersectObjects(this.scene.children);
 
-            if (intersects.length > 0)
-            {
+            if (intersects.length > 0) {
                 alert(intersects[0].object.name);
             }
         }
     }
 
 
-    changeColorOfHoveredCube(intersects)
-    {
-        if (intersects.length > 0)
-        {
-            if (this.INTERSECTED !== intersects[0].object)
-            {
+    changeColorOfHoveredCube(intersects :THREE.Intersection[]) {
+        if (intersects.length > 0) {
+            if (this.INTERSECTED !== intersects[0].object) {
                 if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
 
                 this.INTERSECTED = intersects[0].object;
@@ -168,32 +173,28 @@ class CubesVisualisation extends React.Component
                 this.INTERSECTED.material.emissive.setHex(0xff0000);
             }
 
-        } else
-        {
+        } else {
             if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
             this.INTERSECTED = null;
         }
 
     };
     // visualisation logic
-    updateVis()
-    {
+    updateVis() {
 
     };
 
     // draw Scene
-    renderVis()
-    {
+    renderVis() {
         // console.log(this.camera.position);
         this.renderer.render(this.scene, this.camera);
     };
 
     // run visualisation loop (update, render, repeat)
-    loopVis = () =>
-    {
+    loopVis = () => {
         this.updateVis();
         this.renderVis();
-        this.frameid = window.requestAnimationFrame(this.loopVis);
+        this.frameId = window.requestAnimationFrame(this.loopVis);
     };
 }
 
