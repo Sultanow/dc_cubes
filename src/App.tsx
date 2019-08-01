@@ -1,42 +1,36 @@
 import React, { createRef } from 'react';
+import { Navbar, Dropdown, Form, Row, Col } from 'react-bootstrap';
 import './App.css';
+import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/CubesVisualisation';
+import Topbar from './components/Topbar';
 
-class App extends React.Component
-{
+class App extends React.Component {
   child = createRef<CubesVisualisation>();
-  render()
-  {
+  render() {
     return (<div className="App">
-      <header className="App-header">
-        <p>
-           Ansatz für die 3D Cubes mit <span><a
-            className="App-link"
-            href="https://threejs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          > Three.js
-      </a> und </span>
 
-          <span>
-            <a
-              className="App-link"
-              href="https://reactjs.org"
-              target="_blank"
-              rel="noopener noreferrer"
-            >React </a> </span>
-        </p>
-      </header>
-      <CubesVisualisation ref={this.child}></CubesVisualisation>
-      <div className="slidecontainer">
-        <input type="range" min="1" max="30" className="slider" id="myRange" defaultValue="15" onChange={this.accesChild}/>
-        <span>Die Höhe der Balken wird zufällig generiert</span>
-      </div>
+
+      <Sidebar />
+      <Topbar />
+      <Row>
+        <div className="cubes-visualisation">
+          <CubesVisualisation ref={this.child}></CubesVisualisation>
+          <div className="slidercontainer">
+            <input type="range" min="1" max="30" className="slider" id="myRange" defaultValue="15" onChange={this.accesChild} />
+          </div>
+        </div>
+      </Row>
+
     </div>
+
+
+
+
     );
   };
-  accesChild=()=>{
-    if(this.child.current){
+  accesChild = () => {
+    if (this.child.current) {
       this.child.current.randomnizeBarHeights();
     }
   }

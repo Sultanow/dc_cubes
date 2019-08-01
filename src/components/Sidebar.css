@@ -1,0 +1,16 @@
+.sidebar {
+    background-color: #f8f9fa;
+    text-align: center;
+    width: 120;
+}
+
+.sidebar.active {
+    min-width: 80px;
+    max-width: 80px;
+    text-align: center;
+    flex-direction: column;
+}
+
+.sidebar-bottom {
+    margin-top: 13cm;
+}

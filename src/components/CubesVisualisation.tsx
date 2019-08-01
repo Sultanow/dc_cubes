@@ -21,7 +21,7 @@ class CubesVisualisation extends React.Component<IProps> {
     constructor(props:IProps) {
         super(props);
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, 900 / 700, 0.1, 3000);
+        this.camera = new THREE.PerspectiveCamera(75, 900 / 350, 0.1, 3000);
         // set initial camera position
         this.camera.position.set(1050, 516, 1397);
         this.mouse = new THREE.Vector2();
@@ -55,7 +55,7 @@ class CubesVisualisation extends React.Component<IProps> {
 
         this.scene.background = new THREE.Color(0xffffff);
 
-        this.renderer.setSize(900, 700);
+        this.renderer.setSize(900, 350);
 
         const visFromDom = document.getElementById("cubes-visualisation");
         if (visFromDom) visFromDom.appendChild(this.renderer.domElement);
