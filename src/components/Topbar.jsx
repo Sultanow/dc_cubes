@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Navbar, Dropdown, Form, Row, Col } from 'react-bootstrap';
+import { Navbar, Dropdown, Form, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilter, faSearchPlus, faClock } from '@fortawesome/free-solid-svg-icons'
 import './Topbar.css'
@@ -13,7 +13,7 @@ export default class Topbar extends Component
                 <Navbar.Brand>DC Cubes</Navbar.Brand>
                 <Dropdown>
                     <Dropdown.Toggle variant="light" id="dropdown-basic">
-                         Filter
+                        <FontAwesomeIcon icon={faFilter} /> Filter
                      </Dropdown.Toggle>
 
                     <Dropdown.Menu>
@@ -49,8 +49,8 @@ export default class Topbar extends Component
                                     <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
                                     <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
                                 </Dropdown.Menu>
-                                <Form.Control placeholder="Von"/>
-                                <Form.Control placeholder="Bis"/>
+                                <Form.Control placeholder="Von" />
+                                <Form.Control placeholder="Bis" />
                             </Dropdown>
 
 

@@ -1,5 +1,5 @@
 import React, { createRef } from 'react';
-import { Navbar, Dropdown, Form, Row, Col } from 'react-bootstrap';
+import { Row } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/CubesVisualisation';
@@ -9,8 +9,6 @@ class App extends React.Component {
   child = createRef<CubesVisualisation>();
   render() {
     return (<div className="App">
-
-
       <Sidebar />
       <Topbar />
       <Row>

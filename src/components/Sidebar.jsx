@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Button, Navbar, Dropdown, Form, Row, Col } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChartBar, faBars, faCoins, faChartLine, faCogs, faFile } from '@fortawesome/free-solid-svg-icons'
 import './Sidebar.css'
