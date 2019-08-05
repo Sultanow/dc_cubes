@@ -2,9 +2,9 @@ import * as THREE from 'three';
 
 class ClusterUtil {
 
-    calculateBBox(clusterIncstanceSet: THREE.Geometry[]): THREE.Box3  { // for return null to work set method return types to THREE.Box3 | null
-        if (clusterIncstanceSet.isEmpty()) { // .length == 0
-            return null;        
+    calculateBBox(clusterIncstanceSet: THREE.Geometry[]): THREE.Box3 | null {
+        if (clusterIncstanceSet.length == 0) {
+            return null;
         }
 
         var mergedGeometry = new THREE.Geometry();

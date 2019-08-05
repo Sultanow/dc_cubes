@@ -1,66 +1,23 @@
+import DCState from '../model/DCState'
+import Datacenter from '../model/Datacenter'
+import Cluster from '../model/Cluster'
+import Instance from '../model/Instance'
 
-type Instance = {
-    utilization: number;
-}
+export default class SolrAdapter {
 
-type Cluster = {
-    instances: Map<string, Instance>;
-    numInstances: number
-}
-
-type Datacenter = {
-    clusters: Map<string, Cluster>;
-    numClusters: number,
-    numInstances: number
-}
-
-type DCState = {
-    datacenters: Map<string, Datacenter>;
-    numDCs: number,
-    numClusters: number,
-    numInstances: number
-}
-
-type VegaStruct = {
-
-    color: [number, number, number],
-    position: [number, number, number],
-    size: [number, number, number]
-}
-
-export class Dataparser {
-
-
-    private temporalAxis = new Array<string>();
     private timeSeries = new Map<string, DCState>();
-
-    cubethickness = 100;
-    spacer = 10;
-    clusterspacer = 200;
-
-    //should be calculated dynamicly
-    mostInstancesperCluster = 8;
-    maxh = 0;
-    maxZ = 3;
-    maxX = 0;
-    maximumheight = 400;
-
+    private temporalAxis = new Array<string>();
+    private maxh: number = 0;
+    private maxZ: number = 3;
+    private maxX: number;
+    private instancesAddColor = [];
     private grid = new Map<string, Array<number>>();
+    private clusterColorIndices = new Map<string, number>();
+    public pointInTime: number;
+    private pointInTimeCount: number = 100;
 
-    constructor() { }
 
-    scaleLog = (hvalue) => {
-        let maxh = Math.log(this.maxh);
-        this.adjustfactor = (this.maximumheight / maxh).toFixed(4)
-
-        //log zwischen +0.1 - +1 problem (negativ bzw 0)
-        if (hvalue <= 1 && hvalue >= 0.1) {
-            return (Math.log(2 - (1 - hvalue)) * this.adjustfactor) / 2
-        }
-        return Math.log(hvalue) * this.adjustfactor
-
-    }
-
+    //generate data from socket json format
     receivedData(json: any) {
         let datajson = json["response"]["docs"]
         let l = datajson.length
@@ -68,6 +25,7 @@ export class Dataparser {
         this.temporalAxis = [];
 
         for (let i = 0; i < l; i++) {
+
 
 
             let strTimeStamp: string = datajson[i]["timestamp"];
@@ -83,9 +41,10 @@ export class Dataparser {
             this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization)
         }
 
-        console.log(this.timeSeries);
 
-
+        /*_______________________*/
+        //Do this separately, since it only happeans upon document upload 
+        //Todo outsourcec --> write once
         let instancesToClusterToDCMap = new Map<string, Map<string, Set<string>>>();
         let timestampValues: Array<DCState> = Array.from(this.timeSeries.values());
         timestampValues.forEach((dcState: DCState) => {
@@ -121,7 +80,7 @@ export class Dataparser {
             instancesToClusterMap.forEach((instances: Set<string>, key_cluster: string) => {
                 let clusterKey: string = key_dc + "_" + key_cluster;
 
-
+                this.instancesAddColor.push(clusterKey)
 
                 instances.forEach((key_instance) => {
                     let gridKey: string = clusterKey + "_" + key_instance;
@@ -136,6 +95,9 @@ export class Dataparser {
                 });
                 x++;
 
+                if (!this.clusterColorIndices.has(clusterKey)) {
+                    this.clusterColorIndices.set(clusterKey, colorIndex++);
+                }
             });
 
             this.maxX = Math.max(this.maxX, x);
@@ -143,10 +105,15 @@ export class Dataparser {
             z += this.maxZ;
         });
 
-        this.temporalAxis.sort();
-        console.log(this.grid)
-    }
 
+
+        this.temporalAxis.sort();
+        this.pointInTime = this.temporalAxis.length - 1;
+        this.pointInTimeCount = this.temporalAxis.length;
+        // this.init();
+        // init Visualisation
+    }
+    //build main structure from the data
     buildTimeSeries(strTimeStamp: string, strCluster: string, strDataCenter: string, strInstance: string, strUtilization: string) {
 
 
@@ -192,77 +159,6 @@ export class Dataparser {
             datacenter.numInstances++;
             cluster.numInstances++;
         }
-
-    }
-
-
-    parseToVega(pointInTime: number) {
-
-        let data = this.timeSeries.get(this.temporalAxis[pointInTime]);
-
-        let maxDC = data.numDCs;
-        let maxCluster = data.numClusters;
-        let maxInstances = data.numInstances;
-
-
-        let datacenter = data.datacenters
-
-        let startx = 0 - (((maxInstances * (this.spacer + this.cubethickness)) + (maxCluster * this.clusterspacer)) / 2);
-
-        let starty = 0 - ((maxDC / 2) * ((this.maxZ % this.mostInstancesperCluster) * (this.spacer + this.cubethickness)));
-
-        console.log(data);
-
-        var result = [];
-
-        let x = startx;
-        let y = starty;
-
-        console.log(x, y)
-
-
-        this.grid.forEach(set => {
-            let x = set[0] * 100
-            let y = set[1] * 100
-
-
-        });
-
-        datacenter.forEach(dc => {
-            console.log(datacenter)
-            let run = 0
-            dc.clusters.forEach(cluster => {
-                if (run != 0) {
-                    x += this.clusterspacer
-                    y += this.clusterspacer
-                }
-
-                let clusterx = x
-                let clusterrun = 1;
-
-                cluster.instances.forEach(cube => {
-                    let vegaCube: VegaStruct
-                    if (clusterrun == 4) {
-                        clusterrun = 0;
-                        y += this.cubethickness + this.spacer;
-                    }
-                    //let coordinates = this.grid.get()
-                    //vegaCube = {color: [255, 0, 0], position: [, 0], size: [this.cubethickness,this.cubethickness,this.scaleLog(cube.utilization)]}
-                    vegaCube = { color: [255, 0, 0], position: [clusterx + (clusterrun * (this.cubethickness + this.spacer)), y, 0], size: [this.cubethickness, this.cubethickness, this.scaleLog(cube.utilization)] }
-
-                    result.push(vegaCube);
-                    clusterrun += 1
-                });
-
-                run += 1;
-            });
-        });
-
-        return result
-
-    }
-
-    buildNet() {
-
     }
 }
+
