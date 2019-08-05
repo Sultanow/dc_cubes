@@ -5,16 +5,16 @@ import Instance from '../model/Instance'
 
 export default class SolrAdapter {
 
-    private timeSeries = new Map<string, DCState>();
-    private temporalAxis = new Array<string>();
-    private maxh: number = 0;
-    private maxZ: number = 3;
-    private maxX: number;
-    private instancesAddColor = [];
-    private grid = new Map<string, Array<number>>();
-    private clusterColorIndices = new Map<string, number>();
+    public timeSeries = new Map<string, DCState>();
+    public temporalAxis = new Array<string>();
+    public maxh: number = 0;
+    public maxZ: number = 3;
+    public maxX: number;
+    public instancesAddColor = [];
+    public grid = new Map<string, Array<number>>();
+    public clusterColorIndices = new Map<string, number>();
     public pointInTime: number;
-    private pointInTimeCount: number = 100;
+    public pointInTimeCount: number = 100;
 
 
     //generate data from socket json format
@@ -113,7 +113,7 @@ export default class SolrAdapter {
 
         console.log(this.timeSeries);
         console.log(this.temporalAxis);
-        console.log(instancesToClusterToDCMap);
+        console.log(this.grid);
         // this.init();
         // init Visualisation
     }

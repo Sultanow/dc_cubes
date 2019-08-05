@@ -1,10 +1,11 @@
 import React from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import DCState from '../model/DCState'
 
 
-interface IProps{
-
+interface IProps {
+    data: DCState
 }
 class CubesVisualisation extends React.Component<IProps> {
 
@@ -18,7 +19,7 @@ class CubesVisualisation extends React.Component<IProps> {
     bars: any[];
     frameId: number;
 
-    constructor(props:IProps) {
+    constructor(props: IProps) {
         super(props);
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, 900 / 350, 0.1, 3000);
@@ -40,6 +41,7 @@ class CubesVisualisation extends React.Component<IProps> {
     };
 
     componentDidMount() {
+        console.log(this.props.data);
         this.initVis();
         this.loopVis();
     };
@@ -80,7 +82,7 @@ class CubesVisualisation extends React.Component<IProps> {
 
     };
 
-    createBar(total : number, z :number, color: string) {
+    createBar(total: number, z: number, color: string) {
 
         for (var i = 0; i < total; i += 1) {
 
@@ -163,7 +165,7 @@ class CubesVisualisation extends React.Component<IProps> {
     }
 
 
-    changeColorOfHoveredCube(intersects :THREE.Intersection[]) {
+    changeColorOfHoveredCube(intersects: THREE.Intersection[]) {
         if (intersects.length > 0) {
             if (this.INTERSECTED !== intersects[0].object) {
                 if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);

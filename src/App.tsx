@@ -6,7 +6,12 @@ import CubesVisualisation from './components/CubesVisualisation';
 import Topbar from './components/Topbar';
 import SolrDataService from './util/SolrDataService';
 import SolrAdapter from './util/SolrAdapter';
-class App extends React.Component<{},any> {
+import DCState from './model/DCState'
+
+class App extends React.Component<{}, any> {
+
+  public timeSeries = new Map<string, DCState>();
+  public temporalAxis = new Array<string>();
 
   constructor(props: object) {
     super(props);
@@ -14,38 +19,46 @@ class App extends React.Component<{},any> {
       logData: [],
       // Set the default boundaries of the log data to be displayed
       startDateTime: '2018-08-03T00:00:00Z', // TODO: replace with date from 2 week ago or something similiar
-      endDateTime: new Date().toISOString().split('.')[0]+'Z', // today's date e.g. 2019-08-05T12:06:45Z
-      dataSource: 'solr'
+      endDateTime: new Date().toISOString().split('.')[0] + 'Z', // today's date e.g. 2019-08-05T12:06:45Z
+      dataSource: 'solr',
+      selectedPointInTime: 1,
     };
+    this.getLogData(this.state.startDateTime, this.state.endDateTime);
   }
 
   componentDidMount() {
     // get initial log data based on default values
-    this.getLogData(this.state.startDateTime, this.state.endDateTime);
+   
 
   }
 
   getLogData = (startDateTime: string, endDateTime: string) => {
     // TODO: implement other data sources
     let dataService = new SolrDataService();
-    dataService.getLogDataFromSolr(startDateTime, endDateTime).then((data:any) => {
+    dataService.getLogDataFromSolr(startDateTime, endDateTime).then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
-      const solrAdapter= new SolrAdapter();
+      const solrAdapter = new SolrAdapter();
       console.log(data.data);
       solrAdapter.receivedData(data.data);
-    }).catch((error:any) => console.log(error));
-  }
+      this.temporalAxis=solrAdapter.temporalAxis;
+      this.timeSeries =solrAdapter.timeSeries;
+      console.log("Aktueller Wert");
+      console.log(this.timeSeries.get(this.temporalAxis[this.state.selectedPointInTime]));
 
+    }).catch((error: any) => console.log(error));
+  }
+  
   child = createRef<CubesVisualisation>();
   render() {
+    console.log("Render App");
     return (<div className="App">
       <Sidebar />
       <Topbar />
       <Row>
         <div className="cubes-visualisation">
-          <CubesVisualisation ref={this.child}></CubesVisualisation>
+          <CubesVisualisation ref={this.child} data={this.timeSeries.get(this.temporalAxis[this.state.selectedPointInTime])}></CubesVisualisation>
           <div className="slidercontainer">
-            <input type="range" min="1" max="30" className="slider" id="myRange" defaultValue="15" onChange={this.accesChild} />
+            <input type="range" min="1" max={this.temporalAxis.length} className="slider" id="myRange"  value={this.state.selectedPointInTime} onChange={this.accesChild} />
           </div>
         </div>
       </Row>
