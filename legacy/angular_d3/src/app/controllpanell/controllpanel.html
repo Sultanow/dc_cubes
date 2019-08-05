@@ -1,0 +1,50 @@
+<mat-tab-group class="controller" dynamicHeight="true">
+  <mat-tab label="Upload">
+      <input type="file" (change)="newfile($event)" id="file" />
+      <label for="file">{{filestring}}</label>
+      
+     <!-- <button class="btn btn-primary" (click)="uploadDocument()">upload</button>-->
+
+  </mat-tab>
+
+  <mat-tab label="Farben">
+    <span *ngFor="let instanceKey of instancesAddColor, let i = index">
+        <button class="toppanelbutton" id="{{i}}" [(colorPicker)]="color" [cpOKButton]="cpOKButton" (colorPickerChange)="colorchanged(i,color)">Farbe Cluster {{i+1}}</button>
+    </span> 
+  </mat-tab>
+
+  <mat-tab label="Datum"> 
+    <mat-form-field>
+      <input id="datepicker" matInput [matDatepicker]="picker" placeholder="Datum auswählen" (dateInput)="newdate($event)">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker ></mat-datepicker>
+    </mat-form-field>
+  </mat-tab>
+
+  <mat-tab label="Config">
+    <mat-list class="configlist">
+        <h2 mat-subheader>BaseURL</h2>
+        <mat-list-item>
+            <textarea class="jsfield" [(ngModel)]="url"></textarea>
+        </mat-list-item>
+
+        <h2 mat-subheader>Querie</h2>
+        <mat-list-item>
+            <textarea class="jsfield" [(ngModel)]="query"></textarea>
+        </mat-list-item>
+
+        <h2 mat-subheader>Transformation</h2>
+        <mat-list-item>
+            <textarea class="jsfield" [(ngModel)]="query"></textarea>
+        </mat-list-item>
+
+        <mat-list-item>
+            <button class="submitbutton" (click)="updatedata()">updateData</button>
+        </mat-list-item>  
+
+    </mat-list>
+      
+    
+  </mat-tab>
+
+</mat-tab-group>
