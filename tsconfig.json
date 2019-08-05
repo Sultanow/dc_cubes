@@ -10,7 +10,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "strict": false, // TODO: Change to true again, after SolrAdapter.ts was adjusted
+    "strict": false, 
     "forceConsistentCasingInFileNames": true,
     "module": "esnext",
     "moduleResolution": "node",
