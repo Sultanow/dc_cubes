@@ -4,8 +4,35 @@ import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/CubesVisualisation';
 import Topbar from './components/Topbar';
+import SolrDataService from './util/SolrDataService';
 
-class App extends React.Component {
+class App extends React.Component<{},any> {
+
+  constructor(props: object) {
+    super(props);
+    this.state = {
+      logData: [],
+      // Set the default boundaries of the log data to be displayed
+      startDateTime: '2018-08-03T00:00:00Z', // TODO: replace with date from 2 week ago or something similiar
+      endDateTime: new Date().toISOString().split('.')[0]+'Z', // today's date e.g. 2019-08-05T12:06:45Z
+      dataSource: 'solr'
+    };
+  }
+
+  componentDidMount() {
+    // get initial log data based on default values
+    this.getLogData(this.state.startDateTime, this.state.endDateTime);
+  }
+
+  getLogData = (startDateTime: string, endDateTime: string) => {
+    // TODO: implement other data sources
+    let dataService = new SolrDataService();
+    dataService.getLogDataFromSolr(startDateTime, endDateTime).then((data:any) => {
+      // TODO: call dataparser from util folder in order to parse the log data
+      console.log(data);
+    }).catch((error:any) => console.log(error));
+  }
+
   child = createRef<CubesVisualisation>();
   render() {
     return (<div className="App">
