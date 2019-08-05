@@ -87,7 +87,7 @@ export default class SolrAdapter {
                     if (!this.grid.has(gridKey)) {
                         this.grid.set(gridKey, [x, z]);
                         z = z + 1;
-                        if (z == (dc + 1) * this.maxZ) {
+                        if (z === (dc + 1) * this.maxZ) {
                             z = dc * this.maxZ;
                             x++;
                         }
@@ -110,6 +110,10 @@ export default class SolrAdapter {
         this.temporalAxis.sort();
         this.pointInTime = this.temporalAxis.length - 1;
         this.pointInTimeCount = this.temporalAxis.length;
+
+        console.log(this.timeSeries);
+        console.log(this.temporalAxis);
+        console.log(instancesToClusterToDCMap);
         // this.init();
         // init Visualisation
     }
@@ -159,9 +163,9 @@ export default class SolrAdapter {
             datacenter.numInstances++;
             cluster.numInstances++;
         }
-        console.log(dcState);
+        /* console.log(dcState);
         console.log(this.timeSeries);
-        console.log(this.temporalAxis);
+        console.log(this.temporalAxis); */
     }
 }
 

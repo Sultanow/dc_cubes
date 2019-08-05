@@ -9,8 +9,9 @@ export default class SolrDataService {
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
     getLogDataFromSolr = (startDateTime:string, endDateTime:string = new Date().toISOString().split('.')[0]+'Z'): any => {
-        const sortBy = '&sort=timestamp+asc'
-        const query = 'q=*:*&fq=timestamp:[' + startDateTime + ' TO ' + endDateTime + ']' + sortBy;
+        //const sortBy = '&sort=timestamp+asc'
+        //const query = 'q=*:*&fq=timestamp:[' + startDateTime + ' TO ' + endDateTime + ']' + sortBy;
+        const query = 'q=*:*&start=0&rows=30000&sort=id+desc';
         return httpClient.get(this.baseUrl.concat(query));
     };
 

@@ -31,8 +31,8 @@ class App extends React.Component<{},any> {
     dataService.getLogDataFromSolr(startDateTime, endDateTime).then((data:any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter= new SolrAdapter();
-      solrAdapter.receivedData(data);
-      console.log(data);
+      console.log(data.data);
+      solrAdapter.receivedData(data.data);
     }).catch((error:any) => console.log(error));
   }
 
