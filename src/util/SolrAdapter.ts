@@ -38,7 +38,7 @@ export default class SolrAdapter {
                 this.maxh = Number(strUtilization);
             }
 
-            this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization)
+            this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization);
         }
 
 
@@ -159,6 +159,9 @@ export default class SolrAdapter {
             datacenter.numInstances++;
             cluster.numInstances++;
         }
+        console.log(dcState);
+        console.log(this.timeSeries);
+        console.log(this.temporalAxis);
     }
 }
 

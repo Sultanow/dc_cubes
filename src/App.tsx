@@ -5,7 +5,7 @@ import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/CubesVisualisation';
 import Topbar from './components/Topbar';
 import SolrDataService from './util/SolrDataService';
-
+import SolrAdapter from './util/SolrAdapter';
 class App extends React.Component<{},any> {
 
   constructor(props: object) {
@@ -22,6 +22,7 @@ class App extends React.Component<{},any> {
   componentDidMount() {
     // get initial log data based on default values
     this.getLogData(this.state.startDateTime, this.state.endDateTime);
+
   }
 
   getLogData = (startDateTime: string, endDateTime: string) => {
@@ -29,6 +30,8 @@ class App extends React.Component<{},any> {
     let dataService = new SolrDataService();
     dataService.getLogDataFromSolr(startDateTime, endDateTime).then((data:any) => {
       // TODO: call dataparser from util folder in order to parse the log data
+      const solrAdapter= new SolrAdapter();
+      solrAdapter.receivedData(data);
       console.log(data);
     }).catch((error:any) => console.log(error));
   }
