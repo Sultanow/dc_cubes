@@ -72,7 +72,6 @@ class App extends React.Component<{}, AppState> {
               <input type="range" min="0" max={this.state.temporalAxis.length-2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
               <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
             </div>
-            <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
           </div>
         </Row>
       </div>
