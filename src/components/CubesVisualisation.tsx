@@ -20,13 +20,18 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     controls: OrbitControls;
     bars: any[];
     frameId: number;
+ 
+
+    sceneWidth=900;
+    sceneHeight=700;
 
     constructor(props: CubesVisProps) {
         super(props);
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, 900 / 350, 0.1, 3000);
+        this.camera = new THREE.PerspectiveCamera(75, this.sceneWidth / this.sceneHeight, 0.1, 3000);
         // set initial camera position
-        this.camera.position.set(1050, 516, 1397);
+        // this.camera.position.set(1050, 516, 1397);
+        this.camera.position.set(0, 1000, 1500);
         this.mouse = new THREE.Vector2();
         this.INTERSECTED = null;
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -36,6 +41,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.bars = [];
         this.frameId = 0
+       
     }
     render() {
         return (<div id="cubes-visualisation"></div>)
@@ -45,10 +51,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // props passed to the component are available in this lifecycle method
         console.log("Component Did Update Cubes Vis: ")
         console.log(this.props.data);
-       
-        
+        this.randomnizeBarHeights();
+
+
     }
-    componentDidMount(){
+    componentDidMount() {
         this.initVis();
         this.loopVis();
     }
@@ -64,7 +71,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.scene.background = new THREE.Color(0xffffff);
 
-        this.renderer.setSize(900, 350);
+        this.renderer.setSize(this.sceneWidth, this.sceneHeight);
 
         const visFromDom = document.getElementById("cubes-visualisation");
         if (visFromDom) visFromDom.appendChild(this.renderer.domElement);
@@ -74,6 +81,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         document.addEventListener('mouseup', this.onCubeclick, false);
 
         this.createLight();
+
+        // axis
+        var axesHelper = new THREE.AxesHelper(10000);
+        this.scene.add(axesHelper);
 
 
 

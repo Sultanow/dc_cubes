@@ -28,7 +28,7 @@ class App extends React.Component<{}, AppState> {
       startDateTime: '2018-08-03T00:00:00Z', // TODO: replace with date from 2 week ago or something similiar
       endDateTime: new Date().toISOString().split('.')[0] + 'Z', // today's date e.g. 2019-08-05T12:06:45Z
       dataSource: 'solr',
-      selectedPointInTime: 1,
+      selectedPointInTime: 0,
       temporalAxis: [],
       timeSeries: new Map()
     };
@@ -48,6 +48,7 @@ class App extends React.Component<{}, AppState> {
       // console.log(data.data);
       solrAdapter.receivedData(data.data);
       this.setState({
+        // there is a bug, the last element ist undefined
         temporalAxis: solrAdapter.temporalAxis,
         timeSeries: solrAdapter.timeSeries
       });
@@ -68,7 +69,8 @@ class App extends React.Component<{}, AppState> {
           <div className="cubes-visualisation">
             <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}></CubesVisualisation>
             <div className="slidercontainer">
-              <input type="range" min="1" max={this.state.temporalAxis.length} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
+              <input type="range" min="0" max={this.state.temporalAxis.length-2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
+              <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
             </div>
           </div>
         </Row>
@@ -78,9 +80,9 @@ class App extends React.Component<{}, AppState> {
 
   accesChild = (event) => {
     this.setState({ selectedPointInTime: event.target.value });
-    if (this.child.current) {
-      this.child.current.randomnizeBarHeights();
-    }
+    // if (this.child.current) {
+    //   this.child.current.randomnizeBarHeights();
+    // }
   }
 
 }
