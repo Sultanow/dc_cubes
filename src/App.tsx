@@ -76,11 +76,14 @@ class App extends React.Component<{}, AppState> {
     );
   };
 
-  accesChild = () => {
+  accesChild = (event) => {
+    this.setState({ selectedPointInTime: event.target.value });
     if (this.child.current) {
       this.child.current.randomnizeBarHeights();
     }
   }
+
 }
+
 
 export default App;

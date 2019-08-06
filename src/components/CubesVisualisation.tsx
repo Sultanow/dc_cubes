@@ -45,6 +45,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // props passed to the component are available in this lifecycle method
         console.log("Component Did Update Cubes Vis: ")
         console.log(this.props.data);
+       
+        
+    }
+    componentDidMount(){
         this.initVis();
         this.loopVis();
     }
