@@ -4,10 +4,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import DCState from '../model/DCState'
 
 
-interface IProps {
+interface CubesVisProps {
     data: DCState
 }
-class CubesVisualisation extends React.Component<IProps> {
+
+
+class CubesVisualisation extends React.Component<CubesVisProps> {
 
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -19,7 +21,7 @@ class CubesVisualisation extends React.Component<IProps> {
     bars: any[];
     frameId: number;
 
-    constructor(props: IProps) {
+    constructor(props: CubesVisProps) {
         super(props);
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, 900 / 350, 0.1, 3000);
@@ -34,17 +36,18 @@ class CubesVisualisation extends React.Component<IProps> {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.bars = [];
         this.frameId = 0
-
     }
     render() {
-        return (<div id="cubes-visualisation"></div>);
+        return (<div id="cubes-visualisation"></div>)
     };
 
-    componentDidMount() {
+    componentDidUpdate() {
+        // props passed to the component are available in this lifecycle method
+        console.log("Component Did Update Cubes Vis: ")
         console.log(this.props.data);
         this.initVis();
         this.loopVis();
-    };
+    }
     componentWillUnmount() {
         window.cancelAnimationFrame(this.frameId);
         const visFromDom = document.getElementById("cubes-visualisation");
