@@ -2,10 +2,14 @@ import React from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import DCState from '../model/DCState'
+import Datacenter from '../model/Datacenter'
+import Cluster from '../model/Cluster'
+import Instance from '../model/Instance'
 
 
 interface CubesVisProps {
     data: DCState
+    grid: Map<string, Array<number>>
 }
 
 
@@ -20,10 +24,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     controls: OrbitControls;
     bars: any[];
     frameId: number;
- 
 
-    sceneWidth=900;
-    sceneHeight=700;
+
+    sceneWidth = 900;
+    sceneHeight = 700;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -41,7 +45,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
         this.bars = [];
         this.frameId = 0
-       
+
     }
     render() {
         return (<div id="cubes-visualisation"></div>)
@@ -51,7 +55,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // props passed to the component are available in this lifecycle method
         console.log("Component Did Update Cubes Vis: ")
         console.log(this.props.data);
+        console.log(this.props.grid);
         this.randomnizeBarHeights();
+        this.createCubeData()
+
 
 
     }
@@ -83,53 +90,104 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.createLight();
 
         // axis
-        var axesHelper = new THREE.AxesHelper(10000);
-        this.scene.add(axesHelper);
+        // var axesHelper = new THREE.AxesHelper(10000);
+        // this.scene.add(axesHelper);
 
 
-
+        this.createBar(10, 0, 0, '0x61dafb');
         // creating the cubes, just for prototyping
-        var countX = 50, countY = 50, spacingIncrement = 20, spacing = 0;
+        // var countX = 50, countY = 50, spacingIncrement = 20, spacing = 0;
 
-        for (let index = 0; index < countY; index++) {
-            var randomColor = "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
-            this.createBar(countX, spacing, randomColor);
-            spacing += spacingIncrement;
-        }
+        // for (let index = 0; index < countY; index++) {
+        //     var randomColor = "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
+        //     this.createBar(countX, spacing, randomColor);
+        //     spacing += spacingIncrement;
+        // }
         // this.createBar(count, 560, 0x61dafb);
 
     };
 
-    createBar(total: number, z: number, color: string) {
+    createCubeData() {
+        var viewdc = 0;
+        var viewinstances = 0;
+        var viewclusters = 0;
 
-        for (var i = 0; i < total; i += 1) {
-
-            var geometry = new THREE.BoxGeometry(10, 10, 10);
-            geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, 5, z));
-
-
-            var material = new THREE.MeshLambertMaterial({
-                color: color
-            });
-
-            var cube = new THREE.Mesh(geometry, material);
-
-            cube.position.x = i * 20;
-            cube.name = "bar-" + i;
-            cube.scale.y = Math.floor(Math.random() * 14) + 1;
-
-            cube.castShadow = true;
-            cube.receiveShadow = true;
-
-            this.scene.add(cube);
-
-            var geo = new THREE.EdgesGeometry(cube.geometry); // or WireframeGeometry
-            var mat = new THREE.LineBasicMaterial({ color: 0x00000, linewidth: 2 });
-            var wireframe = new THREE.LineSegments(geo, mat);
-            cube.add(wireframe);
-
-            this.bars.push(cube);
+        for (let index = 0; index < this.bars.length; index++) {
+            this.scene.remove(this.bars[index]);
         }
+
+
+        this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
+            //set up view data
+            viewclusters += datacenter.clusters.size
+            viewinstances += datacenter.numInstances
+            viewdc += 1
+
+
+            console.log(datacenter)
+            let clusters = datacenter.clusters;
+            clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
+                let instances = value_cluster.instances;
+                let color =this.generateRandomColor()
+                instances.forEach((value_instance: Instance, key_instance: string) => {
+                    var h = value_instance.utilization;
+
+                    // log skalierung höhe
+
+                    let gridKey: string = key_dc + "_" + key_cluster + "_" + key_instance;
+
+                    let gridValue: Array<number> = this.props.grid.get(gridKey);
+
+                    var x = gridValue[0];
+
+                    var z = gridValue[1];
+                    console.log(x, z);
+                    this.createBar(x * 100, z * 100, h, color);
+
+
+                })
+            })
+        })
+    };
+
+    generateRandomColor(): string {
+        return "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
+    }
+
+    createBar(x: number, z: number, h: number, color: string) {
+
+        // Cube init
+        var geometry = new THREE.BoxGeometry(40, h, 40);
+        geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, h / 2, 0));
+
+        var material = new THREE.MeshLambertMaterial({
+            color: color
+        });
+
+        var cube = new THREE.Mesh(geometry, material);
+
+
+        // positioning
+        cube.position.x = x;
+        cube.position.z = z;
+
+        // cube.name = "bar-" + i;
+        // cube.scale.y = Math.floor(Math.random() * 14) + 1;
+
+        cube.castShadow = true;
+        cube.receiveShadow = true;
+
+        this.scene.add(cube);
+
+        var geo = new THREE.EdgesGeometry(cube.geometry); // or WireframeGeometry
+        var mat = new THREE.LineBasicMaterial({ color: 0x00000, linewidth: 2 });
+        var wireframe = new THREE.LineSegments(geo, mat);
+        cube.add(wireframe);
+
+        this.bars.push(cube);
+        // ------------------------------------
+
+
     };
 
     createLight() {

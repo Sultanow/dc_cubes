@@ -33,6 +33,7 @@ export default class SolrAdapter {
             let strDataCenter: string = datajson[i]["dc"];
             let strInstance: string = datajson[i]["instanz"];
             let strUtilization: string = datajson[i]["count"];
+            // TODO: make stringutilization dynamic to vis diffrent metrics
 
             if (this.maxh <= Number(strUtilization)) {
                 this.maxh = Number(strUtilization);

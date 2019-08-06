@@ -16,6 +16,7 @@ interface AppState {
   selectedPointInTime: number;
   temporalAxis: string[],
   timeSeries: Map<string, DCState>
+  grid: Map<string, Array<number>>
 }
 
 class App extends React.Component<{}, AppState> {
@@ -30,7 +31,8 @@ class App extends React.Component<{}, AppState> {
       dataSource: 'solr',
       selectedPointInTime: 0,
       temporalAxis: [],
-      timeSeries: new Map()
+      timeSeries: new Map(),
+      grid: new Map()
     };
   }
 
@@ -50,7 +52,8 @@ class App extends React.Component<{}, AppState> {
       this.setState({
         // there is a bug, the last element ist undefined
         temporalAxis: solrAdapter.temporalAxis,
-        timeSeries: solrAdapter.timeSeries
+        timeSeries: solrAdapter.timeSeries,
+        grid: solrAdapter.grid
       });
 
       console.log("getLogData function in App Component");
@@ -67,7 +70,7 @@ class App extends React.Component<{}, AppState> {
         <Topbar />
         <Row>
           <div className="cubes-visualisation">
-            <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}></CubesVisualisation>
+            <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} grid={this.state.grid}></CubesVisualisation>
             <div className="slidercontainer">
               <input type="range" min="0" max={this.state.temporalAxis.length-2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
               <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
