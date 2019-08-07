@@ -10,10 +10,12 @@ import Instance from '../model/Instance'
 interface CubesVisProps {
     data: DCState
     grid: Map<string, Array<number>>
+    maxH: number
 }
 
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
+
 
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -27,15 +29,16 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
 
     sceneWidth = 900;
-    sceneHeight = 700;
+    sceneHeight = 600;
+
+    maxHeightOfbar = 800;
 
     constructor(props: CubesVisProps) {
         super(props);
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.sceneWidth / this.sceneHeight, 0.1, 3000);
         // set initial camera position
-        // this.camera.position.set(1050, 516, 1397);
-        this.camera.position.set(0, 1000, 1500);
+        this.camera.position.set(500, 1000, 1500);
         this.mouse = new THREE.Vector2();
         this.INTERSECTED = null;
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -53,13 +56,18 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     componentDidUpdate() {
         // props passed to the component are available in this lifecycle method
-        console.log("Component Did Update Cubes Vis: ")
-        console.log(this.props.data);
-        console.log(this.props.grid);
         this.randomnizeBarHeights();
         this.createCubeData()
+    }
+    scaleLog = function (hvalue, hmax) {
+        let maxh = Math.log(hmax);
+        this.adjustfactor = (this.maxHeightOfbar / maxh).toFixed(4)
 
-
+        //log zwischen +0.1 - +1 problem (negativ bzw 0)
+        if (hvalue <= 1 && hvalue >= 0.1) {
+            return (Math.log(2 - (1 - hvalue)) * this.adjustfactor) / 2
+        }
+        return Math.log(hvalue) * this.adjustfactor
 
     }
     componentDidMount() {
@@ -89,12 +97,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.createLight();
 
-        // axis
-        // var axesHelper = new THREE.AxesHelper(10000);
-        // this.scene.add(axesHelper);
-
-
-        this.createBar(10, 0, 0, '0x61dafb');
         // creating the cubes, just for prototyping
         // var countX = 50, countY = 50, spacingIncrement = 20, spacing = 0;
 
@@ -108,10 +110,9 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     };
 
     createCubeData() {
-        var viewdc = 0;
-        var viewinstances = 0;
-        var viewclusters = 0;
+        var clusterCounter = 0;
 
+        let colors = [0x46ACC2, 0x98DFAF, 0xF8333C, 0xFFD23F];
         for (let index = 0; index < this.bars.length; index++) {
             this.scene.remove(this.bars[index]);
         }
@@ -119,16 +120,13 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
             //set up view data
-            viewclusters += datacenter.clusters.size
-            viewinstances += datacenter.numInstances
-            viewdc += 1
 
-
-            console.log(datacenter)
             let clusters = datacenter.clusters;
             clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
                 let instances = value_cluster.instances;
-                let color =this.generateRandomColor()
+
+                let color = colors[clusterCounter];
+                clusterCounter++;
                 instances.forEach((value_instance: Instance, key_instance: string) => {
                     var h = value_instance.utilization;
 
@@ -141,9 +139,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     var x = gridValue[0];
 
                     var z = gridValue[1];
-                    console.log(x, z);
-                    this.createBar(x * 100, z * 100, h, color);
-
+                    this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), color);
 
                 })
             })
@@ -154,7 +150,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         return "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
     }
 
-    createBar(x: number, z: number, h: number, color: string) {
+    createBar(x: number, z: number, h: number, color: number) {
 
         // Cube init
         var geometry = new THREE.BoxGeometry(40, h, 40);
@@ -264,7 +260,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     // draw Scene
     renderVis() {
-        // console.log(this.camera.position);
         this.renderer.render(this.scene, this.camera);
     };
 

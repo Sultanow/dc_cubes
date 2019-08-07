@@ -111,12 +111,6 @@ export default class SolrAdapter {
         this.temporalAxis.sort();
         this.pointInTime = this.temporalAxis.length - 1;
         this.pointInTimeCount = this.temporalAxis.length;
-
-        console.log(this.timeSeries);
-        console.log(this.temporalAxis);
-        console.log(this.grid);
-        // this.init();
-        // init Visualisation
     }
     //build main structure from the data
     buildTimeSeries(strTimeStamp: string, strCluster: string, strDataCenter: string, strInstance: string, strUtilization: string) {
@@ -164,9 +158,6 @@ export default class SolrAdapter {
             datacenter.numInstances++;
             cluster.numInstances++;
         }
-        /* console.log(dcState);
-        console.log(this.timeSeries);
-        console.log(this.temporalAxis); */
     }
 }
 

@@ -17,6 +17,7 @@ interface AppState {
   temporalAxis: string[],
   timeSeries: Map<string, DCState>
   grid: Map<string, Array<number>>
+  maxH: number;
 }
 
 class App extends React.Component<{}, AppState> {
@@ -32,7 +33,8 @@ class App extends React.Component<{}, AppState> {
       selectedPointInTime: 0,
       temporalAxis: [],
       timeSeries: new Map(),
-      grid: new Map()
+      grid: new Map(),
+      maxH: 0
     };
   }
 
@@ -53,11 +55,9 @@ class App extends React.Component<{}, AppState> {
         // there is a bug, the last element ist undefined
         temporalAxis: solrAdapter.temporalAxis,
         timeSeries: solrAdapter.timeSeries,
-        grid: solrAdapter.grid
+        grid: solrAdapter.grid,
+        maxH: solrAdapter.maxh,
       });
-
-      console.log("getLogData function in App Component");
-      console.log(this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]));
 
     }).catch((error: any) => console.log(error));
   }
@@ -70,9 +70,9 @@ class App extends React.Component<{}, AppState> {
         <Topbar />
         <Row>
           <div className="cubes-visualisation">
-            <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} grid={this.state.grid}></CubesVisualisation>
+            <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} grid={this.state.grid} maxH={this.state.maxH}></CubesVisualisation>
             <div className="slidercontainer">
-              <input type="range" min="0" max={this.state.temporalAxis.length-2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
+              <input type="range" min="0" max={this.state.temporalAxis.length - 2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
               <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
             </div>
           </div>
