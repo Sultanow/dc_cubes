@@ -4,7 +4,7 @@ $solrHost = "localhost"
 
 $solrPort = 8983
 
-$solrCore = "test";
+$solrCore = "dc_cubes";
 
 $solrBaseUrl = "$($solrProtocol)://$($solrHost):$($solrPort)/solr/$($solrCore)/";
 

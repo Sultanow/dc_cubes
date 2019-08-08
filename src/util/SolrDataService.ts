@@ -1,7 +1,7 @@
 import httpClient from 'axios';
 
 export default class SolrDataService {
-    baseUrl = 'http://localhost:8983/solr/test/query?';
+    baseUrl = 'http://localhost:8983/solr/dc_cubes/query?';
 
     /**
     * Query the Solr index for the specified date interval. Default value for endDateTime is today's date.
