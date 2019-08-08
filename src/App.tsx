@@ -7,6 +7,7 @@ import Topbar from './components/Topbar';
 import SolrDataService from './util/SolrDataService';
 import SolrAdapter from './util/SolrAdapter';
 import DCState from './model/DCState'
+import SolrCoreSelector from './components/solr/SolrCoreSelector'
 
 interface AppState {
   logData: [];
@@ -72,6 +73,7 @@ class App extends React.Component<{}, AppState> {
           <div className="cubes-visualisation">
             <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} grid={this.state.grid} maxH={this.state.maxH}></CubesVisualisation>
             <div className="slidercontainer">
+              <SolrCoreSelector></SolrCoreSelector>
               <input type="range" min="0" max={this.state.temporalAxis.length - 2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
               <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
             </div>

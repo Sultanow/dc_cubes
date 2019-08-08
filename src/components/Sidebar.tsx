@@ -29,8 +29,7 @@ export default class Sidebar extends Component
                 <div className="sidebar-bottom">
                     <Button variant="light" size="lg"><FontAwesomeIcon icon={faCoins} /></Button>
                     <Button variant="light" size="lg"><FontAwesomeIcon icon={faCogs} /></Button>
-                </div>
-
+                </div>            
             </div>
         )
     }
