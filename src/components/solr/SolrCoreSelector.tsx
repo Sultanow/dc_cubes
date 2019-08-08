@@ -2,9 +2,9 @@ import React, { Component } from 'react'
 import { Dropdown } from 'react-bootstrap';
 
 export default class SolrCoreSelector extends Component {
-  
+
   items = [];
-  
+
   constructor(props) {
     super(props);
 
@@ -33,4 +33,4 @@ export default class SolrCoreSelector extends Component {
       </Dropdown>
     )
   }
-}
+} 

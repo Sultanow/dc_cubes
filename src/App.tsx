@@ -1,23 +1,19 @@
 import React, { createRef } from 'react';
-import { BrowserRouter, Route, Link } from "react-router-dom";
 import { Row } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/CubesVisualisation';
-import DataSources from './components/DataSources';
 import Topbar from './components/Topbar';
 import SolrDataService from './util/SolrDataService';
 import SolrAdapter from './util/SolrAdapter';
 import DCState from './model/DCState'
 import SolrCoreSelector from './components/solr/SolrCoreSelector'
-
 interface AppState {
   statusMessage: string;
   logData: [];
   startDateTime: string;
   endDateTime: string;
   dataSource: string;
-  selectedSolrCore: string;
   selectedPointInTime: number;
   temporalAxis: string[],
   timeSeries: Map<string, DCState>
@@ -36,7 +32,6 @@ class App extends React.Component<{}, AppState> {
       startDateTime: '2018-08-03T00:00:00Z', // TODO: replace with date from 2 week ago or something similiar
       endDateTime: new Date().toISOString().split('.')[0] + 'Z', // today's date e.g. 2019-08-05T12:06:45Z
       dataSource: 'solr',
-      selectedSolrCore: 'test',
       selectedPointInTime: 0,
       temporalAxis: [],
       timeSeries: new Map(),
@@ -47,13 +42,13 @@ class App extends React.Component<{}, AppState> {
 
   componentDidMount() {
     // get initial log data based on default values
-    this.getLogData(this.state.startDateTime, this.state.endDateTime, this.state.selectedSolrCore);
+    this.getLogData(this.state.startDateTime, this.state.endDateTime);
   }
 
-  getLogData = (startDateTime: string, endDateTime: string, selectedSolrCore: string) => {
+  getLogData = (startDateTime: string, endDateTime: string) => {
     // TODO: implement other data sources
     let dataService = new SolrDataService();
-    dataService.getLogDataFromSolr(startDateTime, endDateTime, selectedSolrCore).then((data: any) => {
+    dataService.getLogDataFromSolr(startDateTime, endDateTime).then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
       // console.log(data.data);
@@ -72,26 +67,20 @@ class App extends React.Component<{}, AppState> {
   child = createRef<CubesVisualisation>();
   render() {
     return (
-      <BrowserRouter>
-        <div className="App">
-          <Sidebar />
-          <Topbar />
-            <Row>
-              <Route
-                path="/datasources"
-                render={props => <DataSources {...props} dataSource={this.state.dataSource} selectedSolrCore={this.state.selectedSolrCore} />}
-              />
-              <Route exact
-                path="/"
-                render={props => <CubesVisualisation {...props} ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} grid={this.state.grid} />}
-              />
-                <div className="slidercontainer">
-                  <input type="range" min="0" max={this.state.temporalAxis.length-2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
-                  <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
-                </div>
-            </Row>      
-        </div>
-      </BrowserRouter>
+      <div className="App">
+        <Sidebar />
+        <Topbar />
+        <Row>
+          <div className="cubes-visualisation">
+            <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} grid={this.state.grid} maxH={this.state.maxH}></CubesVisualisation>
+            <div className="slidercontainer">
+              <SolrCoreSelector></SolrCoreSelector>
+              <input type="range" min="0" max={this.state.temporalAxis.length - 2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
+              <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
+            </div>
+          </div>
+        </Row>
+      </div>
     );
   };
 

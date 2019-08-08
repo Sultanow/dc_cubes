@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { Link } from "react-router-dom";
 import { Navbar, Dropdown, Form, Row } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilter, faSearchPlus, faClock } from '@fortawesome/free-solid-svg-icons'
@@ -11,7 +10,7 @@ export default class Topbar extends Component
     {
         return (
             <Navbar bg="light" expand="lg">
-                <Link to="/"><Navbar.Brand>DC Cubes</Navbar.Brand></Link>
+                <Navbar.Brand>DC Cubes</Navbar.Brand>
                 <Dropdown>
                     <Dropdown.Toggle variant="light" id="dropdown-basic">
                         <FontAwesomeIcon icon={faFilter} /> Filter
