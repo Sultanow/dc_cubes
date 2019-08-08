@@ -83,7 +83,7 @@ Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\s
 
 See: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
 
-Note that the Access-Control-Allow-... needs to be set on the response, not the request. Setting it into the request will cause the error:
+Note that the *Access-Control-Allow*-headers need to be set on the response, not the request. Setting it into the request will cause the error:
 
 *Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://localhost:3000' is therefore not allowed access.*
 
