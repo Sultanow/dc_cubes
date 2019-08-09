@@ -15,7 +15,11 @@ export default class SolrDataService {
         return httpClient.get(this.baseUrl.concat(query));
     };
 
-    getAggregatedLogDataFromSolr = (startDate: Date, endDate: Date, typeOfAggregation: string) => {
+    getAggregatedLogDataFromSolr = (startDate: string, endDate: string, typeOfAggregation: string) => {
         // TODO: implement aggregation queries
+    };
+
+    getAllSolrCores = () => {
+
     };
 }

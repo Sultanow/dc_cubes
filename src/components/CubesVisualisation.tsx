@@ -1,18 +1,21 @@
-import React from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+import React from 'react'
+import * as THREE from 'three'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import DCState from '../model/DCState'
 import Datacenter from '../model/Datacenter'
 import Cluster from '../model/Cluster'
 import Instance from '../model/Instance'
-
+import SolrCoreSelector from '../components/solr/SolrCoreSelector'
 
 interface CubesVisProps {
     data: DCState
     grid: Map<string, Array<number>>
     maxH: number
+    maxRangeSlider: number
+    valueOfSlider: number
+    timestamp: string
+    accessChild: any
 }
-
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
 
@@ -51,7 +54,16 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     }
     render() {
-        return (<div id="cubes-visualisation"></div>)
+        return (
+            <div>
+                <div id="cubes-visualisation"></div>
+                <div className="slidercontainer">
+                    <SolrCoreSelector />
+                    <input type="range" min="0" max={this.props.maxRangeSlider} className="slider" id="myRange" value={this.props.valueOfSlider} onChange={this.props.accessChild} />
+                    <p>{this.props.timestamp}</p>
+                </div>
+            </div>
+        )
     };
 
     componentDidUpdate() {

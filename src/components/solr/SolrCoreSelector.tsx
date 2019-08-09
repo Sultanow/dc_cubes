@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Dropdown } from 'react-bootstrap';
+import { Form } from 'react-bootstrap';
 
 export default class SolrCoreSelector extends Component {
 
@@ -14,7 +14,7 @@ export default class SolrCoreSelector extends Component {
           let strCores : string[] = Object.keys(data.status || {})
 
           strCores.forEach((strCore) => {
-            this.items.push(<Dropdown.Item href="#/action-1">{strCore}</Dropdown.Item>);
+            this.items.push(<option>{strCore}</option>);
           });
         })
         .catch(console.log);
@@ -22,15 +22,12 @@ export default class SolrCoreSelector extends Component {
 
   render() {
     return (
-      <Dropdown>
-        <Dropdown.Toggle variant="success" id="dropdown-basic">
-          Select Core
-        </Dropdown.Toggle>
-
-        <Dropdown.Menu>
+      <Form.Group>
+        <Form.Label>Select core</Form.Label>
+        <Form.Control as="select">
           {this.items}
-        </Dropdown.Menu>
-      </Dropdown>
+        </Form.Control>
+      </Form.Group>
     )
   }
 } 

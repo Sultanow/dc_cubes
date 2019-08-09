@@ -7,7 +7,7 @@ import Topbar from './components/Topbar';
 import SolrDataService from './util/SolrDataService';
 import SolrAdapter from './util/SolrAdapter';
 import DCState from './model/DCState'
-import SolrCoreSelector from './components/solr/SolrCoreSelector'
+
 interface AppState {
   statusMessage: string;
   logData: [];
@@ -64,27 +64,27 @@ class App extends React.Component<{}, AppState> {
     }).catch((error: any) => console.log(error));
   }
 
-  child = createRef<CubesVisualisation>();
+  // child = createRef<CubesVisualisation>();
   render() {
     return (
       <div className="App">
         <Sidebar />
         <Topbar />
         <Row>
-          <div className="cubes-visualisation">
-            <CubesVisualisation ref={this.child} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} grid={this.state.grid} maxH={this.state.maxH}></CubesVisualisation>
-            <div className="slidercontainer">
-              <SolrCoreSelector></SolrCoreSelector>
-              <input type="range" min="0" max={this.state.temporalAxis.length - 2} className="slider" id="myRange" value={this.state.selectedPointInTime} onChange={this.accesChild} />
-              <p>{this.state.temporalAxis[this.state.selectedPointInTime]}</p>
-            </div>
-          </div>
+          <CubesVisualisation data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} 
+                              grid={this.state.grid} 
+                              maxH={this.state.maxH}
+                              maxRangeSlider={this.state.temporalAxis.length - 2}
+                              valueOfSlider={this.state.selectedPointInTime}
+                              accessChild={this.accessChild}
+                              timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}>
+          </CubesVisualisation>
         </Row>
       </div>
     );
   };
 
-  accesChild = (event) => {
+  accessChild = (event) => {
     this.setState({ selectedPointInTime: event.target.value });
     // if (this.child.current) {
     //   this.child.current.randomnizeBarHeights();
