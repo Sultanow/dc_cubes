@@ -60,7 +60,7 @@ Stop Solr:
 
 `.\solr.cmd stop`
 
-Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\server\solr-webapp\webapp\WEB-INF\web.xml** include the following filter right after the ˋ<web-app>ˋ line:
+Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\server\solr-webapp\webapp\WEB-INF\web.xml** include the following filter right after the ˋ\<web-app\>ˋ line:
 
 ```xml
 <filter>
