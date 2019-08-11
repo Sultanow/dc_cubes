@@ -60,25 +60,25 @@ Stop Solr:
 
 `.\solr.cmd stop`
 
-Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\server\solr-webapp\webapp\WEB-INF\web.xml** include the following filter right after the <web-app> line:
+Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\server\solr-webapp\webapp\WEB-INF\web.xml** include the following filter right after the `<web-app>` line:
 
 ```xml
 <filter>
-   <filter-name>cross-origin</filter-name>
-   <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
-   <init-param>
-     <param-name>allowedOrigins</param-name>
-     <param-value>*</param-value>
-   </init-param>
-   <init-param>
-     <param-name>allowedMethods</param-name>
-     <param-value>GET,POST,OPTIONS,DELETE,PUT,HEAD</param-value>
-   </init-param>
-   <init-param>
-     <param-name>allowedHeaders</param-name>
-     <param-value>X-Requested-With,Content-Type,Accept,Origin</param-value>
-   </init-param>
- </filter>
+  <filter-name>cross-origin</filter-name>
+  <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
+  <init-param>
+    <param-name>allowedOrigins</param-name>
+    <param-value>*</param-value>
+  </init-param>
+  <init-param>
+    <param-name>allowedMethods</param-name>
+    <param-value>GET,POST,OPTIONS,DELETE,PUT,HEAD</param-value>
+  </init-param>
+  <init-param>
+    <param-name>allowedHeaders</param-name>
+    <param-value>X-Requested-With,Content-Type,Accept,Origin</param-value>
+  </init-param>
+</filter>
 ```
 
 See: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
