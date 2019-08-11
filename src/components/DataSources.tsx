@@ -2,7 +2,6 @@ import React from 'react';
 
 interface DataSourcesProps {
     dataSource: string;
-    selectedSolrCore: string;
 }
 
 class DataSources extends React.Component<DataSourcesProps> {

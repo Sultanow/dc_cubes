@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { NavLink } from "react-router-dom";
 import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChartBar, faBars, faCoins, faChartLine, faCogs, faFile } from '@fortawesome/free-solid-svg-icons'
@@ -23,11 +24,11 @@ export default class Sidebar extends Component
                 <div className="sidebar-header" >
                     <Button variant="light" onClick={this.toggle}><FontAwesomeIcon icon={faBars} size="lg" /></Button>
                 </div>
-                <Button variant="light" size="lg"><FontAwesomeIcon icon={faChartBar} /></Button>
+                <NavLink to="/" activeClassName="active"><Button variant="light" size="lg"><FontAwesomeIcon icon={faChartBar} /></Button></NavLink>
                 <Button variant="light" size="lg"><FontAwesomeIcon icon={faChartLine} /></Button>
                 <Button variant="light" size="lg"><FontAwesomeIcon icon={faFile} /></Button>
                 <div className="sidebar-bottom">
-                    <Button variant="light" size="lg"><FontAwesomeIcon icon={faCoins} /></Button>
+                    <NavLink to="/data-sources" activeClassName="active"><Button  variant="light" size="lg"><FontAwesomeIcon icon={faCoins} /></Button></NavLink>
                     <Button variant="light" size="lg"><FontAwesomeIcon icon={faCogs} /></Button>
                 </div>
 

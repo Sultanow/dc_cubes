@@ -15,6 +15,7 @@ interface CubesVisProps {
     valueOfSlider: number
     timestamp: string
     accessChild: any
+    dataSourceSuccess: boolean
 }
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
@@ -68,8 +69,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     componentDidUpdate() {
         // props passed to the component are available in this lifecycle method
-        this.randomnizeBarHeights();
-        this.createCubeData()
+        if (this.props.dataSourceSuccess === true) {
+            this.randomnizeBarHeights();
+            this.createCubeData()
+        }
     }
     scaleLog = function (hvalue, hmax) {
         let maxh = Math.log(hmax);
@@ -85,6 +88,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     componentDidMount() {
         this.initVis();
         this.loopVis();
+
+        // necessary for react-router
+        if (this.props.dataSourceSuccess === true) {
+            this.randomnizeBarHeights();
+            this.createCubeData()
+        }
     }
     componentWillUnmount() {
         window.cancelAnimationFrame(this.frameId);
