@@ -5,7 +5,6 @@ import DCState from '../model/DCState'
 import Datacenter from '../model/Datacenter'
 import Cluster from '../model/Cluster'
 import Instance from '../model/Instance'
-import SolrCoreSelector from './datasource/config/solr/SolrCoreSelector'
 
 interface CubesVisProps {
     data: DCState

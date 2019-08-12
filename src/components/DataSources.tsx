@@ -1,6 +1,7 @@
 import React from 'react';
 import { Route, Link } from "react-router-dom";
-import SolrCoreSelector from '../components/solr/SolrCoreSelector'
+import SolrCoreSelector from './datasource/config/solr/SolrCoreSelector'
+// import SolrCoreSelector from '../components/solr/SolrCoreSelector'
 import { Row, Col, Form  } from 'react-bootstrap';
 
 interface DataSourcesProps {
