@@ -60,7 +60,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             <div>
                 <div id="cubes-visualisation"></div>
                 <div className="slidercontainer">
-                    <SolrCoreSelector />
                     <input type="range" min="0" max={this.props.maxRangeSlider} className="slider" id="myRange" value={this.props.valueOfSlider} onChange={this.props.accessChild} />
                     <p>{this.props.timestamp}</p>
                 </div>
