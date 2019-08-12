@@ -35,12 +35,12 @@ class App extends React.Component<{}, AppState> {
       startDateTime: '2018-08-03T00:00:00Z', // TODO: replace with date from 2 week ago or something similiar
       endDateTime: new Date().toISOString().split('.')[0] + 'Z', // today's date e.g. 2019-08-05T12:06:45Z
       dataSource: 'solr',
+      dataSourceSuccess: false,
       selectedPointInTime: 0,
       temporalAxis: [],
       timeSeries: new Map(),
       grid: new Map(),
       maxH: 0,
-      dataSourceSuccess: false
     };
   }
 

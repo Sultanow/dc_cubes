@@ -1,33 +1,54 @@
 import React, { Component } from 'react'
-import { Form } from 'react-bootstrap';
+import { Form, Nav } from 'react-bootstrap';
 
-export default class SolrCoreSelector extends Component {
+interface SolrCoreSelectorState {
+  items: string[]
+}
 
-  items = [];
+export default class SolrCoreSelector extends Component<{}, SolrCoreSelectorState> {
 
   constructor(props) {
     super(props);
 
-    fetch('http://localhost:8983/solr/admin/cores?action=STATUS&indexInfo=false&wt=json')
-        .then(res => res.json())
-        .then((data) => {
-          let strCores : string[] = Object.keys(data.status || {})
-
-          strCores.forEach((strCore) => {
-            this.items.push(<option>{strCore}</option>);
-          });
-        })
-        .catch(console.log);
+    this.state = {
+      items: [],
+    }
   }
 
   render() {
     return (
-      <Form.Group>
-        <Form.Label>Select core</Form.Label>
-        <Form.Control as="select">
-          {this.items}
-        </Form.Control>
-      </Form.Group>
+      <div>
+        <Nav variant="tabs">
+          <Nav.Item>
+            <Nav.Link>Einstellungen</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link>Vorschau</Nav.Link>
+          </Nav.Item>
+        </Nav>
+        <Form.Group>
+          <Form.Label>Core auswählen</Form.Label>
+          <Form.Control as="select">
+            {this.state.items}
+          </Form.Control>
+        </Form.Group>
+      </div>
     )
+  }
+
+  componentDidMount() {
+    fetch('http://localhost:8983/solr/admin/cores?action=STATUS&indexInfo=false&wt=json')
+        .then(res => res.json())
+        .then((data) => {
+          const dataItems = [];
+          console.log(1)
+          let strCores : string[] = Object.keys(data.status || {})
+
+          strCores.forEach((strCore) => {
+            dataItems.push(<option>{strCore}</option>);
+          });
+          this.setState({items: dataItems})
+        })
+        .catch(console.log);
   }
 } 

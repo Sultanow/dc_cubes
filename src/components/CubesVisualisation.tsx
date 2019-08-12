@@ -5,7 +5,6 @@ import DCState from '../model/DCState'
 import Datacenter from '../model/Datacenter'
 import Cluster from '../model/Cluster'
 import Instance from '../model/Instance'
-import SolrCoreSelector from '../components/solr/SolrCoreSelector'
 
 interface CubesVisProps {
     data: DCState
@@ -59,7 +58,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             <div>
                 <div id="cubes-visualisation"></div>
                 <div className="slidercontainer">
-                    <SolrCoreSelector />
                     <input type="range" min="0" max={this.props.maxRangeSlider} className="slider" id="myRange" value={this.props.valueOfSlider} onChange={this.props.accessChild} />
                     <p>{this.props.timestamp}</p>
                 </div>
