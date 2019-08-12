@@ -6,8 +6,8 @@ import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/CubesVisualisation';
 import Topbar from './components/Topbar';
 import DataSources from './components/DataSources';
-import SolrDataService from './util/SolrDataService';
-import SolrAdapter from './util/SolrAdapter';
+import SolrDataService from './components/datasource/service/solr/SolrDataService';
+import SolrAdapter from './components/datasource/service/solr/SolrAdapter';
 import DCState from './model/DCState'
 
 interface AppState {

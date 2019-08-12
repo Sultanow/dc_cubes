@@ -1,7 +1,7 @@
-import DCState from '../model/DCState'
-import Datacenter from '../model/Datacenter'
-import Cluster from '../model/Cluster'
-import Instance from '../model/Instance'
+import DCState from '../../../../model/DCState'
+import Datacenter from '../../../../model/Datacenter'
+import Cluster from '../../../../model/Cluster'
+import Instance from '../../../../model/Instance'
 
 export default class SolrAdapter {
 
