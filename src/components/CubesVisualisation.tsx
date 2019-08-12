@@ -69,8 +69,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     componentDidUpdate() {
         // props passed to the component are available in this lifecycle method
         if (this.props.dataSourceSuccess === true) {
+            this.setBarPlaceholders();
             this.createCubeData()
-
         }
     }
 
@@ -179,6 +179,36 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.bars.push(cube);
     };
+
+    createBarPlaceholder(xPosition: number, zPosition: number) {
+        var geometry = new THREE.PlaneGeometry(40, 40);
+        var material = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide });
+        var plane = new THREE.Mesh(geometry, material);
+
+        var geo = new THREE.EdgesGeometry(plane.geometry); // or WireframeGeometry
+        var mat = new THREE.LineBasicMaterial({ color: 0x00000, linewidth: 1 });
+        var wireframe = new THREE.LineSegments(geo, mat);
+        plane.rotation.x = Math.PI / 2;
+        plane.position.x = xPosition;
+        plane.position.z = zPosition;
+        plane.add(wireframe);
+
+        this.scene.add(plane);
+    }
+
+    setBarPlaceholders() {
+        var index = 0;
+
+        this.props.grid.forEach((element) => {
+            // this condition is only necessary beacuse there is a bug in SolrAdapter.ts 
+            // the last element of the grid is undifined, without this condition one playeholder to much would be falsely rendered
+            if (index < this.props.grid.size - 1) {
+                this.createBarPlaceholder(element[0] * 150, element[1] * 150);
+            }
+            index++
+        });
+
+    }
 
     scaleLog = function (hvalue, hmax) {
         let maxh = Math.log(hmax);
