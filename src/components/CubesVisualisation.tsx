@@ -10,6 +10,7 @@ import SolrCoreSelector from '../components/solr/SolrCoreSelector'
 interface CubesVisProps {
     data: DCState
     grid: Map<string, Array<number>>
+    clusterColors: {}
     maxH: number
     maxRangeSlider: number
     valueOfSlider: number
@@ -70,28 +71,17 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     componentDidUpdate() {
         // props passed to the component are available in this lifecycle method
         if (this.props.dataSourceSuccess === true) {
-            this.randomnizeBarHeights();
             this.createCubeData()
+
         }
     }
-    scaleLog = function (hvalue, hmax) {
-        let maxh = Math.log(hmax);
-        this.adjustfactor = (this.maxHeightOfbar / maxh).toFixed(4)
 
-        //log zwischen +0.1 - +1 problem (negativ bzw 0)
-        if (hvalue <= 1 && hvalue >= 0.1) {
-            return (Math.log(2 - (1 - hvalue)) * this.adjustfactor) / 2
-        }
-        return Math.log(hvalue) * this.adjustfactor
-
-    }
     componentDidMount() {
         this.initVis();
         this.loopVis();
 
         // necessary for react-router
         if (this.props.dataSourceSuccess === true) {
-            this.randomnizeBarHeights();
             this.createCubeData()
         }
     }
@@ -118,26 +108,15 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.createLight();
 
-        // creating the cubes, just for prototyping
-        // var countX = 50, countY = 50, spacingIncrement = 20, spacing = 0;
-
-        // for (let index = 0; index < countY; index++) {
-        //     var randomColor = "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
-        //     this.createBar(countX, spacing, randomColor);
-        //     spacing += spacingIncrement;
-        // }
-        // this.createBar(count, 560, 0x61dafb);
-
     };
 
+    // TODO: Rename function because confusing 
     createCubeData() {
-        var clusterCounter = 0;
 
-        let colors = [0x46ACC2, 0x98DFAF, 0xF8333C, 0xFFD23F];
+        // removes the bars of the last selected timestamp
         for (let index = 0; index < this.bars.length; index++) {
             this.scene.remove(this.bars[index]);
         }
-
 
         this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
             //set up view data
@@ -146,21 +125,20 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
                 let instances = value_cluster.instances;
 
-                let color = colors[clusterCounter];
-                clusterCounter++;
                 instances.forEach((value_instance: Instance, key_instance: string) => {
                     var h = value_instance.utilization;
 
-                    // log skalierung höhe
+
 
                     let gridKey: string = key_dc + "_" + key_cluster + "_" + key_instance;
+                    let clusterKey = key_dc + "_" + key_cluster;
 
                     let gridValue: Array<number> = this.props.grid.get(gridKey);
 
                     var x = gridValue[0];
-
                     var z = gridValue[1];
-                    this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), color);
+
+                    this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), this.props.clusterColors[clusterKey]);
 
                 })
             })
@@ -202,10 +180,19 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         cube.add(wireframe);
 
         this.bars.push(cube);
-        // ------------------------------------
-
-
     };
+
+    scaleLog = function (hvalue, hmax) {
+        let maxh = Math.log(hmax);
+        this.adjustfactor = (this.maxHeightOfbar / maxh).toFixed(4)
+
+        //log zwischen +0.1 - +1 problem (negativ bzw 0)
+        if (hvalue <= 1 && hvalue >= 0.1) {
+            return (Math.log(2 - (1 - hvalue)) * this.adjustfactor) / 2
+        }
+        return Math.log(hvalue) * this.adjustfactor
+
+    }
 
     createLight() {
         var ambient = new THREE.AmbientLight(0x999999);

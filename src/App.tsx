@@ -20,6 +20,7 @@ interface AppState {
   selectedPointInTime: number;
   temporalAxis: string[],
   timeSeries: Map<string, DCState>
+  clusterColors: object;
   grid: Map<string, Array<number>>
   maxH: number;
 }
@@ -38,6 +39,7 @@ class App extends React.Component<{}, AppState> {
       selectedPointInTime: 0,
       temporalAxis: [],
       timeSeries: new Map(),
+      clusterColors: {},
       grid: new Map(),
       maxH: 0,
       dataSourceSuccess: false
@@ -58,9 +60,10 @@ class App extends React.Component<{}, AppState> {
       // console.log(data.data);
       solrAdapter.receivedData(data.data);
       this.setState({
-        // there is a bug, the last element ist undefined
+        // there is a bug, the last element is allways undefined
         temporalAxis: solrAdapter.temporalAxis,
         timeSeries: solrAdapter.timeSeries,
+        clusterColors: solrAdapter.clusterColors,
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
         dataSourceSuccess: true
@@ -68,7 +71,7 @@ class App extends React.Component<{}, AppState> {
 
 
     }).catch((error: any) => {
-      this.setState({statusMessage: "DataSource is currently not available"})
+      this.setState({ statusMessage: "DataSource is currently not available" })
       console.log(error)
     });
   }
@@ -81,16 +84,17 @@ class App extends React.Component<{}, AppState> {
           <Sidebar />
           <Topbar />
           <Row>
-            <Route exact path="/" render={(props) => <CubesVisualisation {...props} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])} 
-                                grid={this.state.grid} 
-                                maxH={this.state.maxH}
-                                maxRangeSlider={this.state.temporalAxis.length - 2}
-                                valueOfSlider={this.state.selectedPointInTime}
-                                accessChild={this.accessChild}
-                                timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-                                dataSourceSuccess={this.state.dataSourceSuccess} />}/>
-            <Route path="/data-sources" render={(props) => <DataSources {...props} dataSource={this.state.dataSource} />}/>
-            <p>{ this.state.statusMessage }</p>
+            <Route exact path="/" render={(props) => <CubesVisualisation {...props} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+              clusterColors={this.state.clusterColors}
+              grid={this.state.grid}
+              maxH={this.state.maxH}
+              maxRangeSlider={this.state.temporalAxis.length - 2}
+              valueOfSlider={this.state.selectedPointInTime}
+              accessChild={this.accessChild}
+              timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+              dataSourceSuccess={this.state.dataSourceSuccess} />} />
+            <Route path="/data-sources" render={(props) => <DataSources {...props} dataSource={this.state.dataSource} />} />
+            <p>{this.state.statusMessage}</p>
           </Row>
         </div>
       </BrowserRouter>
@@ -99,9 +103,6 @@ class App extends React.Component<{}, AppState> {
 
   accessChild = (event) => {
     this.setState({ selectedPointInTime: event.target.value });
-    // if (this.child.current) {
-    //   this.child.current.randomnizeBarHeights();
-    // }
   }
 
 }

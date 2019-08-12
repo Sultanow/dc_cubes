@@ -10,11 +10,14 @@ export default class SolrAdapter {
     public maxh: number = 0;
     public maxZ: number = 3;
     public maxX: number;
-    public instancesAddColor = [];
+    public clusterColors = {};
     public grid = new Map<string, Array<number>>();
     public clusterColorIndices = new Map<string, number>();
     public pointInTime: number;
     public pointInTimeCount: number = 100;
+    // TODO: Colors should be generated dynamically according to the count of clusters
+    public colors = [0x46ACC2, 0x98DFAF, 0xF8333C, 0xFFD23F];
+    public colorCounter = 0;
 
 
     //generate data from socket json format
@@ -81,7 +84,8 @@ export default class SolrAdapter {
             instancesToClusterMap.forEach((instances: Set<string>, key_cluster: string) => {
                 let clusterKey: string = key_dc + "_" + key_cluster;
 
-                this.instancesAddColor.push(clusterKey)
+                this.clusterColors[clusterKey] = this.colors[this.colorCounter];
+                this.colorCounter++;
 
                 instances.forEach((key_instance) => {
                     let gridKey: string = clusterKey + "_" + key_instance;
@@ -112,6 +116,7 @@ export default class SolrAdapter {
         this.pointInTime = this.temporalAxis.length - 1;
         this.pointInTimeCount = this.temporalAxis.length;
     }
+
     //build main structure from the data
     buildTimeSeries(strTimeStamp: string, strCluster: string, strDataCenter: string, strInstance: string, strUtilization: string) {
 
