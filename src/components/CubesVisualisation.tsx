@@ -80,6 +80,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         // necessary for react-router
         if (this.props.dataSourceSuccess === true) {
+            this.setBarPlaceholders();
             this.createCubeData()
         }
     }
