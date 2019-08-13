@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
-import { Row } from 'react-bootstrap';
+import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/CubesVisualisation';
@@ -44,7 +44,7 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
-      baseUrl: 'http://localhost:8983/solr'
+      baseUrl: 'http://localhost:8983/solr',
     };
   }
 
@@ -56,7 +56,7 @@ class App extends React.Component<{}, AppState> {
   getLogData = (baseUrl:string, startDateTime: string, endDateTime: string) => {
     // TODO: implement other data sources
     let dataService = new SolrDataService();
-    dataService.getLogDataFromSolr(this.state.baseUrl, startDateTime, endDateTime).then((data: any) => {
+    dataService.getLogDataFromSolr(baseUrl, startDateTime, endDateTime).then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
       // console.log(data.data);
@@ -68,12 +68,15 @@ class App extends React.Component<{}, AppState> {
         clusterColors: solrAdapter.clusterColors,
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
-        dataSourceSuccess: true
+        dataSourceSuccess: true,
+        statusMessage: "Successfully loaded data"
       });
 
 
     }).catch((error: any) => {
-      this.setState({ statusMessage: "DataSource is currently not available" })
+      this.setState({ 
+        statusMessage: "DataSource is currently not available",
+        dataSourceSuccess: false })
       console.log(error)
     });
   }
@@ -85,19 +88,21 @@ class App extends React.Component<{}, AppState> {
         <div className="App">
           <Sidebar dataSource={this.state.dataSource} />
           <Topbar />
-          <Row>
-            <Route exact path="/" render={(props) => <CubesVisualisation {...props} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
-              clusterColors={this.state.clusterColors}
-              grid={this.state.grid}
-              maxH={this.state.maxH}
-              maxRangeSlider={this.state.temporalAxis.length - 2}
-              valueOfSlider={this.state.selectedPointInTime}
-              accessChild={this.accessChild}
-              timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-              dataSourceSuccess={this.state.dataSourceSuccess} />} />
-            <Route path="/data-sources" render={(props) => <DataSources {...props} dataSource={this.state.dataSource} setDataSource={this.setDataSource} setBaseUrl={this.setBaseUrl}/>} />
-            <p>{this.state.statusMessage}</p>
-          </Row>
+          <Container>
+            <Row>
+              <Route exact path="/" render={(props) => <CubesVisualisation {...props} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                clusterColors={this.state.clusterColors}
+                grid={this.state.grid}
+                maxH={this.state.maxH}
+                maxRangeSlider={this.state.temporalAxis.length - 2}
+                valueOfSlider={this.state.selectedPointInTime}
+                accessChild={this.accessChild}
+                timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+                dataSourceSuccess={this.state.dataSourceSuccess} />} />
+              <Route path="/data-sources" render={(props) => <DataSources {...props} dataSource={this.state.dataSource} setDataSource={this.setDataSource} setBaseUrl={this.setBaseUrl} baseUrl={this.state.baseUrl} />} />
+            </Row>
+            { !this.state.dataSourceSuccess && <Alert variant="danger">Datenquelle nicht erreichbar</Alert> }
+          </Container>
         </div>
       </BrowserRouter>
     );
@@ -112,6 +117,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   setBaseUrl = (baseUrl: string) => {
+    this.getLogData(baseUrl, this.state.startDateTime, this.state.endDateTime)
     this.setState({baseUrl: baseUrl})
   }
 }

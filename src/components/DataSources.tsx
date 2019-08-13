@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Link, withRouter } from "react-router-dom";
+import { Route, Link } from "react-router-dom";
 import SolrSettings from '../components/solr/SolrSettings'
 import CsvSettings from '../components/csv/CsvSettings'
 import PrometheusSettings from '../components/prometheus/PrometheusSettings'
@@ -11,10 +11,10 @@ interface DataSourcesProps {
     setDataSource: any
     history: any
     setBaseUrl: any
+    baseUrl: string
 }
 
 interface DataSourcesState {
-    baseUrl: string
     changeDataSource: boolean
 }
 
@@ -23,7 +23,6 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
     constructor(props: DataSourcesProps) {
         super(props);
         this.state = {
-         baseUrl: "",
          changeDataSource: false
         };
       }
@@ -73,7 +72,7 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                         </Col>
                         <Col>
                             <Route path="/data-sources/csv" render={(props) => <CsvSettings {...props}  />}/>
-                            <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props}  baseUrl={this.state.baseUrl} setBaseUrl={this.props.setBaseUrl} />}/>
+                            <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props}  baseUrl={this.props.baseUrl} setBaseUrl={this.props.setBaseUrl} />}/>
                             <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
                             <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  />}/>
                         </Col>
@@ -92,4 +91,4 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
     }
 }
 
-export default withRouter(DataSources);
+export default DataSources;
