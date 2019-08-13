@@ -183,7 +183,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     createBarPlaceholder(xPosition: number, zPosition: number) {
         var geometry = new THREE.PlaneGeometry(40, 40);
-        var material = new THREE.MeshBasicMaterial({ transparent: true, side: THREE.DoubleSide });
+        var material = new THREE.MeshLambertMaterial({ color: 0xffffff, side:THREE.DoubleSide});
         var plane = new THREE.Mesh(geometry, material);
 
         var geo = new THREE.EdgesGeometry(plane.geometry); // or WireframeGeometry
@@ -225,9 +225,9 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     createLight() {
         var ambient = new THREE.AmbientLight(0x999999);
-        var spot = new THREE.SpotLight(0xffffff, 1);
+        var spot = new THREE.SpotLight(0xffffff, 0.3);
 
-        spot.position.set(0, 4000, 0);
+        spot.position.set(0, 5000, 0);
         spot.castShadow = true;
 
         this.scene.add(ambient, spot);
