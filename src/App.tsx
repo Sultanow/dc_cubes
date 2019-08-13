@@ -23,6 +23,7 @@ interface AppState {
   clusterColors: object;
   grid: Map<string, Array<number>>
   maxH: number;
+  baseUrl: string;
 }
 
 class App extends React.Component<{}, AppState> {
@@ -43,18 +44,19 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
+      baseUrl: 'http://localhost:8983/solr'
     };
   }
 
   componentDidMount() {
     // get initial log data based on default values
-    this.getLogData(this.state.startDateTime, this.state.endDateTime);
+    this.getLogData(this.state.baseUrl, this.state.startDateTime, this.state.endDateTime);
   }
 
-  getLogData = (startDateTime: string, endDateTime: string) => {
+  getLogData = (baseUrl:string, startDateTime: string, endDateTime: string) => {
     // TODO: implement other data sources
     let dataService = new SolrDataService();
-    dataService.getLogDataFromSolr(startDateTime, endDateTime).then((data: any) => {
+    dataService.getLogDataFromSolr(this.state.baseUrl, startDateTime, endDateTime).then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
       // console.log(data.data);
@@ -81,7 +83,7 @@ class App extends React.Component<{}, AppState> {
     return (
       <BrowserRouter>
         <div className="App">
-          <Sidebar />
+          <Sidebar dataSource={this.state.dataSource} />
           <Topbar />
           <Row>
             <Route exact path="/" render={(props) => <CubesVisualisation {...props} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
@@ -93,7 +95,7 @@ class App extends React.Component<{}, AppState> {
               accessChild={this.accessChild}
               timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
               dataSourceSuccess={this.state.dataSourceSuccess} />} />
-            <Route path="/data-sources" render={(props) => <DataSources {...props} dataSource={this.state.dataSource} />} />
+            <Route path="/data-sources" render={(props) => <DataSources {...props} dataSource={this.state.dataSource} setDataSource={this.setDataSource} setBaseUrl={this.setBaseUrl}/>} />
             <p>{this.state.statusMessage}</p>
           </Row>
         </div>
@@ -105,6 +107,13 @@ class App extends React.Component<{}, AppState> {
     this.setState({ selectedPointInTime: event.target.value });
   }
 
+  setDataSource = (dataSource: any) => {
+    this.setState({dataSource: dataSource.target.value})
+  }
+
+  setBaseUrl = (baseUrl: string) => {
+    this.setState({baseUrl: baseUrl})
+  }
 }
 
 

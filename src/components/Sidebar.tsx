@@ -5,7 +5,11 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChartBar, faBars, faCoins, faChartLine, faCogs, faFile } from '@fortawesome/free-solid-svg-icons'
 import './Sidebar.css'
 
-export default class Sidebar extends Component
+interface SidebarProps {
+    dataSource: string
+}
+
+export default class Sidebar extends Component<SidebarProps,{}>
 {
     state = {
         active: true,
@@ -28,7 +32,7 @@ export default class Sidebar extends Component
                 <Button variant="light" size="lg"><FontAwesomeIcon icon={faChartLine} /></Button>
                 <Button variant="light" size="lg"><FontAwesomeIcon icon={faFile} /></Button>
                 <div className="sidebar-bottom">
-                    <NavLink to="/data-sources" activeClassName="active"><Button  variant="light" size="lg"><FontAwesomeIcon icon={faCoins} /></Button></NavLink>
+                    <NavLink to={`/data-sources/${this.props.dataSource}`} activeClassName="active"><Button  variant="light" size="lg"><FontAwesomeIcon icon={faCoins} /></Button></NavLink>
                     <Button variant="light" size="lg"><FontAwesomeIcon icon={faCogs} /></Button>
                 </div>
 
