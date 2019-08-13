@@ -1,9 +1,9 @@
 import React from 'react';
 import { Route, Link } from "react-router-dom";
-import SolrSettings from '../components/solr/SolrSettings'
-import CsvSettings from '../components/csv/CsvSettings'
-import PrometheusSettings from '../components/prometheus/PrometheusSettings'
-import ElasticsearchSettings from '../components/elasticsearch/ElasticsearchSettings'
+import SolrSettings from './datasource/config/solr/SolrSettings'
+import CsvSettings from './datasource/config/csv/CsvSettings'
+import PrometheusSettings from './datasource/config/prometheus/PrometheusSettings'
+import ElasticsearchSettings from './datasource/config/elasticsearch/ElasticsearchSettings'
 import { Row, Col, Form, Button } from 'react-bootstrap';
 
 interface DataSourcesProps {

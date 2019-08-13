@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 interface ElasticsearchSettingsState {
 }
 
-export default class SolrCoreSelector extends Component<{}, ElasticsearchSettingsState> {
+export default class ElasticsearchSettings extends Component<{}, ElasticsearchSettingsState> {
 
   constructor(props) {
     super(props);
