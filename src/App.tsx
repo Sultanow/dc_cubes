@@ -3,9 +3,9 @@ import { BrowserRouter, Route } from "react-router-dom";
 import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
-import CubesVisualisation from './components/CubesVisualisation';
+import CubesVisualisation from './components/visualization3d/CubesVisualisation';
 import Topbar from './components/Topbar';
-import DataSources from './components/DataSources';
+import DataSources from './components/datasource/config/DataSources';
 import SolrDataService from './components/datasource/service/solr/SolrDataService';
 import SolrAdapter from './components/datasource/service/solr/SolrAdapter';
 import DCState from './model/DCState'

@@ -1,10 +1,10 @@
 import React from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
-import DCState from '../model/DCState'
-import Datacenter from '../model/Datacenter'
-import Cluster from '../model/Cluster'
-import Instance from '../model/Instance'
+import DCState from '../../model/DCState'
+import Datacenter from '../../model/Datacenter'
+import Cluster from '../../model/Cluster'
+import Instance from '../../model/Instance'
 
 interface CubesVisProps {
     data: DCState
