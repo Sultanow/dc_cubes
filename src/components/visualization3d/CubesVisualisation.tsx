@@ -180,7 +180,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         var textSprite = this.createTextSprite(textLabel);
         textSprite.position.x = x;
         textSprite.position.z = z;
-        textSprite.position.y = h + 10;
+        textSprite.position.y = h + 15;
         this.scene.add(cube);
         this.scene.add(textSprite);
 
@@ -191,17 +191,13 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.textSprites.push(textSprite);
         this.bars.push(cube);
     };
-    createTextSprite(message) {
 
+    createTextSprite(message) {
         var fontface = 'Helvetica';
-        var fontsize = 70;
+        var fontsize = 80;
         var canvas = document.createElement('canvas');
         var context = canvas.getContext('2d');
-        context.font = fontsize + "px " + fontface;
-
-        // get size data (height depends only on font size)
-        var metrics = context.measureText(message);
-        var textWidth = metrics.width;
+        context.font = "bold " + fontsize + "px " + fontface;
 
         // text color
         context.fillStyle = 'rgba(0, 0, 0, 1.0)';
@@ -317,19 +313,20 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     changeColorOfHoveredCube(intersects: THREE.Intersection[]) {
         if (intersects.length > 0) {
             if (this.INTERSECTED !== intersects[0].object) {
-                if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
+                if (this.INTERSECTED && this.INTERSECTED.type === "Mesh") this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
 
                 this.INTERSECTED = intersects[0].object;
-                this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
-                this.INTERSECTED.material.emissive.setHex(0xff0000);
+                if (this.INTERSECTED.type === "Mesh") {
+                    this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
+                    this.INTERSECTED.material.emissive.setHex(0xff0000);
+                }
             }
-
         } else {
-            if (this.INTERSECTED) this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
             this.INTERSECTED = null;
         }
 
     };
+
     // visualisation logic
     updateVis() {
 
