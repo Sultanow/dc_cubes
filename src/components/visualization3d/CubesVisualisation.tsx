@@ -146,7 +146,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     var x = gridValue[0];
                     var z = gridValue[1];
 
-                    this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), this.props.clusterColors[clusterKey]);
+                    this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), h.toString(), this.props.clusterColors[clusterKey]);
 
                 })
             })
@@ -157,7 +157,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         return "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
     }
 
-    createBar(x: number, z: number, h: number, color: number) {
+    createBar(x: number, z: number, h: number, textLabel: string, color: number) {
 
         // Cube init
         var geometry = new THREE.BoxGeometry(40, h, 40);
@@ -174,12 +174,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         cube.position.x = x;
         cube.position.z = z;
 
-        // cube.name = "bar-" + i;
-        // cube.scale.y = Math.floor(Math.random() * 14) + 1;
 
         cube.castShadow = true;
         cube.receiveShadow = true;
-        var textSprite = this.createTextSprite("Hello");
+        var textSprite = this.createTextSprite(textLabel);
         textSprite.position.x = x;
         textSprite.position.z = z;
         textSprite.position.y = h + 10;
@@ -219,6 +217,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         });
         var sprite = new THREE.Sprite(spriteMaterial);
         sprite.scale.set(100, 50, 1.0);
+        sprite.center.set(0.1, 0.5);
         return sprite;
     }
 
