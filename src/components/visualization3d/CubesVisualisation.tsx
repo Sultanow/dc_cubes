@@ -322,6 +322,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 }
             }
         } else {
+            if (this.INTERSECTED && this.INTERSECTED.type === "Mesh") this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
             this.INTERSECTED = null;
         }
 
