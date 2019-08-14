@@ -29,6 +29,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     raycaster: THREE.Raycaster;
     controls: OrbitControls;
     bars: any[];
+    textSprites: any[];
     frameId: number;
 
 
@@ -43,6 +44,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.camera = new THREE.PerspectiveCamera(75, this.sceneWidth / this.sceneHeight, 0.1, 3000);
         // set initial camera position
         this.camera.position.set(500, 1000, 1500);
+
         this.mouse = new THREE.Vector2();
         this.INTERSECTED = null;
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -50,7 +52,9 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         // allows movement with mouseclicks 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+
         this.bars = [];
+        this.textSprites = []
         this.frameId = 0
 
     }
@@ -112,9 +116,14 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     // TODO: Rename function because confusing 
     createCubeData() {
 
-        // removes the bars of the last selected timestamp
+        // removes bars of the last selected timestamp
         for (let index = 0; index < this.bars.length; index++) {
             this.scene.remove(this.bars[index]);
+        }
+
+        // removes text sprites of the last selected timestamp
+        for (let index = 0; index < this.textSprites.length; index++) {
+            this.scene.remove(this.textSprites[index]);
         }
 
         this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
@@ -170,20 +179,52 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         cube.castShadow = true;
         cube.receiveShadow = true;
-
+        var textSprite = this.createTextSprite("Hello");
+        textSprite.position.x = x;
+        textSprite.position.z = z;
+        textSprite.position.y = h + 10;
         this.scene.add(cube);
+        this.scene.add(textSprite);
 
         var geo = new THREE.EdgesGeometry(cube.geometry); // or WireframeGeometry
         var mat = new THREE.LineBasicMaterial({ color: 0x00000, linewidth: 2 });
         var wireframe = new THREE.LineSegments(geo, mat);
         cube.add(wireframe);
-
+        this.textSprites.push(textSprite);
         this.bars.push(cube);
     };
+    createTextSprite(message) {
+
+        var fontface = 'Helvetica';
+        var fontsize = 70;
+        var canvas = document.createElement('canvas');
+        var context = canvas.getContext('2d');
+        context.font = fontsize + "px " + fontface;
+
+        // get size data (height depends only on font size)
+        var metrics = context.measureText(message);
+        var textWidth = metrics.width;
+
+        // text color
+        context.fillStyle = 'rgba(0, 0, 0, 1.0)';
+        context.fillText(message, 0, fontsize);
+
+        // canvas contents will be used for a texture
+        var texture = new THREE.Texture(canvas)
+        texture.minFilter = THREE.LinearFilter;
+        texture.needsUpdate = true;
+
+        var spriteMaterial = new THREE.SpriteMaterial({
+            map: texture,
+        });
+        var sprite = new THREE.Sprite(spriteMaterial);
+        sprite.scale.set(100, 50, 1.0);
+        return sprite;
+    }
 
     createBarPlaceholder(xPosition: number, zPosition: number) {
         var geometry = new THREE.PlaneGeometry(40, 40);
-        var material = new THREE.MeshLambertMaterial({ color: 0xffffff, side:THREE.DoubleSide});
+        var material = new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide });
         var plane = new THREE.Mesh(geometry, material);
 
         var geo = new THREE.EdgesGeometry(plane.geometry); // or WireframeGeometry
