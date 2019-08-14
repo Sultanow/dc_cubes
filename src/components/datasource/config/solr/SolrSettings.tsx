@@ -3,8 +3,12 @@ import { Form, Tab, Tabs, Col, Row, Badge } from 'react-bootstrap';
 import httpClient from 'axios';
 
 interface SolrSettingsProps {
-  baseUrl: string
-  setBaseUrl: any
+  dataSourceUrl: string
+  setDataSourceUrl: any
+  setSolrUrlPart: any
+  solrBaseUrl: string
+  solrCore: string
+  solrQuery: string
 }
 
 /* interface SolrSettingsState {
@@ -21,10 +25,10 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
     super(props);
 
     this.state = {
-      /* solrBaseUrl: '',
-      selectedSolrCore: '', */
-      solrQuery: '',
-      solrInstanceStatus: false,
+      solrBaseUrl: 'http://localhost:8983/solr/',
+      solrCore: 'dc_cubes', 
+      solrQuery: '/query?q=*:*&start=0&rows=30000',
+      solrInstanceStatus: false, // false -> offline, true -> online
       items: [],
     }
   }
@@ -39,11 +43,24 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
                     <Form>
                         <br/>
                         <Form.Group as={Row} controlId="inputSolrBaseUrl">
-                          <Form.Label column sm="3">
-                            Base Url
+                          <Col sm="2">
+                            URL Preview:
+                          </Col>
+                          <Col sm="10">
+                            { 
+                              <a href={this.props.solrBaseUrl.concat(this.props.solrCore, this.props.solrQuery)}>
+                                {this.props.solrBaseUrl.concat(this.props.solrCore, this.props.solrQuery)}
+                              </a>
+                            }
+                          </Col>
+                        </Form.Group>
+
+                        <Form.Group as={Row} controlId="inputSolrBaseUrl">
+                          <Form.Label column sm="2">
+                            Base URL:
                           </Form.Label>
-                          <Col sm="7">
-                            <Form.Control  onChange={this.handleChange} name="solrBaseUrl" defaultValue={this.props.baseUrl} />
+                          <Col sm="8">
+                            <Form.Control  onChange={this.handleChange} name="solrBaseUrl" value={this.props.solrBaseUrl} />
                           </Col>
                           <Col sm="2">
                             {
@@ -52,13 +69,19 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
                             }
                           </Col>
                         </Form.Group>
-                    </Form>
-                    <Form.Group>
-                        <Form.Label>Core auswählen</Form.Label>
-                        <Form.Control name="selectedSolrCore" as="select">
-                        {this.state.items}
-                        </Form.Control>
-                    </Form.Group>
+                    
+                        <Form.Group>
+                            <Form.Label>Core auswählen:</Form.Label>
+                            <Form.Control onChange={this.handleChange} name="solrCore" as="select" value={this.props.solrCore}>
+                            {this.state.items}
+                            </Form.Control>
+                        </Form.Group>
+
+                        <Form.Group controlId="exampleForm.ControlTextarea1">
+                          <Form.Label>Query:</Form.Label>
+                          <Form.Control onChange={this.handleChange} as="textarea" rows="3" name="solrQuery" value={this.props.solrQuery} />
+                        </Form.Group>
+                  </Form>
                 </Tab>
                 <Tab eventKey="profile" title="Vorschau">
                 </Tab>
@@ -68,7 +91,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
   }
 
   componentDidMount() {
-    const url = this.props.baseUrl.concat("/admin/cores?action=STATUS&indexInfo=false&wt=json")
+    const url = this.state.solrBaseUrl.concat("admin/cores?action=STATUS&indexInfo=false&wt=json")
     this.getAllSolrCores(url)
   }
 
@@ -77,28 +100,31 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
     const value = target.value;
     const name = target.name;
 
-    this.props.setBaseUrl(value)
+    if (name === "solrBaseUrl") {
+      this.setState({
+        [name]: value,
+        items: [],
+        solrInstanceStatus: false
+      })
 
-    this.setState({
-      [name]: value,
-      items: [],
-      solrInstanceStatus: false
-    });
+      const solrCoresUrl = value.concat("admin/cores?action=STATUS&indexInfo=false&wt=json")
+      this.getAllSolrCores(solrCoresUrl)
+      this.props.setSolrUrlPart("solrBaseUrl", value)
+    }
 
-    const solrCoresUrl = value.concat("/admin/cores?action=STATUS&indexInfo=false&wt=json")
-    console.log(solrCoresUrl)
-    this.getAllSolrCores(solrCoresUrl)
-    /* const solrCore = document.getElementById("solrCore")
-    console.log(document.getElementById("solrBaseUrl"))
-    console.log(solrCore)
-    this.props.setBaseUrl(e.target.value)
-    this.setState({ 
-      solrBaseUrl: e.target.value,
-      items:[],
-      solrInstanceStatus: false
-    });
-    const url = e.target.value.concat("/admin/cores?action=STATUS&indexInfo=false&wt=json")
-       */
+    if (name === "solrQuery") {
+      this.setState({
+        [name]: value
+      })
+      this.props.setSolrUrlPart("solrQuery", value)
+    }
+
+    if (name === "solrCore") {
+      this.setState({
+        [name]: value
+      })
+      this.props.setSolrUrlPart("solrCore", value)
+    }
   };
 
   getAllSolrCores = (url: string) => {
@@ -113,10 +139,10 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
 
         this.setState({
           items: dataItems,
-          solrInstanceStatus: true
+          solrInstanceStatus: true,
         })
     })
-    .catch(function (error) {
+    .catch((error) => {
         console.log(error)
     }); 
   }

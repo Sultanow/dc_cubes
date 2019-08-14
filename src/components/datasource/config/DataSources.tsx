@@ -8,10 +8,13 @@ import { Row, Col, Form, Button } from 'react-bootstrap';
 
 interface DataSourcesProps {
     dataSource: string
+    dataSourceUrl: string
+    solrBaseUrl: string
+    solrCore: string
+    solrQuery: string
+    setDataSourceUrl: any
     setDataSource: any
-    history: any
-    setBaseUrl: any
-    baseUrl: string
+    setSolrUrlPart: any
 }
 
 interface DataSourcesState {
@@ -32,9 +35,11 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
     render() {
         return (
             <div className="main-canvas">
-                <h2>Datenquelle</h2>
+                <br/>
                     <Row>
-                        <Col>
+                        <Col lg={4}>
+                        <h2>Datenquelle</h2>
+                            <br/>
                             <fieldset>
                                 <Form.Group as={Row} onChange={this.props.setDataSource}>
                                 <Col>
@@ -70,9 +75,16 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                                 <Button onClick={this.changeDataSource}>{this.state.changeDataSource ? "Speichern" : "Ändern" }</Button>
                             </fieldset>
                         </Col>
-                        <Col>
+                        <Col lg={8}>
+                            
                             <Route path="/data-sources/csv" render={(props) => <CsvSettings {...props}  />}/>
-                            <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props}  baseUrl={this.props.baseUrl} setBaseUrl={this.props.setBaseUrl} />}/>
+                            <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props} 
+                                setDataSourceUrl={this.props.setDataSourceUrl}
+                                setSolrUrlPart={this.props.setSolrUrlPart}
+                                dataSourceUrl={this.props.dataSourceUrl}
+                                solrBaseUrl={this.props.solrBaseUrl}
+                                solrCore={this.props.solrCore}
+                                solrQuery={this.props.solrQuery} />}/>
                             <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
                             <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  />}/>
                         </Col>

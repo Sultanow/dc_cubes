@@ -11,11 +11,14 @@ import SolrAdapter from './components/datasource/service/solr/SolrAdapter';
 import DCState from './model/DCState'
 
 interface AppState {
-  statusMessage: string;
   logData: [];
   startDateTime: string;
   endDateTime: string;
   dataSource: string;
+  dataSourceUrl: string;
+  solrBaseUrl: string;
+  solrCore: any;
+  solrQuery: string;
   dataSourceSuccess: boolean;
   selectedPointInTime: number;
   temporalAxis: string[],
@@ -23,20 +26,22 @@ interface AppState {
   clusterColors: object;
   grid: Map<string, Array<number>>
   maxH: number;
-  baseUrl: string;
-}
+} 
 
 class App extends React.Component<{}, AppState> {
 
   constructor(props: object) {
     super(props);
     this.state = {
-      statusMessage: null,
       logData: [],
       // Set the default boundaries of the log data to be displayed
       startDateTime: '2018-08-03T00:00:00Z', // TODO: replace with date from 2 week ago or something similiar
       endDateTime: new Date().toISOString().split('.')[0] + 'Z', // today's date e.g. 2019-08-05T12:06:45Z
       dataSource: 'solr',
+      dataSourceUrl: 'http://localhost:8983/solr/dc_cubes/query?q=*:*&start=0&rows=30000',
+      solrBaseUrl: 'http://localhost:8983/solr/',
+      solrCore: 'dc_cubes',
+      solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceSuccess: false,
       selectedPointInTime: 0,
       temporalAxis: [],
@@ -44,19 +49,18 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
-      baseUrl: 'http://localhost:8983/solr',
     };
   }
 
   componentDidMount() {
     // get initial log data based on default values
-    this.getLogData(this.state.baseUrl, this.state.startDateTime, this.state.endDateTime);
+    this.getLogData(this.state.dataSourceUrl, this.state.startDateTime, this.state.endDateTime);
   }
 
-  getLogData = (baseUrl:string, startDateTime: string, endDateTime: string) => {
+  getLogData = (dataSourceUrl:string, startDateTime: string, endDateTime: string) => {
     // TODO: implement other data sources
     let dataService = new SolrDataService();
-    dataService.getLogDataFromSolr(baseUrl, startDateTime, endDateTime).then((data: any) => {
+    dataService.getLogDataFromSolr(dataSourceUrl, startDateTime, endDateTime).then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
       // console.log(data.data);
@@ -69,13 +73,11 @@ class App extends React.Component<{}, AppState> {
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
         dataSourceSuccess: true,
-        statusMessage: "Successfully loaded data"
       });
 
 
     }).catch((error: any) => {
-      this.setState({ 
-        statusMessage: "DataSource is currently not available",
+      this.setState({
         dataSourceSuccess: false })
       console.log(error)
     });
@@ -99,7 +101,15 @@ class App extends React.Component<{}, AppState> {
                 accessChild={this.accessChild}
                 timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
                 dataSourceSuccess={this.state.dataSourceSuccess} />} />
-              <Route path="/data-sources" render={(props) => <DataSources {...props} dataSource={this.state.dataSource} setDataSource={this.setDataSource} setBaseUrl={this.setBaseUrl} baseUrl={this.state.baseUrl} />} />
+              <Route path="/data-sources" render={(props) => <DataSources {...props} 
+                dataSource={this.state.dataSource} 
+                setDataSource={this.setDataSource} 
+                setDataSourceUrl={this.setDataSourceUrl} 
+                setSolrUrlPart={this.setSolrUrlPart}
+                dataSourceUrl={this.state.dataSourceUrl}
+                solrBaseUrl={this.state.solrBaseUrl}
+                solrCore={this.state.solrCore}
+                solrQuery={this.state.solrQuery} />} />
             </Row>
             { !this.state.dataSourceSuccess && <Alert variant="danger">Datenquelle nicht erreichbar</Alert> }
           </Container>
@@ -116,9 +126,18 @@ class App extends React.Component<{}, AppState> {
     this.setState({dataSource: dataSource.target.value})
   }
 
-  setBaseUrl = (baseUrl: string) => {
-    this.getLogData(baseUrl, this.state.startDateTime, this.state.endDateTime)
-    this.setState({baseUrl: baseUrl})
+  setDataSourceUrl = (dataSourceUrl: string) => {
+    this.getLogData(dataSourceUrl, this.state.startDateTime, this.state.endDateTime)
+    this.setState({dataSourceUrl: dataSourceUrl})
+  }
+
+  setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
+    this.setState<never>({
+      [solrUrlPartName]: solrUrlPart
+    }, function () {
+      const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery)
+      this.getLogData(dataSourceUrl, this.state.startDateTime, this.state.endDateTime)
+    })
   }
 }
 

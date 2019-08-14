@@ -64,7 +64,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 <div id="cubes-visualisation"></div>
                 <div className="slidercontainer">
                     <input type="range" min="0" max={this.props.maxRangeSlider} className="slider" id="myRange" value={this.props.valueOfSlider} onChange={this.props.accessChild} />
-                    <p>{this.props.timestamp}</p>
+                    <h2>{this.props.timestamp}</h2>
                 </div>
             </div>
         )
