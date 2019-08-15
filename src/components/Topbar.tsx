@@ -1,11 +1,16 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { Navbar, Dropdown, Form, Row } from 'react-bootstrap';
+import { Navbar, Dropdown, Form, Row, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFilter, faSearchPlus, faClock } from '@fortawesome/free-solid-svg-icons'
+import { faFilter, faSearchPlus, faClock, faRedoAlt } from '@fortawesome/free-solid-svg-icons'
 import './Topbar.css'
 
-export default class Topbar extends Component
+interface TopbarProps {
+    dataSourceUrl: string
+    getLogData: any
+}
+
+export default class Topbar extends Component<TopbarProps, any>
 {
     render()
     {
@@ -62,11 +67,16 @@ export default class Topbar extends Component
 
                 </Form>
 
+                <Button variant="light" onClick={this.refresh}><FontAwesomeIcon icon={faRedoAlt} />  Aktualisieren</Button>
 
 
 
 
             </Navbar>
         )
+    }
+
+    refresh = () => {
+        this.props.getLogData(this.props.dataSourceUrl)
     }
 }

@@ -54,10 +54,12 @@ class App extends React.Component<{}, AppState> {
 
   componentDidMount() {
     // get initial log data based on default values
-    this.getLogData(this.state.dataSourceUrl, this.state.startDateTime, this.state.endDateTime);
+    this.getLogData(this.state.dataSourceUrl);
   }
 
-  getLogData = (dataSourceUrl:string, startDateTime: string, endDateTime: string) => {
+  getLogData = (dataSourceUrl:string) => {
+    const startDateTime = this.state.startDateTime;
+    const endDateTime = this.state.endDateTime;
     // TODO: implement other data sources
     let dataService = new SolrDataService();
     dataService.getLogDataFromSolr(dataSourceUrl, startDateTime, endDateTime).then((data: any) => {
@@ -89,10 +91,11 @@ class App extends React.Component<{}, AppState> {
       <BrowserRouter>
         <div className="App">
           <Sidebar dataSource={this.state.dataSource} />
-          <Topbar />
+          <Topbar dataSourceUrl={this.state.dataSourceUrl} getLogData={this.getLogData} />
           <Container>
             <Row>
-              <Route exact path="/" render={(props) => <CubesVisualisation {...props} data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+              <Route exact path="/" render={(props) => <CubesVisualisation {...props} 
+                data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
                 clusterColors={this.state.clusterColors}
                 grid={this.state.grid}
                 maxH={this.state.maxH}
@@ -127,7 +130,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   setDataSourceUrl = (dataSourceUrl: string) => {
-    this.getLogData(dataSourceUrl, this.state.startDateTime, this.state.endDateTime)
+    this.getLogData(dataSourceUrl)
     this.setState({dataSourceUrl: dataSourceUrl})
   }
 
@@ -136,7 +139,7 @@ class App extends React.Component<{}, AppState> {
       [solrUrlPartName]: solrUrlPart
     }, function () {
       const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery)
-      this.getLogData(dataSourceUrl, this.state.startDateTime, this.state.endDateTime)
+      this.getLogData(dataSourceUrl)
     })
   }
 }
