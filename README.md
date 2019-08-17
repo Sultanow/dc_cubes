@@ -79,6 +79,11 @@ Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\s
     <param-value>X-Requested-With,Content-Type,Accept,Origin</param-value>
   </init-param>
 </filter>
+
+<filter-mapping>
+  <filter-name>cross-origin</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
 ```
 
 See: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
