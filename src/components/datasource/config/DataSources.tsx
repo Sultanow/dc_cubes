@@ -15,6 +15,7 @@ interface DataSourcesProps {
     setDataSourceUrl: any
     setDataSource: any
     setSolrUrlPart: any
+    history: any
 }
 
 interface DataSourcesState {
@@ -46,28 +47,34 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                                 {
                                     this.state.changeDataSource ?
                                     this.dataSources.map((dataSource, index) => (
-                                        <Form.Check
-                                            key={index}
+                                        <div key={index}>
+                                            <Form.Check
+                                            inline
                                             type="radio"
-                                            label={<Link to={`/data-sources/${dataSource}`}>{dataSource}</Link>}
+                                            label={dataSource}
                                             name="dataSourceRadio"
                                             id="dataSourceRadio"
                                             value={dataSource}
                                             defaultChecked={this.props.dataSource === dataSource}
-                                        />
+                                            />
+                                            <Link to={`/data-sources/${dataSource}`}>Einstellungen</Link>
+                                        </div>
                                     ))
                                     :
                                     this.dataSources.map((dataSource, index) => (
-                                        <Form.Check
-                                            key={index}
+                                        <div key={index}>
+                                            <Form.Check
+                                            inline
                                             type="radio"
-                                            label={<Link to={`/data-sources/${dataSource}`}>{dataSource}</Link>}
+                                            label={dataSource}
                                             name="dataSourceRadio"
                                             id="dataSourceRadio"
                                             value={dataSource}
                                             defaultChecked={this.props.dataSource === dataSource}
                                             disabled={this.props.dataSource !== dataSource}
-                                        />
+                                            />
+                                            <Link to={`/data-sources/${dataSource}`}>Einstellungen</Link>
+                                        </div>
                                     ))
                                 }
                                 </Col>
@@ -98,8 +105,7 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
         this.setState(prevState => ({
             changeDataSource: !prevState.changeDataSource
         }));
-        /* const url = "/data-sources/" + this.state.baseUrl
-        this.props.history.push(url) */
+        this.props.history.push("/data-sources/".concat(this.props.dataSource))
     }
 }
 
