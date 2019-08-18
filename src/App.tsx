@@ -4,7 +4,7 @@ import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/visualization3d/CubesVisualisation';
-import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
+import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart'; 
 import Topbar from './components/Topbar';
 import DataSources from './components/datasource/config/DataSources';
 import SolrDataService from './components/datasource/service/solr/SolrDataService';
@@ -12,21 +12,23 @@ import SolrAdapter from './components/datasource/service/solr/SolrAdapter';
 import DCState from './model/DCState'
 
 interface AppState {
-  logData: [];
-  startDateTime: string;
-  endDateTime: string;
-  dataSource: string;
-  dataSourceUrl: string;
-  solrBaseUrl: string;
-  solrCore: any;
-  solrQuery: string;
-  dataSourceSuccess: boolean;
-  selectedPointInTime: number;
-  temporalAxis: string[],
+  logData: []
+  startDateTime: string
+  endDateTime: string
+  dataSource: string
+  dataSourceUrl: string
+  solrBaseUrl: string
+  solrCore: any
+  solrQuery: string
+  dataSourceSuccess: boolean
+  selectedPointInTime: number
+  selectedTimespan: [number, number]
+  sliderMode: 'pointInTime' | 'timespan' | 'hidden'
+  temporalAxis: string[]
   timeSeries: Map<string, DCState>
-  clusterColors: object;
+  clusterColors: object
   grid: Map<string, Array<number>>
-  maxH: number;
+  maxH: number
 } 
 
 class App extends React.Component<{}, AppState> {
@@ -45,6 +47,8 @@ class App extends React.Component<{}, AppState> {
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceSuccess: false,
       selectedPointInTime: 0,
+      selectedTimespan: [0, 0],
+      sliderMode: 'pointInTime',
       temporalAxis: [],
       timeSeries: new Map(),
       clusterColors: {},
@@ -100,10 +104,13 @@ class App extends React.Component<{}, AppState> {
                 clusterColors={this.state.clusterColors}
                 grid={this.state.grid}
                 maxH={this.state.maxH}
-                maxRangeSlider={this.state.temporalAxis.length - 2}
+                sliderMode={this.state.sliderMode}
+                maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
+                timespanValuesOfSlider={this.state.selectedTimespan}
                 valueOfSlider={this.state.selectedPointInTime}
                 accessChild={this.accessChild}
-                timestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+                selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+                selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
                 dataSourceSuccess={this.state.dataSourceSuccess} />} />
               <Route path="/data-sources" render={(props) => <DataSources {...props} 
                 dataSource={this.state.dataSource} 
@@ -125,8 +132,8 @@ class App extends React.Component<{}, AppState> {
     );
   };
 
-  accessChild = (event) => {
-    this.setState({ selectedPointInTime: event.target.value });
+  accessChild = (stateElement, value) => {
+    this.setState<never>({ [stateElement]: value });
   }
 
   setDataSource = (dataSource: any) => {

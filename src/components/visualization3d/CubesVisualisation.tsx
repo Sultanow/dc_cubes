@@ -1,19 +1,25 @@
 import React from 'react'
 import * as THREE from 'three'
+import { Container } from 'react-bootstrap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import DCState from '../../model/DCState'
 import Datacenter from '../../model/Datacenter'
 import Cluster from '../../model/Cluster'
 import Instance from '../../model/Instance'
+import PointInTimeSlider from '../slider/PointInTimeSlider'
+import TimeSpanSlider from '../slider/TimespanSlider'
 
 interface CubesVisProps {
     data: DCState
     grid: Map<string, Array<number>>
     clusterColors: {}
     maxH: number
+    sliderMode: 'pointInTime' | 'timespan' | 'hidden'
     maxRangeSlider: number
     valueOfSlider: number
-    timestamp: string
+    timespanValuesOfSlider: [number, number]
+    selectedPointInTimeTimestamp: string
+    selectedTimespanTimestamp: string
     accessChild: any
     dataSourceSuccess: boolean
 }
@@ -59,14 +65,28 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     }
     render() {
+        const sliderMode = this.props.sliderMode;
+        let slider, timestamp;
+
+        if (sliderMode === 'pointInTime') {
+            slider = <PointInTimeSlider max={this.props.maxRangeSlider} valueOfSlider={[this.props.valueOfSlider]} onChange={this.props.accessChild} />;
+            timestamp = <h2>{this.props.selectedPointInTimeTimestamp}</h2>;
+        } else if (sliderMode === 'timespan') {
+            slider = <TimeSpanSlider max={this.props.maxRangeSlider} timespanValuesOfSlider={this.props.timespanValuesOfSlider} onChange={this.props.accessChild} />;
+            timestamp = <h2>{this.props.selectedTimespanTimestamp[0]} - {this.props.selectedTimespanTimestamp[1]}</h2>;     
+        } else {
+            slider = '';
+            timestamp = '';
+        }
+
         return (
-            <div>
+            <Container>
                 <div id="cubes-visualisation"></div>
                 <div className="slidercontainer">
-                    <input type="range" min="0" max={this.props.maxRangeSlider} className="slider" id="myRange" value={this.props.valueOfSlider} onChange={this.props.accessChild} />
-                    <h2>{this.props.timestamp}</h2>
-                </div>
-            </div>
+                    {slider}
+                    {timestamp}
+                </div>             
+            </Container>
         )
     };
 
