@@ -4,6 +4,7 @@ import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/visualization3d/CubesVisualisation';
+import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import Topbar from './components/Topbar';
 import DataSources from './components/datasource/config/DataSources';
 import SolrDataService from './components/datasource/service/solr/SolrDataService';
@@ -113,6 +114,9 @@ class App extends React.Component<{}, AppState> {
                 solrBaseUrl={this.state.solrBaseUrl}
                 solrCore={this.state.solrCore}
                 solrQuery={this.state.solrQuery} />} />
+            </Row>
+            <Row>
+              <TimeseriesNavigationChart />
             </Row>
             { !this.state.dataSourceSuccess && <Alert variant="danger">Datenquelle nicht erreichbar</Alert> }
           </Container>
