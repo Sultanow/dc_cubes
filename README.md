@@ -58,7 +58,7 @@ The core we use by default is "dc_cubes", create it using the command:
 
 Stop Solr:
 
-`.\solr.cmd stop`
+`.\solr.cmd stop -p 8983`
 
 Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\server\solr-webapp\webapp\WEB-INF\web.xml** include the following filter right after the `<web-app>` line:
 
@@ -79,6 +79,11 @@ Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\s
     <param-value>X-Requested-With,Content-Type,Accept,Origin</param-value>
   </init-param>
 </filter>
+
+<filter-mapping>
+  <filter-name>cross-origin</filter-name>
+  <url-pattern>/*</url-pattern>
+</filter-mapping>
 ```
 
 See: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
