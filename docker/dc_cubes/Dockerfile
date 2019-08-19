@@ -10,6 +10,6 @@ RUN npm run build
 FROM nginx:alpine
 # Delete default index.html
 RUN rm /usr/share/nginx/html/index.html
-COPY --from=builder /build /usr/share/nginx/html/3D-Cubes
+COPY --from=builder /build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"] 
