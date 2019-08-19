@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
-import d3 from 'd3';
+import * as d3 from 'd3';
 
 export default class TimeseriesNavigationChart extends Component {
     
-
     render() {
+
+        // Todo: Consider using type date instead of string, so we dont have to parse?
         var data=[
             {day:'02-11-2016',count:180},
             {day:'02-12-2016',count:250},
@@ -20,27 +21,29 @@ export default class TimeseriesNavigationChart extends Component {
             w = 1024 - (margin.left + margin.right),
             h = 40 - (margin.top + margin.bottom);
  
-        var parseDate = d3.time.format("%m-%d-%Y").parse;
+        var parseDate = d3.timeParse("%m-%d-%Y");
  
-        var x = d3.time.scale()
+        var x = d3.scaleTime()
             .domain(d3.extent(data, function (d) {
-                return d.date;
+                return parseDate(d.day);
             }))
             .rangeRound([0, w]);
  
-        var y = d3.scale.linear()
+        var y = d3.scaleLinear()
             .domain([0,d3.max(data,function(d){
                 return d.count+100;
             })])
             .range([h, 0]);
  
-        var line = d3.svg.line()
+        // d3 line needs an interface or it will assume number, number
+        var line = d3.line<TimeNavData>()
             .x(function (d) {
-                return x(d.date);
+                return x(parseDate(d.day));
             })
             .y(function (d) {
                 return y(d.count);
-            }).interpolate('cardinal');
+            }).curve(d3.curveCardinal);
+  
  
         var transform='translate(' + margin.left + ',' + margin.top + ')';
  
@@ -57,3 +60,9 @@ export default class TimeseriesNavigationChart extends Component {
 
     }
 }
+
+// Todo: Outsource this in the future?
+interface TimeNavData {
+    day: string,
+    count: number
+} 
