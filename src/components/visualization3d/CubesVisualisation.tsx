@@ -40,7 +40,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
 
     sceneWidth = 900;
-    sceneHeight = 600;
+    sceneHeight = 500;
 
     maxHeightOfbar = 800;
 

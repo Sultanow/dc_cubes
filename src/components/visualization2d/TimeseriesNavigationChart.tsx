@@ -2,57 +2,54 @@ import React, { Component } from 'react'
 import * as d3 from 'd3';
 
 export default class TimeseriesNavigationChart extends Component {
-    
+
     render() {
 
         // Todo: Consider using type date instead of string, so we dont have to parse?
-        var data=[
-            {day:'02-11-2016',count:180},
-            {day:'02-12-2016',count:250},
-            {day:'02-13-2016',count:150},
-            {day:'02-14-2016',count:496},
-            {day:'02-15-2016',count:140},
-            {day:'02-16-2016',count:380},
-            {day:'02-17-2016',count:100},
-            {day:'02-18-2016',count:150}
+        var data = [
+            { day: '02-11-2016', count: 180 },
+            { day: '02-12-2016', count: 250 },
+            { day: '02-13-2016', count: 150 },
+            { day: '02-14-2016', count: 496 },
+            { day: '02-15-2016', count: 140 },
+            { day: '02-16-2016', count: 380 },
+            { day: '02-17-2016', count: 100 },
+            { day: '02-18-2016', count: 150 }
         ];
- 
-        var margin = {top: 5, right: 50, bottom: 20, left: 50},
-            w = 1024 - (margin.left + margin.right),
-            h = 40 - (margin.top + margin.bottom);
- 
+
+        var margin = { top: 20, right: 20, bottom: 0, left: 0 }
+        var width = 900 - (margin.left + margin.right);
+        var height = 250 - (margin.top + margin.bottom);
+
         var parseDate = d3.timeParse("%m-%d-%Y");
- 
+
+
         var x = d3.scaleTime()
+            .range([0, width])
             .domain(d3.extent(data, function (d) {
                 return parseDate(d.day);
             }))
-            .rangeRound([0, w]);
- 
+
         var y = d3.scaleLinear()
-            .domain([0,d3.max(data,function(d){
-                return d.count+100;
+            .range([height, 0])
+            .domain([0, d3.max(data, function (d) {
+                return d.count + 100;
             })])
-            .range([h, 0]);
- 
-        // d3 line needs an interface or it will assume number, number
-        var line = d3.line<TimeNavData>()
-            .x(function (d) {
-                return x(parseDate(d.day));
-            })
-            .y(function (d) {
-                return y(d.count);
-            }).curve(d3.curveCardinal);
-  
- 
-        var transform='translate(' + margin.left + ',' + margin.top + ')';
- 
+
+        var area = d3.area<TimeNavData>()
+            .curve(d3.curveMonotoneX)
+            .x(function (d) { return x(parseDate(d.day)); })
+            .y0(y(0))
+            .y1(function (d) { return y(d.count); });
+
+
+        var transform = 'translate(' + margin.left + ',' + margin.top + ')';
+
         return (
             <div>
-                <svg id={"52235"} width={1024} height={40}>
- 
+                <svg id={"52235"} width={900} height={250}>
                     <g transform={transform}>
-                        <path className="line shadow" d={line(data)} strokeLinecap="round"/>
+                        <path className="line shadow" d={area(data)} strokeLinecap="round" />
                     </g>
                 </svg>
             </div>
