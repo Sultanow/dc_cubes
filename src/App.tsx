@@ -4,7 +4,7 @@ import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/visualization3d/CubesVisualisation';
-import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart'; 
+import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import Topbar from './components/Topbar';
 import DataSources from './components/datasource/config/DataSources';
 import SolrDataService from './components/datasource/service/solr/SolrDataService';
@@ -29,7 +29,7 @@ interface AppState {
   clusterColors: object
   grid: Map<string, Array<number>>
   maxH: number
-} 
+}
 
 class App extends React.Component<{}, AppState> {
 
@@ -62,7 +62,7 @@ class App extends React.Component<{}, AppState> {
     this.getLogData(this.state.dataSourceUrl);
   }
 
-  getLogData = (dataSourceUrl:string) => {
+  getLogData = (dataSourceUrl: string) => {
     const startDateTime = this.state.startDateTime;
     const endDateTime = this.state.endDateTime;
     // TODO: implement other data sources
@@ -85,7 +85,8 @@ class App extends React.Component<{}, AppState> {
 
     }).catch((error: any) => {
       this.setState({
-        dataSourceSuccess: false })
+        dataSourceSuccess: false
+      })
       console.log(error)
     });
   }
@@ -103,33 +104,36 @@ class App extends React.Component<{}, AppState> {
                   temporalAxis={this.state.temporalAxis} />
           <Container>
             <Row>
-              <Route exact path="/" render={(props) => <CubesVisualisation {...props} 
-                data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
-                clusterColors={this.state.clusterColors}
-                grid={this.state.grid}
-                maxH={this.state.maxH}
-                sliderMode={this.state.sliderMode}
-                maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
-                timespanValuesOfSlider={this.state.selectedTimespan}
-                valueOfSlider={this.state.selectedPointInTime}
-                accessChild={this.accessChild}
-                selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-                selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
-                dataSourceSuccess={this.state.dataSourceSuccess} />} />
-              <Route path="/data-sources" render={(props) => <DataSources {...props} 
-                dataSource={this.state.dataSource} 
-                setDataSource={this.setDataSource} 
-                setDataSourceUrl={this.setDataSourceUrl} 
+              <Route exact path="/" render={
+                (props) =>
+                  <div>
+                    <CubesVisualisation {...props}
+                      data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                      clusterColors={this.state.clusterColors}
+                      grid={this.state.grid}
+                      maxH={this.state.maxH}
+                      sliderMode={this.state.sliderMode}
+                      maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
+                      timespanValuesOfSlider={this.state.selectedTimespan}
+                      valueOfSlider={this.state.selectedPointInTime}
+                      accessChild={this.accessChild}
+                      selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+                      selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
+                      dataSourceSuccess={this.state.dataSourceSuccess} />
+                    <TimeseriesNavigationChart />
+                  </div>
+              } />
+              <Route path="/data-sources" render={(props) => <DataSources {...props}
+                dataSource={this.state.dataSource}
+                setDataSource={this.setDataSource}
+                setDataSourceUrl={this.setDataSourceUrl}
                 setSolrUrlPart={this.setSolrUrlPart}
                 dataSourceUrl={this.state.dataSourceUrl}
                 solrBaseUrl={this.state.solrBaseUrl}
                 solrCore={this.state.solrCore}
                 solrQuery={this.state.solrQuery} />} />
             </Row>
-            <Row>
-              <TimeseriesNavigationChart />
-            </Row>
-            { !this.state.dataSourceSuccess && <Alert variant="danger">Datenquelle nicht erreichbar</Alert> }
+            {!this.state.dataSourceSuccess && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
           </Container>
         </div>
       </BrowserRouter>
@@ -141,12 +145,12 @@ class App extends React.Component<{}, AppState> {
   }
 
   setDataSource = (dataSource: any) => {
-    this.setState({dataSource: dataSource.target.value})
+    this.setState({ dataSource: dataSource.target.value })
   }
 
   setDataSourceUrl = (dataSourceUrl: string) => {
     this.getLogData(dataSourceUrl)
-    this.setState({dataSourceUrl: dataSourceUrl})
+    this.setState({ dataSourceUrl: dataSourceUrl })
   }
 
   setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
