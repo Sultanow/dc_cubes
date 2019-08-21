@@ -2,3 +2,7 @@
     width: 40rem;
     margin-left: 4rem;
 }
+
+.dropdown-width {
+    min-width: 32rem;
+}
