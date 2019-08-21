@@ -96,7 +96,11 @@ class App extends React.Component<{}, AppState> {
       <BrowserRouter>
         <div className="App">
           <Sidebar dataSource={this.state.dataSource} />
-          <Topbar dataSourceUrl={this.state.dataSourceUrl} getLogData={this.getLogData} />
+          <Topbar dataSourceUrl={this.state.dataSourceUrl} 
+                  getLogData={this.getLogData} 
+                  accessChild={this.accessChild}
+                  sliderMode={this.state.sliderMode}
+                  temporalAxis={this.state.temporalAxis} />
           <Container>
             <Row>
               <Route exact path="/" render={(props) => <CubesVisualisation {...props} 

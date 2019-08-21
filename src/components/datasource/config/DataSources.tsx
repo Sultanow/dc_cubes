@@ -105,7 +105,7 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
         this.setState(prevState => ({
             changeDataSource: !prevState.changeDataSource
         }));
-        this.props.history.push("/data-sources/".concat(this.props.dataSource))
+        this.props.history.push('/data-sources/'.concat(this.props.dataSource))
     }
 }
 
