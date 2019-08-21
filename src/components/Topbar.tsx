@@ -26,6 +26,7 @@ export default class Topbar extends Component<TopbarProps, any>
             timespanAmount: 10,
             refreshCount: 10,
             refreshTimeUnit: 'minutes',
+            automaticRefresh: true,
             dataNotAvailableError: false
         };
     }
@@ -172,7 +173,7 @@ export default class Topbar extends Component<TopbarProps, any>
                                                     inline
                                                     label="Automatisch aktualisieren"
                                                     type="checkbox"
-                                                    id="custom-inline-checkbox-1"
+                                                    id="automaticRefresh"
                                                     onChange={this.handleChange}
                                                 />
                                             </Col> 
@@ -261,6 +262,8 @@ export default class Topbar extends Component<TopbarProps, any>
             } else if (this.state.timespanTimeUnit === 'days') {
                 now.setDate(now.getDate() - this.state.timespanAmount)
                 now.setUTCHours(0, 0, 0, 0)
+            } else {
+                return
             }
 
             let startDatetimeOfTimespan = now.toISOString().split('.')[0]+"Z"
@@ -282,17 +285,20 @@ export default class Topbar extends Component<TopbarProps, any>
     }
 
     handlePointInTime = (e) => {
-        this.setState({
-            dataNotAvailableError: false,
-            selectedPointInTimeTimestamp: e[0].toISOString().split('.')[0]+"Z"
-        })
-        this.props.accessChild('sliderMode', 'pointInTime')
-        let pointInTime = this.getPointInTimeOfDatetimeString(this.state.selectedPointInTimeTimestamp)
-
-        if (pointInTime !== -1) {
-            this.props.accessChild('selectedPointInTime', pointInTime)
+        if (e[0]) {
+            this.setState({
+                dataNotAvailableError: false,
+                selectedPointInTimeTimestamp: e[0].toISOString().split('.')[0]+"Z"
+            })
         } else {
-            this.setState({dataNotAvailableError: true})
+            this.props.accessChild('sliderMode', 'pointInTime')
+            let pointInTime = this.getPointInTimeOfDatetimeString(this.state.selectedPointInTimeTimestamp)
+    
+            if (pointInTime !== -1) {
+                this.props.accessChild('selectedPointInTime', pointInTime)
+            } else {
+                this.setState({dataNotAvailableError: true})
+            }
         }
     }
 
