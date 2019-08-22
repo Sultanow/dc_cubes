@@ -3,16 +3,19 @@ import { Link } from "react-router-dom";
 import { Navbar, Dropdown, Form, Row, Button, Container, Col, Alert } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilter, faSearchPlus, faClock, faRedoAlt } from '@fortawesome/free-solid-svg-icons'
-import './Topbar.css'
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
+import './Topbar.css'
 
 interface TopbarProps {
     dataSourceUrl: string
     getLogData: any
     accessChild: any
-    temporalAxis: string[]
     sliderMode: 'pointInTime' | 'timespan' | 'hidden'
+    temporalAxis: string[]
+    timeSeries: any
+    changeIntervalOfDataRefresh: any
+    clearIntervalOfDataRefresh: any
 }
 
 export default class Topbar extends Component<TopbarProps, any>
@@ -24,7 +27,7 @@ export default class Topbar extends Component<TopbarProps, any>
             timespanDirection: 'last',
             timespanTimeUnit: 'hours',
             timespanAmount: 10,
-            refreshCount: 10,
+            refreshInterval: 10,
             refreshTimeUnit: 'minutes',
             automaticRefresh: true,
             dataNotAvailableError: false
@@ -156,14 +159,13 @@ export default class Topbar extends Component<TopbarProps, any>
                                         <br/>
                                         <Row>
                                             <Col lg={3}>
-                                                <Form.Control type="number" name="refreshCount" min="1" max="999" value={this.state.refreshCount} onChange={this.handleChange}/>
+                                                <Form.Control type="number" name="refreshInterval" min="1" max="999" value={this.state.refreshInterval} onChange={this.handleChange}/>
                                             </Col>
                                             <Col lg={3}>
                                                 <Form.Control as="select" name="refreshTimeUnit" value={this.state.refreshTimeUnit} onChange={this.handleChange}>
                                                     <option value="seconds">Sekunden</option>
                                                     <option value="minutes">Minuten</option>
                                                     <option value="hours">Stunden</option>
-                                                    <option value="days">Tage</option>
                                                 </Form.Control>
                                             </Col>
                                             <Col lg={6}>
@@ -221,20 +223,33 @@ export default class Topbar extends Component<TopbarProps, any>
                     </div>
                 </Form>
 
-                <Button variant="light" onClick={this.refresh}><FontAwesomeIcon icon={faRedoAlt} /> Aktualisieren</Button>
+                <Button variant="light" onClick={this.manualRefresh}><FontAwesomeIcon icon={faRedoAlt} /> Aktualisieren</Button>
 
             </Navbar>
         )
     }
 
-    refresh = () => {
+    componentDidUpdate () {
+        //console.log(this.props.timeSeries.get("2018-08-01T00:00:00Z"))
+    }
+
+    manualRefresh = () => {
         this.props.getLogData(this.props.dataSourceUrl)
     }
 
     handleChange = (e) => {       
         const stateElement = e.target.name
         const value = e.target.value
-        this.setState<never>({ [stateElement]: value }); 
+        this.setState<never>({ [stateElement]: value }, () => {
+            // Check for udpates of data refresh interval settings
+            if (this.state.automaticRefresh === false) {
+                this.props.clearIntervalOfDataRefresh()
+            } else if ((stateElement === 'refreshInterval' || stateElement === 'refreshTimeUnit') && this.state.automaticRefresh) {
+                this.props.changeIntervalOfDataRefresh(this.state.refreshInterval, this.state.refreshTimeUnit)
+            } else {
+                return
+            }
+        })
     }
 
     setCurrentTime = () => {

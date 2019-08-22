@@ -29,6 +29,7 @@ interface AppState {
   clusterColors: object
   grid: Map<string, Array<number>>
   maxH: number
+  intervalId: any
 }
 
 class App extends React.Component<{}, AppState> {
@@ -54,12 +55,19 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
+      intervalId: undefined
     };
   }
 
   componentDidMount() {
-    // get initial log data based on default values
+    // Get initial log data based on default values
     this.getLogData(this.state.dataSourceUrl);
+
+    // Set the initial data refresh interval
+    let intervalId = setInterval(() => {
+      this.getLogData(this.state.dataSourceUrl);
+    }, 600000);
+    this.setState<never>({intervalId: intervalId});
   }
 
   getLogData = (dataSourceUrl: string) => {
@@ -101,7 +109,10 @@ class App extends React.Component<{}, AppState> {
                   getLogData={this.getLogData} 
                   accessChild={this.accessChild}
                   sliderMode={this.state.sliderMode}
-                  temporalAxis={this.state.temporalAxis} />
+                  temporalAxis={this.state.temporalAxis}
+                  timeSeries={this.state.timeSeries}
+                  clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
+                  changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
           <Container>
             <Row>
               <Route exact path="/" render={
@@ -140,6 +151,33 @@ class App extends React.Component<{}, AppState> {
     );
   };
 
+  changeIntervalOfDataRefresh = (refreshInterval: number, refreshTimeUnit: string) => {
+    // Delete previous data refresh interval
+    clearInterval(this.state.intervalId);
+
+    // Convert refresh interval from provided time unit to ms
+    if (refreshTimeUnit === 'seconds') {
+      refreshInterval = refreshInterval * 1000
+    } else if (refreshTimeUnit === 'minutes') {
+      refreshInterval = refreshInterval * 60000
+    } else if (refreshTimeUnit === 'hours') {
+      refreshInterval = refreshInterval * 3600000
+    } else {
+      return
+    }
+
+    // Set new data refresh interval
+    var intervalId = setInterval(() => {
+      this.getLogData(this.state.dataSourceUrl);
+    }, refreshInterval);
+    this.setState<never>({intervalId: intervalId});
+  }
+
+  clearIntervalOfDataRefresh = () => {
+    // Deactivates automatic data refresh
+    clearInterval(this.state.intervalId);
+  }
+
   accessChild = (stateElement, value) => {
     this.setState<never>({ [stateElement]: value });
   }
@@ -156,7 +194,7 @@ class App extends React.Component<{}, AppState> {
   setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
     this.setState<never>({
       [solrUrlPartName]: solrUrlPart
-    }, function () {
+    }, () => {
       const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery)
       this.getLogData(dataSourceUrl)
     })
