@@ -39,6 +39,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         ];
 
         var maxData = this.prepareDataForMaxLine();
+        var minData = this.prepareDateForMinLine();
 
         // TODO: Refactor -> extract the generation of D3 chart in an own function
         var margin = { top: 20, right: 20, bottom: 0, left: 0 }
@@ -73,7 +74,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             .y0(y(0))
             .y1(function (d) { return y(d.maxCount); });
 
-
         var transform = 'translate(' + margin.left + ',' + margin.top + ')';
 
         return (
@@ -82,6 +82,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     <g transform={transform}>
                         {/* <path className="area-max" d={area(data)} strokeLinecap="round" /> */}
                         <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
+                        <path className="area-min" d={area2(minData)} strokeLinecap="round" />
                     </g>
                 </svg>
             </div>
@@ -117,8 +118,41 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         return valuesOnTimestamp;
     }
 
-    
+    // TODO: Refactor code
+    prepareDateForMinLine() {
+        var uniqueTimestamps = [];
+        for (var i = 0; i < this.props.timeseriesData.length; i++) {
+            if (uniqueTimestamps.indexOf(this.props.timeseriesData[i].timestamp) === -1) {
+                if (this.props.timeseriesData[i].timestamp !== undefined)
+                    uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
+            }
+        }
+        uniqueTimestamps.sort((x, y) => {
+            return Date.parse(x) - Date.parse(y);
+        })
+
+        const valuesOnTimestamp = [];
+        uniqueTimestamps.forEach(timestamp => {
+            const values = []
+            this.props.timeseriesData.forEach(element => {
+                if (timestamp === element.timestamp) {
+                    values.push(element.count);
+                }
+            });
+
+            valuesOnTimestamp.push({ timestamp: timestamp, maxCount: Math.min.apply(Math, values) })
+
+        });
+
+        console.log(valuesOnTimestamp);
+        return valuesOnTimestamp;
+
+    }
+
+
+
 }
+
 
 // Todo: Outsource this in the future?
 interface TimeNavData {
