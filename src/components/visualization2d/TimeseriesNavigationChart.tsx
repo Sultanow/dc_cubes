@@ -3,13 +3,13 @@ import * as d3 from 'd3';
 import './TimeseriesNavigationChart.css';
 
 interface TimeseriesNavigationChartProps {
-    // TODO: replace any type with real type
     timeseriesData: [{ timestamp: string, count: number }]
 }
 
-interface TimeNavData {
-    day: string,
-    count: number
+interface TimeseriesNavigationChartState {
+    max: string,
+    average: string,
+    min: string,
 }
 
 interface timeseriesData {
@@ -17,7 +17,13 @@ interface timeseriesData {
     count: number
 }
 
-export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps>{
+export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
+
+    state = {
+        max: null,
+        average: null,
+        min: null,
+    }
 
     private margin = { top: 20, right: 20, bottom: 0, left: 0 };
     private width = 900 - (this.margin.left + this.margin.right);
@@ -27,7 +33,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private xScale = d3.scaleTime().range([0, this.width]);
     private yScale = d3.scaleLinear().range([this.height, 0]);
 
-    private lineGenerator = d3.line();
+    private lineGenerator = d3.line<timeseriesData>().curve(d3.curveMonotoneX);
+    private areaGenerator = d3.area<timeseriesData>().curve(d3.curveMonotoneX);
 
     private xAxisRef: React.RefObject<SVGGElement>;
     private yAxisRef: React.RefObject<SVGGElement>;
@@ -38,16 +45,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.yAxisRef = React.createRef();
     }
 
-    componentDidUpdate() {
-        d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%H:%M:%S")));
-    }
-
-    componentWillReceiveProps() {
+    componentDidMount() {
         const { timeseriesData } = this.props;
         if (!timeseriesData) return;
-        console.log("XXXXXXXXXXXXXXXXXXXXX")
-        console.log(timeseriesData)
 
         const timeDomain = d3.extent(timeseriesData, d => {
             return this.parseDate(d.timestamp);
@@ -60,33 +60,56 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
 
+        // generate the max area
+        this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+        this.areaGenerator.y0(this.yScale(0))
+        this.areaGenerator.y1(d => { return this.yScale(d.count); });
+        const max = this.areaGenerator(this.prepareDataForMaxLine());
+        this.setState({ max })
+
+        // generate the average line 
+        this.lineGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); });
+        this.lineGenerator.y(d => { return this.yScale(d.count); })
+        const average = this.lineGenerator(this.prepareDateForAvgLine());
+        this.setState({ average })
+
+        // generate the min area
+        this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+        this.areaGenerator.y0(this.yScale(0))
+        this.areaGenerator.y1(d => { return this.yScale(d.count); });
+        const min = this.areaGenerator(this.prepareDateForMinLine());
+        this.setState({ min })
+
+
+
+    }
+    componentDidUpdate() {
+        d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%H:%M:%S")));
     }
 
     render() {
-        // var parseDate = this.parseDate;
-        var maxData = this.prepareDataForMaxLine();
-        var minData = this.prepareDateForMinLine();
-        var avgData = this.prepareDateForAvgLine();
+        var maxArea = null;
+        if (this.state.max != null) {
+            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" />
+        }
 
-        var area = d3.area<timeseriesData>()
-            .curve(d3.curveMonotoneX)
-            .x(d => { return this.xScale(this.parseDate(d.timestamp)); })
-            .y0(this.yScale(0))
-            .y1(d => { return this.yScale(d.count); });
+        var avgline = null;
+        if (this.state.average != null) {
+            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" />
+        }
 
-        var line = d3.line<timeseriesData>()
-            .curve(d3.curveMonotoneX)
-            .x(d => { return this.xScale(this.parseDate(d.timestamp)); })
-            .y(d => { return this.yScale(d.count); });
-
-
+        var minArea = null;
+        if (this.state.min != null) {
+            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" />
+        }
 
         return (
             <div>
                 <svg id={"52235"} width={900} height={250}>
-                    <path className="area-max" d={area(maxData)} strokeLinecap="round" />
-                    <path className="line-avg" d={line(avgData)} strokeLinecap="round" />
-                    <path className="area-min" d={area(minData)} strokeLinecap="round" />
+                    {maxArea}
+                    {avgline}
+                    {minArea}
                     <g className="x-axis" transform={'translate(0,' + this.height + ')'} ref={this.xAxisRef}></g>;
                     <g className="y-axis" transform="translate(0,0)" ref={this.yAxisRef}></g>;
                 </svg>
