@@ -30,6 +30,7 @@ interface AppState {
   grid: Map<string, Array<number>>
   maxH: number
   intervalId: any
+  rawTimeseriesData:any
 }
 
 class App extends React.Component<{}, AppState> {
@@ -55,7 +56,8 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
-      intervalId: undefined
+      intervalId: undefined,
+      rawTimeseriesData:null
     };
   }
 
@@ -88,6 +90,8 @@ class App extends React.Component<{}, AppState> {
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
         dataSourceSuccess: true,
+        // raw timesereis Data for 2d graph 
+        rawTimeseriesData: data.data.response.docs
       });
 
 
@@ -131,7 +135,7 @@ class App extends React.Component<{}, AppState> {
                       selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
                       selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
                       dataSourceSuccess={this.state.dataSourceSuccess} />
-                    <TimeseriesNavigationChart />
+                    <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} />
                   </div>
               } />
               <Route path="/data-sources" render={(props) => <DataSources {...props}

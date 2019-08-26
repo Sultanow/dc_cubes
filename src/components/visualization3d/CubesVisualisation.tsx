@@ -258,7 +258,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.props.grid.forEach((element) => {
             // this condition is only necessary beacuse there is a bug in SolrAdapter.ts 
-            // the last element of the grid is undifined, without this condition one playeholder to much would be falsely rendered
+            // the last element of the grid is undifined, without this condition one to many playeholder would be falsely rendered
             if (index < this.props.grid.size - 1) {
                 this.createBarPlaceholder(element[0] * 150, element[1] * 150);
             }
