@@ -7,18 +7,35 @@ interface TimeseriesNavigationChartProps {
     timeseriesData: any
 }
 
+interface TimeNavData {
+    day: string,
+    count: number
+}
+
+interface maxData {
+    timestamp: string,
+    maxCount: number
+}
+
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps>{
-    private ref: React.RefObject<SVGGElement>;
+
+    private xAxisRef: React.RefObject<SVGGElement>;
+    private yAxisRef: React.RefObject<SVGGElement>;
+
     constructor(props: any) {
         super(props);
-        this.ref = React.createRef();
+        this.xAxisRef = React.createRef();
+        this.yAxisRef = React.createRef();
     }
 
-    componentDidUpdate() {
-        // method is executet on every rerender, not optimal for performance
-        console.log("TODO: Warum wird diese Methode jedes mal aufgerufen, wenn man den slider bewegt?");
-        this.prepareDataForMaxLine();
+    componentWillMount() {
+
     }
+    componentDidUpdate() {
+
+
+    }
+
 
     render() {
 
@@ -31,7 +48,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         var width = 900 - (margin.left + margin.right);
         var height = 250 - (margin.top + margin.bottom);
 
-        var parseDate = d3.timeParse("%m-%d-%Y");
         var parseDate2 = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
 
@@ -47,12 +63,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 return d.maxCount + 100;
             })])
 
-        var area = d3.area<TimeNavData>()
-            .curve(d3.curveMonotoneX)
-            .x(function (d) { return x(parseDate(d.day)); })
-            .y0(y(0))
-            .y1(function (d) { return y(d.count); });
-
         var area2 = d3.area<maxData>()
             .curve(d3.curveMonotoneX)
             .x(function (d) { return x(parseDate2(d.timestamp)); })
@@ -66,9 +76,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
 
         var transform = 'translate(0,' + height + ')';
-        d3.select(this.ref.current).call(d3.axisLeft(y));
+        d3.select(this.yAxisRef.current).call(d3.axisLeft(y));
 
-        d3.select(this.ref.current).call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M:%S")));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M:%S")));
 
         return (
             <div>
@@ -76,9 +86,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
                     <path className="line-avg" d={line(avgData)} strokeLinecap="round" />
                     <path className="area-min" d={area2(minData)} strokeLinecap="round" />
-                    <g transform={transform} ref={this.ref}>
-
-                    </g>;
+                    <g className="x-axis" transform={transform} ref={this.xAxisRef}></g>;
+                    <g className="y-axis"transform="translate(0,0)" ref={this.yAxisRef}></g>;
                 </svg>
             </div>
         );
@@ -109,7 +118,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         });
 
-        console.log(valuesOnTimestamp);
         return valuesOnTimestamp;
     }
 
@@ -139,7 +147,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         });
 
-        console.log(valuesOnTimestamp);
         return valuesOnTimestamp;
 
     }
@@ -175,21 +182,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             valuesOnTimestamp.push({ timestamp: timestamp, maxCount: avg })
 
         });
-
-        console.log(valuesOnTimestamp);
         return valuesOnTimestamp;
 
     }
 
 }
 
-// Todo: Outsource this in the future?
-interface TimeNavData {
-    day: string,
-    count: number
-}
-
-interface maxData {
-    timestamp: string,
-    maxCount: number
-} 
