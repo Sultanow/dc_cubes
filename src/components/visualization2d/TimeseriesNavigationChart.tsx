@@ -7,8 +7,6 @@ interface TimeseriesNavigationChartProps {
     timeseriesData: any
 }
 
-
-
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps>{
 
     componentDidUpdate() {
@@ -39,17 +37,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             { day: '02-26-2016', count: 150 },
 
         ];
-        var data2 = [
-            { day: '02-11-2016', count: 250 },
-            { day: '02-12-2016', count: 150 },
-            { day: '02-13-2016', count: 300 },
-            { day: '02-14-2016', count: 170 },
-            { day: '02-15-2016', count: 300 },
-            { day: '02-16-2016', count: 34 },
-            { day: '02-17-2016', count: 260 },
-            { day: '02-18-2016', count: 80 },
-        ];
 
+        var maxData = this.prepareDataForMaxLine();
 
         // TODO: Refactor -> extract the generation of D3 chart in an own function
         var margin = { top: 20, right: 20, bottom: 0, left: 0 }
@@ -57,19 +46,20 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         var height = 250 - (margin.top + margin.bottom);
 
         var parseDate = d3.timeParse("%m-%d-%Y");
+        var parseDate2 = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
 
         var x = d3.scaleTime()
             .range([0, width])
-            .domain(d3.extent(data, function (d) {
-                return parseDate(d.day);
+            .domain(d3.extent(maxData, function (d) {
+                return parseDate2(d.timestamp);
             }))
 
         var y = d3.scaleLinear()
             .range([height, 0])
-            .domain([0, d3.max(data, function (d) {
-                return d.count + 100;
-            })]).nice()
+            .domain([0, d3.max(maxData, function (d) {
+                return d.maxCount + 100;
+            })])
 
         var area = d3.area<TimeNavData>()
             .curve(d3.curveMonotoneX)
@@ -77,11 +67,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             .y0(y(0))
             .y1(function (d) { return y(d.count); });
 
-        var area2 = d3.area<TimeNavData>()
+        var area2 = d3.area<maxData>()
             .curve(d3.curveMonotoneX)
-            .x(function (d) { return x(parseDate(d.day)); })
+            .x(function (d) { return x(parseDate2(d.timestamp)); })
             .y0(y(0))
-            .y1(function (d) { return y(d.count); });
+            .y1(function (d) { return y(d.maxCount); });
 
 
         var transform = 'translate(' + margin.left + ',' + margin.top + ')';
@@ -90,8 +80,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             <div>
                 <svg id={"52235"} width={900} height={250}>
                     <g transform={transform}>
-                        <path className="area-max" d={area(data)} strokeLinecap="round" />
-                        <path className="area-avg" d={area2(data2)} strokeLinecap="round" />
+                        {/* <path className="area-max" d={area(data)} strokeLinecap="round" /> */}
+                        <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
                     </g>
                 </svg>
             </div>
@@ -106,8 +96,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
             }
         }
-        uniqueTimestamps.sort((x, y)=>{
-            return  Date.parse(x)-Date.parse(y);
+        uniqueTimestamps.sort((x, y) => {
+            return Date.parse(x) - Date.parse(y);
         })
 
         const valuesOnTimestamp = [];
@@ -125,15 +115,18 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         console.log(valuesOnTimestamp);
         return valuesOnTimestamp;
-
-
     }
+
+    
 }
-
-
 
 // Todo: Outsource this in the future?
 interface TimeNavData {
     day: string,
     count: number
+}
+
+interface maxData {
+    timestamp: string,
+    maxCount: number
 } 

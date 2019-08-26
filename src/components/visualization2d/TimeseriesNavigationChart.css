@@ -1,11 +1,11 @@
 .area-max {
-    fill: steelblue;
+    fill: rgba(70, 131, 180, 0.8);
     stroke: black;
     stroke-width: 1px;
 }
 
 .area-avg {
-    fill: rgba(125, 226, 209, 0.582);
+    fill: rgba(125, 226, 209, 0.8);
     stroke:black;
     stroke-width: 1px;
 }

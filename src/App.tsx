@@ -29,7 +29,8 @@ interface AppState {
   clusterColors: object
   grid: Map<string, Array<number>>
   maxH: number
-  rawTimeseriesData:any
+  rawTimeseriesData:any,
+  isRawTimeseriesDataLoaded:boolean
 }
 
 class App extends React.Component<{}, AppState> {
@@ -55,7 +56,8 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
-      rawTimeseriesData:null
+      rawTimeseriesData:null,
+      isRawTimeseriesDataLoaded:false
     };
   }
 
@@ -83,7 +85,8 @@ class App extends React.Component<{}, AppState> {
         maxH: solrAdapter.maxh,
         dataSourceSuccess: true,
         // raw timesereis Data for 2d graph 
-        rawTimeseriesData: data.data.response.docs
+        rawTimeseriesData: data.data.response.docs,
+        isRawTimeseriesDataLoaded: true,
       });
 
 
@@ -97,6 +100,14 @@ class App extends React.Component<{}, AppState> {
 
   // child = createRef<CubesVisualisation>();
   render() {
+
+    var TimeseriesNavigationChartComponent;
+    if(this.state.isRawTimeseriesDataLoaded){
+      TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} />
+    }
+    else {
+      TimeseriesNavigationChartComponent=null;
+    }
     return (
       <BrowserRouter>
         <div className="App">
@@ -124,7 +135,7 @@ class App extends React.Component<{}, AppState> {
                       selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
                       selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
                       dataSourceSuccess={this.state.dataSourceSuccess} />
-                    <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} />
+                      {TimeseriesNavigationChartComponent}
                   </div>
               } />
               <Route path="/data-sources" render={(props) => <DataSources {...props}
