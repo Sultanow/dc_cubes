@@ -12,21 +12,12 @@ interface TimeNavData {
     count: number
 }
 
-interface maxData {
+interface timeseriesData {
     timestamp: string,
-    maxCount: number
+    count: number
 }
 
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps>{
-
-    private xAxisRef: React.RefObject<SVGGElement>;
-    private yAxisRef: React.RefObject<SVGGElement>;
-
-    constructor(props: any) {
-        super(props);
-        this.xAxisRef = React.createRef();
-        this.yAxisRef = React.createRef();
-    }
 
     private margin = { top: 20, right: 20, bottom: 0, left: 0 };
     private width = 900 - (this.margin.left + this.margin.right);
@@ -36,7 +27,16 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private xScale = d3.scaleTime().range([0, this.width]);
     private yScale = d3.scaleLinear().range([this.height, 0]);
 
+    private lineGenerator = d3.line();
 
+    private xAxisRef: React.RefObject<SVGGElement>;
+    private yAxisRef: React.RefObject<SVGGElement>;
+
+    constructor(props: any) {
+        super(props);
+        this.xAxisRef = React.createRef();
+        this.yAxisRef = React.createRef();
+    }
 
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
@@ -57,6 +57,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             return d.count + 100;
         })]
 
+        this.xScale.domain(timeDomain);
+        this.yScale.domain(maxCount);
+
     }
 
     render() {
@@ -65,25 +68,16 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         var minData = this.prepareDateForMinLine();
         var avgData = this.prepareDateForAvgLine();
 
-
-        this.xScale.domain(d3.extent(maxData, d => {
-            return this.parseDate(d.timestamp);
-        }))
-
-        this.yScale.domain([0, d3.max(maxData, d => {
-            return d.maxCount + 100;
-        })])
-
-        var area = d3.area<maxData>()
+        var area = d3.area<timeseriesData>()
             .curve(d3.curveMonotoneX)
             .x(d => { return this.xScale(this.parseDate(d.timestamp)); })
             .y0(this.yScale(0))
-            .y1(d => { return this.yScale(d.maxCount); });
+            .y1(d => { return this.yScale(d.count); });
 
-        var line = d3.line<maxData>()
+        var line = d3.line<timeseriesData>()
             .curve(d3.curveMonotoneX)
             .x(d => { return this.xScale(this.parseDate(d.timestamp)); })
-            .y(d => { return this.yScale(d.maxCount); });
+            .y(d => { return this.yScale(d.count); });
 
 
 
@@ -121,7 +115,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 }
             });
 
-            valuesOnTimestamp.push({ timestamp: timestamp, maxCount: Math.max.apply(Math, values) })
+            valuesOnTimestamp.push({ timestamp: timestamp, count: Math.max.apply(Math, values) })
 
         });
 
@@ -150,7 +144,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 }
             });
 
-            valuesOnTimestamp.push({ timestamp: timestamp, maxCount: Math.min.apply(Math, values) })
+            valuesOnTimestamp.push({ timestamp: timestamp, count: Math.min.apply(Math, values) })
 
         });
 
@@ -186,7 +180,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 avg = sum / values.length;
             }
 
-            valuesOnTimestamp.push({ timestamp: timestamp, maxCount: avg })
+            valuesOnTimestamp.push({ timestamp: timestamp, count: avg })
 
         });
         return valuesOnTimestamp;
