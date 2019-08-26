@@ -17,29 +17,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     render() {
 
-        // Todo: Consider using type date instead of string, so we dont have to parse?
-        var data = [
-            { day: '02-11-2016', count: 180 },
-            { day: '02-12-2016', count: 250 },
-            { day: '02-13-2016', count: 150 },
-            { day: '02-14-2016', count: 496 },
-            { day: '02-15-2016', count: 140 },
-            { day: '02-16-2016', count: 380 },
-            { day: '02-17-2016', count: 100 },
-            { day: '02-18-2016', count: 150 },
-            { day: '02-19-2016', count: 180 },
-            { day: '02-20-2016', count: 250 },
-            { day: '02-21-2016', count: 150 },
-            { day: '02-22-2016', count: 496 },
-            { day: '02-23-2016', count: 140 },
-            { day: '02-24-2016', count: 380 },
-            { day: '02-25-2016', count: 100 },
-            { day: '02-26-2016', count: 150 },
-
-        ];
-
         var maxData = this.prepareDataForMaxLine();
         var minData = this.prepareDateForMinLine();
+        var avgData = this.prepareDateForAvgLine();
 
         // TODO: Refactor -> extract the generation of D3 chart in an own function
         var margin = { top: 20, right: 20, bottom: 0, left: 0 }
@@ -74,14 +54,19 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             .y0(y(0))
             .y1(function (d) { return y(d.maxCount); });
 
+        var line = d3.line<maxData>()
+            .curve(d3.curveMonotoneX)
+            .x(function (d) { return x(parseDate2(d.timestamp)); })
+            .y(function (d) { return y(d.maxCount); });
+
         var transform = 'translate(' + margin.left + ',' + margin.top + ')';
 
         return (
             <div>
                 <svg id={"52235"} width={900} height={250}>
                     <g transform={transform}>
-                        {/* <path className="area-max" d={area(data)} strokeLinecap="round" /> */}
                         <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
+                        <path className="line-avg" d={line(avgData)} strokeLinecap="round" />
                         <path className="area-min" d={area2(minData)} strokeLinecap="round" />
                     </g>
                 </svg>
@@ -149,10 +134,44 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     }
 
+    // TODO: Refactor code
+    prepareDateForAvgLine() {
+        var uniqueTimestamps = [];
+        for (var i = 0; i < this.props.timeseriesData.length; i++) {
+            if (uniqueTimestamps.indexOf(this.props.timeseriesData[i].timestamp) === -1) {
+                if (this.props.timeseriesData[i].timestamp !== undefined)
+                    uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
+            }
+        }
+        uniqueTimestamps.sort((x, y) => {
+            return Date.parse(x) - Date.parse(y);
+        })
 
+        const valuesOnTimestamp = [];
+        uniqueTimestamps.forEach(timestamp => {
+            const values = []
+            this.props.timeseriesData.forEach(element => {
+                if (timestamp === element.timestamp) {
+                    values.push(element.count);
+                }
+            });
+
+            var sum, avg = 0;
+            if (values.length) {
+                sum = values.reduce(function (a, b) { return a + b; });
+                avg = sum / values.length;
+            }
+
+            valuesOnTimestamp.push({ timestamp: timestamp, maxCount: avg })
+
+        });
+
+        console.log(valuesOnTimestamp);
+        return valuesOnTimestamp;
+
+    }
 
 }
-
 
 // Todo: Outsource this in the future?
 interface TimeNavData {

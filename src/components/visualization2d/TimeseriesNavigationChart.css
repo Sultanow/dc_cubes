@@ -1,11 +1,16 @@
 .area-min {
     fill: rgba(70, 131, 180, 0.5);
-    stroke: black;
-    stroke-width: 1px;
+    stroke: rgba(70, 131, 180);
+    stroke-width: 2px;
 }
 
+.line-avg {
+    fill: none;
+    stroke:rgba(0, 0, 0, 0.7);
+    stroke-width: 2px;
+}
 .area-max {
-    fill: rgba(125, 226, 209, 0.8);
-    stroke:black;
-    stroke-width: 1px;
+    fill: rgba(125, 226, 209, 0.5);
+    stroke:rgba(125, 226, 209);
+    stroke-width: 2px;
 }
