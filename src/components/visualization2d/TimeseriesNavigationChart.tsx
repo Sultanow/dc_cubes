@@ -8,6 +8,11 @@ interface TimeseriesNavigationChartProps {
 }
 
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps>{
+    private ref: React.RefObject<SVGGElement>;
+    constructor(props: any) {
+        super(props);
+        this.ref = React.createRef();
+    }
 
     componentDidUpdate() {
         // method is executet on every rerender, not optimal for performance
@@ -59,16 +64,18 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             .x(function (d) { return x(parseDate2(d.timestamp)); })
             .y(function (d) { return y(d.maxCount); });
 
+
         var transform = 'translate(' + margin.left + ',' + margin.top + ')';
+        d3.select(this.ref.current).call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M:%S")));
 
         return (
             <div>
                 <svg id={"52235"} width={900} height={250}>
-                    <g transform={transform}>
+                    <g transform={transform} ref={this.ref}>
                         <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
                         <path className="line-avg" d={line(avgData)} strokeLinecap="round" />
                         <path className="area-min" d={area2(minData)} strokeLinecap="round" />
-                    </g>
+                    </g>;
                 </svg>
             </div>
         );
