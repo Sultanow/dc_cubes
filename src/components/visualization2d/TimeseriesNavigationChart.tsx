@@ -4,7 +4,7 @@ import './TimeseriesNavigationChart.css';
 
 interface TimeseriesNavigationChartProps {
     // TODO: replace any type with real type
-    timeseriesData: any
+    timeseriesData: [{ timestamp: string, count: number }]
 }
 
 interface TimeNavData {
@@ -28,66 +28,73 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.yAxisRef = React.createRef();
     }
 
-    componentWillMount() {
+    private margin = { top: 20, right: 20, bottom: 0, left: 0 };
+    private width = 900 - (this.margin.left + this.margin.right);
+    private height = 250 - (this.margin.top + this.margin.bottom);
+    private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
-    }
+    private xScale = d3.scaleTime().range([0, this.width]);
+    private yScale = d3.scaleLinear().range([this.height, 0]);
+
+
+
     componentDidUpdate() {
-
-
+        d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%H:%M:%S")));
     }
 
+    componentWillReceiveProps() {
+        const { timeseriesData } = this.props;
+        if (!timeseriesData) return;
+        console.log("XXXXXXXXXXXXXXXXXXXXX")
+        console.log(timeseriesData)
+
+        const timeDomain = d3.extent(timeseriesData, d => {
+            return this.parseDate(d.timestamp);
+        })
+
+        const maxCount = [0, d3.max(timeseriesData, d => {
+            return d.count + 100;
+        })]
+
+    }
 
     render() {
-
+        // var parseDate = this.parseDate;
         var maxData = this.prepareDataForMaxLine();
         var minData = this.prepareDateForMinLine();
         var avgData = this.prepareDateForAvgLine();
 
-        // TODO: Refactor -> extract the generation of D3 chart in an own function
-        var margin = { top: 20, right: 20, bottom: 0, left: 0 }
-        var width = 900 - (margin.left + margin.right);
-        var height = 250 - (margin.top + margin.bottom);
 
-        var parseDate2 = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
+        this.xScale.domain(d3.extent(maxData, d => {
+            return this.parseDate(d.timestamp);
+        }))
 
+        this.yScale.domain([0, d3.max(maxData, d => {
+            return d.maxCount + 100;
+        })])
 
-        var x = d3.scaleTime()
-            .range([0, width])
-            .domain(d3.extent(maxData, function (d) {
-                return parseDate2(d.timestamp);
-            }))
-
-        var y = d3.scaleLinear()
-            .range([height, 0])
-            .domain([0, d3.max(maxData, function (d) {
-                return d.maxCount + 100;
-            })])
-
-        var area2 = d3.area<maxData>()
+        var area = d3.area<maxData>()
             .curve(d3.curveMonotoneX)
-            .x(function (d) { return x(parseDate2(d.timestamp)); })
-            .y0(y(0))
-            .y1(function (d) { return y(d.maxCount); });
+            .x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+            .y0(this.yScale(0))
+            .y1(d => { return this.yScale(d.maxCount); });
 
         var line = d3.line<maxData>()
             .curve(d3.curveMonotoneX)
-            .x(function (d) { return x(parseDate2(d.timestamp)); })
-            .y(function (d) { return y(d.maxCount); });
+            .x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+            .y(d => { return this.yScale(d.maxCount); });
 
 
-        var transform = 'translate(0,' + height + ')';
-        d3.select(this.yAxisRef.current).call(d3.axisLeft(y));
-
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M:%S")));
 
         return (
             <div>
                 <svg id={"52235"} width={900} height={250}>
-                    <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
+                    <path className="area-max" d={area(maxData)} strokeLinecap="round" />
                     <path className="line-avg" d={line(avgData)} strokeLinecap="round" />
-                    <path className="area-min" d={area2(minData)} strokeLinecap="round" />
-                    <g className="x-axis" transform={transform} ref={this.xAxisRef}></g>;
-                    <g className="y-axis"transform="translate(0,0)" ref={this.yAxisRef}></g>;
+                    <path className="area-min" d={area(minData)} strokeLinecap="round" />
+                    <g className="x-axis" transform={'translate(0,' + this.height + ')'} ref={this.xAxisRef}></g>;
+                    <g className="y-axis" transform="translate(0,0)" ref={this.yAxisRef}></g>;
                 </svg>
             </div>
         );
