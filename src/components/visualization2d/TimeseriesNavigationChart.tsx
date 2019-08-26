@@ -65,16 +65,19 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             .y(function (d) { return y(d.maxCount); });
 
 
-        var transform = 'translate(' + margin.left + ',' + margin.top + ')';
+        var transform = 'translate(0,' + height + ')';
+        d3.select(this.ref.current).call(d3.axisLeft(y));
+
         d3.select(this.ref.current).call(d3.axisBottom(x).tickFormat(d3.timeFormat("%H:%M:%S")));
 
         return (
             <div>
                 <svg id={"52235"} width={900} height={250}>
+                    <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
+                    <path className="line-avg" d={line(avgData)} strokeLinecap="round" />
+                    <path className="area-min" d={area2(minData)} strokeLinecap="round" />
                     <g transform={transform} ref={this.ref}>
-                        <path className="area-max" d={area2(maxData)} strokeLinecap="round" />
-                        <path className="line-avg" d={line(avgData)} strokeLinecap="round" />
-                        <path className="area-min" d={area2(minData)} strokeLinecap="round" />
+
                     </g>;
                 </svg>
             </div>
