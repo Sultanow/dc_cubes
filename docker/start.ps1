@@ -32,18 +32,18 @@ docker build --no-cache -f docker/dc_cubes/Dockerfile -t ${DC_CUBES}:v1 .
 echo "Creating docker network for dc_cubes..."
 docker network create dc_cubes_network --driver bridge
 
-# 3. Run dc_cubes in created network
-echo "Spin up dc_cubes container..."
-docker run --network ${DOCKER_NETWORK} --name ${DC_CUBES} -d -p ${NGINX_HOST_PORT}:80 dc_cubes:v1
-
-# 4. Run Solr
+# 3. Run Solr
 echo "Spin up solr"
 docker run --name dc_cubes_solr --network dc_cubes_network -d -e SOLR_CORE=dc_cubes -p 8983:8983 bitnami/solr:latest
+echo "Wait until solr core is ready"
+sleep 20 # wait until core is ready
+
+# 4. Run dc_cubes in created network
+echo "Spin up dc_cubes container..."
+docker run --network dc_cubes_network --name ${DC_CUBES} -d -p ${NGINX_HOST_PORT}:80 dc_cubes:v1
 
 # 5. Import sample infrastructure data
 docker build --no-cache -f docker/solr_importer/Dockerfile -t solr_importer:v1 .
-echo "Wait until solr core is ready"
-sleep 20 # Todo - check status of core in loop
 docker run --rm --network dc_cubes_network --name dc_cubes_solr_testdata_importer solr_importer:v1
 
 echo "Done."

@@ -10,6 +10,11 @@ RUN npm run build
 FROM nginx:alpine
 # Delete default index.html
 RUN rm /usr/share/nginx/html/index.html
+# Delete default nginx conf
+RUN rm /etc/nginx/nginx.conf
+ # COPY solr reverse proxy conf
+COPY ./docker/dc_cubes/nginx.conf /etc/nginx/
+ # COPY dc_cubes
 COPY --from=builder /build /usr/share/nginx/html
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"] 
