@@ -7,7 +7,7 @@ export default class SolrDataService {
     * The Solr instance needs to send the appropriate CORS headers. 
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
-    getLogDataFromSolr = (url:string, startDateTime: string, endDateTime: string = new Date().toISOString().split('.')[0] + 'Z'): any => {
+    getLogDataFromSolr = (url:string): any => {
         //const sortBy = '&sort=timestamp+asc'
         //const query = 'q=*:*&fq=timestamp:[' + startDateTime + ' TO ' + endDateTime + ']' + sortBy;
         return httpClient.get(url);
