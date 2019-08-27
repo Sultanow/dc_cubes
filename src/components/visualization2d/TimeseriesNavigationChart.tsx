@@ -89,27 +89,27 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     render() {
         var maxArea = null;
         if (this.state.max != null) {
-            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" />
+            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform="translate(40,0)" />
         }
 
         var avgline = null;
         if (this.state.average != null) {
-            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" />
+            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" transform="translate(40,0)" />
         }
 
         var minArea = null;
         if (this.state.min != null) {
-            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" />
+            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform="translate(40,0)"/>
         }
 
         return (
             <div>
-                <svg id={"52235"} width={900} height={250}>
+                <svg id={"52235"} width={950} height={250} >
                     {maxArea}
                     {avgline}
                     {minArea}
-                    <g className="x-axis" transform={'translate(0,' + this.height + ')'} ref={this.xAxisRef}></g>;
-                    <g className="y-axis" transform="translate(0,0)" ref={this.yAxisRef}></g>;
+                    <g className="x-axis" transform={'translate(40,' + this.height + ')'} ref={this.xAxisRef}></g>;
+                    <g className="y-axis" transform="translate(40,0)" ref={this.yAxisRef}></g>;
                 </svg>
             </div>
         );
