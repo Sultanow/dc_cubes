@@ -108,8 +108,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     {maxArea}
                     {avgline}
                     {minArea}
-                    <g className="x-axis" transform={'translate(40,' + this.height + ')'} ref={this.xAxisRef}></g>;
-                    <g className="y-axis" transform="translate(40,0)" ref={this.yAxisRef}></g>;
+                    <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
+                    <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
                 </svg>
             </div>
         );
