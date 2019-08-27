@@ -79,10 +79,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.areaGenerator.y1(d => { return this.yScale(d.count); });
         const min = this.areaGenerator(this.prepareDateForMinLine());
         this.setState({ min })
-
-
-
     }
+
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%H:%M:%S")));
@@ -117,79 +115,54 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         );
 
     }
+
+    filterUniqueTimestamps(): string[] {
+        var uniqueTimestamps: string[] = []
+        var timeseriesData = this.props.timeseriesData;
+        for (var i = 0; i < timeseriesData.length; i++) {
+            if (uniqueTimestamps.indexOf(timeseriesData[i].timestamp) === -1) {
+                if (timeseriesData[i].timestamp !== undefined)
+                    uniqueTimestamps.push(timeseriesData[i].timestamp);
+            }
+        }
+        uniqueTimestamps.sort((x, y) => {
+            return Date.parse(x) - Date.parse(y);
+        })
+        return uniqueTimestamps;
+    }
     prepareDataForMaxLine() {
-        var uniqueTimestamps = [];
-        for (var i = 0; i < this.props.timeseriesData.length; i++) {
-            if (uniqueTimestamps.indexOf(this.props.timeseriesData[i].timestamp) === -1) {
-                if (this.props.timeseriesData[i].timestamp !== undefined)
-                    uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
-            }
-        }
-        uniqueTimestamps.sort((x, y) => {
-            return Date.parse(x) - Date.parse(y);
-        })
-
         const valuesOnTimestamp = [];
-        uniqueTimestamps.forEach(timestamp => {
+        this.filterUniqueTimestamps().forEach(timestamp => {
             const values = []
             this.props.timeseriesData.forEach(element => {
                 if (timestamp === element.timestamp) {
                     values.push(element.count);
                 }
             });
-
             valuesOnTimestamp.push({ timestamp: timestamp, count: Math.max.apply(Math, values) })
-
         });
 
         return valuesOnTimestamp;
     }
 
-    // TODO: Refactor code
     prepareDateForMinLine() {
-        var uniqueTimestamps = [];
-        for (var i = 0; i < this.props.timeseriesData.length; i++) {
-            if (uniqueTimestamps.indexOf(this.props.timeseriesData[i].timestamp) === -1) {
-                if (this.props.timeseriesData[i].timestamp !== undefined)
-                    uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
-            }
-        }
-        uniqueTimestamps.sort((x, y) => {
-            return Date.parse(x) - Date.parse(y);
-        })
-
         const valuesOnTimestamp = [];
-        uniqueTimestamps.forEach(timestamp => {
+        this.filterUniqueTimestamps().forEach(timestamp => {
             const values = []
             this.props.timeseriesData.forEach(element => {
                 if (timestamp === element.timestamp) {
                     values.push(element.count);
                 }
             });
-
             valuesOnTimestamp.push({ timestamp: timestamp, count: Math.min.apply(Math, values) })
-
         });
 
         return valuesOnTimestamp;
-
     }
 
-    // TODO: Refactor code
     prepareDateForAvgLine() {
-        var uniqueTimestamps = [];
-        for (var i = 0; i < this.props.timeseriesData.length; i++) {
-            if (uniqueTimestamps.indexOf(this.props.timeseriesData[i].timestamp) === -1) {
-                if (this.props.timeseriesData[i].timestamp !== undefined)
-                    uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
-            }
-        }
-        uniqueTimestamps.sort((x, y) => {
-            return Date.parse(x) - Date.parse(y);
-        })
-
         const valuesOnTimestamp = [];
-        uniqueTimestamps.forEach(timestamp => {
+        this.filterUniqueTimestamps().forEach(timestamp => {
             const values = []
             this.props.timeseriesData.forEach(element => {
                 if (timestamp === element.timestamp) {
@@ -202,12 +175,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 sum = values.reduce(function (a, b) { return a + b; });
                 avg = sum / values.length;
             }
-
             valuesOnTimestamp.push({ timestamp: timestamp, count: avg })
-
         });
-        return valuesOnTimestamp;
 
+        return valuesOnTimestamp;
     }
 
 }
