@@ -3,96 +3,115 @@ import * as d3 from 'd3';
 import './TimeseriesNavigationChart.css';
 
 interface TimeseriesNavigationChartProps {
-    // TODO: replace any type with real type
-    timeseriesData: any
+    timeseriesData: [{ timestamp: string, count: number }]
 }
 
+interface TimeseriesNavigationChartState {
+    max: string,
+    average: string,
+    min: string,
+}
+
+interface timeseriesData {
+    timestamp: string,
+    count: number
+}
+
+export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
+
+    state = {
+        max: null,
+        average: null,
+        min: null,
+    }
+
+    private margin = { top: 20, right: 20, bottom: 0, left: 0 };
+    private width = 900 - (this.margin.left + this.margin.right);
+    private height = 250 - (this.margin.top + this.margin.bottom);
+    private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
+
+    private xScale = d3.scaleTime().range([0, this.width]);
+    private yScale = d3.scaleLinear().range([this.height, 0]);
+
+    private lineGenerator = d3.line<timeseriesData>().curve(d3.curveMonotoneX);
+    private areaGenerator = d3.area<timeseriesData>().curve(d3.curveMonotoneX);
+
+    private xAxisRef: React.RefObject<SVGGElement>;
+    private yAxisRef: React.RefObject<SVGGElement>;
+
+    constructor(props: any) {
+        super(props);
+        this.xAxisRef = React.createRef();
+        this.yAxisRef = React.createRef();
+    }
+
+    componentDidMount() {
+        const { timeseriesData } = this.props;
+        if (!timeseriesData) return;
+
+        const timeDomain = d3.extent(timeseriesData, d => {
+            return this.parseDate(d.timestamp);
+        })
+
+        const maxCount = [0, d3.max(timeseriesData, d => {
+            return d.count + 100;
+        })]
+
+        this.xScale.domain(timeDomain);
+        this.yScale.domain(maxCount);
+
+        // generate the max area
+        this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+        this.areaGenerator.y0(this.yScale(0))
+        this.areaGenerator.y1(d => { return this.yScale(d.count); });
+        const max = this.areaGenerator(this.prepareDataForMaxLine());
+        this.setState({ max })
+
+        // generate the average line 
+        this.lineGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); });
+        this.lineGenerator.y(d => { return this.yScale(d.count); })
+        const average = this.lineGenerator(this.prepareDateForAvgLine());
+        this.setState({ average })
+
+        // generate the min area
+        this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+        this.areaGenerator.y0(this.yScale(0))
+        this.areaGenerator.y1(d => { return this.yScale(d.count); });
+        const min = this.areaGenerator(this.prepareDateForMinLine());
+        this.setState({ min })
 
 
-export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps>{
 
+    }
     componentDidUpdate() {
-        // method is executet on every rerender, not optimal for performance
-        console.log("TODO: Warum wird diese Methode jedes mal aufgerufen, wenn man den slider bewegt?");
-        this.prepareDataForMaxLine();
+        d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%H:%M:%S")));
     }
 
     render() {
+        var maxArea = null;
+        if (this.state.max != null) {
+            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" />
+        }
 
-        // Todo: Consider using type date instead of string, so we dont have to parse?
-        var data = [
-            { day: '02-11-2016', count: 180 },
-            { day: '02-12-2016', count: 250 },
-            { day: '02-13-2016', count: 150 },
-            { day: '02-14-2016', count: 496 },
-            { day: '02-15-2016', count: 140 },
-            { day: '02-16-2016', count: 380 },
-            { day: '02-17-2016', count: 100 },
-            { day: '02-18-2016', count: 150 },
-            { day: '02-19-2016', count: 180 },
-            { day: '02-20-2016', count: 250 },
-            { day: '02-21-2016', count: 150 },
-            { day: '02-22-2016', count: 496 },
-            { day: '02-23-2016', count: 140 },
-            { day: '02-24-2016', count: 380 },
-            { day: '02-25-2016', count: 100 },
-            { day: '02-26-2016', count: 150 },
+        var avgline = null;
+        if (this.state.average != null) {
+            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" />
+        }
 
-        ];
-        var data2 = [
-            { day: '02-11-2016', count: 250 },
-            { day: '02-12-2016', count: 150 },
-            { day: '02-13-2016', count: 300 },
-            { day: '02-14-2016', count: 170 },
-            { day: '02-15-2016', count: 300 },
-            { day: '02-16-2016', count: 34 },
-            { day: '02-17-2016', count: 260 },
-            { day: '02-18-2016', count: 80 },
-        ];
-
-
-        // TODO: Refactor -> extract the generation of D3 chart in an own function
-        var margin = { top: 20, right: 20, bottom: 0, left: 0 }
-        var width = 900 - (margin.left + margin.right);
-        var height = 250 - (margin.top + margin.bottom);
-
-        var parseDate = d3.timeParse("%m-%d-%Y");
-
-
-        var x = d3.scaleTime()
-            .range([0, width])
-            .domain(d3.extent(data, function (d) {
-                return parseDate(d.day);
-            }))
-
-        var y = d3.scaleLinear()
-            .range([height, 0])
-            .domain([0, d3.max(data, function (d) {
-                return d.count + 100;
-            })]).nice()
-
-        var area = d3.area<TimeNavData>()
-            .curve(d3.curveMonotoneX)
-            .x(function (d) { return x(parseDate(d.day)); })
-            .y0(y(0))
-            .y1(function (d) { return y(d.count); });
-
-        var area2 = d3.area<TimeNavData>()
-            .curve(d3.curveMonotoneX)
-            .x(function (d) { return x(parseDate(d.day)); })
-            .y0(y(0))
-            .y1(function (d) { return y(d.count); });
-
-
-        var transform = 'translate(' + margin.left + ',' + margin.top + ')';
+        var minArea = null;
+        if (this.state.min != null) {
+            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" />
+        }
 
         return (
             <div>
                 <svg id={"52235"} width={900} height={250}>
-                    <g transform={transform}>
-                        <path className="area-max" d={area(data)} strokeLinecap="round" />
-                        <path className="area-avg" d={area2(data2)} strokeLinecap="round" />
-                    </g>
+                    {maxArea}
+                    {avgline}
+                    {minArea}
+                    <g className="x-axis" transform={'translate(0,' + this.height + ')'} ref={this.xAxisRef}></g>;
+                    <g className="y-axis" transform="translate(0,0)" ref={this.yAxisRef}></g>;
                 </svg>
             </div>
         );
@@ -106,8 +125,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
             }
         }
-        uniqueTimestamps.sort((x, y)=>{
-            return  Date.parse(x)-Date.parse(y);
+        uniqueTimestamps.sort((x, y) => {
+            return Date.parse(x) - Date.parse(y);
         })
 
         const valuesOnTimestamp = [];
@@ -119,21 +138,77 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 }
             });
 
-            valuesOnTimestamp.push({ timestamp: timestamp, maxCount: Math.max.apply(Math, values) })
+            valuesOnTimestamp.push({ timestamp: timestamp, count: Math.max.apply(Math, values) })
 
         });
 
-        console.log(valuesOnTimestamp);
+        return valuesOnTimestamp;
+    }
+
+    // TODO: Refactor code
+    prepareDateForMinLine() {
+        var uniqueTimestamps = [];
+        for (var i = 0; i < this.props.timeseriesData.length; i++) {
+            if (uniqueTimestamps.indexOf(this.props.timeseriesData[i].timestamp) === -1) {
+                if (this.props.timeseriesData[i].timestamp !== undefined)
+                    uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
+            }
+        }
+        uniqueTimestamps.sort((x, y) => {
+            return Date.parse(x) - Date.parse(y);
+        })
+
+        const valuesOnTimestamp = [];
+        uniqueTimestamps.forEach(timestamp => {
+            const values = []
+            this.props.timeseriesData.forEach(element => {
+                if (timestamp === element.timestamp) {
+                    values.push(element.count);
+                }
+            });
+
+            valuesOnTimestamp.push({ timestamp: timestamp, count: Math.min.apply(Math, values) })
+
+        });
+
         return valuesOnTimestamp;
 
+    }
+
+    // TODO: Refactor code
+    prepareDateForAvgLine() {
+        var uniqueTimestamps = [];
+        for (var i = 0; i < this.props.timeseriesData.length; i++) {
+            if (uniqueTimestamps.indexOf(this.props.timeseriesData[i].timestamp) === -1) {
+                if (this.props.timeseriesData[i].timestamp !== undefined)
+                    uniqueTimestamps.push(this.props.timeseriesData[i].timestamp);
+            }
+        }
+        uniqueTimestamps.sort((x, y) => {
+            return Date.parse(x) - Date.parse(y);
+        })
+
+        const valuesOnTimestamp = [];
+        uniqueTimestamps.forEach(timestamp => {
+            const values = []
+            this.props.timeseriesData.forEach(element => {
+                if (timestamp === element.timestamp) {
+                    values.push(element.count);
+                }
+            });
+
+            var sum, avg = 0;
+            if (values.length) {
+                sum = values.reduce(function (a, b) { return a + b; });
+                avg = sum / values.length;
+            }
+
+            valuesOnTimestamp.push({ timestamp: timestamp, count: avg })
+
+        });
+        return valuesOnTimestamp;
 
     }
+
 }
 
-
-
-// Todo: Outsource this in the future?
-interface TimeNavData {
-    day: string,
-    count: number
-} 

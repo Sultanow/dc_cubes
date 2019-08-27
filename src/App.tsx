@@ -4,7 +4,7 @@ import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
 import CubesVisualisation from './components/visualization3d/CubesVisualisation';
-// import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
+import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import Topbar from './components/topbar/Topbar';
 import DataSources from './components/datasource/config/DataSources';
 import SolrDataService from './components/datasource/service/solr/SolrDataService';
@@ -39,6 +39,8 @@ interface AppState {
   clusterColors: object
   grid: Map<string, Array<number>>
   maxH: number
+
+  isRawTimeseriesDataLoaded:boolean
   intervalId: any
   rawTimeseriesData: any
   timespanError: boolean
@@ -74,8 +76,9 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
-      intervalId: undefined,
       rawTimeseriesData:null,
+      isRawTimeseriesDataLoaded:false,
+      intervalId: undefined,
       timespanError: false
     };
   }
@@ -107,7 +110,9 @@ class App extends React.Component<{}, AppState> {
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
         dataSourceSuccess: true,
+        // raw timesereis Data for 2d graph 
         rawTimeseriesData: data.data.response.docs,
+        isRawTimeseriesDataLoaded: true,
         selectedPointInTime: solrAdapter.temporalAxis.length-1
       });
 
@@ -122,6 +127,14 @@ class App extends React.Component<{}, AppState> {
 
   // child = createRef<CubesVisualisation>();
   render() {
+
+    var TimeseriesNavigationChartComponent;
+    if(this.state.isRawTimeseriesDataLoaded){
+      TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} />
+    }
+    else {
+      TimeseriesNavigationChartComponent=null;
+    }
     return (
       <BrowserRouter>
         <div className="App">
@@ -164,7 +177,7 @@ class App extends React.Component<{}, AppState> {
                       selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
                       selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
                       dataSourceSuccess={this.state.dataSourceSuccess} />
-                    {/* <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} /> */}
+                      {TimeseriesNavigationChartComponent}
                   </div>
               } />
               <Route path="/data-sources" render={(props) => <DataSources {...props}
