@@ -100,8 +100,24 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                                         updateTimespanData={this.props.updateTimespanData} />
                                 </Dropdown.Menu>
                             </Dropdown>
-
-                            
+                            <DetailTimeSelection    accessChild={this.props.accessChild}
+                                                    sliderMode={this.props.sliderMode}
+                                                    temporalAxis={this.props.temporalAxis}
+                                                    timespanTypeLowerBound={this.props.timespanTypeLowerBound}
+                                                    timespanTypeUpperBound={this.props.timespanTypeUpperBound}
+                                                    timespanAbsoluteTimestampLowerBound={this.props.timespanAbsoluteTimestampLowerBound}
+                                                    timespanAbsoluteTimestampUpperBound={this.props.timespanAbsoluteTimestampUpperBound}
+                                                    timespanTimeUnitLowerBound={this.props.timespanTimeUnitLowerBound}
+                                                    timespanAmountLowerBound={this.props.timespanAmountLowerBound}
+                                                    timespanTimeUnitUpperBound={this.props.timespanTimeUnitUpperBound}
+                                                    timespanAmountUpperBound={this.props.timespanAmountUpperBound}
+                                                    timeSeries={this.props.timeSeries}
+                                                    refreshInterval={this.state.refreshInterval}
+                                                    refreshTimeUnit={this.state.refreshTimeUnit}
+                                                    automaticRefresh={this.state.automaticRefresh}
+                                                    accessTopbar={this.accessTopbar} 
+                                                    calculateAndSetBoundariesOfTimespanSlider={this.props.calculateAndSetBoundariesOfTimespanSlider} 
+                                                    updateTimespanData={this.props.updateTimespanData} />
                         </Row>
                     </div>
                 </Form>
