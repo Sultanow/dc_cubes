@@ -25,7 +25,6 @@ interface TopbarProps {
     timespanTimeUnitUpperBound: string
     timespanAmountUpperBound: number
     pointInTimeTimestamp: string
-    calculateAndSetBoundariesOfTimespanSlider: any
     updateTimespanData: any
     changeIntervalOfDataRefresh: any
     clearIntervalOfDataRefresh: any
@@ -116,7 +115,6 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                                     refreshTimeUnit={this.state.refreshTimeUnit}
                                                     automaticRefresh={this.state.automaticRefresh}
                                                     accessTopbar={this.accessTopbar} 
-                                                    calculateAndSetBoundariesOfTimespanSlider={this.props.calculateAndSetBoundariesOfTimespanSlider} 
                                                     updateTimespanData={this.props.updateTimespanData} />
                         </Row>
                     </div>

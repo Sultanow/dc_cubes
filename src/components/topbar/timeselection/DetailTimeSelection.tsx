@@ -22,7 +22,6 @@ interface DetailTimeSelectionProps {
     refreshTimeUnit: string
     automaticRefresh: boolean
     accessTopbar: any
-    calculateAndSetBoundariesOfTimespanSlider: any
     updateTimespanData: any
 }
 
