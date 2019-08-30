@@ -38,11 +38,14 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     private xAxisRef: React.RefObject<SVGGElement>;
     private yAxisRef: React.RefObject<SVGGElement>;
+    private brushRef: React.RefObject<SVGGElement>;
+    
 
     constructor(props: any) {
         super(props);
         this.xAxisRef = React.createRef();
         this.yAxisRef = React.createRef();
+        this.brushRef = React.createRef();
     }
 
     componentDidMount() {
@@ -79,13 +82,32 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.areaGenerator.y1(d => { return this.yScale(d.count); });
         const min = this.areaGenerator(this.prepareDateForMinLine());
         this.setState({ min })
+
     }
 
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%H:%M:%S")));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
+        
+        this.setupBrush();
     }
 
+    setupBrush() {
+        let that = this;
+        d3.select(this.brushRef.current)
+            .call(d3.brushX()
+                .extent([ [0,0], [this.width, this.height]])
+               .on("end", function() {
+                   that.brushEnd.call(that);
+               }));
+    }
+    brushEnd() {
+        let selection = d3.event.selection || this.xScale.range();
+        let startDate = this.xScale.invert(selection[0]); 
+        let endDate = this.xScale.invert(selection[1]); 
+        console.log("selected startTime:", startDate);
+        console.log("selected endTime:", endDate);
+    }
     render() {
         var maxArea = null;
         if (this.state.max != null) {
@@ -99,7 +121,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         var minArea = null;
         if (this.state.min != null) {
-            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform="translate(40,0)"/>
+            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform="translate(40,0)" />
         }
 
         return (
@@ -110,6 +132,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     {minArea}
                     <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
                     <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
+                    <g className="brush" ref={this.brushRef}></g>
                 </svg>
             </div>
         );
