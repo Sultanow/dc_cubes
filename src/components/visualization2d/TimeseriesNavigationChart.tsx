@@ -17,6 +17,8 @@ interface timeseriesData {
     count: number
 }
 
+const SVG_WIDTH = 950;
+
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
 
     state = {
@@ -39,7 +41,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private xAxisRef: React.RefObject<SVGGElement>;
     private yAxisRef: React.RefObject<SVGGElement>;
     private brushRef: React.RefObject<SVGGElement>;
-    
+
 
     constructor(props: any) {
         super(props);
@@ -88,23 +90,25 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
-        
+
         this.setupBrush();
     }
 
     setupBrush() {
-        let that = this;
-        d3.select(this.brushRef.current)
-            .call(d3.brushX()
-                .extent([ [0,0], [this.width, this.height]])
-               .on("end", function() {
-                   that.brushEnd.call(that);
-               }));
+        let originalScope = this;
+        let brush = d3.select(this.brushRef.current);
+        brush.call(d3.brushX()
+            .extent([[this.margin.left + this.margin.right, 0], [SVG_WIDTH - this.margin.left, this.height]])
+            .on("end", function () {
+                originalScope.brushEnd.call(originalScope);
+            }));
     }
     brushEnd() {
-        let selection = d3.event.selection || this.xScale.range();
-        let startDate = this.xScale.invert(selection[0]); 
-        let endDate = this.xScale.invert(selection[1]); 
+        let selectedArea = d3.event.selection || this.xScale.range();
+        let brushMinimum = selectedArea[0];
+        let brushMaximum = selectedArea[1];
+        let startDate = this.xScale.invert(brushMinimum);
+        let endDate = this.xScale.invert(brushMaximum);
         console.log("selected startTime:", startDate);
         console.log("selected endTime:", endDate);
     }
@@ -126,7 +130,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         return (
             <div>
-                <svg id={"52235"} width={950} height={250} >
+                <svg id={"52235"} width={SVG_WIDTH} height={250} >
                     {maxArea}
                     {avgline}
                     {minArea}
