@@ -1,126 +1,29 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# DC Cubes
 
-## Available Scripts
-
-In the project directory, you can run:
-
-### `yarn install`
-
-Installs the dependencies.
-
-### `npm start`
-
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
-
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Setup and run Solr
-Suppose, **C:\development\solr\\** is the installation directory of Solr.
-
-`cd C:\development\solr\bin\`
-
-`.\solr.cmd start`
-
-For restarting Solr use:
-
-`.\solr.cmd restart -p 8983`
-
-The core we use by default is "dc_cubes", create it using the command:
-
-`.\solr.cmd create -c dc_cubes`
-
-Stop Solr:
-
-`.\solr.cmd stop -p 8983`
-
-Enable Cross-origin Resource Sharing (CORS). For this in **C:\development\solr\server\solr-webapp\webapp\WEB-INF\web.xml** include the following filter right after the `<web-app>` line:
-
-```xml
-<filter>
-  <filter-name>cross-origin</filter-name>
-  <filter-class>org.eclipse.jetty.servlets.CrossOriginFilter</filter-class>
-  <init-param>
-    <param-name>allowedOrigins</param-name>
-    <param-value>*</param-value>
-  </init-param>
-  <init-param>
-    <param-name>allowedMethods</param-name>
-    <param-value>GET,POST,OPTIONS,DELETE,PUT,HEAD</param-value>
-  </init-param>
-  <init-param>
-    <param-name>allowedHeaders</param-name>
-    <param-value>X-Requested-With,Content-Type,Accept,Origin</param-value>
-  </init-param>
-</filter>
-
-<filter-mapping>
-  <filter-name>cross-origin</filter-name>
-  <url-pattern>/*</url-pattern>
-</filter-mapping>
-```
-
-See: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
-
-Note that the *Access-Control-Allow*-headers need to be set on the response, not the request. Setting it into the request will cause the error:
-
-*Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource. Origin 'http://localhost:3000' is therefore not allowed access.*
-
-See: https://stackoverflow.com/questions/48427027/cors-no-access-control-allow-origin-header-is-present-even-though-response-is
+## What is DC Cubes?
 
 
-## Learn More
+DC Cubes is an web application based on React and TypeScript with the objective to visualize large amount of infrastructure data (such as the average response time of servers).
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Visualization 
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+<img src="docs/img/cubes_screenshot.png" alt="cubes_screenshot" width="560"/>
 
-### Code Splitting
+DC Cubes uses 3D to visualize the infrastructure data and relies on a
+city visualization metaphor.
+A district in the city is a cluster, a house represents a server, the height of a house is the altitude of a metric of the server.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+Due to the compact form of visualization and the different possible viewing angles of the 3D visualization, correlations can be better recognized.
 
-### Analyzing the Bundle Size
+## How about a look into the future?
+<img src="docs/img/cubes_timeseries_nav.png" width="560" alt="timeseries_nav" />
+Currently, a machine learning feature is under development, which provides an insight into future expectable infrastructure data.
+With DC Cubes it will not only be possible to get a compact overview of current data, but also an outlook on future data. This allows a more comprehensive and future-oriented evaluation of the data.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+## Ready for a demo?
+Get your hands on with our easy to use Docker start sript:
 
-### Making a Progressive Web App
+- [Setup DC Cubes with Docker-Desktop (EN)](docs/en/local_docker_cubes_setup.md) 
+- [Anleitung: DC Cubes mit Docker-Desktop (DE)](docs/de/cubes_lokal_mit_docker-desktop.md)
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
 
-### Advanced Configuration
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
