@@ -1,6 +1,6 @@
 # DC-Cubes per Docker starten
 
-<img src="img/cubes_screenshot.png" alt="drawing" width="560"/>
+<img src="../img/cubes_screenshot.png" alt="drawing" width="560"/>
 
 Diese Anleitung hilft beim Ausführen von DC_Cubes mithilfe von Docker und ist aktuell nur für Windows
 vorgesehen. 
@@ -27,19 +27,19 @@ Wenn das Script durchgelaufen ist (Laufzeit ca. 8-10 min), dann öffnet sich der
 
 Zunächst erscheint folgende Fehlermeldung:
 
-<img src="img/cubes_datenquelle_nicht_erreichbar.jpg" alt="drawing" width="400"/>
+<img src="../img/cubes_datenquelle_nicht_erreichbar.jpg" alt="drawing" width="400"/>
 
 Da die Adresse zur Datenquelle (Apache Solr) von der Entwicklungsinstanz abweicht, muss derzeit die Datenquelle in DC-Cubes händisch angepasst werden. Dieser Schritt fällt demnächst weg - eine Lösung hierfür befindet sich aktuell in Entwicklung.
 
 Die Datenquelle kann über diesen Punkt "Einstellung Datenquelle" (Icon in der Sidebar): 
 
-<img src="img/cubes_datenquelle_einstellungen.jpg" alt="drawing" width="48"/>
+<img src="../img/cubes_datenquelle_einstellungen.jpg" alt="drawing" width="48"/>
 
 angepasst werden. 
 
 Folgende Einstellungen sind vorzunehmen:
 
-<img src="img/cubes_docker_solr_einstellungen.png" alt="drawing" width="524"/>
+<img src="../img/cubes_docker_solr_einstellungen.png" alt="drawing" width="524"/>
 
 Wichtig ist hier die Anpassung der URL von ```http://localhost:8983/solr/``` auf ```http://localhost/solr/```
 
@@ -51,7 +51,7 @@ Wichtig ist hier die Anpassung der URL von ```http://localhost:8983/solr/``` auf
 
 Bitte überprüfen ob Schritt 3. durchgeführt wurde. 
 Zusätzlich kann mithilfe des Befehls ```docker ps ``` nachgesehen werden, ob die Container auch laufen:
-<img src="img/cubes_dockerps.jpg" alt="drawing" width="600"/>
+<img src="../img/cubes_dockerps.jpg" alt="drawing" width="600"/>
 
 Sicherstellen, dass hier bei Container (NAMES): dc_cubes und dc_cubes_solr gelistet sind und der Status jeweils "Up" entspricht. 
 
