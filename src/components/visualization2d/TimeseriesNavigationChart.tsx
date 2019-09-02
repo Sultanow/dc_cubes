@@ -19,6 +19,7 @@ interface timeseriesData {
 }
 
 const SVG_WIDTH = 950;
+const SVG_ID = "TimeSeriesNavigationChart"
 
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
 
@@ -92,6 +93,18 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
 
+        let that = this;
+        d3.select("#" + SVG_ID).on("mousemove", function () {
+            let xcoord = d3.mouse(document.getElementById("TimeSeriesNavigationChart"))[0];
+            let dateString = that.convertDateObjectToString(that.xScale.invert(xcoord));
+            let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
+            
+            let indexOfDatapoint = bisectDate(that.props.timeseriesData, dateString);
+            
+            console.log("index:", indexOfDatapoint, "val:", that.props.timeseriesData[indexOfDatapoint]);
+            
+
+        })
         this.setupBrush();
     }
 
@@ -105,14 +118,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 originalScope.brushEnd.call(originalScope);
             }));
     }
+
     brushEnd() {
         let selectedArea = d3.event.selection || this.xScale.range();
         let brushMinimum = selectedArea[0];
         let brushMaximum = selectedArea[1];
-        let startDate = this.xScale.invert(brushMinimum).toISOString().split('.')[0]+"Z";
-        let endDate = this.xScale.invert(brushMaximum).toISOString().split('.')[0]+"Z";
-        console.log("selected startTime:", startDate);
-        console.log("selected endTime:", endDate);
+        let startDate = this.convertDateObjectToString(this.xScale.invert(brushMinimum));
+        let endDate = this.convertDateObjectToString(this.xScale.invert(brushMaximum));
 
         const newTimespanData = {
             timespanAbsoluteTimestampUpperBound: endDate,
@@ -142,7 +154,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         return (
             <div>
-                <svg id={"52235"} width={SVG_WIDTH} height={250} >
+                <svg id={SVG_ID} width={SVG_WIDTH} height={250}>
                     {maxArea}
                     {avgline}
                     {minArea}
@@ -153,6 +165,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             </div>
         );
 
+    }
+
+    convertDateObjectToString(str: Date) {
+        return str.toISOString().split('.')[0] + "Z";
     }
 
     filterUniqueTimestamps(): string[] {
