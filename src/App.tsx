@@ -134,7 +134,7 @@ class App extends React.Component<{}, AppState> {
 
     var TimeseriesNavigationChartComponent;
     if(this.state.isRawTimeseriesDataLoaded){
-      TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} />
+      TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} updateTimespanData={this.updateTimespanData}/>
     }
     else {
       TimeseriesNavigationChartComponent=null;

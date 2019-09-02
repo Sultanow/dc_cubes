@@ -4,6 +4,7 @@ import './TimeseriesNavigationChart.css';
 
 interface TimeseriesNavigationChartProps {
     timeseriesData: [{ timestamp: string, count: number }]
+    updateTimespanData: any
 }
 
 interface TimeseriesNavigationChartState {
@@ -99,7 +100,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let brush = d3.select(this.brushRef.current);
         brush.call(d3.brushX()
             .extent([[this.margin.left + this.margin.right, 0], [SVG_WIDTH - this.margin.left, this.height]])
-            .on("end", function () {
+            // TODO: decide if 'end' or 'end brush'
+            .on("end brush", function () {
                 originalScope.brushEnd.call(originalScope);
             }));
     }
@@ -107,10 +109,20 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let selectedArea = d3.event.selection || this.xScale.range();
         let brushMinimum = selectedArea[0];
         let brushMaximum = selectedArea[1];
-        let startDate = this.xScale.invert(brushMinimum);
-        let endDate = this.xScale.invert(brushMaximum);
+        let startDate = this.xScale.invert(brushMinimum).toISOString().split('.')[0]+"Z";
+        let endDate = this.xScale.invert(brushMaximum).toISOString().split('.')[0]+"Z";
         console.log("selected startTime:", startDate);
         console.log("selected endTime:", endDate);
+
+        const newTimespanData = {
+            timespanAbsoluteTimestampUpperBound: endDate,
+            timespanAbsoluteTimestampLowerBound: startDate,
+            timeSelectionMode: 'timespan',
+            timespanTypeUpperBound: 'absolute',
+            timespanTypeLowerBound: 'absolute',
+            sliderMode: 'timespan'
+        }
+        this.props.updateTimespanData(newTimespanData)
     }
     render() {
         var maxArea = null;
