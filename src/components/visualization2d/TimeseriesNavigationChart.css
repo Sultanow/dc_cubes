@@ -14,3 +14,7 @@
     stroke:rgba(125, 226, 209);
     stroke-width: 2px;
 }
+
+button {
+    margin: 5px;
+}

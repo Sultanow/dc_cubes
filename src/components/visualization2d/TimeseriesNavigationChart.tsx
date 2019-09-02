@@ -163,6 +163,23 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
         this.props.updateTimespanData(newTimespanData)
     }
+
+    toggleChartMax() {
+        let selection = d3.select(".area-max");
+        if(selection.attr("display") === "none") selection.attr("display", "");
+        else selection.attr("display", "none");        
+    }
+    toggleChartAvg() {
+        let selection = d3.select(".line-avg");
+        if(selection.attr("display") === "none") selection.attr("display", "");
+        else selection.attr("display", "none"); 
+    }
+    toggleChartMin() {
+        let selection = d3.select(".area-min");
+        if(selection.attr("display") === "none") selection.attr("display", "");
+        else selection.attr("display", "none");  
+    }
+
     render() {
         var maxArea = null;
         if (this.state.max != null) {
@@ -191,6 +208,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 </svg>
                 <div>Wert für: {this.tooltipDate}</div>
                 <div>avg: {this.tooltipAvg}</div>
+                <button onClick={this.toggleChartMax}>Toggle Maximum</button>
+                <button onClick={this.toggleChartAvg}>Toggle Average</button>
+                <button onClick={this.toggleChartMin}>Toggle Minimum</button>
             </div>
         );
 
