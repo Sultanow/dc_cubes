@@ -18,6 +18,11 @@ interface timeseriesData {
     count: number
 }
 
+interface timestampData {
+    timestamp: number,
+    count: number
+}
+
 const SVG_WIDTH = 950;
 const SVG_ID = "TimeSeriesNavigationChart"
 
@@ -43,6 +48,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private xAxisRef: React.RefObject<SVGGElement>;
     private yAxisRef: React.RefObject<SVGGElement>;
     private brushRef: React.RefObject<SVGGElement>;
+
+    private lastShownIndex: number = -1;
+    private tooltipDate: string;
+    private tooltipAvg: number;
 
 
     constructor(props: any) {
@@ -93,16 +102,34 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
 
+        let timestampArray: timestampData[] = [];
+        this.props.timeseriesData.forEach(val => {
+            let timestampDatum: timestampData = { timestamp: -1, count: -1 };
+            timestampDatum.count = val.count;
+            timestampDatum.timestamp = Date.parse(val.timestamp);
+            timestampArray.push(timestampDatum);
+        })
+
         let that = this;
         d3.select("#" + SVG_ID).on("mousemove", function () {
             let xcoord = d3.mouse(document.getElementById("TimeSeriesNavigationChart"))[0];
             let dateString = that.convertDateObjectToString(that.xScale.invert(xcoord));
-            let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
-            
-            let indexOfDatapoint = bisectDate(that.props.timeseriesData, dateString);
-            
-            console.log("index:", indexOfDatapoint, "val:", that.props.timeseriesData[indexOfDatapoint]);
-            
+            let parsedDateUnix = Date.parse(dateString);
+            let bisectDate = d3.bisector(function (d: timestampData) { return d.timestamp; }).left;
+
+            let indexOfDatapoint = bisectDate(timestampArray, parsedDateUnix);
+            if (indexOfDatapoint != that.lastShownIndex) {
+                if (that.props.timeseriesData[indexOfDatapoint] != null) {
+                    updateTooltip(that.props.timeseriesData[indexOfDatapoint])
+                    that.lastShownIndex = indexOfDatapoint;
+                }
+            }
+
+            function updateTooltip(dp: timeseriesData) {
+                that.tooltipDate = dp.timestamp;
+                that.tooltipAvg = dp.count;
+            }
+
 
         })
         this.setupBrush();
@@ -162,6 +189,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
                 </svg>
+                <div>Wert für: {this.tooltipDate}</div>
+                <div>avg: {this.tooltipAvg}</div>
             </div>
         );
 
