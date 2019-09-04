@@ -124,7 +124,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
 
             console.log("data avg", originalScope.dataAvg);
-            
+
             let indexOfDatapoint = bisectDate(originalScope.dataAvg, dateString);
             if (indexOfDatapoint != originalScope.lastShownIndex) {
                 if (originalScope.dataAvg[indexOfDatapoint] != null) {
@@ -134,12 +134,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             }
 
             function updateTooltip(dp: timeseriesData) {
-                originalScope.tooltipDate = dp.timestamp;
-                originalScope.tooltipAvg = dp.count;
+                d3.select("#tooltipDate").html(dp.timestamp);
+                d3.select("#tooltipAvg").html(dp.count.toString());
             }
+        }).on("mouseleave", function () {
+            originalScope.lastShownIndex = -1;
+            d3.select("#tooltipDate").html("");
+            d3.select("#tooltipAvg").html("");
+        });
 
-
-        })
         this.setupBrush();
     }
 
@@ -174,18 +177,18 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     toggleChartMax() {
         let selection = d3.select(".area-max");
-        if(selection.attr("display") === "none") selection.attr("display", "");
-        else selection.attr("display", "none");        
+        if (selection.attr("display") === "none") selection.attr("display", "");
+        else selection.attr("display", "none");
     }
     toggleChartAvg() {
         let selection = d3.select(".line-avg");
-        if(selection.attr("display") === "none") selection.attr("display", "");
-        else selection.attr("display", "none"); 
+        if (selection.attr("display") === "none") selection.attr("display", "");
+        else selection.attr("display", "none");
     }
     toggleChartMin() {
         let selection = d3.select(".area-min");
-        if(selection.attr("display") === "none") selection.attr("display", "");
-        else selection.attr("display", "none");  
+        if (selection.attr("display") === "none") selection.attr("display", "");
+        else selection.attr("display", "none");
     }
 
     render() {
@@ -214,8 +217,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
                 </svg>
-                <div>Wert für: {this.tooltipDate}</div>
-                <div>avg: {this.tooltipAvg}</div>
+                <div>Wert für:<span id="tooltipDate"></span></div>
+                <div>avg: <span id="tooltipAvg"></span>"</div>
                 <button onClick={this.toggleChartMax}>Toggle Maximum</button>
                 <button onClick={this.toggleChartAvg}>Toggle Average</button>
                 <button onClick={this.toggleChartMin}>Toggle Minimum</button>
