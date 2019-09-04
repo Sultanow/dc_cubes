@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import * as d3 from 'd3';
 import './TimeseriesNavigationChart.css';
-import { values } from 'd3';
 
 interface TimeseriesNavigationChartProps {
     timeseriesData: [{ timestamp: string, count: number }]
@@ -122,8 +121,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             let xcoord = d3.mouse(document.getElementById("TimeSeriesNavigationChart"))[0];
             let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord));
             let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
-
-            console.log("data avg", originalScope.dataAvg);
 
             let indexOfDatapoint = bisectDate(originalScope.dataAvg, dateString);
             if (indexOfDatapoint != originalScope.lastShownIndex) {
