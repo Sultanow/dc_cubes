@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import * as d3 from 'd3';
 import './TimeseriesNavigationChart.css';
+import { values } from 'd3';
 
 interface TimeseriesNavigationChartProps {
     timeseriesData: [{ timestamp: string, count: number }]
@@ -53,6 +54,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private tooltipDate: string;
     private tooltipAvg: number;
 
+    private uniqueTimestamps: string[];
+    private dataMax: timeseriesData[];
+    private dataAvg: timeseriesData[];
+    private dataMin: timeseriesData[];
 
     constructor(props: any) {
         super(props);
@@ -75,6 +80,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
+
+        this.uniqueTimestamps = this.filterUniqueTimestamps();
 
         // generate the max area
         this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
@@ -110,24 +117,25 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             timestampArray.push(timestampDatum);
         })
 
-        let that = this;
+        let originalScope = this;
         d3.select("#" + SVG_ID).on("mousemove", function () {
             let xcoord = d3.mouse(document.getElementById("TimeSeriesNavigationChart"))[0];
-            let dateString = that.convertDateObjectToString(that.xScale.invert(xcoord));
-            let parsedDateUnix = Date.parse(dateString);
-            let bisectDate = d3.bisector(function (d: timestampData) { return d.timestamp; }).left;
+            let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord));
+            let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
 
-            let indexOfDatapoint = bisectDate(timestampArray, parsedDateUnix);
-            if (indexOfDatapoint != that.lastShownIndex) {
-                if (that.props.timeseriesData[indexOfDatapoint] != null) {
-                    updateTooltip(that.props.timeseriesData[indexOfDatapoint])
-                    that.lastShownIndex = indexOfDatapoint;
+            console.log("data avg", originalScope.dataAvg);
+            
+            let indexOfDatapoint = bisectDate(originalScope.dataAvg, dateString);
+            if (indexOfDatapoint != originalScope.lastShownIndex) {
+                if (originalScope.dataAvg[indexOfDatapoint] != null) {
+                    updateTooltip(originalScope.dataAvg[indexOfDatapoint])
+                    originalScope.lastShownIndex = indexOfDatapoint;
                 }
             }
 
             function updateTooltip(dp: timeseriesData) {
-                that.tooltipDate = dp.timestamp;
-                that.tooltipAvg = dp.count;
+                originalScope.tooltipDate = dp.timestamp;
+                originalScope.tooltipAvg = dp.count;
             }
 
 
@@ -141,7 +149,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         brush.call(d3.brushX()
             .extent([[this.margin.left + this.margin.right, 0], [SVG_WIDTH - this.margin.left, this.height]])
             // TODO: decide if 'end' or 'end brush'
-            .on("end brush", function () {
+            .on("end", function () {
                 originalScope.brushEnd.call(originalScope);
             }));
     }
@@ -235,8 +243,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         return uniqueTimestamps;
     }
     prepareDataForMaxLine() {
-        const valuesOnTimestamp = [];
-        this.filterUniqueTimestamps().forEach(timestamp => {
+        const valuesOnTimestamp: timeseriesData[] = [];
+        this.uniqueTimestamps.forEach(timestamp => {
             const values = []
             this.props.timeseriesData.forEach(element => {
                 if (timestamp === element.timestamp) {
@@ -246,12 +254,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             valuesOnTimestamp.push({ timestamp: timestamp, count: Math.max.apply(Math, values) })
         });
 
+        this.dataMax = valuesOnTimestamp;
         return valuesOnTimestamp;
     }
 
     prepareDateForMinLine() {
-        const valuesOnTimestamp = [];
-        this.filterUniqueTimestamps().forEach(timestamp => {
+        const valuesOnTimestamp: timeseriesData[] = [];
+        this.uniqueTimestamps.forEach(timestamp => {
             const values = []
             this.props.timeseriesData.forEach(element => {
                 if (timestamp === element.timestamp) {
@@ -260,13 +269,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             });
             valuesOnTimestamp.push({ timestamp: timestamp, count: Math.min.apply(Math, values) })
         });
-
+        this.dataMin = valuesOnTimestamp;
         return valuesOnTimestamp;
     }
 
     prepareDateForAvgLine() {
-        const valuesOnTimestamp = [];
-        this.filterUniqueTimestamps().forEach(timestamp => {
+        const valuesOnTimestamp: timeseriesData[] = [];
+        this.uniqueTimestamps.forEach(timestamp => {
             const values = []
             this.props.timeseriesData.forEach(element => {
                 if (timestamp === element.timestamp) {
@@ -281,7 +290,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             }
             valuesOnTimestamp.push({ timestamp: timestamp, count: avg })
         });
-
+        this.dataAvg = valuesOnTimestamp;
         return valuesOnTimestamp;
     }
 
