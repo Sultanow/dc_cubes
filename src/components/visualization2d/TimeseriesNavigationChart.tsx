@@ -108,24 +108,27 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
+        this.setupTooltip();
+        this.setupBrush();
+    }
 
-        let timestampArray: timestampData[] = [];
-        this.props.timeseriesData.forEach(val => {
-            let timestampDatum: timestampData = { timestamp: -1, count: -1 };
-            timestampDatum.count = val.count;
-            timestampDatum.timestamp = Date.parse(val.timestamp);
-            timestampArray.push(timestampDatum);
-        })
-
+    setupTooltip() {
         let originalScope = this;
+        let offset: number = this.calculateOffset();
         d3.select("#" + SVG_ID).on("mousemove", function () {
+            
+            function updateTooltip(dp: timeseriesData) {
+                d3.select("#tooltipDate").html(dp.timestamp);
+                d3.select("#tooltipAvg").html(dp.count.toString());
+            }
+            
             let mousePosition = d3.mouse(document.getElementById("TimeSeriesNavigationChart"));
-            let xcoord = mousePosition[0];
-            let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord));
+            let xcoord: number = mousePosition[0];
+            let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord - offset));
             let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
 
-            d3.select("#mouseLine").classed("hidden", false)
-                .attr("d", function () {
+            d3.select(".mouseLine").classed("hidden", false)
+            d3.select("#mouseLine").attr("d", function () {
                     var d = "M" + xcoord + "," + SVG_HEIGHT;
                     d += " " + xcoord + "," + 0;
                     return d;
@@ -140,18 +143,21 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 }
             }
 
-            function updateTooltip(dp: timeseriesData) {
-                d3.select("#tooltipDate").html(dp.timestamp);
-                d3.select("#tooltipAvg").html(dp.count.toString());
-            }
         }).on("mouseleave", function () {
             originalScope.lastShownIndex = -1;
             d3.select("#tooltipDate").html("");
             d3.select("#tooltipAvg").html("");
-            d3.select("#mouseLine").classed("hidden", true);
+            d3.select(".mouseLine").classed("hidden", true);
         });
+    }
 
-        this.setupBrush();
+    calculateOffset(): number {
+        let elemAxis = d3.select(".y-axis").node() as Element;
+        let bBoxAxis = elemAxis.getBoundingClientRect(); 
+        let elemSvg = d3.select("#"+SVG_ID).node() as Element;
+        let bBoxSvg = elemSvg.getBoundingClientRect();
+
+        return bBoxAxis.right - bBoxSvg.left - 6; // ToDo: magic number
     }
 
     setupBrush() {
