@@ -24,6 +24,7 @@ interface timestampData {
 }
 
 const SVG_WIDTH = 950;
+const SVG_HEIGHT = 250;
 const SVG_ID = "TimeSeriesNavigationChart"
 
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
@@ -118,12 +119,21 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         let originalScope = this;
         d3.select("#" + SVG_ID).on("mousemove", function () {
-            let xcoord = d3.mouse(document.getElementById("TimeSeriesNavigationChart"))[0];
+            let mousePosition = d3.mouse(document.getElementById("TimeSeriesNavigationChart"));
+            let xcoord = mousePosition[0];
             let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord));
             let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
 
+            d3.select("#mouseLine").classed("hidden", false)
+                .attr("d", function () {
+                    var d = "M" + xcoord + "," + SVG_HEIGHT;
+                    d += " " + xcoord + "," + 0;
+                    return d;
+                });
+
+
             let indexOfDatapoint = bisectDate(originalScope.dataAvg, dateString);
-            if (indexOfDatapoint != originalScope.lastShownIndex) {
+            if (indexOfDatapoint !== originalScope.lastShownIndex) {
                 if (originalScope.dataAvg[indexOfDatapoint] != null) {
                     updateTooltip(originalScope.dataAvg[indexOfDatapoint])
                     originalScope.lastShownIndex = indexOfDatapoint;
@@ -138,6 +148,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             originalScope.lastShownIndex = -1;
             d3.select("#tooltipDate").html("");
             d3.select("#tooltipAvg").html("");
+            d3.select("#mouseLine").classed("hidden", true);
         });
 
         this.setupBrush();
@@ -206,16 +217,19 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         return (
             <div>
-                <svg id={SVG_ID} width={SVG_WIDTH} height={250}>
+                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
                     {maxArea}
                     {avgline}
                     {minArea}
                     <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
                     <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
+                    <g className="mouseLine">
+                        <path id="mouseLine"></path>
+                    </g>
                 </svg>
-                <div>Wert für:<span id="tooltipDate"></span></div>
-                <div>avg: <span id="tooltipAvg"></span>"</div>
+                <div>Wert für: <span id="tooltipDate"></span></div>
+                <div>avg: <span id="tooltipAvg"></span></div>
                 <button onClick={this.toggleChartMax}>Toggle Maximum</button>
                 <button onClick={this.toggleChartAvg}>Toggle Average</button>
                 <button onClick={this.toggleChartMin}>Toggle Minimum</button>

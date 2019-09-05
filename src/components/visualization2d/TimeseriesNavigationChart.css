@@ -18,3 +18,13 @@
 button {
     margin: 5px;
 }
+
+.mouseLine {
+    stroke-width: 1px;
+    opacity: 1;
+    stroke: black;
+}
+
+.mouseLine.hidden {
+    opacity: 0;
+}
