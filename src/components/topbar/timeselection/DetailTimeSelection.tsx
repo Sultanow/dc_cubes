@@ -1,23 +1,18 @@
 import React from 'react';
 import { Row, Col, Form, Button, Container, Dropdown, Navbar, Tab, Tabs } from 'react-bootstrap';
 import TimespanOrPointInTimeNotAvailable from '../../error/TimespanOrPointInTimeNotAvailable'
-import DCState from '../../../model/DCState'
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
 
 interface DetailTimeSelectionProps {
-    accessChild: any
-    sliderMode: 'pointInTime' | 'timespan' | 'hidden'
-    temporalAxis: string[]
     timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
     timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    timespanTimeUnitLowerBound: string
+    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours'
     timespanAmountLowerBound: any
-    timespanTimeUnitUpperBound: string
+    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours'
     timespanAmountUpperBound: any
-    timeSeries: Map<string, DCState>
     refreshInterval: any
     refreshTimeUnit: string
     automaticRefresh: boolean

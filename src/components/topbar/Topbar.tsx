@@ -20,9 +20,9 @@ interface TopbarProps {
     timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    timespanTimeUnitLowerBound: string
+    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours'
     timespanAmountLowerBound: number
-    timespanTimeUnitUpperBound: string
+    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours'
     timespanAmountUpperBound: number
     pointInTimeTimestamp: string
     updateTimespanData: any
@@ -99,10 +99,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                                         updateTimespanData={this.props.updateTimespanData} />
                                 </Dropdown.Menu>
                             </Dropdown>
-                            <DetailTimeSelection    accessChild={this.props.accessChild}
-                                                    sliderMode={this.props.sliderMode}
-                                                    temporalAxis={this.props.temporalAxis}
-                                                    timespanTypeLowerBound={this.props.timespanTypeLowerBound}
+                            <DetailTimeSelection    timespanTypeLowerBound={this.props.timespanTypeLowerBound}
                                                     timespanTypeUpperBound={this.props.timespanTypeUpperBound}
                                                     timespanAbsoluteTimestampLowerBound={this.props.timespanAbsoluteTimestampLowerBound}
                                                     timespanAbsoluteTimestampUpperBound={this.props.timespanAbsoluteTimestampUpperBound}
@@ -110,7 +107,6 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                                     timespanAmountLowerBound={this.props.timespanAmountLowerBound}
                                                     timespanTimeUnitUpperBound={this.props.timespanTimeUnitUpperBound}
                                                     timespanAmountUpperBound={this.props.timespanAmountUpperBound}
-                                                    timeSeries={this.props.timeSeries}
                                                     refreshInterval={this.state.refreshInterval}
                                                     refreshTimeUnit={this.state.refreshTimeUnit}
                                                     automaticRefresh={this.state.automaticRefresh}

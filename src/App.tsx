@@ -27,9 +27,9 @@ interface AppState {
   timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
   timespanAbsoluteTimestampLowerBound: string
   timespanAbsoluteTimestampUpperBound: string
-  timespanTimeUnitLowerBound: string
+  timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours'
   timespanAmountLowerBound: number
-  timespanTimeUnitUpperBound: string
+  timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours'
   timespanAmountUpperBound: number
   pointInTimeTimestamp: string
   
@@ -232,7 +232,7 @@ class App extends React.Component<{}, AppState> {
     this.setState<never>({ [stateElement]: value })
   }
 
-  updateTimespanData = (newTimespanData) => {
+  updateTimespanData = (newTimespanData: object) => {
     this.setState<never>(newTimespanData, () => {
       this.calculateAndSetBoundariesOfTimespanSlider()
     })
@@ -291,19 +291,10 @@ class App extends React.Component<{}, AppState> {
     } else if (typeLowerBound === 'next' && typeUpperBound === 'absolute') {
       this.setState({timespanError: true})
 
-    } else if (typeLowerBound === 'next' && typeUpperBound === 'last') {
-      this.setState({timespanError: true})
-
     } else if (typeLowerBound === 'next' && typeUpperBound === 'next') {
       this.setState({timespanError: true})
 
-    } else if (typeLowerBound === 'next' && typeUpperBound === 'now') {
-      this.setState({timespanError: true})
-
     } else if (typeLowerBound === 'now' && typeUpperBound === 'absolute') {
-      this.setState({timespanError: true})
-
-    } else if (typeLowerBound === 'now' && typeUpperBound === 'last') {
       this.setState({timespanError: true})
 
     } else if (typeLowerBound === 'now' && typeUpperBound === 'next') {

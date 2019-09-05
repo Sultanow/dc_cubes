@@ -24,6 +24,7 @@ interface QuickTimeSelectionState {
     timespanTimeUnit: string
     dataNotAvailableError: boolean
     selectedPointInTimeTimestamp: string
+    pointInTimeType: 'absolute' | 'now'
 }
 
 export default class QuickTimeSelection extends React.Component<QuickTimeSelectionProps, QuickTimeSelectionState> {
@@ -35,6 +36,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
             timespanTimeUnit: 'hours',
             dataNotAvailableError: false,
             selectedPointInTimeTimestamp: new Date().toISOString().split('.')[0]+"Z",
+            pointInTimeType: 'now'
         }
       }
 
@@ -191,9 +193,9 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
     }
 
     setCurrentTime = () => {
-        //let now = new Date()
-        //const current = now.toISOString().split('.')[0]+"Z"
-        this.setState({selectedPointInTimeTimestamp: 'now'})
+        let now = new Date()
+        const current = now.toISOString().split('.')[0]+"Z"
+        this.setState({pointInTimeType: 'now', selectedPointInTimeTimestamp: current})
     }
 
     handleTimespan = () => {
@@ -236,7 +238,8 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
         if (e[0]) {
             this.setState({
                 dataNotAvailableError: false,
-                selectedPointInTimeTimestamp: e[0].toISOString().split('.')[0]+"Z"
+                selectedPointInTimeTimestamp: e[0].toISOString().split('.')[0]+"Z",
+                pointInTimeType: 'absolute'
             }, () => {
                 this.props.accessChild('pointInTimeTimestamp', this.state.selectedPointInTimeTimestamp)
                 let selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.selectedPointInTimeTimestamp)
@@ -253,7 +256,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
         this.props.accessChild('timeSelectionMode', 'pointInTime')
         
         let selectedPointInTime
-        if (this.state.selectedPointInTimeTimestamp === 'now') {
+        if (this.state.pointInTimeType === 'now') {
             selectedPointInTime = this.props.temporalAxis.length - 1
         } else {
             selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.selectedPointInTimeTimestamp)
