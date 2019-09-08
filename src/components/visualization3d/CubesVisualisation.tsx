@@ -26,7 +26,6 @@ interface CubesVisProps {
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
 
-
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     mouse: THREE.Vector2;
@@ -36,6 +35,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     controls: OrbitControls;
     bars: any[];
     textSprites: any[];
+    barPlaceholders: any[];
+
     frameId: number;
 
 
@@ -61,10 +62,14 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.bars = [];
         this.textSprites = []
+        this.barPlaceholders = []
         this.frameId = 0
 
     }
+
     render() {
+
+        // console.log('%cCubes Render ', ' color: #bada55');
         const sliderMode = this.props.sliderMode;
         let slider, timestamp;
 
@@ -73,7 +78,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             timestamp = <h2>{this.props.selectedPointInTimeTimestamp}</h2>;
         } else if (sliderMode === 'timespan') {
             slider = <TimeSpanSlider max={this.props.maxRangeSlider} timespanValuesOfSlider={this.props.timespanValuesOfSlider} onChange={this.props.accessChild} />;
-            timestamp = <h2>{this.props.selectedTimespanTimestamp[0]} - {this.props.selectedTimespanTimestamp[1]}</h2>;     
+            timestamp = <h2>{this.props.selectedTimespanTimestamp[0]} - {this.props.selectedTimespanTimestamp[1]}</h2>;
         } else {
             slider = '';
             timestamp = '';
@@ -85,20 +90,13 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 <div className="slidercontainer">
                     {slider}
                     {timestamp}
-                </div>             
+                </div>
             </Container>
         )
     };
-
-    componentDidUpdate() {
-        // props passed to the component are available in this lifecycle method
-        if (this.props.dataSourceSuccess === true) {
-            this.setBarPlaceholders();
-            this.createCubeData()
-        }
-    }
-
     componentDidMount() {
+        // console.log('%cCubes componentDidMount ', ' color: #bada55');
+        var t0 = performance.now();
         this.initVis();
         this.loopVis();
 
@@ -107,8 +105,29 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             this.setBarPlaceholders();
             this.createCubeData()
         }
+        var t1 = performance.now();
+        // console.log("%cCall to Cubes componentDidMount took " + (t1 - t0) + "milliseconds.", 'color: #bada55');
     }
+    componentDidUpdate() {
+        // console.log(this.textSprites)
+        // console.log('%cCubes componentDidUpdate ', ' color: #bada55');
+
+        if (this.props.dataSourceSuccess === true) {
+            this.setBarPlaceholders();
+            this.createCubeData()
+        }
+
+
+        // console.log("%cCall to Cubes componentDidUpdate took " + (t1 - t0) + " milliseconds.", 'color: #bada55');
+
+        // console.log(this.scene)
+        // props passed to the component are available in this lifecycle method
+
+    }
+
+
     componentWillUnmount() {
+        // console.log('%c Cubes componentWillUnmount ', ' color: #bada55');
         window.cancelAnimationFrame(this.frameId);
         const visFromDom = document.getElementById("cubes-visualisation");
         if (visFromDom) {
@@ -139,12 +158,23 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // removes bars of the last selected timestamp
         for (let index = 0; index < this.bars.length; index++) {
             this.scene.remove(this.bars[index]);
+            this.bars[index].geometry.dispose();
+            this.bars[index].geometry = null;
+            this.bars[index].material.dispose();
+            this.bars[index].material = null;
+            // this.bars[index].dispose();
+            this.bars[index] = null;
         }
+        this.bars = []
 
         // removes text sprites of the last selected timestamp
         for (let index = 0; index < this.textSprites.length; index++) {
+            this.textSprites[index].geometry.dispose();
+            this.textSprites[index].material.dispose();
             this.scene.remove(this.textSprites[index]);
         }
+        this.textSprites = []
+        this.renderer.renderLists.dispose();
 
         this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
             //set up view data
@@ -249,20 +279,23 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         plane.position.x = xPosition;
         plane.position.z = zPosition;
         plane.add(wireframe);
-
+        this.barPlaceholders.push(plane);
         this.scene.add(plane);
     }
 
     setBarPlaceholders() {
-        var index = 0;
+
+        // removes bar placeholdes of the last selected timestamp
+        for (let index = 0; index < this.barPlaceholders.length; index++) {
+            this.barPlaceholders[index].geometry.dispose()
+            this.barPlaceholders[index].material.dispose();
+            this.scene.remove(this.barPlaceholders[index]);
+        }
+        this.barPlaceholders = []
+        this.renderer.renderLists.dispose();
 
         this.props.grid.forEach((element) => {
-            // this condition is only necessary beacuse there is a bug in SolrAdapter.ts 
-            // the last element of the grid is undifined, without this condition one to many playeholder would be falsely rendered
-            if (index < this.props.grid.size - 1) {
-                this.createBarPlaceholder(element[0] * 150, element[1] * 150);
-            }
-            index++
+            this.createBarPlaceholder(element[0] * 150, element[1] * 150);
         });
 
     }
@@ -288,12 +321,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.scene.add(ambient, spot);
     }
-
-    randomnizeBarHeights() {
-        for (let index = 0; index < this.bars.length; index++) {
-            this.bars[index].scale.y = Math.floor(Math.random() * 20) + 1;
-        }
-    };
 
     onHover = (event: any) => {
         // calculate mouse position in normalized device coordinates acordign to scene width and height
@@ -348,11 +375,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     };
 
-    // visualisation logic
-    updateVis() {
-
-    };
-
     // draw Scene
     renderVis() {
         this.renderer.render(this.scene, this.camera);
@@ -360,7 +382,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     // run visualisation loop (update, render, repeat)
     loopVis = () => {
-        this.updateVis();
         this.renderVis();
         this.frameId = window.requestAnimationFrame(this.loopVis);
     };
