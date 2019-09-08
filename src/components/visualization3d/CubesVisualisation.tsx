@@ -102,6 +102,9 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     componentDidUpdate() {
         console.log("Component Did update")
         var t0 = performance.now();
+
+        // console.log(this.renderer.info)
+
         if (this.props.dataSourceSuccess === true) {
             this.setBarPlaceholders();
             this.createCubeData()
@@ -155,7 +158,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             // this.bars[index].dispose();
             this.bars[index] = null;
         }
-        this.bars = []
+        this.bars.length = 0;
 
         // removes text sprites of the last selected timestamp
         for (let index = 0; index < this.textSprites.length; index++) {
@@ -163,7 +166,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             this.textSprites[index].material.dispose();
             this.scene.remove(this.textSprites[index]);
         }
-        this.textSprites = []
+        this.textSprites.length = 0;
         this.renderer.renderLists.dispose();
 
         this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
@@ -200,7 +203,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     createBar(x: number, z: number, h: number, textLabel: string, color: number) {
 
         // Cube init
-        var geometry = new THREE.BoxGeometry(40, h, 40);
+        var geometry = new THREE.BoxBufferGeometry(40, h, 40);
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, h / 2, 0));
 
         var material = new THREE.MeshLambertMaterial({
@@ -230,6 +233,13 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         cube.add(wireframe);
         this.textSprites.push(textSprite);
         this.bars.push(cube);
+
+        geometry.dispose();
+        material.dispose();
+        geo.dispose();
+        mat.dispose();
+        this.renderer.renderLists.dispose();
+
     };
 
     createTextSprite(message) {
@@ -254,11 +264,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         var sprite = new THREE.Sprite(spriteMaterial);
         sprite.scale.set(100, 50, 1.0);
         sprite.center.set(0.1, 0.5);
+        texture.dispose()
         return sprite;
     }
 
     createBarPlaceholder(xPosition: number, zPosition: number) {
-        var geometry = new THREE.PlaneGeometry(40, 40);
+        var geometry = new THREE.PlaneBufferGeometry(40, 40);
         var material = new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide });
         var plane = new THREE.Mesh(geometry, material);
 
@@ -271,6 +282,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         plane.add(wireframe);
         this.barPlaceholders.push(plane);
         this.scene.add(plane);
+
+        geometry.dispose();
+        material.dispose();
+        geo.dispose();
+        mat.dispose();
+        this.renderer.renderLists.dispose();
     }
 
     setBarPlaceholders() {
