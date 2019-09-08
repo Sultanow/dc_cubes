@@ -68,8 +68,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     }
 
     render() {
-
-        // console.log('%cCubes Render ', ' color: #bada55');
         const sliderMode = this.props.sliderMode;
         let slider, timestamp;
 
@@ -95,39 +93,26 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         )
     };
     componentDidMount() {
-        // console.log('%cCubes componentDidMount ', ' color: #bada55');
-        var t0 = performance.now();
+
         this.initVis();
-        this.loopVis();
 
         // necessary for react-router
         if (this.props.dataSourceSuccess === true) {
             this.setBarPlaceholders();
             this.createCubeData()
         }
-        var t1 = performance.now();
-        // console.log("%cCall to Cubes componentDidMount took " + (t1 - t0) + "milliseconds.", 'color: #bada55');
     }
     componentDidUpdate() {
-        // console.log(this.textSprites)
-        // console.log('%cCubes componentDidUpdate ', ' color: #bada55');
-
+        // this.loopVis();
         if (this.props.dataSourceSuccess === true) {
             this.setBarPlaceholders();
             this.createCubeData()
         }
 
-
-        // console.log("%cCall to Cubes componentDidUpdate took " + (t1 - t0) + " milliseconds.", 'color: #bada55');
-
-        // console.log(this.scene)
-        // props passed to the component are available in this lifecycle method
-
+        this.renderVis()
     }
 
-
     componentWillUnmount() {
-        // console.log('%c Cubes componentWillUnmount ', ' color: #bada55');
         window.cancelAnimationFrame(this.frameId);
         const visFromDom = document.getElementById("cubes-visualisation");
         if (visFromDom) {
@@ -377,6 +362,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     // draw Scene
     renderVis() {
+        console.log("RENDER");
         this.renderer.render(this.scene, this.camera);
     };
 
