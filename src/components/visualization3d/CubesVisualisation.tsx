@@ -56,15 +56,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.INTERSECTED = null;
         this.renderer = new THREE.WebGLRenderer({ antialias: true });
         this.raycaster = new THREE.Raycaster();
-
-        // allows movement with mouseclicks 
         this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
         this.bars = [];
         this.textSprites = []
         this.barPlaceholders = []
         this.frameId = 0
-
     }
 
     render() {
@@ -93,7 +89,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         )
     };
     componentDidMount() {
-
+        console.log("Component Did mount")
         this.initVis();
 
         // necessary for react-router
@@ -101,15 +97,20 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             this.setBarPlaceholders();
             this.createCubeData()
         }
+        this.renderVis()
     }
     componentDidUpdate() {
-        // this.loopVis();
+        console.log("Component Did update")
+        var t0 = performance.now();
         if (this.props.dataSourceSuccess === true) {
             this.setBarPlaceholders();
             this.createCubeData()
         }
+        this.renderVis();
+        var t1 = performance.now();
+        console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
 
-        this.renderVis()
+
     }
 
     componentWillUnmount() {
@@ -128,6 +129,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         const visFromDom = document.getElementById("cubes-visualisation");
         if (visFromDom) visFromDom.appendChild(this.renderer.domElement);
+
+        // this.render();
+        // allows movement with mouseclicks 
+        this.controls.addEventListener('change', this.renderVis.bind(this));
 
         // eventlistener for mouse movement. is needed for onHower and onClick logic
         document.addEventListener('mousemove', this.onHover, false);
@@ -345,16 +350,20 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     changeColorOfHoveredCube(intersects: THREE.Intersection[]) {
         if (intersects.length > 0) {
             if (this.INTERSECTED !== intersects[0].object) {
-                if (this.INTERSECTED && this.INTERSECTED.type === "Mesh") this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
+                if (this.INTERSECTED && this.INTERSECTED.material && this.INTERSECTED.type === "Mesh") this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
 
                 this.INTERSECTED = intersects[0].object;
                 if (this.INTERSECTED.type === "Mesh") {
                     this.INTERSECTED.currentHex = this.INTERSECTED.material.emissive.getHex();
                     this.INTERSECTED.material.emissive.setHex(0xff0000);
+                    this.renderVis();
                 }
             }
         } else {
-            if (this.INTERSECTED && this.INTERSECTED.type === "Mesh") this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
+            if (this.INTERSECTED && this.INTERSECTED.material && this.INTERSECTED.type === "Mesh") {
+                this.INTERSECTED.material.emissive.setHex(this.INTERSECTED.currentHex);
+                this.renderVis();
+            }
             this.INTERSECTED = null;
         }
 
@@ -362,7 +371,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     // draw Scene
     renderVis() {
-        console.log("RENDER");
+        // console.log("RENDER");
         this.renderer.render(this.scene, this.camera);
     };
 
