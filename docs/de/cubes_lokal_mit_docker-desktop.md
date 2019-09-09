@@ -65,7 +65,7 @@ DC Cubes kann mit den zugehörigen Skripten auch ganze einfacher gestoppt und ge
 Hierzu einfach folgenden Befehl aus dem Hauptverzeichnis ausführen:
 
 Windows:
-``` ./docker/run.ps1 ``` oder ``` ./docker/stop.ps1 ```
+``` .\docker\run.ps1 ``` oder ``` .\docker\stop.ps1 ```
 
 Linux:
 ``` ./docker/run.sh ``` oder ``` ./docker/stop.sh ```

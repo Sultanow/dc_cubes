@@ -63,7 +63,7 @@ Instead of ```http://localhost:8983/solr/``` it has to be ```http://localhost/so
 You can start and stop dc_cubes with the provided scripts:
 
 Windows:
-``` ./docker/run.ps1 ``` or ``` ./docker/stop.ps1 ```
+``` .\docker\run.ps1 ``` or ``` .\docker\stop.ps1 ```
 
 Linux:
 ``` ./docker/run.sh ``` or ``` ./docker/stop.sh ```
