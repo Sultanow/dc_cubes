@@ -17,7 +17,7 @@ const railOuterStyle = {
 const railInnerStyle = {
   position: 'absolute',
   width: '100%',
-  height: 14,
+  height: 7,
   transform: 'translate(0%, -50%)',
   borderRadius: 7,
   pointerEvents: 'none',
@@ -73,8 +73,8 @@ export function Handle({
           position: 'absolute',
           transform: 'translate(-50%, -50%)',
           zIndex: 2,
-          width: 24,
-          height: 24,
+          width: 17,
+          height: 17,
           borderRadius: '50%',
           boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.3)',
           backgroundColor: disabled ? '#666' : '#b3ecff',
@@ -155,7 +155,7 @@ export function Track({ source, target, getTrackProps, disabled }) {
       style={{
         position: 'absolute',
         transform: 'translate(0%, -50%)',
-        height: 14,
+        height: 7,
         zIndex: 1,
         backgroundColor: disabled ? '#999' : '#b3ecff',
         borderRadius: 7,

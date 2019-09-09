@@ -33,7 +33,7 @@ export default class TimespanSlider extends Component<TimespanSliderProps, any> 
 
 	render() {
 		return (
-			<div style={{ height: 50, width: '100%' }}>
+			<div style={{ height: 25, width: '100%' }}>
 				<Slider
 					mode={2}
 					step={1}

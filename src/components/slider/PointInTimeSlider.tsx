@@ -28,43 +28,43 @@ export default class PointInTimeSlider extends Component<PointInTimeSliderProps,
         return (
             <div style={{ height: 25, width: '100%' }}>
                 <Slider
-                mode={1}
-                step={1}
-                domain={[0, this.props.max]}
-                rootStyle={sliderStyle as any}
-                onChange={this.onChange}
-                onUpdate={this.onUpdate}
-                values={this.props.valueOfSlider}
+                    mode={1}
+                    step={1}
+                    domain={[0, this.props.max]}
+                    rootStyle={sliderStyle as any}
+                    onChange={this.onChange}
+                    onUpdate={this.onUpdate}
+                    values={this.props.valueOfSlider}
                 >
                     <Rail>
                         {({ getRailProps }) => <SliderRail getRailProps={getRailProps} />}
                     </Rail>
                     <Handles>
                         {({ handles, getHandleProps }) => (
-                        <div className="slider-handles">
-                            {handles.map(handle => (
-                            <Handle
-                                key={handle.id}
-                                handle={handle}
-                                domain={[0, this.props.max]}
-                                getHandleProps={getHandleProps}
-                            />
-                            ))}
-                        </div>
+                            <div className="slider-handles">
+                                {handles.map(handle => (
+                                    <Handle
+                                        key={handle.id}
+                                        handle={handle}
+                                        domain={[0, this.props.max]}
+                                        getHandleProps={getHandleProps}
+                                    />
+                                ))}
+                            </div>
                         )}
                     </Handles>
                     <Tracks right={false}>
                         {({ tracks, getTrackProps }) => (
-                        <div className="slider-tracks">
-                            {tracks.map(({ id, source, target }) => (
-                            <Track
-                                key={id}
-                                source={source}
-                                target={target}
-                                getTrackProps={getTrackProps}
-                            />
-                            ))}
-                        </div>
+                            <div className="slider-tracks">
+                                {tracks.map(({ id, source, target }) => (
+                                    <Track
+                                        key={id}
+                                        source={source}
+                                        target={target}
+                                        getTrackProps={getTrackProps}
+                                    />
+                                ))}
+                            </div>
                         )}
                     </Tracks>
                 </Slider>
