@@ -116,12 +116,16 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let originalScope = this;
         let offset: number = this.calculateOffset();
         d3.select("#" + SVG_ID).on("mousemove", function () {
-            
+
             function updateTooltip(dp: timeseriesData) {
                 d3.select("#tooltipDate").html(dp.timestamp);
-                d3.select("#tooltipAvg").html(dp.count.toString());
+                d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
+                console.log("tool", d3.select("#tooltip"));
+
+                d3.select("#tooltip").style("top", d3.event.pageY + "px")
+                    .style("left", d3.event.pageX + 20 + "px")
             }
-            
+
             let mousePosition = d3.mouse(document.getElementById("TimeSeriesNavigationChart"));
             let xcoord: number = mousePosition[0];
             let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord - offset));
@@ -129,10 +133,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             d3.select(".mouseLine").classed("hidden", false)
             d3.select("#mouseLine").attr("d", function () {
-                    var d = "M" + xcoord + "," + SVG_HEIGHT;
-                    d += " " + xcoord + "," + 0;
-                    return d;
-                });
+                var d = "M" + xcoord + "," + SVG_HEIGHT;
+                d += " " + xcoord + "," + 0;
+                return d;
+            });
 
 
             let indexOfDatapoint = bisectDate(originalScope.dataAvg, dateString);
@@ -148,13 +152,14 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             d3.select("#tooltipDate").html("");
             d3.select("#tooltipAvg").html("");
             d3.select(".mouseLine").classed("hidden", true);
+            d3.select("#tooltip").style("left", "").style("top", "").style("position", "");
         });
     }
 
     calculateOffset(): number {
         let elemAxis = d3.select(".y-axis").node() as Element;
-        let bBoxAxis = elemAxis.getBoundingClientRect(); 
-        let elemSvg = d3.select("#"+SVG_ID).node() as Element;
+        let bBoxAxis = elemAxis.getBoundingClientRect();
+        let elemSvg = d3.select("#" + SVG_ID).node() as Element;
         let bBoxSvg = elemSvg.getBoundingClientRect();
 
         return bBoxAxis.right - bBoxSvg.left - 6; // ToDo: magic number
@@ -235,11 +240,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     </g>
                 </svg>
                 <div className="verticalContainer">
-                <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMax}/>Maximum</label>
-                <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartAvg}/>Average</label>
-                <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMin}/>Minimum</label>
-                <div>Wert für: <span id="tooltipDate"></span></div>
-                <div>avg: <span id="tooltipAvg"></span></div>
+                    <div className="checkboxContainer">
+                        <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMax} />Maximum</label>
+                        <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartAvg} />Average</label>
+                        <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMin} />Minimum</label>
+                    </div>
+                    <div id="tooltip">
+                        <div>Date: <span id="tooltipDate"></span></div>
+                        <div>Average: <span id="tooltipAvg"></span></div>
+                    </div>
                 </div>
             </div>
         );

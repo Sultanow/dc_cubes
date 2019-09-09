@@ -19,10 +19,25 @@
     width: auto;
     display: inline-flex;
     flex-direction: row;
+}   
+
+.checkboxContainer {
+    display: inline-flex;
+    flex-direction: column;
 }
 
 input {
     margin: 5px;
+}
+
+#tooltip {
+    border: 1px solid;
+    border-radius: 5%;
+    font-size: small;
+    width: 180px;
+    position: absolute;
+    pointer-events: none;
+    background-color: rgba(234, 240, 255, 0.7);
 }
 
 .mouseLine {
