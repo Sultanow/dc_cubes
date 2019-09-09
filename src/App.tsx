@@ -18,7 +18,7 @@ interface AppState {
   solrBaseUrl: string
   solrCore: any
   solrQuery: string
-  dataSourceSuccess: boolean
+  dataSourceError: boolean
   selectedPointInTime: number
   selectedTimespan: [number, number]
   
@@ -57,7 +57,7 @@ class App extends React.Component<{}, AppState> {
       solrBaseUrl: 'http://localhost:8983/solr/',
       solrCore: 'dc_cubes',
       solrQuery: '/query?q=*:*&start=0&rows=30000',
-      dataSourceSuccess: false,
+      dataSourceError: true,
       selectedPointInTime: 0,
       selectedTimespan: [0, 0],  
       timeSelectionMode: 'pointInTime',
@@ -109,7 +109,7 @@ class App extends React.Component<{}, AppState> {
         clusterColors: solrAdapter.clusterColors,
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
-        dataSourceSuccess: true,
+        dataSourceError: false,
         // raw timesereis Data for 2d graph 
         rawTimeseriesData: data.data.response.docs,
         isRawTimeseriesDataLoaded: true,
@@ -122,16 +122,12 @@ class App extends React.Component<{}, AppState> {
 
 
     }).catch((error: any) => {
-      this.setState({
-        dataSourceSuccess: false
-      })
+      this.setState({dataSourceError: true})
       console.log(error)
     });
   }
 
-  // child = createRef<CubesVisualisation>();
   render() {
-
     var TimeseriesNavigationChartComponent;
     if(this.state.isRawTimeseriesDataLoaded){
       TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} updateTimespanData={this.updateTimespanData}/>
@@ -179,21 +175,23 @@ class App extends React.Component<{}, AppState> {
                       accessChild={this.accessChild}
                       selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
                       selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
-                      dataSourceSuccess={this.state.dataSourceSuccess} />
+                      dataSourceError={this.state.dataSourceError} />
                       {TimeseriesNavigationChartComponent}
                   </div>
               } />
               <Route path="/data-sources" render={(props) => <DataSources {...props}
                 dataSource={this.state.dataSource}
+                dataSourceError={this.state.dataSourceError}
                 setDataSource={this.setDataSource}
                 setDataSourceUrl={this.setDataSourceUrl}
                 setSolrUrlPart={this.setSolrUrlPart}
                 dataSourceUrl={this.state.dataSourceUrl}
                 solrBaseUrl={this.state.solrBaseUrl}
                 solrCore={this.state.solrCore}
-                solrQuery={this.state.solrQuery} />} />
+                solrQuery={this.state.solrQuery}
+                accessChild={this.accessChild} />} />
             </Row>
-            {!this.state.dataSourceSuccess && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
+            {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
             {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
           </Container>
         </div>

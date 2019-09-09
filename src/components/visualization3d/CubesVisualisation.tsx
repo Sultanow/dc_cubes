@@ -21,7 +21,7 @@ interface CubesVisProps {
     selectedPointInTimeTimestamp: string
     selectedTimespanTimestamp: string
     accessChild: any
-    dataSourceSuccess: boolean
+    dataSourceError: boolean
 }
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
@@ -93,7 +93,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.initVis();
 
         // necessary for react-router
-        if (this.props.dataSourceSuccess === true) {
+        if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
             this.createCubeData()
         }
@@ -105,7 +105,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         // console.log(this.renderer.info)
 
-        if (this.props.dataSourceSuccess === true) {
+        if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
             this.createCubeData()
         }
