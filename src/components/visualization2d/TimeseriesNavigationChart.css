@@ -23,6 +23,7 @@ button {
     stroke-width: 1px;
     opacity: 1;
     stroke: black;
+    pointer-events: none;
 }
 
 .mouseLine.hidden {
