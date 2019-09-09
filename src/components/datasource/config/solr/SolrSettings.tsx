@@ -4,11 +4,13 @@ import httpClient from 'axios';
 
 interface SolrSettingsProps {
   dataSourceUrl: string
+  dataSourceError: boolean
   setDataSourceUrl: any
   setSolrUrlPart: any
   solrBaseUrl: string
   solrCore: string
   solrQuery: string
+  accessChild: any
 }
 
 /* interface SolrSettingsState {
@@ -64,8 +66,8 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
                           </Col>
                           <Col sm="2">
                             {
-                              this.state.solrInstanceStatus ? <Badge variant="success">Online</Badge>
-                              : <Badge variant="danger">Offline</Badge>
+                              this.props.dataSourceError ? <Badge variant="danger">Offline</Badge>
+                              : <Badge variant="success">Online</Badge>
                             }
                           </Col>
                         </Form.Group>
@@ -91,6 +93,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
   }
 
   componentDidMount() {
+    console.log(1)
     const url = this.state.solrBaseUrl.concat("admin/cores?action=STATUS&indexInfo=false&wt=json")
     this.getAllSolrCores(url)
   }
@@ -137,10 +140,8 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
             dataItems.push(<option key={index} value={strCore}>{strCore}</option>);
         });
 
-        this.setState({
-          items: dataItems,
-          solrInstanceStatus: true,
-        })
+        this.setState({items: dataItems})
+        this.props.accessChild('dataSourceError', false)
     })
     .catch((error) => {
         console.log(error)

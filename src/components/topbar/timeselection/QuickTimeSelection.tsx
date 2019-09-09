@@ -23,7 +23,7 @@ interface QuickTimeSelectionState {
     timespanAmount: any
     timespanTimeUnit: string
     dataNotAvailableError: boolean
-    selectedPointInTimeTimestamp: string
+    pointInTimeTimestamp: string
     pointInTimeType: 'absolute' | 'now'
 }
 
@@ -35,7 +35,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
             timespanAmount: 10,
             timespanTimeUnit: 'hours',
             dataNotAvailableError: false,
-            selectedPointInTimeTimestamp: new Date().toISOString().split('.')[0]+"Z",
+            pointInTimeTimestamp: new Date().toISOString().split('.')[0]+"Z",
             pointInTimeType: 'now'
         }
       }
@@ -112,7 +112,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                                     dateFormat: "Y-m-d\\TH:i:S\\Z",
                                     altFormat: "Y-m-d\\ H:i:S\\",
                                     altInput: true}}
-                            value={this.state.selectedPointInTimeTimestamp}
+                            value={this.state.pointInTimeTimestamp}
                             onChange={this.updatePointInTime} 
                             name='value' 
                         />  
@@ -195,7 +195,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
     setCurrentTime = () => {
         let now = new Date()
         const current = now.toISOString().split('.')[0]+"Z"
-        this.setState({pointInTimeType: 'now', selectedPointInTimeTimestamp: current})
+        this.setState({pointInTimeType: 'now', pointInTimeTimestamp: current})
     }
 
     handleTimespan = () => {
@@ -238,11 +238,11 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
         if (e[0]) {
             this.setState({
                 dataNotAvailableError: false,
-                selectedPointInTimeTimestamp: e[0].toISOString().split('.')[0]+"Z",
+                pointInTimeTimestamp: e[0].toISOString().split('.')[0]+"Z",
                 pointInTimeType: 'absolute'
             }, () => {
-                this.props.accessChild('pointInTimeTimestamp', this.state.selectedPointInTimeTimestamp)
-                let selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.selectedPointInTimeTimestamp)
+                this.props.accessChild('pointInTimeTimestamp', this.state.pointInTimeTimestamp)
+                let selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.pointInTimeTimestamp)
 
                 if (selectedPointInTime === -1) {
                     this.setState({dataNotAvailableError: true})
@@ -259,12 +259,12 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
         if (this.state.pointInTimeType === 'now') {
             selectedPointInTime = this.props.temporalAxis.length - 1
         } else {
-            selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.selectedPointInTimeTimestamp)
+            selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.pointInTimeTimestamp)
         }
 
         if (selectedPointInTime !== -1) {
             this.props.accessChild('sliderMode', 'pointInTime')
-            this.props.accessChild('pointInTimeTimestamp', this.state.selectedPointInTimeTimestamp)
+            this.props.accessChild('pointInTimeTimestamp', this.state.pointInTimeTimestamp)
             this.props.accessChild('selectedPointInTime', selectedPointInTime)
         } else {
             this.setState({dataNotAvailableError: true})

@@ -8,6 +8,7 @@ import { Row, Col, Form, Button } from 'react-bootstrap';
 
 interface DataSourcesProps {
     dataSource: string
+    dataSourceError: boolean
     dataSourceUrl: string
     solrBaseUrl: string
     solrCore: string
@@ -16,6 +17,7 @@ interface DataSourcesProps {
     setDataSource: any
     setSolrUrlPart: any
     history: any
+    accessChild: any
 }
 
 interface DataSourcesState {
@@ -87,11 +89,13 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                             <Route path="/data-sources/csv" render={(props) => <CsvSettings {...props}  />}/>
                             <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props} 
                                 setDataSourceUrl={this.props.setDataSourceUrl}
+                                dataSourceError={this.props.dataSourceError}
                                 setSolrUrlPart={this.props.setSolrUrlPart}
                                 dataSourceUrl={this.props.dataSourceUrl}
                                 solrBaseUrl={this.props.solrBaseUrl}
                                 solrCore={this.props.solrCore}
-                                solrQuery={this.props.solrQuery} />}/>
+                                solrQuery={this.props.solrQuery}
+                                accessChild={this.props.accessChild} />}/>
                             <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
                             <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  />}/>
                         </Col>
