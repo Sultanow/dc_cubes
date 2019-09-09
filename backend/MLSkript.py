@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import json
-
+import matplotlib.pyplot as plt
 
 def pushData(row):
     # defining the api-endpoint
@@ -43,7 +43,12 @@ def pushData(row):
 
 if __name__ == "__main__":
     print("MLSkript.py ausgeführt")
-    mockupData = pd.read_csv("../src/data/df_all_pseudo-01.csv", header=0, delimiter=",")
+    mockupData = pd.read_csv("../src/data/df_all_pseudo-01.csv", header=0, delimiter=",", index_col=0)
+    unwantedCols = ["host","cluster","dc","perm","instanz","verfahren","service","response","minv","maxv","avg","var","dev_upp","dev_low","perc90","perc95","perc99.9","sum","sum_of_squares", "server"]
+    # mockupData.drop(unwantedCols, axis=1, inplace=True)
+    mockupData.plot(x="timestamp", y="count")
+    plt.show()
 
-    for index, row in mockupData.iterrows():
-        pushData(row)
+
+   # for index, row in mockupData.iterrows():
+   #     pushData(row)

@@ -65,14 +65,16 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     render() {
         const sliderMode = this.props.sliderMode;
+        // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
+        const daysOfTheWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'];
         let slider, timestamp;
 
         if (sliderMode === 'pointInTime') {
             slider = <PointInTimeSlider max={this.props.maxRangeSlider} valueOfSlider={[this.props.valueOfSlider]} onChange={this.props.accessChild} />;
-            timestamp = <h2>{this.props.selectedPointInTimeTimestamp}</h2>;
+            timestamp = <h2>{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</h2>;
         } else if (sliderMode === 'timespan') {
             slider = <TimeSpanSlider max={this.props.maxRangeSlider} timespanValuesOfSlider={this.props.timespanValuesOfSlider} onChange={this.props.accessChild} />;
-            timestamp = <h2>{this.props.selectedTimespanTimestamp[0]} - {this.props.selectedTimespanTimestamp[1]}</h2>;
+            timestamp = <h2>{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[0]} - {daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[1]}</h2>;
         } else {
             slider = '';
             timestamp = '';
