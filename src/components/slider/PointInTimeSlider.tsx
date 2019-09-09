@@ -26,7 +26,7 @@ export default class PointInTimeSlider extends Component<PointInTimeSliderProps,
 
     render() {
         return (
-            <div style={{ height: 50, width: '100%' }}>
+            <div style={{ height: 25, width: '100%' }}>
                 <Slider
                 mode={1}
                 step={1}

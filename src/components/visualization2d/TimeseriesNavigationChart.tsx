@@ -222,7 +222,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
 
         return (
-            <div>
+            <div className="container2d">
                 <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
                     {maxArea}
                     {avgline}
@@ -234,11 +234,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                         <path id="mouseLine"></path>
                     </g>
                 </svg>
+                <div className="verticalContainer">
+                <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMax}/>Maximum</label>
+                <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartAvg}/>Average</label>
+                <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMin}/>Minimum</label>
                 <div>Wert für: <span id="tooltipDate"></span></div>
                 <div>avg: <span id="tooltipAvg"></span></div>
-                <button onClick={this.toggleChartMax}>Toggle Maximum</button>
-                <button onClick={this.toggleChartAvg}>Toggle Average</button>
-                <button onClick={this.toggleChartMin}>Toggle Minimum</button>
+                </div>
             </div>
         );
 

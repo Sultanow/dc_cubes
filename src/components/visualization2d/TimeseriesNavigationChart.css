@@ -15,7 +15,13 @@
     stroke-width: 2px;
 }
 
-button {
+.container2d {
+    width: auto;
+    display: inline-flex;
+    flex-direction: row;
+}
+
+input {
     margin: 5px;
 }
 

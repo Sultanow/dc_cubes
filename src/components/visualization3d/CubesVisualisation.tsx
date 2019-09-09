@@ -8,6 +8,7 @@ import Cluster from '../../model/Cluster'
 import Instance from '../../model/Instance'
 import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider'
+import './CubesVisualisation.css'
 
 interface CubesVisProps {
     data: DCState
@@ -71,10 +72,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         if (sliderMode === 'pointInTime') {
             slider = <PointInTimeSlider max={this.props.maxRangeSlider} valueOfSlider={[this.props.valueOfSlider]} onChange={this.props.accessChild} />;
-            timestamp = <h2>{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</h2>;
+            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</div>;
         } else if (sliderMode === 'timespan') {
             slider = <TimeSpanSlider max={this.props.maxRangeSlider} timespanValuesOfSlider={this.props.timespanValuesOfSlider} onChange={this.props.accessChild} />;
-            timestamp = <h2>{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[0]} - {daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[1]}</h2>;
+            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[0]} - {daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[1]}</div>;
         } else {
             slider = '';
             timestamp = '';
