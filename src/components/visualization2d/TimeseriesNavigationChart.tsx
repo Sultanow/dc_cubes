@@ -5,6 +5,7 @@ import './TimeseriesNavigationChart.css';
 interface TimeseriesNavigationChartProps {
     timeseriesData: [{ timestamp: string, count: number }]
     updateTimespanData: any
+    resetSliderAndDates: any
 }
 
 interface TimeseriesNavigationChartState {
@@ -120,8 +121,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             function updateTooltip(dp: timeseriesData) {
                 d3.select("#tooltipDate").html(dp.timestamp);
                 d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
-                console.log("tool", d3.select("#tooltip"));
-
                 d3.select("#tooltip").style("top", d3.event.pageY + "px")
                     .style("left", d3.event.pageX + 20 + "px")
             }
@@ -180,6 +179,17 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let selectedArea = d3.event.selection || this.xScale.range();
         let brushMinimum = selectedArea[0];
         let brushMaximum = selectedArea[1];
+
+        function isBrushAreaTooSmall(brushMinimum, brushMaximum) {
+            const brushThreshold = 5;
+            return (brushMinimum === 0 || brushMaximum - brushMinimum < brushThreshold)
+        }
+
+        if (isBrushAreaTooSmall(brushMinimum, brushMaximum)){
+            this.props.resetSliderAndDates();
+            return;
+        }  
+
         let startDate = this.convertDateObjectToString(this.xScale.invert(brushMinimum));
         let endDate = this.convertDateObjectToString(this.xScale.invert(brushMaximum));
 
