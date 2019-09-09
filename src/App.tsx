@@ -130,7 +130,7 @@ class App extends React.Component<{}, AppState> {
   render() {
     var TimeseriesNavigationChartComponent;
     if(this.state.isRawTimeseriesDataLoaded){
-      TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} updateTimespanData={this.updateTimespanData}/>
+      TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} updateTimespanData={this.updateTimespanData} resetSliderAndDates={this.resetSliderAndDates}/>
     }
     else {
       TimeseriesNavigationChartComponent=null;
@@ -234,6 +234,10 @@ class App extends React.Component<{}, AppState> {
     this.setState<never>(newTimespanData, () => {
       this.calculateAndSetBoundariesOfTimespanSlider()
     })
+  }
+
+  resetSliderAndDates() {
+    // TODO: This function should reset the slider and the dates in the topbar to be in the default state.
   }
 
   calculateAndSetPositionOfPointInTimeSlider = () => {
