@@ -2,25 +2,41 @@
 
 <img src="../img/cubes_screenshot.png" alt="drawing" width="560"/>
 
-This guide shows how to run dc_cubes with Docker-Desktop on Windows.
+This guide shows how to run dc_cubes locally.
 
 ## 1. Prerequisites
 
-1. Windows 10 with [Docker-Desktop](https://hub.docker.com/editions/community/docker-ce-desktop-windows) installed
+1. Windows 10 with [Docker-Desktop](https://hub.docker.com/editions/community/docker-ce-desktop-windows) installed OR current version of docker for [Linux](https://docs.docker.com/install/linux/docker-ce/ubuntu/) / [Mac OS](https://docs.docker.com/docker-for-mac/install/) 
 
 2. Cloned local copy of this [repository](https://github.com/Sultanow/dc_cubes) (or extracted zip)
 
 ## 2. Building and starting dc_cubes
-Start a powershell terminal (Windows > Search for "Windows Powershell" > Enter)
+Start a powershell terminal (Windows > Search for "Windows Powershell" > Enter) or a terminal session if you use Linux / Mac OS.
 
 Change directory to the repository:
+
+Windows:
 ```
 cd C:\**PATH_TO_REPO**\dc_cubes
 ```
-Execute the following command from the repositorys root folder:
+
+Linux / Mac OS:
 ```
- .\docker\start.ps1
+cd /home/**USER**/**PATH_TO_REPO**/dc_cubes
+```
+
+Execute the following command from the repositorys root folder:
+
+Windows:
+```
+ .\docker\buildAndRun.ps1
  ```
+
+Linux / Mac OS:
+```
+./docker/buildAndRun.sh
+ ```
+
 The script starts the production build process of dc_cubes and launches the required docker containers.
 A solr importer is started as temporary docker container importing demo infrastructure data. In total this script needs about 8-10 min.
 After the script finished your default browser will launch opening the right adress for using dc_cubes.
@@ -42,6 +58,17 @@ Please adjust the Solr-URL as shown in the screenshot:
 <img src="../img/cubes_docker_solr_einstellungen.png" alt="drawing" width="524"/>
 
 Instead of ```http://localhost:8983/solr/``` it has to be ```http://localhost/solr/```.
+
+## Start and stop dc_cubes w/o import of sample data
+You can start and stop dc_cubes with the provided scripts:
+
+Windows:
+``` .\docker\run.ps1 ``` or ``` .\docker\stop.ps1 ```
+
+Linux:
+``` ./docker/run.sh ``` or ``` ./docker/stop.sh ```
+
+> If you run (run script) dc_cubes after stopping (stop script) it, please redo step 3. 
 
 ----
 
