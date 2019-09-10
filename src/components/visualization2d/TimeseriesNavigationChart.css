@@ -1,18 +1,18 @@
 .area-min {
-    fill: rgba(70, 131, 180, 0.5);
+    fill: rgba(70, 131, 180);
     stroke: rgba(70, 131, 180);
-    stroke-width: 2px;
+    stroke-width: 1px;
 }
 
 .line-avg {
     fill: none;
-    stroke:rgba(0, 0, 0, 0.7);
-    stroke-width: 2px;
+    stroke:rgba(0, 0, 0);
+    stroke-width: 1px;
 }
 .area-max {
-    fill: rgba(125, 226, 209, 0.5);
+    fill: rgba(125, 226, 209);
     stroke:rgba(125, 226, 209);
-    stroke-width: 2px;
+    stroke-width: 1px;
 }
 
 .container2d {
@@ -37,7 +37,7 @@
     width: 180px;
     position: absolute;
     pointer-events: none;
-    background-color: rgba(234, 240, 255, 0.7);
+    background-color: rgba(243, 243, 243, 0.9);
 }
 
 .mouseLine {

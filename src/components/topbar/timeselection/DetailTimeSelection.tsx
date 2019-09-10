@@ -3,8 +3,8 @@ import { Row, Col, Form, Button, Container, Dropdown, Navbar, Tab, Tabs } from '
 import TimespanOrPointInTimeNotAvailable from '../../error/TimespanOrPointInTimeNotAvailable'
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
-import './DetailTimeSelection.css'
 import SelectRefreshInterval from './SelectRefreshInterval'
+import "./DetailTimeSelection.css"
 
 interface DetailTimeSelectionProps {
     timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'

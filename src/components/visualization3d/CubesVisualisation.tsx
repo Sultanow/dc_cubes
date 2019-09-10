@@ -67,7 +67,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     render() {
         const sliderMode = this.props.sliderMode;
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
-        const daysOfTheWeek = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday', 'Sunday'];
+        const daysOfTheWeek = ['Sunday', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         let slider, timestamp;
 
         if (sliderMode === 'pointInTime') {

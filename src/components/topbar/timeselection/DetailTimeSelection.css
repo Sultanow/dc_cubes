@@ -5,4 +5,15 @@
 
 .detail-time-selection .form-control.input {
     display: none;
+.row .navbar-brand {
+    margin-right: 0;
+}
+
+.dropdown-item:hover {
+    background-color: #e2e6ea;
+    border-color: #dae0e5;  
+}
+
+input.form-control:read-only {
+    background-color: white;
 }

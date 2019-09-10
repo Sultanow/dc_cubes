@@ -3,6 +3,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
+import SidebarNew from './components/SidebarNew'
 import CubesVisualisation from './components/visualization3d/CubesVisualisation';
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import Topbar from './components/topbar/Topbar';
@@ -139,6 +140,7 @@ class App extends React.Component<{}, AppState> {
       <BrowserRouter>
         <div className="App">
           <Sidebar dataSource={this.state.dataSource} />
+          {/* <SidebarNew> */}
           <Topbar dataSourceUrl={this.state.dataSourceUrl}
             getLogData={this.getLogData}
             accessChild={this.accessChild}
@@ -194,6 +196,7 @@ class App extends React.Component<{}, AppState> {
             {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
             {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
           </Container>
+          {/* </SidebarNew> */}
         </div>
       </BrowserRouter>
     );
