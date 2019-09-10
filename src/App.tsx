@@ -3,6 +3,7 @@ import { BrowserRouter, Route } from "react-router-dom";
 import { Row, Alert, Container } from 'react-bootstrap';
 import './App.css';
 import Sidebar from './components/Sidebar'
+import SidebarNew from './components/SidebarNew'
 import CubesVisualisation from './components/visualization3d/CubesVisualisation';
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import Topbar from './components/topbar/Topbar';
@@ -139,61 +140,63 @@ class App extends React.Component<{}, AppState> {
       <BrowserRouter>
         <div className="App">
           <Sidebar dataSource={this.state.dataSource} />
-          <Topbar dataSourceUrl={this.state.dataSourceUrl}
-            getLogData={this.getLogData}
-            accessChild={this.accessChild}
-            sliderMode={this.state.sliderMode}
-            temporalAxis={this.state.temporalAxis}
-            timeSeries={this.state.timeSeries}
-            timeSelectionMode={this.state.timeSelectionMode}
-            timespanTypeLowerBound={this.state.timespanTypeLowerBound}
-            timespanTypeUpperBound={this.state.timespanTypeUpperBound}
-            timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
-            timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
-            timespanTimeUnitLowerBound={this.state.timespanTimeUnitLowerBound}
-            timespanAmountLowerBound={this.state.timespanAmountLowerBound}
-            timespanTimeUnitUpperBound={this.state.timespanTimeUnitUpperBound}
-            timespanAmountUpperBound={this.state.timespanAmountUpperBound}
-            pointInTimeTimestamp={this.state.pointInTimeTimestamp}
-            updateTimespanData={this.updateTimespanData}
-            clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
-            changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
-          <Container>
-            <Row>
-              <Route exact path="/" render={
-                (props) =>
-                  <div>
-                    <CubesVisualisation {...props}
-                      data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
-                      clusterColors={this.state.clusterColors}
-                      grid={this.state.grid}
-                      maxH={this.state.maxH}
-                      sliderMode={this.state.sliderMode}
-                      maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
-                      timespanValuesOfSlider={this.state.selectedTimespan}
-                      valueOfSlider={this.state.selectedPointInTime}
-                      accessChild={this.accessChild}
-                      selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-                      selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
-                      dataSourceError={this.state.dataSourceError} />
-                    {TimeseriesNavigationChartComponent}
-                  </div>
-              } />
-              <Route path="/data-sources" render={(props) => <DataSources {...props}
-                dataSource={this.state.dataSource}
-                dataSourceError={this.state.dataSourceError}
-                setDataSource={this.setDataSource}
-                setDataSourceUrl={this.setDataSourceUrl}
-                setSolrUrlPart={this.setSolrUrlPart}
-                dataSourceUrl={this.state.dataSourceUrl}
-                solrBaseUrl={this.state.solrBaseUrl}
-                solrCore={this.state.solrCore}
-                solrQuery={this.state.solrQuery}
-                accessChild={this.accessChild} />} />
-            </Row>
-            {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
-            {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
-          </Container>
+          <SidebarNew>
+            <Topbar dataSourceUrl={this.state.dataSourceUrl}
+              getLogData={this.getLogData}
+              accessChild={this.accessChild}
+              sliderMode={this.state.sliderMode}
+              temporalAxis={this.state.temporalAxis}
+              timeSeries={this.state.timeSeries}
+              timeSelectionMode={this.state.timeSelectionMode}
+              timespanTypeLowerBound={this.state.timespanTypeLowerBound}
+              timespanTypeUpperBound={this.state.timespanTypeUpperBound}
+              timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
+              timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
+              timespanTimeUnitLowerBound={this.state.timespanTimeUnitLowerBound}
+              timespanAmountLowerBound={this.state.timespanAmountLowerBound}
+              timespanTimeUnitUpperBound={this.state.timespanTimeUnitUpperBound}
+              timespanAmountUpperBound={this.state.timespanAmountUpperBound}
+              pointInTimeTimestamp={this.state.pointInTimeTimestamp}
+              updateTimespanData={this.updateTimespanData}
+              clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
+              changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
+            <Container>
+              <Row>
+                <Route exact path="/" render={
+                  (props) =>
+                    <div>
+                      <CubesVisualisation {...props}
+                        data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                        clusterColors={this.state.clusterColors}
+                        grid={this.state.grid}
+                        maxH={this.state.maxH}
+                        sliderMode={this.state.sliderMode}
+                        maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
+                        timespanValuesOfSlider={this.state.selectedTimespan}
+                        valueOfSlider={this.state.selectedPointInTime}
+                        accessChild={this.accessChild}
+                        selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+                        selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
+                        dataSourceError={this.state.dataSourceError} />
+                      {TimeseriesNavigationChartComponent}
+                    </div>
+                } />
+                <Route path="/data-sources" render={(props) => <DataSources {...props}
+                  dataSource={this.state.dataSource}
+                  dataSourceError={this.state.dataSourceError}
+                  setDataSource={this.setDataSource}
+                  setDataSourceUrl={this.setDataSourceUrl}
+                  setSolrUrlPart={this.setSolrUrlPart}
+                  dataSourceUrl={this.state.dataSourceUrl}
+                  solrBaseUrl={this.state.solrBaseUrl}
+                  solrCore={this.state.solrCore}
+                  solrQuery={this.state.solrQuery}
+                  accessChild={this.accessChild} />} />
+              </Row>
+              {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
+              {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
+            </Container>
+          </SidebarNew>
         </div>
       </BrowserRouter>
     );
