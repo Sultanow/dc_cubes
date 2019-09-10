@@ -125,7 +125,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     .style("left", d3.event.pageX + 20 + "px")
             }
 
-            let mousePosition = d3.mouse(document.getElementById("TimeSeriesNavigationChart"));
+            let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
             let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord - offset));
             let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
@@ -136,15 +136,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 d += " " + xcoord + "," + 0;
                 return d;
             });
-
-
-            let indexOfDatapoint = bisectDate(originalScope.dataAvg, dateString);
-            if (indexOfDatapoint !== originalScope.lastShownIndex) {
-                if (originalScope.dataAvg[indexOfDatapoint] != null) {
-                    updateTooltip(originalScope.dataAvg[indexOfDatapoint])
-                    originalScope.lastShownIndex = indexOfDatapoint;
-                }
-            }
+            let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
+            updateTooltip(datapoint);
 
         }).on("mouseleave", function () {
             originalScope.lastShownIndex = -1;
@@ -189,7 +182,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let endDate = this.convertDateObjectToString(this.xScale.invert(brushMaximum));
 
         if (isBrushAreaTooSmall(brushMinimum, brushMaximum)) {
-            this.props.resetSliderAndDates(endDate);
+            let clickedXCoord = d3.mouse(document.getElementById(SVG_ID))[0];
+            let date = this.getValidDatapointFromMousePosition(clickedXCoord);
+            this.props.resetSliderAndDates(date.timestamp);
             return;
         }
 
@@ -202,6 +197,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             sliderMode: 'timespan'
         }
         this.props.updateTimespanData(newTimespanData)
+    }
+
+    getValidDatapointFromMousePosition(xCoord) {
+        let offset: number = this.calculateOffset();
+        let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
+        let dateString = this.convertDateObjectToString(this.xScale.invert(xCoord - offset));
+        let indexOfDatapoint = bisectDate(this.dataAvg, dateString);
+
+        return this.dataAvg[indexOfDatapoint]
     }
 
     toggleChartMax() {
