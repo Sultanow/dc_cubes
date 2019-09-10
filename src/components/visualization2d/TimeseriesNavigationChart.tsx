@@ -116,7 +116,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     setupTooltip() {
         let originalScope = this;
-        let offset: number = this.calculateOffset();
         d3.select("#" + SVG_ID).on("mousemove", function () {
 
             function updateTooltip(dp: timeseriesData) {
