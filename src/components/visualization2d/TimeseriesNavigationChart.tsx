@@ -111,7 +111,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%A %Y-%m-%d")));
         this.setupTooltip();
         this.setupBrush();
-        d3.select(".x-axis").selectAll(".tick text").call(this.wrap, 10)
+        d3.select(".x-axis").selectAll(".tick text").call(this.wrapLabels, 10)
     }
 
     setupTooltip() {
@@ -128,8 +128,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
-            let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord - offset));
-            let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
 
             d3.select(".mouseLine").classed("hidden", false)
             d3.select("#mouseLine").attr("d", function () {
@@ -158,7 +156,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         return bBoxAxis.right - bBoxSvg.left - 6; // ToDo: magic number
     }
 
-    wrap(text, width) {
+    wrapLabels(text, width) {
         text.each(function () {
             var text = d3.select(this),
                 words = text.text().split(/\s+/).reverse(),
