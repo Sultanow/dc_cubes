@@ -3,7 +3,8 @@ import { Row, Col, Form, Button, Container, Dropdown } from 'react-bootstrap';
 import TimespanOrPointInTimeNotAvailable from '../../error/TimespanOrPointInTimeNotAvailable'
 import DCState from '../../../model/DCState'
 import Flatpickr from 'react-flatpickr'
-import 'flatpickr/dist/themes/light.css' 
+import 'flatpickr/dist/themes/light.css'
+import SelectRefreshInterval from './SelectRefreshInterval'
 
 interface QuickTimeSelectionProps {
     accessChild: any
@@ -102,10 +103,10 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                 </Row>
                 <br/>
                 <Form.Row>
-                    <Col> 
+                    <Col lg={6}> 
                         <Flatpickr  
                             data-enable-time
-                            options={{static: true, 
+                            options={{static: true,
                                     time_24hr: true, 
                                     enableSeconds: true, 
                                     minuteIncrement: 1,
@@ -117,10 +118,10 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                             name='value' 
                         />  
                     </Col>
-                    <Col>
+                    <Col lg={2}>
                         <Button onClick={this.setCurrentTime}>Jetzt</Button>
                     </Col>
-                    <Col>
+                    <Col lg={3}>
                         <Button onClick={this.handlePointInTime}>Anwenden</Button>
                     </Col>
                 </Form.Row>
@@ -132,30 +133,11 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                 </Row>
                 <br/>
                 <Row>
-                    <Col lg={3}>
-                        <Form.Control type="number" name="refreshInterval" min="1" max="999" value={this.props.refreshInterval} onChange={this.handleRefreshChange}/>
-                    </Col>
-                    <Col lg={3}>
-                        <Form.Control as="select" name="refreshTimeUnit" value={this.props.refreshTimeUnit} onChange={this.handleRefreshChange}>
-                            <option value="seconds">Sekunden</option>
-                            <option value="minutes">Minuten</option>
-                            <option value="hours">Stunden</option>
-                        </Form.Control>
-                    </Col>
-                    <Col lg={6}>
-                        <Form.Check
-                            custom
-                            inline
-                            label="Automatisch aktualisieren"
-                            type="checkbox"
-                            id="automaticRefresh"
-                            name="automaticRefresh"
-                            checked={this.props.automaticRefresh}
-                            onChange={this.handleRefreshChange}
-                        />
-                    </Col> 
+                    <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
+                                            handleRefreshChange={this.handleRefreshChange}
+                                            refreshInterval={this.props.refreshInterval} 
+                                            refreshTimeUnit={this.props.refreshTimeUnit} />
                 </Row>
-                <br/>
                 {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />}  
             </Container>
         )

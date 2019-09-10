@@ -3,6 +3,8 @@ import { Row, Col, Form, Button, Container, Dropdown, Navbar, Tab, Tabs } from '
 import TimespanOrPointInTimeNotAvailable from '../../error/TimespanOrPointInTimeNotAvailable'
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
+import './DetailTimeSelection.css'
+import SelectRefreshInterval from './SelectRefreshInterval'
 
 interface DetailTimeSelectionProps {
     timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
@@ -69,12 +71,11 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                         <Tabs defaultActiveKey="absolute" id="timespan_from">
                             <Tab eventKey="absolute" title="Absolut">
                                 <Container>
-                                    <br/>
-                                    <Form.Row>
-                                        <Col> 
+                                        <Col className="detail-time-selection" style={{display: 'flex', justifyContent: 'center'}}> 
                                             <Flatpickr  
                                                 data-enable-time
                                                 options={{static: true, 
+                                                        inline: true,
                                                         time_24hr: true, 
                                                         enableSeconds: true,
                                                         minuteIncrement: 1,
@@ -86,8 +87,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                                 name='value' 
                                             />  
                                         </Col>
-                                    </Form.Row>
-                                    <br/>
                                     {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />} 
                                 </Container>
                             </Tab>
@@ -121,30 +120,11 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     </Row>
                                     <br/>
                                     <Row>
-                                        <Col lg={3}>
-                                            <Form.Control type="number" name="refreshInterval" min="1" max="999" value={this.props.refreshInterval} onChange={this.handleRefreshChange}/>
-                                        </Col>
-                                        <Col lg={3}>
-                                            <Form.Control as="select" name="refreshTimeUnit" value={this.props.refreshTimeUnit} onChange={this.handleRefreshChange}>
-                                                <option value="seconds">Sekunden</option>
-                                                <option value="minutes">Minuten</option>
-                                                <option value="hours">Stunden</option>
-                                            </Form.Control>
-                                        </Col>
-                                        <Col lg={6}>
-                                            <Form.Check
-                                                custom
-                                                inline
-                                                label="Automatisch aktualisieren"
-                                                type="checkbox"
-                                                id="automaticRefresh"
-                                                name="automaticRefresh"
-                                                checked={this.props.automaticRefresh}
-                                                onChange={this.handleRefreshChange}
-                                            />
-                                        </Col> 
+                                        <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
+                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                refreshInterval={this.props.refreshInterval} 
+                                                                refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
-                                    <br/>
                                     {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />} 
                                 </Container>
                             </Tab>
@@ -152,7 +132,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                 <Container>
                                     <br />
                                     <Row>
-                                        <Col>Datum und Uhrzeit werden bei jeder Aktualisierung auf den aktuellen Zeitpunkt gesetzt</Col>
+                                        <Col className="text-center">Datum und Uhrzeit werden bei jeder Aktualisierung auf den aktuellen Zeitpunkt gesetzt</Col>
                                     </Row>
                                     <br/>
                                     <Row>
@@ -170,37 +150,18 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     </Row>
                                     <br/>
                                     <Row>
-                                        <Col lg={3}>
-                                            <Form.Control type="number" name="refreshInterval" min="1" max="999" value={this.props.refreshInterval} onChange={this.handleRefreshChange}/>
-                                        </Col>
-                                        <Col lg={3}>
-                                            <Form.Control as="select" name="refreshTimeUnit" value={this.props.refreshTimeUnit} onChange={this.handleRefreshChange}>
-                                                <option value="seconds">Sekunden</option>
-                                                <option value="minutes">Minuten</option>
-                                                <option value="hours">Stunden</option>
-                                            </Form.Control>
-                                        </Col>
-                                        <Col lg={6}>
-                                            <Form.Check
-                                                custom
-                                                inline
-                                                label="Automatisch aktualisieren"
-                                                type="checkbox"
-                                                name="automaticRefresh"
-                                                id="automaticRefresh"
-                                                checked={this.props.automaticRefresh}
-                                                onChange={this.handleRefreshChange}
-                                            />
-                                        </Col>
+                                        <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
+                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                refreshInterval={this.props.refreshInterval} 
+                                                                refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
-                                    <br/>
                                     {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />}  
                                 </Container>
                             </Tab>
                         </Tabs>
                     </Dropdown.Menu>
                 </Dropdown>
-                <Navbar.Brand>bis</Navbar.Brand>
+                <Navbar.Text className="gap">bis</Navbar.Text>
                 <Dropdown>
                     <Dropdown.Toggle variant="light" id="dropdown-basic">
                         {upperBoundLabel}
@@ -209,12 +170,11 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                         <Tabs defaultActiveKey="absolute" id="timespan_from">
                             <Tab eventKey="absolute" title="Absolut">
                                 <Container>
-                                    <br/>
-                                    <Form.Row>
-                                        <Col> 
+                                        <Col className="detail-time-selection" style={{display: 'flex', justifyContent: 'center'}}> 
                                             <Flatpickr  
                                                 data-enable-time
                                                 options={{static: true, 
+                                                        inline: true,
                                                         time_24hr: true, 
                                                         enableSeconds: true,
                                                         minuteIncrement: 1,
@@ -226,8 +186,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                                 name='value' 
                                             />  
                                         </Col>
-                                    </Form.Row>
-                                    <br/>
                                     {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />} 
                                 </Container>
                             </Tab>
@@ -261,30 +219,11 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     </Row>
                                     <br/>
                                     <Row>
-                                        <Col lg={3}>
-                                            <Form.Control type="number" name="refreshInterval" min="1" max="999" value={this.props.refreshInterval} onChange={this.handleRefreshChange}/>
-                                        </Col>
-                                        <Col lg={3}>
-                                            <Form.Control as="select" name="refreshTimeUnit" value={this.props.refreshTimeUnit} onChange={this.handleRefreshChange}>
-                                                <option value="seconds">Sekunden</option>
-                                                <option value="minutes">Minuten</option>
-                                                <option value="hours">Stunden</option>
-                                            </Form.Control>
-                                        </Col>
-                                        <Col lg={6}>
-                                            <Form.Check
-                                                custom
-                                                inline
-                                                label="Automatisch aktualisieren"
-                                                type="checkbox"
-                                                id="automaticRefresh"
-                                                name="automaticRefresh"
-                                                checked={this.props.automaticRefresh}
-                                                onChange={this.handleRefreshChange}
-                                            />
-                                        </Col> 
+                                        <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
+                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                refreshInterval={this.props.refreshInterval} 
+                                                                refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
-                                    <br/>
                                     {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />} 
                                 </Container>
                             </Tab>
@@ -292,7 +231,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                 <Container>
                                     <br />
                                     <Row>
-                                        <Col>Datum und Uhrzeit werden bei jeder Aktualisierung auf den aktuellen Zeitpunkt gesetzt</Col>
+                                        <Col className="text-center">Datum und Uhrzeit werden bei jeder Aktualisierung auf den aktuellen Zeitpunkt gesetzt</Col>
                                     </Row>
                                     <br/>
                                     <Row>
@@ -310,30 +249,11 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     </Row>
                                     <br/>
                                     <Row>
-                                        <Col lg={3}>
-                                            <Form.Control type="number" name="refreshInterval" min="1" max="999" value={this.props.refreshInterval} onChange={this.handleRefreshChange}/>
-                                        </Col>
-                                        <Col lg={3}>
-                                            <Form.Control as="select" name="refreshTimeUnit" value={this.props.refreshTimeUnit} onChange={this.handleRefreshChange}>
-                                                <option value="seconds">Sekunden</option>
-                                                <option value="minutes">Minuten</option>
-                                                <option value="hours">Stunden</option>
-                                            </Form.Control>
-                                        </Col>
-                                        <Col lg={6}>
-                                            <Form.Check
-                                                custom
-                                                inline
-                                                label="Automatisch aktualisieren"
-                                                type="checkbox"
-                                                name="automaticRefresh"
-                                                id="automaticRefresh"
-                                                checked={this.props.automaticRefresh}
-                                                onChange={this.handleRefreshChange}
-                                            />
-                                        </Col>
+                                        <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
+                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                refreshInterval={this.props.refreshInterval} 
+                                                                refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
-                                    <br/>
                                     {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />}  
                                 </Container>
                             </Tab>

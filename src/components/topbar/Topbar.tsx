@@ -81,7 +81,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                     <div className="data-time-select">
                         <Row>
                             <Dropdown>
-                                <Dropdown.Toggle variant="light" id="dropdown-basic">
+                                <Dropdown.Toggle className="gap-quickselection" variant="light" id="dropdown-basic">
                                     <FontAwesomeIcon icon={faClock} />
                                 </Dropdown.Toggle>
 
