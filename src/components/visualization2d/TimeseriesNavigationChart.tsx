@@ -36,7 +36,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         min: null,
     }
 
-    private margin = { top: 20, right: 20, bottom: 0, left: 0 };
+    private margin = { top: 20, right: 20, bottom: 20, left: 0 };
     private width = 900 - (this.margin.left + this.margin.right);
     private height = 250 - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
@@ -108,9 +108,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%A %Y-%m-%d")));
         this.setupTooltip();
         this.setupBrush();
+        d3.select(".x-axis").selectAll(".tick text").call(this.wrapLabels, 10)
     }
 
     setupTooltip() {
@@ -125,10 +126,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     .style("left", d3.event.pageX + 20 + "px")
             }
 
-            let mousePosition = d3.mouse(document.getElementById("TimeSeriesNavigationChart"));
+            let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
-            let dateString = originalScope.convertDateObjectToString(originalScope.xScale.invert(xcoord - offset));
-            let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
 
             d3.select(".mouseLine").classed("hidden", false)
             d3.select("#mouseLine").attr("d", function () {
@@ -136,15 +135,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 d += " " + xcoord + "," + 0;
                 return d;
             });
-
-
-            let indexOfDatapoint = bisectDate(originalScope.dataAvg, dateString);
-            if (indexOfDatapoint !== originalScope.lastShownIndex) {
-                if (originalScope.dataAvg[indexOfDatapoint] != null) {
-                    updateTooltip(originalScope.dataAvg[indexOfDatapoint])
-                    originalScope.lastShownIndex = indexOfDatapoint;
-                }
-            }
+            let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
+            if (datapoint != null) updateTooltip(datapoint);
 
         }).on("mouseleave", function () {
             originalScope.lastShownIndex = -1;
@@ -162,6 +154,30 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let bBoxSvg = elemSvg.getBoundingClientRect();
 
         return bBoxAxis.right - bBoxSvg.left - 6; // ToDo: magic number
+    }
+
+    wrapLabels(text, width) {
+        text.each(function () {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+        });
     }
 
     setupBrush() {
@@ -189,7 +205,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let endDate = this.convertDateObjectToString(this.xScale.invert(brushMaximum));
 
         if (isBrushAreaTooSmall(brushMinimum, brushMaximum)) {
-            this.props.resetSliderAndDates(endDate);
+            let clickedXCoord = d3.mouse(document.getElementById(SVG_ID))[0];
+            let date = this.getValidDatapointFromMousePosition(clickedXCoord);
+            this.props.resetSliderAndDates(date.timestamp);
             return;
         }
 
@@ -202,6 +220,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             sliderMode: 'timespan'
         }
         this.props.updateTimespanData(newTimespanData)
+    }
+
+    getValidDatapointFromMousePosition(xCoord) {
+        let offset: number = this.calculateOffset();
+        let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
+        let dateString = this.convertDateObjectToString(this.xScale.invert(xCoord - offset));
+        let indexOfDatapoint = bisectDate(this.dataAvg, dateString);
+
+        return this.dataAvg[indexOfDatapoint]
     }
 
     toggleChartMax() {
