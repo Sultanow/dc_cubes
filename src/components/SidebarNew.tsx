@@ -1,22 +1,21 @@
 import React from 'react';
+import { NavLink } from "react-router-dom";
 import clsx from 'clsx';
 import { createStyles, makeStyles, useTheme, Theme } from '@material-ui/core/styles';
 import Drawer from '@material-ui/core/Drawer';
-import AppBar from '@material-ui/core/AppBar';
-import Toolbar from '@material-ui/core/Toolbar';
 import List from '@material-ui/core/List';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
 import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
-import InboxIcon from '@material-ui/icons/MoveToInbox';
-import MailIcon from '@material-ui/icons/Mail';
+import { BarChart, Settings, Tune, Description } from '@material-ui/icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCoins } from '@fortawesome/free-solid-svg-icons'
+import './Sidebar.css'
 
 const drawerWidth = 240;
 
@@ -78,12 +77,13 @@ const useStyles = makeStyles((theme: Theme) =>
     },
     content: {
       flexGrow: 1,
-      padding: theme.spacing(3),
+      // padding: theme.spacing(3),
     },
   }),
 );
 interface MyProps {
   children?: React.ReactNode;
+  dataSource?: string
 }
 // This is a React functional Component
 export default function MiniDrawer(props: React.PropsWithChildren<MyProps>) {
@@ -119,21 +119,33 @@ export default function MiniDrawer(props: React.PropsWithChildren<MyProps>) {
         </div>
         <Divider />
         <List>
-          {['Inbox', 'Starred', 'Send email', 'Drafts'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
+          <NavLink to="/" style={{ textDecoration: 'none' }} className="sidebar-item-inactive" activeClassName="sidebar-item-active" exact={true} >
+            <ListItem button>
+              <ListItemIcon><BarChart /></ListItemIcon>
+              <ListItemText primary="Dashboard" />
             </ListItem>
-          ))}
+          </NavLink>
+          <ListItem button>
+            <ListItemIcon><Tune /></ListItemIcon>
+            <ListItemText primary="Parameter verwalten" />
+          </ListItem>
+          <ListItem button>
+            <ListItemIcon><Description /></ListItemIcon>
+            <ListItemText primary="Bericht erstellen" />
+          </ListItem>
         </List>
         <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem button key={text}>
-              <ListItemIcon>{index % 2 === 0 ? <InboxIcon /> : <MailIcon />}</ListItemIcon>
-              <ListItemText primary={text} />
+        <List style={{ textDecoration: 'none' }}>
+          <NavLink to={`/data-sources/${props.dataSource}`} style={{ textDecoration: 'none' }} className="sidebar-item-inactive" activeClassName="sidebar-item-active" exact={true} >
+            <ListItem button>
+              <ListItemIcon><FontAwesomeIcon icon={faCoins} style={{ marginLeft: '1px', width: '22px', height: '20px' }} /></ListItemIcon>
+              <ListItemText primary="Datenquelle" />
             </ListItem>
-          ))}
+          </NavLink>
+          <ListItem button>
+            <ListItemIcon><Settings /></ListItemIcon>
+            <ListItemText primary="Einstellungen" />
+          </ListItem>
         </List>
       </Drawer>
       <main className={classes.content}>
