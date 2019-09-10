@@ -41,7 +41,7 @@ function SaveItem($timestamp, $hosti, $cluster, $dc, $perm, $instanz, $verfahren
   $json = $item | ConvertTo-Json; 
 
   # Send item to solr
-  Invoke-RestMethod -Uri "$($SCRIPT:solrBaseUrl)update/json/docs" -Method Post -Body $json -ContentType "application/json" > $null; # no output for faster impot
+  Invoke-RestMethod -Uri "$($solrBaseUrl)update/json/docs" -Method Post -Body $json -ContentType "application/json" > $null; # no output for faster impot
 }
 
 echo "Starting import of $csvFile"
@@ -60,13 +60,13 @@ $csvContent | ForEach-Object{
   if($counter % $commitSize -eq 0){
     echo "Commiting..."
     # Trigger Commit
-    Invoke-RestMethod -Uri "$($SCRIPT:solrBaseUrl)update?commit=true" -Method Post > $null;
+    Invoke-RestMethod -Uri "$($solrBaseUrl)update?commit=true" -Method Post > $null;
     echo "$counter entries of $csvSize imported."
   }
 }
 
 # Commit one last time
-Invoke-RestMethod -Uri "$($SCRIPT:solrBaseUrl)update?commit=true" -Method Post > $null;
+Invoke-RestMethod -Uri "$($solrBaseUrl)update?commit=true" -Method Post > $null;
 $stopwatch.Stop();
 
 $time = $stopwatch.Elapsed.ToString('mm\:ss')
