@@ -9,9 +9,9 @@ interface DetailTimeSelectionProps {
     timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours'
+    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours' | 'days'
     timespanAmountLowerBound: any
-    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours'
+    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours' | 'days'
     timespanAmountUpperBound: any
     refreshInterval: any
     refreshTimeUnit: string

@@ -251,9 +251,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 </svg>
                 <div className="verticalContainer">
                     <div className="checkboxContainer">
-                        <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMax} />Maximum</label>
-                        <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartAvg} />Average</label>
-                        <label><input type="checkbox" defaultChecked={true} onChange={this.toggleChartMin} />Minimum</label>
+                        <label><input className="timeseriesCheckbox" type="checkbox" defaultChecked={true} onChange={this.toggleChartMax} />Maximum</label>
+                        <label><input className="timeseriesCheckbox" type="checkbox" defaultChecked={true} onChange={this.toggleChartAvg} />Average</label>
+                        <label><input className="timeseriesCheckbox" type="checkbox" defaultChecked={true} onChange={this.toggleChartMin} />Minimum</label>
                     </div>
                     <div id="tooltip">
                         <div>Date: <span id="tooltipDate"></span></div>

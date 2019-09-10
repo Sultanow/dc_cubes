@@ -20,9 +20,9 @@ interface TopbarProps {
     timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours'
+    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours' | 'days'
     timespanAmountLowerBound: number
-    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours'
+    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours' | 'days'
     timespanAmountUpperBound: number
     pointInTimeTimestamp: string
     updateTimespanData: any
@@ -70,9 +70,9 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                      </Dropdown.Toggle>
 
                     <Dropdown.Menu>
-                        <Dropdown.Item href="#/action-1">Action</Dropdown.Item>
-                        <Dropdown.Item href="#/action-2">Another action</Dropdown.Item>
-                        <Dropdown.Item href="#/action-3">Something else</Dropdown.Item>
+                        <Dropdown.Item href="#/action-1">Server</Dropdown.Item>
+                        <Dropdown.Item href="#/action-2">Cluster</Dropdown.Item>
+                        <Dropdown.Item href="#/action-3">Datencenter</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
 

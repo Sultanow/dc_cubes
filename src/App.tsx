@@ -27,9 +27,9 @@ interface AppState {
   timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
   timespanAbsoluteTimestampLowerBound: string
   timespanAbsoluteTimestampUpperBound: string
-  timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours'
+  timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours' | 'days'
   timespanAmountLowerBound: number
-  timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours'
+  timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours' | 'days'
   timespanAmountUpperBound: number
   pointInTimeTimestamp: string
 

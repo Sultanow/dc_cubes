@@ -93,7 +93,6 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
   }
 
   componentDidMount() {
-    console.log(1)
     const url = this.state.solrBaseUrl.concat("admin/cores?action=STATUS&indexInfo=false&wt=json")
     this.getAllSolrCores(url)
   }
