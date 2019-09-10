@@ -36,7 +36,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         min: null,
     }
 
-    private margin = { top: 20, right: 20, bottom: 0, left: 0 };
+    private margin = { top: 20, right: 20, bottom: 20, left: 0 };
     private width = 900 - (this.margin.left + this.margin.right);
     private height = 250 - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
@@ -108,9 +108,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%A %Y-%m-%d")));
         this.setupTooltip();
         this.setupBrush();
+        d3.select(".x-axis").selectAll(".tick text").call(this.wrap, 10)
     }
 
     setupTooltip() {
@@ -137,7 +138,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 return d;
             });
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
-            updateTooltip(datapoint);
+            if (datapoint != null) updateTooltip(datapoint);
 
         }).on("mouseleave", function () {
             originalScope.lastShownIndex = -1;
@@ -155,6 +156,30 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let bBoxSvg = elemSvg.getBoundingClientRect();
 
         return bBoxAxis.right - bBoxSvg.left - 6; // ToDo: magic number
+    }
+
+    wrap(text, width) {
+        text.each(function () {
+            var text = d3.select(this),
+                words = text.text().split(/\s+/).reverse(),
+                word,
+                line = [],
+                lineNumber = 0,
+                lineHeight = 1.1, // ems
+                y = text.attr("y"),
+                dy = parseFloat(text.attr("dy")),
+                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
+            while (word = words.pop()) {
+                line.push(word);
+                tspan.text(line.join(" "));
+                if (tspan.node().getComputedTextLength() > width) {
+                    line.pop();
+                    tspan.text(line.join(" "));
+                    line = [word];
+                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
+                }
+            }
+        });
     }
 
     setupBrush() {
