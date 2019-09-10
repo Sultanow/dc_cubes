@@ -176,22 +176,22 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     brushEnd() {
-        let selectedArea = d3.event.selection || this.xScale.range();
+        let selectedArea = d3.event.selection || this.xScale.range(); // if selection is null, selectedArea = [0,880]
         let brushMinimum = selectedArea[0];
         let brushMaximum = selectedArea[1];
 
         function isBrushAreaTooSmall(brushMinimum, brushMaximum) {
-            const brushThreshold = 5;
+            const brushThreshold = 2;
             return (brushMinimum === 0 || brushMaximum - brushMinimum < brushThreshold)
         }
 
-        if (isBrushAreaTooSmall(brushMinimum, brushMaximum)){
-            this.props.resetSliderAndDates();
-            return;
-        }  
-
         let startDate = this.convertDateObjectToString(this.xScale.invert(brushMinimum));
         let endDate = this.convertDateObjectToString(this.xScale.invert(brushMaximum));
+
+        if (isBrushAreaTooSmall(brushMinimum, brushMaximum)) {
+            this.props.resetSliderAndDates(endDate);
+            return;
+        }
 
         const newTimespanData = {
             timespanAbsoluteTimestampUpperBound: endDate,

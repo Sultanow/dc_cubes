@@ -21,7 +21,7 @@ interface AppState {
   dataSourceError: boolean
   selectedPointInTime: number
   selectedTimespan: [number, number]
-  
+
   timeSelectionMode: 'pointInTime' | 'timespan'
   timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
   timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
@@ -32,7 +32,7 @@ interface AppState {
   timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours'
   timespanAmountUpperBound: number
   pointInTimeTimestamp: string
-  
+
   sliderMode: 'pointInTime' | 'timespan' | 'hidden'
   temporalAxis: string[]
   timeSeries: Map<string, DCState>
@@ -40,7 +40,7 @@ interface AppState {
   grid: Map<string, Array<number>>
   maxH: number
 
-  isRawTimeseriesDataLoaded:boolean
+  isRawTimeseriesDataLoaded: boolean
   intervalId: any
   rawTimeseriesData: any
   timespanError: boolean
@@ -59,12 +59,12 @@ class App extends React.Component<{}, AppState> {
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceError: true,
       selectedPointInTime: 0,
-      selectedTimespan: [0, 0],  
+      selectedTimespan: [0, 0],
       timeSelectionMode: 'pointInTime',
       timespanTypeLowerBound: 'now',
       timespanTypeUpperBound: 'now',
-      timespanAbsoluteTimestampLowerBound: new Date().toISOString().split('.')[0]+"Z",
-      timespanAbsoluteTimestampUpperBound: new Date().toISOString().split('.')[0]+"Z",
+      timespanAbsoluteTimestampLowerBound: new Date().toISOString().split('.')[0] + "Z",
+      timespanAbsoluteTimestampUpperBound: new Date().toISOString().split('.')[0] + "Z",
       timespanTimeUnitLowerBound: 'minutes',
       timespanAmountLowerBound: 10,
       timespanTimeUnitUpperBound: 'minutes',
@@ -76,8 +76,8 @@ class App extends React.Component<{}, AppState> {
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
-      rawTimeseriesData:null,
-      isRawTimeseriesDataLoaded:false,
+      rawTimeseriesData: null,
+      isRawTimeseriesDataLoaded: false,
       intervalId: undefined,
       timespanError: false
     };
@@ -91,7 +91,7 @@ class App extends React.Component<{}, AppState> {
     let intervalId = setInterval(() => {
       this.getLogData(this.state.dataSourceUrl);
     }, 600000);
-    this.setState<never>({intervalId: intervalId});
+    this.setState<never>({ intervalId: intervalId });
   }
 
   getLogData = (dataSourceUrl: string) => {
@@ -113,7 +113,7 @@ class App extends React.Component<{}, AppState> {
         // raw timesereis Data for 2d graph 
         rawTimeseriesData: data.data.response.docs,
         isRawTimeseriesDataLoaded: true,
-        selectedPointInTime: solrAdapter.temporalAxis.length-1
+        selectedPointInTime: solrAdapter.temporalAxis.length - 1
       }, () => {
         // Recalculate the slider positions
         this.calculateAndSetPositionOfPointInTimeSlider()
@@ -122,42 +122,42 @@ class App extends React.Component<{}, AppState> {
 
 
     }).catch((error: any) => {
-      this.setState({dataSourceError: true})
+      this.setState({ dataSourceError: true })
       console.log(error)
     });
   }
 
   render() {
     var TimeseriesNavigationChartComponent;
-    if(this.state.isRawTimeseriesDataLoaded){
-      TimeseriesNavigationChartComponent= <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} updateTimespanData={this.updateTimespanData} resetSliderAndDates={this.resetSliderAndDates}/>
+    if (this.state.isRawTimeseriesDataLoaded) {
+      TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} updateTimespanData={this.updateTimespanData} resetSliderAndDates={this.resetSliderAndDates} />
     }
     else {
-      TimeseriesNavigationChartComponent=null;
+      TimeseriesNavigationChartComponent = null;
     }
     return (
       <BrowserRouter>
         <div className="App">
           <Sidebar dataSource={this.state.dataSource} />
-          <Topbar dataSourceUrl={this.state.dataSourceUrl} 
-                  getLogData={this.getLogData} 
-                  accessChild={this.accessChild}
-                  sliderMode={this.state.sliderMode}
-                  temporalAxis={this.state.temporalAxis}
-                  timeSeries={this.state.timeSeries}
-                  timeSelectionMode={this.state.timeSelectionMode}
-                  timespanTypeLowerBound={this.state.timespanTypeLowerBound}
-                  timespanTypeUpperBound={this.state.timespanTypeUpperBound}
-                  timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
-                  timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
-                  timespanTimeUnitLowerBound={this.state.timespanTimeUnitLowerBound}
-                  timespanAmountLowerBound={this.state.timespanAmountLowerBound}
-                  timespanTimeUnitUpperBound={this.state.timespanTimeUnitUpperBound}
-                  timespanAmountUpperBound={this.state.timespanAmountUpperBound}
-                  pointInTimeTimestamp={this.state.pointInTimeTimestamp}
-                  updateTimespanData={this.updateTimespanData}
-                  clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
-                  changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
+          <Topbar dataSourceUrl={this.state.dataSourceUrl}
+            getLogData={this.getLogData}
+            accessChild={this.accessChild}
+            sliderMode={this.state.sliderMode}
+            temporalAxis={this.state.temporalAxis}
+            timeSeries={this.state.timeSeries}
+            timeSelectionMode={this.state.timeSelectionMode}
+            timespanTypeLowerBound={this.state.timespanTypeLowerBound}
+            timespanTypeUpperBound={this.state.timespanTypeUpperBound}
+            timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
+            timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
+            timespanTimeUnitLowerBound={this.state.timespanTimeUnitLowerBound}
+            timespanAmountLowerBound={this.state.timespanAmountLowerBound}
+            timespanTimeUnitUpperBound={this.state.timespanTimeUnitUpperBound}
+            timespanAmountUpperBound={this.state.timespanAmountUpperBound}
+            pointInTimeTimestamp={this.state.pointInTimeTimestamp}
+            updateTimespanData={this.updateTimespanData}
+            clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
+            changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
           <Container>
             <Row>
               <Route exact path="/" render={
@@ -176,7 +176,7 @@ class App extends React.Component<{}, AppState> {
                       selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
                       selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
                       dataSourceError={this.state.dataSourceError} />
-                      {TimeseriesNavigationChartComponent}
+                    {TimeseriesNavigationChartComponent}
                   </div>
               } />
               <Route path="/data-sources" render={(props) => <DataSources {...props}
@@ -218,7 +218,7 @@ class App extends React.Component<{}, AppState> {
     var intervalId = setInterval(() => {
       this.getLogData(this.state.dataSourceUrl);
     }, refreshInterval);
-    this.setState<never>({intervalId: intervalId});
+    this.setState<never>({ intervalId: intervalId });
   }
 
   clearIntervalOfDataRefresh = () => {
@@ -236,24 +236,25 @@ class App extends React.Component<{}, AppState> {
     })
   }
 
-  resetSliderAndDates() {
-    // TODO: This function should reset the slider and the dates in the topbar to be in the default state.
+  resetSliderAndDates = (DateToReset: string) => {
+    this.setState({ timeSelectionMode: "pointInTime", pointInTimeTimestamp: DateToReset, sliderMode: "pointInTime" });
+    this.calculateAndSetPositionOfPointInTimeSlider();
   }
 
   calculateAndSetPositionOfPointInTimeSlider = () => {
     if (this.state.pointInTimeTimestamp) {
       const newPosition = this.state.temporalAxis.indexOf(this.state.pointInTimeTimestamp)
-      
+
       if (newPosition !== -1) {
-        this.setState({selectedPointInTime: newPosition})
+        this.setState({ selectedPointInTime: newPosition })
       } else {
-        this.setState({selectedPointInTime: this.state.temporalAxis.length-2})
+        this.setState({ selectedPointInTime: this.state.temporalAxis.length - 2 })
       }
     }
   }
 
   calculateAndSetBoundariesOfTimespanSlider = () => {
-    this.setState({timespanError: false})
+    this.setState({ timespanError: false })
     const typeLowerBound = this.state.timespanTypeLowerBound
     const typeUpperBound = this.state.timespanTypeUpperBound
     let lowerBoundDatetime = this.state.timespanAbsoluteTimestampLowerBound
@@ -267,10 +268,10 @@ class App extends React.Component<{}, AppState> {
       this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
 
     } else if (typeLowerBound === 'absolute' && typeUpperBound === 'next') {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
 
     } else if (typeLowerBound === 'absolute' && typeUpperBound === 'now') {
-      upperBoundDatetime = new Date().toISOString().split('.')[0]+"Z"
+      upperBoundDatetime = new Date().toISOString().split('.')[0] + "Z"
       this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
 
     } else if (typeLowerBound === 'last' && typeUpperBound === 'absolute') {
@@ -283,30 +284,30 @@ class App extends React.Component<{}, AppState> {
       this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
 
     } else if (typeLowerBound === 'last' && typeUpperBound === 'next') {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
 
     } else if (typeLowerBound === 'last' && typeUpperBound === 'now') {
-      upperBoundDatetime = new Date().toISOString().split('.')[0]+"Z"
+      upperBoundDatetime = new Date().toISOString().split('.')[0] + "Z"
       lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower')
       this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
 
     } else if (typeLowerBound === 'next' && typeUpperBound === 'absolute') {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
 
     } else if (typeLowerBound === 'next' && typeUpperBound === 'next') {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
 
     } else if (typeLowerBound === 'now' && typeUpperBound === 'absolute') {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
 
     } else if (typeLowerBound === 'now' && typeUpperBound === 'next') {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
 
     } else if (typeLowerBound === 'now' && typeUpperBound === 'now') {
-      this.setState({selectedTimespan: [this.state.temporalAxis.length-2, this.state.temporalAxis.length-2]})
+      this.setState({ selectedTimespan: [this.state.temporalAxis.length - 2, this.state.temporalAxis.length - 2] })
 
     } else {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
     }
   }
 
@@ -315,7 +316,7 @@ class App extends React.Component<{}, AppState> {
     if (Date.parse(lowerBoundDatetime) < Date.parse(upperBoundDatetime)) {
       let dates = Array.from(this.state.timeSeries.keys()).sort()
       // TODO: remove fix bug -2 in solrAdapter
-      let upperBoundSliderPosition = dates[dates.length-2]
+      let upperBoundSliderPosition = dates[dates.length - 2]
       let lowerBoundSliderPosition = dates[0]
 
       // Check if selected dates lies within the range of the log data set
@@ -324,7 +325,7 @@ class App extends React.Component<{}, AppState> {
         dates.forEach(date => {
           if (Date.parse(date) <= Date.parse(upperBoundDatetime)) {
             upperBoundSliderPosition = date
-          } 
+          }
           if (Date.parse(date) >= Date.parse(lowerBoundDatetime)) {
             if (i < 1) {
               i++
@@ -334,12 +335,12 @@ class App extends React.Component<{}, AppState> {
         });
         const lowerBound = this.state.temporalAxis.indexOf(lowerBoundSliderPosition)
         const upperBound = this.state.temporalAxis.indexOf(upperBoundSliderPosition)
-        this.setState({selectedTimespan: [lowerBound, upperBound]})
+        this.setState({ selectedTimespan: [lowerBound, upperBound] })
       } else {
-        this.setState({timespanError: true})
+        this.setState({ timespanError: true })
       }
     } else {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
     }
   }
 
@@ -362,10 +363,10 @@ class App extends React.Component<{}, AppState> {
         now.setDate(now.getDate() - timespanAmount)
         now.setUTCHours(0, 0, 0, 0)
       } else {
-        this.setState({timespanError: true})
+        this.setState({ timespanError: true })
         return undefined
       }
-      return now.toISOString().split('.')[0]+"Z"
+      return now.toISOString().split('.')[0] + "Z"
 
     } else if (timespanType === 'next') {
       if (timespanTimeUnit === 'seconds') {
@@ -381,13 +382,13 @@ class App extends React.Component<{}, AppState> {
         now.setDate(now.getDate() + timespanAmount)
         now.setUTCHours(0, 0, 0, 0)
       } else {
-        this.setState({timespanError: true})
+        this.setState({ timespanError: true })
         return undefined
       }
-      return now.toISOString().split('.')[0]+"Z"
+      return now.toISOString().split('.')[0] + "Z"
 
     } else {
-      this.setState({timespanError: true})
+      this.setState({ timespanError: true })
       return undefined
     }
   }
