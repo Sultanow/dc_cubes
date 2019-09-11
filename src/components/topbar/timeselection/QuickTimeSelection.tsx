@@ -103,7 +103,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                 </Row>
                 <br/>
                 <Form.Row>
-                    <Col lg={6}> 
+                    <Col> 
                         <Flatpickr  
                             data-enable-time
                             options={{static: true,
@@ -118,10 +118,10 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                             name='value' 
                         />  
                     </Col>
-                    <Col lg={2}>
+                    <Col>
                         <Button onClick={this.setCurrentTime}>Jetzt</Button>
                     </Col>
-                    <Col lg={3}>
+                    <Col>
                         <Button onClick={this.handlePointInTime}>Anwenden</Button>
                     </Col>
                 </Form.Row>

@@ -53,7 +53,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
             <Navbar bg="light" expand="lg">
                 <Link to="/"><Navbar.Brand>DC Cubes</Navbar.Brand></Link>
                 <Dropdown>
-                    <Dropdown.Toggle variant="light" id="dropdown-basic">
+                    <Dropdown.Toggle className="gap-topbar" variant="light" id="dropdown-basic">
                         <FontAwesomeIcon icon={faFilter} /> Filter
                      </Dropdown.Toggle>
 
@@ -81,7 +81,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                     <div className="data-time-select">
                         <Row>
                             <Dropdown>
-                                <Dropdown.Toggle className="gap-quickselection" variant="light" id="dropdown-basic">
+                                <Dropdown.Toggle className="gap-topbar" variant="light" id="dropdown-basic">
                                     <FontAwesomeIcon icon={faClock} />
                                 </Dropdown.Toggle>
 
