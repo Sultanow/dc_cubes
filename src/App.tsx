@@ -161,10 +161,9 @@ class App extends React.Component<{}, AppState> {
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
               changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
             <Container>
-              <Row>
                 <Route exact path="/" render={
-                  (props) =>
-                    <div>
+                  (props) => 
+                    <React.Fragment>
                       <CubesVisualisation {...props}
                         data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
                         clusterColors={this.state.clusterColors}
@@ -179,7 +178,7 @@ class App extends React.Component<{}, AppState> {
                         selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
                         dataSourceError={this.state.dataSourceError} />
                       {TimeseriesNavigationChartComponent}
-                    </div>
+                    </React.Fragment>
                 } />
                 <Route path="/data-sources" render={(props) => <DataSources {...props}
                   dataSource={this.state.dataSource}
@@ -192,7 +191,6 @@ class App extends React.Component<{}, AppState> {
                   solrCore={this.state.solrCore}
                   solrQuery={this.state.solrQuery}
                   accessChild={this.accessChild} />} />
-              </Row>
               {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
               {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
             </Container>

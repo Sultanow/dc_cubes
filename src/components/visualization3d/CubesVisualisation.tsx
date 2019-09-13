@@ -82,7 +82,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         }
 
         return (
-            <Container>
+            <Container className="cubes-visualisation">
                 <Card>
                     <Card.Body>
                     <div id="cubes-visualisation"></div>
