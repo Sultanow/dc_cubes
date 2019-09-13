@@ -85,11 +85,14 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             <Container className="cubes-visualisation">
                 <Card>
                     <Card.Body>
-                    <div id="cubes-visualisation"></div>
-                <div className="slidercontainer">
-                    {slider}
-                    {timestamp}
-                </div>
+                        <div id="cubes-visualisation">
+                            <div className="overlay">
+                                <h4 className="timestamp">{timestamp}</h4>
+                            </div>  
+                        </div>
+                        <div className="slidercontainer">
+                            {slider}
+                        </div>
                     </Card.Body>
                 </Card>
             </Container>
