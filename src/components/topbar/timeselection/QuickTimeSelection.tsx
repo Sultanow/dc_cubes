@@ -63,25 +63,25 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                 </Row>
                 <br/> 
                 <Form.Row>
-                    <Col>
-                        <Form.Control as="select" name="timespanDirection" value={this.props.timespanTypeUpperBound === 'next' ? 'next' : 'last'} onChange={this.handleChangeOfTimespanDirection}>
+                    <Col lg={3}>
+                        <Form.Control className="gap-refresh-interval" as="select" name="timespanDirection" value={this.props.timespanTypeUpperBound === 'next' ? 'next' : 'last'} onChange={this.handleChangeOfTimespanDirection}>
                             <option value="last">Letzte</option>
                             <option value="next">Nächste</option>
                         </Form.Control>
                     </Col>
-                    <Col>
-                        <Form.Control type="number" name="timespanAmount" min="1" max="9999" value={this.state.timespanAmount} onChange={this.handleLocalChange}/>
+                    <Col lg={3}>
+                        <Form.Control className="gap-refresh-interval" type="number" name="timespanAmount" min="1" max="9999" value={this.state.timespanAmount} onChange={this.handleLocalChange}/>
                     </Col>
-                    <Col>
-                        <Form.Control as="select" name="timespanTimeUnit" value={this.state.timespanTimeUnit} onChange={this.handleLocalChange}>
+                    <Col lg={3}>
+                        <Form.Control className="gap-refresh-interval" as="select" name="timespanTimeUnit" value={this.state.timespanTimeUnit} onChange={this.handleLocalChange}>
                             <option value="seconds">Sekunden</option>
                             <option value="minutes">Minuten</option>
                             <option value="hours">Stunden</option>
                             <option value="days">Tage</option>
                         </Form.Control>
                     </Col>
-                    <Col>
-                        <Button onClick={this.handleTimespan}>Anwenden</Button>
+                    <Col lg={3}>
+                        <Button className="gap-refresh-interval" onClick={this.handleTimespan}>Anwenden</Button>
                     </Col>
                 </Form.Row>
                 <Dropdown.Divider />

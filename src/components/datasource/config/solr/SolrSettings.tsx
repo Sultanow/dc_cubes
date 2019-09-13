@@ -75,7 +75,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
                         <Form.Group>
                             <Form.Label>Core auswählen:</Form.Label>
                             <Form.Control onChange={this.handleChange} name="solrCore" as="select" value={this.props.solrCore}>
-                            {this.state.items}
+                              {this.state.items}
                             </Form.Control>
                         </Form.Group>
 

@@ -136,11 +136,9 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     </Row>
                                     <br/>
                                     <Row>
-                                        <Col lg={1}></Col>
-                                        <Col lg={10}>
+                                        <Col className="text-center">
                                             <Button onClick={this.updateNowLowerBound}>Datum und Uhrzeit auf aktuellen Zeitpunkt setzen</Button>
                                         </Col>
-                                        <Col lg={1}></Col>
                                     </Row>
                                     <Dropdown.Divider />
                                     <Row>
@@ -235,11 +233,9 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     </Row>
                                     <br/>
                                     <Row>
-                                        <Col lg={1}></Col>
-                                        <Col lg={10}>
+                                        <Col className="text-center">
                                             <Button onClick={this.updateNowUpperBound}>Datum und Uhrzeit auf aktuellen Zeitpunkt setzen</Button>
                                         </Col>
-                                        <Col lg={1}></Col>
                                     </Row>
                                     <Dropdown.Divider />
                                     <Row>

@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-import { Container } from 'react-bootstrap';
+import { Container, Card } from 'react-bootstrap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import DCState from '../../model/DCState'
 import Datacenter from '../../model/Datacenter'
@@ -83,11 +83,15 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <Container>
-                <div id="cubes-visualisation"></div>
+                <Card>
+                    <Card.Body>
+                    <div id="cubes-visualisation"></div>
                 <div className="slidercontainer">
                     {slider}
                     {timestamp}
                 </div>
+                    </Card.Body>
+                </Card>
             </Container>
         )
     };
