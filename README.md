@@ -26,4 +26,8 @@ Get your hands on with our easy to use Docker start sript:
 - [Setup DC Cubes with Docker-Desktop (EN)](docs/en/local_docker_cubes_setup.md) 
 - [Anleitung: DC Cubes mit Docker-Desktop (DE)](docs/de/cubes_lokal_mit_docker-desktop.md)
 
+### w/o docker (in particular for the development)
+- *EN guide coming soon* 
+- [Anleitung: DC Cubes und Solr lokal aufsetzen (DE)](docs/de/cubes_solr_lokal_aufsetzen.md)
+
 
