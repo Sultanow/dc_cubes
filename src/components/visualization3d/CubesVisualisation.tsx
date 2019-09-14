@@ -23,6 +23,7 @@ interface CubesVisProps {
     selectedTimespanTimestamp: string
     accessChild: any
     dataSourceError: boolean
+    children?: React.ReactNode
 }
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
@@ -42,7 +43,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
 
     sceneWidth = 900;
-    sceneHeight = 500;
+    sceneHeight = 440;
 
     maxHeightOfbar = 800;
 
@@ -90,6 +91,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                                 <h4 className="timestamp">{timestamp}</h4>
                             </div>  
                         </div>
+                        {this.props.children}
                         <div className="slidercontainer">
                             {slider}
                         </div>

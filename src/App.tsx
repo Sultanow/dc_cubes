@@ -161,36 +161,38 @@ class App extends React.Component<{}, AppState> {
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
               changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
             <Container>
-                <Route exact path="/" render={
-                  (props) => 
-                    <React.Fragment>
-                      <CubesVisualisation {...props}
-                        data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
-                        clusterColors={this.state.clusterColors}
-                        grid={this.state.grid}
-                        maxH={this.state.maxH}
-                        sliderMode={this.state.sliderMode}
-                        maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
-                        timespanValuesOfSlider={this.state.selectedTimespan}
-                        valueOfSlider={this.state.selectedPointInTime}
-                        accessChild={this.accessChild}
-                        selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-                        selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
-                        dataSourceError={this.state.dataSourceError} />
+              <Route exact path="/" render={
+                (props) =>
+                  <React.Fragment>
+                    <CubesVisualisation {...props}
+                      data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                      clusterColors={this.state.clusterColors}
+                      grid={this.state.grid}
+                      maxH={this.state.maxH}
+                      sliderMode={this.state.sliderMode}
+                      maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
+                      timespanValuesOfSlider={this.state.selectedTimespan}
+                      valueOfSlider={this.state.selectedPointInTime}
+                      accessChild={this.accessChild}
+                      selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+                      selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
+                      dataSourceError={this.state.dataSourceError} >
                       {TimeseriesNavigationChartComponent}
-                    </React.Fragment>
-                } />
-                <Route path="/data-sources" render={(props) => <DataSources {...props}
-                  dataSource={this.state.dataSource}
-                  dataSourceError={this.state.dataSourceError}
-                  setDataSource={this.setDataSource}
-                  setDataSourceUrl={this.setDataSourceUrl}
-                  setSolrUrlPart={this.setSolrUrlPart}
-                  dataSourceUrl={this.state.dataSourceUrl}
-                  solrBaseUrl={this.state.solrBaseUrl}
-                  solrCore={this.state.solrCore}
-                  solrQuery={this.state.solrQuery}
-                  accessChild={this.accessChild} />} />
+                    </CubesVisualisation>
+
+                  </React.Fragment>
+              } />
+              <Route path="/data-sources" render={(props) => <DataSources {...props}
+                dataSource={this.state.dataSource}
+                dataSourceError={this.state.dataSourceError}
+                setDataSource={this.setDataSource}
+                setDataSourceUrl={this.setDataSourceUrl}
+                setSolrUrlPart={this.setSolrUrlPart}
+                dataSourceUrl={this.state.dataSourceUrl}
+                solrBaseUrl={this.state.solrBaseUrl}
+                solrCore={this.state.solrCore}
+                solrQuery={this.state.solrQuery}
+                accessChild={this.accessChild} />} />
               {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
               {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
             </Container>
