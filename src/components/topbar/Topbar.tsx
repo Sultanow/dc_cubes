@@ -47,13 +47,12 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
         }
     }
 
-    render()
-    {
+    render() {
         return (
-            <Navbar bg="light" expand="lg">
+            <Navbar className="topbar" expand="lg">
                 <Link to="/"><Navbar.Brand>DC Cubes</Navbar.Brand></Link>
                 <Dropdown>
-                    <Dropdown.Toggle className="gap-topbar" variant="light" id="dropdown-basic">
+                    <Dropdown.Toggle className="topbar-button gap-topbar" variant="light" id="dropdown-basic">
                         <FontAwesomeIcon icon={faFilter} /> Filter
                      </Dropdown.Toggle>
 
@@ -65,7 +64,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                 </Dropdown>
 
                 <Dropdown>
-                    <Dropdown.Toggle variant="light" id="dropdown-basic">
+                    <Dropdown.Toggle className="topbar-button" variant="light" id="dropdown-basic">
                         <FontAwesomeIcon icon={faSearchPlus} /> Detailstufe
                      </Dropdown.Toggle>
 
@@ -81,42 +80,42 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                     <div className="data-time-select">
                         <Row>
                             <Dropdown>
-                                <Dropdown.Toggle className="gap-topbar" variant="light" id="dropdown-basic">
+                                <Dropdown.Toggle className="topbar-button gap-topbar" variant="light" id="dropdown-basic">
                                     <FontAwesomeIcon icon={faClock} />
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu className="dropdown-width">
                                     <QuickTimeSelection accessChild={this.props.accessChild}
-                                                        sliderMode={this.props.sliderMode}
-                                                        temporalAxis={this.props.temporalAxis}
-                                                        timespanTypeLowerBound={this.props.timespanTypeLowerBound}
-                                                        timespanTypeUpperBound={this.props.timespanTypeUpperBound}
-                                                        timeSeries={this.props.timeSeries}
-                                                        refreshInterval={this.state.refreshInterval}
-                                                        refreshTimeUnit={this.state.refreshTimeUnit}
-                                                        automaticRefresh={this.state.automaticRefresh}
-                                                        accessTopbar={this.accessTopbar}
-                                                        updateTimespanData={this.props.updateTimespanData} />
+                                        sliderMode={this.props.sliderMode}
+                                        temporalAxis={this.props.temporalAxis}
+                                        timespanTypeLowerBound={this.props.timespanTypeLowerBound}
+                                        timespanTypeUpperBound={this.props.timespanTypeUpperBound}
+                                        timeSeries={this.props.timeSeries}
+                                        refreshInterval={this.state.refreshInterval}
+                                        refreshTimeUnit={this.state.refreshTimeUnit}
+                                        automaticRefresh={this.state.automaticRefresh}
+                                        accessTopbar={this.accessTopbar}
+                                        updateTimespanData={this.props.updateTimespanData} />
                                 </Dropdown.Menu>
                             </Dropdown>
-                            <DetailTimeSelection    timespanTypeLowerBound={this.props.timespanTypeLowerBound}
-                                                    timespanTypeUpperBound={this.props.timespanTypeUpperBound}
-                                                    timespanAbsoluteTimestampLowerBound={this.props.timespanAbsoluteTimestampLowerBound}
-                                                    timespanAbsoluteTimestampUpperBound={this.props.timespanAbsoluteTimestampUpperBound}
-                                                    timespanTimeUnitLowerBound={this.props.timespanTimeUnitLowerBound}
-                                                    timespanAmountLowerBound={this.props.timespanAmountLowerBound}
-                                                    timespanTimeUnitUpperBound={this.props.timespanTimeUnitUpperBound}
-                                                    timespanAmountUpperBound={this.props.timespanAmountUpperBound}
-                                                    refreshInterval={this.state.refreshInterval}
-                                                    refreshTimeUnit={this.state.refreshTimeUnit}
-                                                    automaticRefresh={this.state.automaticRefresh}
-                                                    accessTopbar={this.accessTopbar} 
-                                                    updateTimespanData={this.props.updateTimespanData} />
+                            <DetailTimeSelection timespanTypeLowerBound={this.props.timespanTypeLowerBound}
+                                timespanTypeUpperBound={this.props.timespanTypeUpperBound}
+                                timespanAbsoluteTimestampLowerBound={this.props.timespanAbsoluteTimestampLowerBound}
+                                timespanAbsoluteTimestampUpperBound={this.props.timespanAbsoluteTimestampUpperBound}
+                                timespanTimeUnitLowerBound={this.props.timespanTimeUnitLowerBound}
+                                timespanAmountLowerBound={this.props.timespanAmountLowerBound}
+                                timespanTimeUnitUpperBound={this.props.timespanTimeUnitUpperBound}
+                                timespanAmountUpperBound={this.props.timespanAmountUpperBound}
+                                refreshInterval={this.state.refreshInterval}
+                                refreshTimeUnit={this.state.refreshTimeUnit}
+                                automaticRefresh={this.state.automaticRefresh}
+                                accessTopbar={this.accessTopbar}
+                                updateTimespanData={this.props.updateTimespanData} />
                         </Row>
                     </div>
                 </Form>
 
-                <Button variant="light" onClick={this.manualRefresh}><FontAwesomeIcon icon={faRedoAlt} /> Aktualisieren</Button>
+                <Button className="topbar-button" variant="light" onClick={this.manualRefresh}><FontAwesomeIcon icon={faRedoAlt} /> Aktualisieren</Button>
 
             </Navbar>
         )

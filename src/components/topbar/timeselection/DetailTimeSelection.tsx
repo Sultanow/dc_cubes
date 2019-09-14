@@ -64,7 +64,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
         return (
             <React.Fragment>
                 <Dropdown>
-                    <Dropdown.Toggle variant="light" id="dropdown-basic">
+                    <Dropdown.Toggle className="topbar-button" variant="light" id="dropdown-basic">
                         {lowerBoundLabel}
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="dropdown-width">
@@ -161,7 +161,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                 </Dropdown>
                 <Navbar.Text className="gap">bis</Navbar.Text>
                 <Dropdown>
-                    <Dropdown.Toggle variant="light" id="dropdown-basic">
+                    <Dropdown.Toggle className="topbar-button" variant="light" id="dropdown-basic">
                         {upperBoundLabel}
                     </Dropdown.Toggle>
                     <Dropdown.Menu className="dropdown-width">

@@ -121,16 +121,16 @@ export default function MiniDrawer(props: React.PropsWithChildren<MyProps>) {
         <List>
           <NavLink to="/" style={{ textDecoration: 'none' }} className="sidebar-item-inactive" activeClassName="sidebar-item-active" exact={true} >
             <ListItem button>
-              <ListItemIcon><BarChart /></ListItemIcon>
+              <ListItemIcon style={{ marginLeft: '10px'}} ><BarChart /></ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItem>
           </NavLink>
           <ListItem button>
-            <ListItemIcon><Tune /></ListItemIcon>
+            <ListItemIcon style={{ marginLeft: '10px'}}><Tune /></ListItemIcon>
             <ListItemText primary="Parameter verwalten" />
           </ListItem>
           <ListItem button>
-            <ListItemIcon><Description /></ListItemIcon>
+            <ListItemIcon style={{ marginLeft: '10px'}}><Description /></ListItemIcon>
             <ListItemText primary="Bericht erstellen" />
           </ListItem>
         </List>
@@ -138,12 +138,12 @@ export default function MiniDrawer(props: React.PropsWithChildren<MyProps>) {
         <List style={{ textDecoration: 'none' }}>
           <NavLink to={`/data-sources/${props.dataSource}`} style={{ textDecoration: 'none' }} className="sidebar-item-inactive" activeClassName="sidebar-item-active" exact={true} >
             <ListItem button>
-              <ListItemIcon><FontAwesomeIcon icon={faCoins} style={{ marginLeft: '1px', width: '22px', height: '20px' }} /></ListItemIcon>
+              <ListItemIcon style={{ marginLeft: '10px'}}><FontAwesomeIcon icon={faCoins} style={{ marginLeft: '2px', width: '22px', height: '20px' }} /></ListItemIcon>
               <ListItemText primary="Datenquelle" />
             </ListItem>
           </NavLink>
           <ListItem button>
-            <ListItemIcon><Settings /></ListItemIcon>
+            <ListItemIcon style={{ marginLeft: '10px'}} ><Settings /></ListItemIcon>
             <ListItemText primary="Einstellungen" />
           </ListItem>
         </List>
