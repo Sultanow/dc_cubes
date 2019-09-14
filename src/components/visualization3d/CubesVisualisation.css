@@ -18,3 +18,8 @@
     margin-top: .5rem;
     z-index: 50000;
 }
+
+/* Important for proper on hover rendering if Bootstap card is used */
+.card{
+    position: unset;
+}

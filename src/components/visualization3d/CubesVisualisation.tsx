@@ -52,7 +52,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.sceneWidth / this.sceneHeight, 0.1, 3000);
         // set initial camera position
-        this.camera.position.set(500, 1000, 1500);
+        this.camera.position.set(500, 1000, 1200);
 
         this.mouse = new THREE.Vector2();
         this.INTERSECTED = null;
@@ -91,7 +91,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                                 <h4 className="timestamp">{timestamp}</h4>
                             </div>  
                         </div>
-                        {this.props.children}
+                        {/* The 2D Navigation chart is renderer in the line below */}
+                        {this.props.children} 
                         <div className="slidercontainer">
                             {slider}
                         </div>
@@ -344,6 +345,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     onHover = (event: any) => {
         // calculate mouse position in normalized device coordinates acordign to scene width and height
         // (-1 to +1) for both components
+        console.log('Offset')
+        console.log(this.renderer.domElement.offsetLeft)
         this.mouse.x = ((event.clientX - this.renderer.domElement.offsetLeft) / this.renderer.domElement.width) * 2 - 1;
         this.mouse.y = -((event.clientY - this.renderer.domElement.offsetTop) / this.renderer.domElement.height) * 2 + 1;
 
