@@ -25,7 +25,7 @@ interface timestampData {
 }
 
 const SVG_WIDTH = 950;
-const SVG_HEIGHT = 250;
+const SVG_HEIGHT = 150;
 const SVG_ID = "TimeSeriesNavigationChart"
 
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
@@ -38,7 +38,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     private margin = { top: 20, right: 20, bottom: 20, left: 0 };
     private width = 900 - (this.margin.left + this.margin.right);
-    private height = 250 - (this.margin.top + this.margin.bottom);
+    private height = 150 - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
     private xScale = d3.scaleTime().range([0, this.width]);
@@ -107,7 +107,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidUpdate() {
-        d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale));
+        d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%A %Y-%m-%d")));
         this.setupTooltip();
         this.setupBrush();
