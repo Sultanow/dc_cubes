@@ -1,9 +1,12 @@
-.cubes-visualisation {
+.cubes-visualization {
     width: fit-content;
+    /* margin-left: 0px; */
+    margin-top: 15px;
 } 
 
 .overlay {
     background-color: rgba(0, 0, 0, 0.1);
+    border-radius: .25rem;
     /*background-color: black;*/
     width: 900px;
     /*opacity: 0.1;
@@ -20,6 +23,6 @@
 }
 
 /* Important for proper on hover rendering if Bootstap card is used */
-.card{
+.card {
     position: unset;
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
-import { Row, Alert, Container } from 'react-bootstrap';
+import { Row, Alert, Container, Col } from 'react-bootstrap';
 import './App.css';
 // import Sidebar from './components/Sidebar'
 import SidebarNew from './components/SidebarNew'
@@ -160,7 +160,7 @@ class App extends React.Component<{}, AppState> {
               updateTimespanData={this.updateTimespanData}
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
               changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
-            <Container>
+
               <Route exact path="/" render={
                 (props) =>
                   <React.Fragment>
@@ -179,9 +179,10 @@ class App extends React.Component<{}, AppState> {
                       dataSourceError={this.state.dataSourceError} >
                       {TimeseriesNavigationChartComponent}
                     </CubesVisualisation>
-
                   </React.Fragment>
               } />
+
+            <Container>
               <Route path="/data-sources" render={(props) => <DataSources {...props}
                 dataSource={this.state.dataSource}
                 dataSourceError={this.state.dataSourceError}
@@ -193,6 +194,7 @@ class App extends React.Component<{}, AppState> {
                 solrCore={this.state.solrCore}
                 solrQuery={this.state.solrQuery}
                 accessChild={this.accessChild} />} />
+              <br/>  
               {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
               {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
             </Container>

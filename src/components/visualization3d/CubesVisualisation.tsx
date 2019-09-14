@@ -9,6 +9,7 @@ import Instance from '../../model/Instance'
 import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider'
 import './CubesVisualisation.css'
+import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 
 interface CubesVisProps {
     data: DCState
@@ -83,7 +84,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         }
 
         return (
-            <Container className="cubes-visualisation">
+            <Container className="cubes-visualization">
                 <Card>
                     <Card.Body>
                         <div id="cubes-visualisation">
