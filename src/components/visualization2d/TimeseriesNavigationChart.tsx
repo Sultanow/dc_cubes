@@ -116,6 +116,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     setupTooltip() {
         let originalScope = this;
+
+        let tooltipElement: HTMLElement = document.getElementById('tooltip');
+
         d3.select("#" + SVG_ID).on("mousemove", function () {
 
             function updateTooltip(dp: timeseriesData) {
@@ -137,12 +140,16 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
             if (datapoint != null) updateTooltip(datapoint);
 
+            tooltipElement.style.visibility = "visible";
+
         }).on("mouseleave", function () {
             originalScope.lastShownIndex = -1;
             d3.select("#tooltipDate").html("");
             d3.select("#tooltipAvg").html("");
             d3.select(".mouseLine").classed("hidden", true);
             d3.select("#tooltip").style("left", "").style("top", "").style("position", "");
+
+            tooltipElement.style.visibility = "hidden";
         });
     }
 

@@ -30,14 +30,22 @@
     margin: 5px;
 }
 
-#tooltip {
+#tooltip{
+    visibility: hidden;
+    font-weight: bold;
+    z-index: 1;
+    padding: 5px;
     border: 1px solid;
-    border-radius: 5%;
+    border-radius: 4px;
     font-size: small;
-    width: 180px;
+    width: auto;
     position: absolute;
     pointer-events: none;
     background-color: rgba(243, 243, 243, 0.9);
+}
+
+#tooltipDate, #tooltipAvg{
+    font-weight: normal;
 }
 
 .mouseLine {
