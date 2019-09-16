@@ -89,7 +89,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     <Card.Body>
                         <div id="cubes-visualisation">
                             <div className="overlay">
-                                <h4 className="timestamp">{timestamp}</h4>
+                                <div className="timestamp">{timestamp}</div>
                             </div>  
                         </div>
                         {/* The 2D Navigation chart is renderer in the line below */}
