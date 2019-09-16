@@ -11,6 +11,9 @@ import TimeSpanSlider from '../slider/TimespanSlider'
 import './CubesVisualisation.css'
 import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 
+import SectionRight from "../../components/SectionRight";
+
+
 interface CubesVisProps {
     data: DCState
     grid: Map<string, Array<number>>
@@ -41,7 +44,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     barPlaceholders: any[];
 
     frameId: number;
-
 
     sceneWidth = 900;
     sceneHeight = 440;
@@ -150,6 +152,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // this.render();
         // allows movement with mouseclicks 
         this.controls.addEventListener('change', this.renderVis.bind(this));
+
+        // limit camera distances
+        this.controls.maxDistance = 2000;
+        this.controls.minDistance = 400;
 
         // eventlistener for mouse movement. is needed for onHower and onClick logic
         document.addEventListener('mousemove', this.onHover, false);
