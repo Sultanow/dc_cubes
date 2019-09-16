@@ -18,18 +18,12 @@
 .container2d {
     width: auto;
     display: inline-flex;
-    flex-direction: column;
+    flex-direction: row;
 }   
 
 .checkboxContainer {
-    display: flex;
-    float: right;
-    margin-right: 20px;
-    padding-top: 20px;
-}
-
-.checkboxContainer label {
-    margin-right: 15px;
+    display: inline-flex;
+    flex-direction: column;
 }
 
 .timeseriesCheckbox {
@@ -39,7 +33,7 @@
 #tooltip{
     visibility: hidden;
     font-weight: bold;
-    z-index: 3;
+    z-index: 1;
     padding: 5px;
     border: 1px solid;
     border-radius: 4px;

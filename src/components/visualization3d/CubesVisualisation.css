@@ -2,8 +2,6 @@
     width: fit-content;
     /* margin-left: 0px; */
     margin-top: 15px;
-    margin-left: 0;
-    margin-right: 0;
 } 
 
 .overlay {
@@ -16,8 +14,6 @@
     filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0.1);*/
     position: absolute;
     z-index:5;
-    font-size: medium;
-    padding: 10px;
 }
 
 .timestamp {

@@ -271,53 +271,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         return (
             <div className="container2d">
-                <div className="verticalContainer">
-                    <div className="checkboxContainer">
-                        <div className='custom-control custom-switch'>
-                            <input
-                                type='checkbox'
-                                className='custom-control-input timeseriesCheckbox'
-                                id='max-switch'
-                                defaultChecked={true}
-                                onChange={this.toggleChartMax}
-                                readOnly
-                            />
-                            <label className='custom-control-label' htmlFor='max-switch'>
-                                Maximum
-                            </label>
-                        </div>
-                        <div className='custom-control custom-switch'>
-                            <input
-                                type='checkbox'
-                                className='custom-control-input timeseriesCheckbox'
-                                id='min-switch'
-                                defaultChecked={true}
-                                onChange={this.toggleChartMin}
-                                readOnly
-                            />
-                            <label className='custom-control-label' htmlFor='min-switch'>
-                                Minimum
-                            </label>
-                        </div>
-                        <div className='custom-control custom-switch'>
-                            <input
-                                type='checkbox'
-                                className='custom-control-input timeseriesCheckbox'
-                                id='avg-switch'
-                                defaultChecked={true}
-                                onChange={this.toggleChartAvg}
-                                readOnly
-                            />
-                            <label className='custom-control-label' htmlFor='avg-switch'>
-                                Mittelwert
-                            </label>
-                        </div>
-                    </div>
-                    <div id="tooltip">
-                        <div>Date: <span id="tooltipDate"></span></div>
-                        <div>Average: <span id="tooltipAvg"></span></div>
-                    </div>
-                </div>
                 <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
                     {maxArea}
                     {avgline}
@@ -329,6 +282,17 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                         <path id="mouseLine"></path>
                     </g>
                 </svg>
+                <div className="verticalContainer">
+                    <div className="checkboxContainer">
+                        <label><input className="timeseriesCheckbox" type="checkbox" defaultChecked={true} onChange={this.toggleChartMax} />Maximum</label>
+                        <label><input className="timeseriesCheckbox" type="checkbox" defaultChecked={true} onChange={this.toggleChartAvg} />Average</label>
+                        <label><input className="timeseriesCheckbox" type="checkbox" defaultChecked={true} onChange={this.toggleChartMin} />Minimum</label>
+                    </div>
+                    <div id="tooltip">
+                        <div>Date: <span id="tooltipDate"></span></div>
+                        <div>Average: <span id="tooltipAvg"></span></div>
+                    </div>
+                </div>
             </div>
         );
 
