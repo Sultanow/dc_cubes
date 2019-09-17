@@ -10,6 +10,10 @@ import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider'
 import './CubesVisualisation.css'
 
+import SectionRight from "../../components/SectionRight";
+import LoadingOverlay from "react-loading-overlay";
+import BarLoader from 'react-spinners/BarLoader'
+
 interface CubesVisProps {
     data: DCState
     grid: Map<string, Array<number>>
@@ -41,11 +45,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     frameId: number;
 
-
     sceneWidth = 900;
     sceneHeight = 440;
 
     maxHeightOfbar = 800;
+
+    isLoading: boolean = true;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -70,6 +75,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         let slider, timestamp;
+        let isLoading = this.isLoading;
 
         if (sliderMode === 'pointInTime') {
             slider = <PointInTimeSlider max={this.props.maxRangeSlider} valueOfSlider={[this.props.valueOfSlider]} onChange={this.props.accessChild} />;
@@ -84,11 +90,19 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <Container className="cubes-visualization">
+
                 <Card>
+                <LoadingOverlay
+                    active={isLoading}
+                    spinner={<BarLoader 
+                        color={"white"}
+                    />}
+                    text='Loading Data...'
+                    >
                     <Card.Body>
                         <div id="cubes-visualisation">
                             <div className="overlay">
-                                <h4 className="timestamp">{timestamp}</h4>
+                                <div className="timestamp">{timestamp}</div>
                             </div>  
                         </div>
                         {/* The 2D Navigation chart is renderer in the line below */}
@@ -97,6 +111,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                             {slider}
                         </div>
                     </Card.Body>
+                    </LoadingOverlay>
                 </Card>
             </Container>
         )
@@ -121,11 +136,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
             this.createCubeData()
+            this.isLoading = false;
         }
         this.renderVis();
         var t1 = performance.now();
         console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
-
 
     }
 
@@ -149,6 +164,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // this.render();
         // allows movement with mouseclicks 
         this.controls.addEventListener('change', this.renderVis.bind(this));
+
+        // limit camera distances
+        this.controls.maxDistance = 2000;
+        this.controls.minDistance = 400;
 
         // eventlistener for mouse movement. is needed for onHower and onClick logic
         document.addEventListener('mousemove', this.onHover, false);
