@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
-import { Row, Alert, Container, Col } from 'react-bootstrap';
+import { Alert, Container } from 'react-bootstrap';
 import './App.css';
 // import Sidebar from './components/Sidebar'
 import SidebarNew from './components/SidebarNew'
@@ -196,7 +196,7 @@ class App extends React.Component<{}, AppState> {
                 accessChild={this.accessChild} />} />
               <br/>  
               {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
-              {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
+              {this.state.timespanError && <Alert variant="danger">Zeitspanne/Zeitpunkt nicht verfügbar</Alert>}
             </Container>
           </SidebarNew>
         </div>

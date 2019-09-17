@@ -9,7 +9,6 @@ import Instance from '../../model/Instance'
 import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider'
 import './CubesVisualisation.css'
-import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 
 interface CubesVisProps {
     data: DCState
