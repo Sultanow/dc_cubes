@@ -22,8 +22,10 @@
     "react-compound-slider": "^2.2.0",
     "react-dom": "^16.8.6",
     "react-flatpickr": "^3.9.1",
+    "react-loading-overlay": "^1.0.1",
     "react-router-dom": "^5.0.1",
     "react-scripts": "3.0.1",
+    "react-spinners": "^0.6.1",
     "three": "^0.106.2",
     "three-orbitcontrols": "^2.102.2",
     "typescript": "^3.5.3"

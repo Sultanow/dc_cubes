@@ -12,7 +12,8 @@ import './CubesVisualisation.css'
 import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 
 import SectionRight from "../../components/SectionRight";
-
+import LoadingOverlay from "react-loading-overlay";
+import BarLoader from 'react-spinners/BarLoader'
 
 interface CubesVisProps {
     data: DCState
@@ -50,6 +51,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     maxHeightOfbar = 800;
 
+    isLoading: boolean = true;
+
     constructor(props: CubesVisProps) {
         super(props);
         this.scene = new THREE.Scene();
@@ -73,6 +76,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
         let slider, timestamp;
+        let isLoading = this.isLoading;
 
         if (sliderMode === 'pointInTime') {
             slider = <PointInTimeSlider max={this.props.maxRangeSlider} valueOfSlider={[this.props.valueOfSlider]} onChange={this.props.accessChild} />;
@@ -87,7 +91,15 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <Container className="cubes-visualization">
+
                 <Card>
+                <LoadingOverlay
+                    active={isLoading}
+                    spinner={<BarLoader 
+                        color={"white"}
+                    />}
+                    text='Loading Data...'
+                    >
                     <Card.Body>
                         <div id="cubes-visualisation">
                             <div className="overlay">
@@ -100,6 +112,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                             {slider}
                         </div>
                     </Card.Body>
+                    </LoadingOverlay>
                 </Card>
             </Container>
         )
@@ -124,11 +137,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
             this.createCubeData()
+            this.isLoading = false;
         }
         this.renderVis();
         var t1 = performance.now();
         console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
-
 
     }
 
