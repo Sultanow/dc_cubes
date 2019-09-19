@@ -14,7 +14,6 @@ import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationCh
 import SectionRight from "../../components/SectionRight";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
-import { CardBody } from 'react-bootstrap/Card';
 
 interface CubesVisProps {
     data: DCState

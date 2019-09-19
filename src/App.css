@@ -66,13 +66,6 @@
   height: 100%;
 }
 
-.card{
-  margin-top: 20px;
-  margin-bottom: 20px;
-  border: none;
-  border-radius: .5rem;
-}
-
 .btn{
   font-size: 14px;
 }
@@ -85,6 +78,7 @@
   background-color: #fff;
   padding: 20px;
   margin: 10px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
 }
 
 .alert-field{
