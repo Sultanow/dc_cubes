@@ -13,7 +13,9 @@
 .mat-tab-body-content {overflow: visible !important;}
 
 body{
-    background-color:white;
+    background-color: #f1f3f9!important;
+    height: 100vh;
+    width: 100vw;
 }
 
 
@@ -49,4 +51,3 @@ body{
     opacity: inherit;
     z-index: -1;
 }
-

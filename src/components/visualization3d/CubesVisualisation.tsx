@@ -14,6 +14,7 @@ import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationCh
 import SectionRight from "../../components/SectionRight";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
+import { CardBody } from 'react-bootstrap/Card';
 
 interface CubesVisProps {
     data: DCState
@@ -46,8 +47,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     frameId: number;
 
-    sceneWidth = 900;
-    sceneHeight = 440;
+    sceneWidth = 920;
+    sceneHeight = window.innerHeight / 2.2;
 
     maxHeightOfbar = 800;
 
@@ -91,29 +92,29 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <Container className="cubes-visualization">
-
-                <Card>
-                <LoadingOverlay
+                <div className="content-container">
+                <LoadingOverlay 
                     active={isLoading}
                     spinner={<BarLoader 
-                        color={"white"}
+                        color={"#e5e24a"}
+                        css={"background-color: #79aedb"}
                     />}
                     text='Loading Data...'
                     >
-                    <Card.Body>
-                        <div id="cubes-visualisation">
-                            <div className="overlay">
-                                <div className="timestamp">{timestamp}</div>
-                            </div>  
-                        </div>
-                        {/* The 2D Navigation chart is renderer in the line below */}
-                        {this.props.children} 
-                        <div className="slidercontainer">
-                            {slider}
-                        </div>
-                    </Card.Body>
+                    <div id="cubes-visualisation" className="d-flex justify-content-center" >
+                        <div className="overlay">
+                            <div className="timestamp">{timestamp}</div>
+                        </div>  
+                    </div>
                     </LoadingOverlay>
-                </Card>
+                </div>
+                <div className="content-container">
+                    {/* The 2D Navigation chart is renderer in the line below */}
+                    {this.props.children} 
+                    <div className="slidercontainer">
+                        {slider}
+                    </div>
+                </div>
             </Container>
         )
     };

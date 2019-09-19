@@ -22,18 +22,16 @@
 }   
 
 .checkboxContainer {
-    display: flex;
     float: right;
-    margin-right: 20px;
-    padding-top: 20px;
-}
-
-.checkboxContainer label {
-    margin-right: 15px;
 }
 
 .timeseriesCheckbox {
     margin: 5px;
+}
+
+.custom-control-input:checked~.custom-control-label::before {
+    border-color: #e5e24a;
+    background-color: #e5e24a;
 }
 
 #tooltip{
@@ -41,7 +39,7 @@
     font-weight: bold;
     z-index: 3;
     padding: 5px;
-    border: 1px solid;
+    border: 1px solid grey;
     border-radius: 4px;
     font-size: small;
     width: auto;
@@ -64,3 +62,10 @@
 .mouseLine.hidden {
     opacity: 0;
 }
+
+/*Color for the brush */ 
+.brush rect.selection {
+    fill: #39a7f6;
+    fill-opacity: .25;
+}
+ 
