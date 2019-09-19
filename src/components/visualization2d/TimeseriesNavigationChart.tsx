@@ -24,7 +24,7 @@ interface timestampData {
     count: number
 }
 
-const SVG_WIDTH = 950;
+const SVG_WIDTH = 920;
 const SVG_HEIGHT = 150;
 const SVG_ID = "TimeSeriesNavigationChart"
 
@@ -37,8 +37,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     private margin = { top: 20, right: 20, bottom: 20, left: 0 };
-    private width = 900 - (this.margin.left + this.margin.right);
-    private height = 150 - (this.margin.top + this.margin.bottom);
+    private width = SVG_WIDTH - (this.margin.left + this.margin.right);
+    private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
     private xScale = d3.scaleTime().range([0, this.width]);
@@ -122,10 +122,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select("#" + SVG_ID).on("mousemove", function () {
 
             function updateTooltip(dp: timeseriesData) {
+                let offsetX = -50;
+                let offsetY = 85;
                 d3.select("#tooltipDate").html(dp.timestamp);
                 d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
-                d3.select("#tooltip").style("top", d3.event.pageY + "px")
-                    .style("left", d3.event.pageX + 20 + "px")
+                d3.select("#tooltip").style("top", d3.event.pageY - offsetY + "px")
+                    .style("left", d3.event.pageX + offsetX + "px")
             }
 
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
@@ -270,7 +272,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
 
         return (
-            <div className="container2d">
+            <div className="container2d d-inline">
                 <div className="verticalContainer">
                     <div className="checkboxContainer">
                         <div className='custom-control custom-switch'>

@@ -7,6 +7,7 @@ import './Topbar.css'
 import QuickTimeSelection from './timeselection/QuickTimeSelection';
 import DCState from '../../model/DCState'
 import DetailTimeSelection from './timeselection/DetailTimeSelection';
+import logo from '../../img/dc_cubes_logo_concept.svg';
 
 interface TopbarProps {
     dataSourceUrl: string
@@ -50,6 +51,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
     render() {
         return (
             <Navbar className="topbar" expand="lg">
+                <img src={logo} alt="DC Cubes" style={{ height: "55px", width: "55px" }} />
                 <Link to="/"><Navbar.Brand>DC Cubes</Navbar.Brand></Link>
                 <Dropdown>
                     <Dropdown.Toggle className="topbar-button gap-topbar" variant="light" id="dropdown-basic">
@@ -76,7 +78,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                 </Dropdown>
 
 
-                <Form inline>
+                <Form inline style={{ width: "100%" }}>
                     <div className="data-time-select">
                         <Row>
                             <Dropdown>
@@ -114,9 +116,11 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                         </Row>
                     </div>
                 </Form>
-
-                <Button className="topbar-button" variant="light" onClick={this.manualRefresh}><FontAwesomeIcon icon={faRedoAlt} /> Aktualisieren</Button>
-
+                <Form>
+                    <Button className="topbar-button" variant="light" onClick={this.manualRefresh}>
+                        <FontAwesomeIcon icon={faRedoAlt}/> <span>Aktualisieren</span>
+                    </Button>
+                </Form>
             </Navbar>
         )
     }

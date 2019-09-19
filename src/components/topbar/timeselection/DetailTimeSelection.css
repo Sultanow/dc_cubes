@@ -7,9 +7,6 @@
     display: none;
 }
 
-.row .navbar-brand {
-    margin-right: 0;
-}
 
 .dropdown-item:hover {
     background-color: #e2e6ea;
