@@ -108,10 +108,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%A %Y-%m-%d")));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat(d3.timeFormat("%Y-%m-%d")));
         this.setupTooltip();
         this.setupBrush();
-        d3.select(".x-axis").selectAll(".tick text").call(this.wrapLabels, 10)
+        d3.select(".x-axis").selectAll(".tick text");
     }
 
     setupTooltip() {
@@ -162,30 +162,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let bBoxSvg = elemSvg.getBoundingClientRect();
 
         return bBoxAxis.right - bBoxSvg.left - 6; // ToDo: magic number
-    }
-
-    wrapLabels(text, width) {
-        text.each(function () {
-            var text = d3.select(this),
-                words = text.text().split(/\s+/).reverse(),
-                word,
-                line = [],
-                lineNumber = 0,
-                lineHeight = 1.1, // ems
-                y = text.attr("y"),
-                dy = parseFloat(text.attr("dy")),
-                tspan = text.text(null).append("tspan").attr("x", 0).attr("y", y).attr("dy", dy + "em");
-            while (word = words.pop()) {
-                line.push(word);
-                tspan.text(line.join(" "));
-                if (tspan.node().getComputedTextLength() > width) {
-                    line.pop();
-                    tspan.text(line.join(" "));
-                    line = [word];
-                    tspan = text.append("tspan").attr("x", 0).attr("y", y).attr("dy", ++lineNumber * lineHeight + dy + "em").text(word);
-                }
-            }
-        });
     }
 
     setupBrush() {
