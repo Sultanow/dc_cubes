@@ -16,6 +16,7 @@ import { BarChart, Settings, Tune, Description } from '@material-ui/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoins } from '@fortawesome/free-solid-svg-icons'
 import './Sidebar.css'
+import { fontFamily } from '@material-ui/system';
 
 const drawerWidth = 240;
 
@@ -23,6 +24,8 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     root: {
       display: 'flex',
+      backgroundColor: "#f1f3f9",
+      color: '#000'
     },
     appBar: {
       zIndex: theme.zIndex.drawer,
@@ -56,6 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
+      backgroundColor: "#5b819e"
     },
     drawerClose: {
       transition: theme.transitions.create('width', {
@@ -67,6 +71,7 @@ const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.up('sm')]: {
         width: theme.spacing(9) + 1,
       },
+      backgroundColor: "#5b819e", 
     },
     toolbar: {
       display: 'flex',
@@ -113,37 +118,37 @@ export default function MiniDrawer(props: React.PropsWithChildren<MyProps>) {
         open={open}
       >
         <div className={classes.toolbar}>
-          <IconButton onClick={handleDrawer}>
+          <IconButton onClick={handleDrawer} style={{ color: "#fff"}}>
             {open ? <ChevronLeftIcon /> : <ChevronRightIcon />}
           </IconButton>
         </div>
         <Divider />
-        <List>
+        <List style={{ color: "#fff"}}>
           <NavLink to="/" style={{ textDecoration: 'none' }} className="sidebar-item-inactive" activeClassName="sidebar-item-active" exact={true} >
             <ListItem button>
-              <ListItemIcon style={{ marginLeft: '10px'}} ><BarChart /></ListItemIcon>
+              <ListItemIcon style={{ marginLeft: '10px', color: "#fff"}} ><BarChart /></ListItemIcon>
               <ListItemText primary="Dashboard" />
             </ListItem>
           </NavLink>
           <ListItem button>
-            <ListItemIcon style={{ marginLeft: '10px'}}><Tune /></ListItemIcon>
+            <ListItemIcon style={{ marginLeft: '10px', color: "#fff"}}><Tune /></ListItemIcon>
             <ListItemText primary="Parameter verwalten" />
           </ListItem>
           <ListItem button>
-            <ListItemIcon style={{ marginLeft: '10px'}}><Description /></ListItemIcon>
+            <ListItemIcon style={{ marginLeft: '10px', color: "#fff"}}><Description /></ListItemIcon>
             <ListItemText primary="Bericht erstellen" />
           </ListItem>
         </List>
         <Divider />
-        <List style={{ textDecoration: 'none' }}>
+        <List style={{ textDecoration: 'none', color: "#fff"}}>
           <NavLink to={`/data-sources/${props.dataSource}`} style={{ textDecoration: 'none' }} className="sidebar-item-inactive" activeClassName="sidebar-item-active" exact={true} >
             <ListItem button>
-              <ListItemIcon style={{ marginLeft: '10px'}}><FontAwesomeIcon icon={faCoins} style={{ marginLeft: '2px', width: '22px', height: '20px' }} /></ListItemIcon>
+              <ListItemIcon style={{ marginLeft: '10px', color: "#fff"}}><FontAwesomeIcon icon={faCoins} style={{ marginLeft: '2px', width: '22px', height: '20px' }} /></ListItemIcon>
               <ListItemText primary="Datenquelle" />
             </ListItem>
           </NavLink>
           <ListItem button>
-            <ListItemIcon style={{ marginLeft: '10px'}} ><Settings /></ListItemIcon>
+            <ListItemIcon style={{ marginLeft: '10px', color: "#fff"}} ><Settings /></ListItemIcon>
             <ListItemText primary="Einstellungen" />
           </ListItem>
         </List>

@@ -77,7 +77,7 @@ export function Handle({
           height: 17,
           borderRadius: '50%',
           boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.3)',
-          backgroundColor: disabled ? '#666' : '#b3ecff',
+          backgroundColor: disabled ? '#666' : '#79aedb',
         }}
       />
     </Fragment>
@@ -124,7 +124,7 @@ export function KeyboardHandle({
         height: 24,
         borderRadius: '50%',
         boxShadow: '1px 1px 1px 1px rgba(0, 0, 0, 0.3)',
-        backgroundColor: disabled ? '#666' : '#b3ecff',
+        backgroundColor: disabled ? '#666' : '#0e56bf',
       }}
       {...getHandleProps(id)}
     />
@@ -157,7 +157,7 @@ export function Track({ source, target, getTrackProps, disabled }) {
         transform: 'translate(0%, -50%)',
         height: 7,
         zIndex: 1,
-        backgroundColor: disabled ? '#999' : '#b3ecff',
+        backgroundColor: disabled ? '#999' : '#79aedb',
         borderRadius: 7,
         cursor: 'pointer',
         left: `${source.percent}%`,

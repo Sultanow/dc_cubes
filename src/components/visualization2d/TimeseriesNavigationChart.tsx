@@ -24,7 +24,7 @@ interface timestampData {
     count: number
 }
 
-const SVG_WIDTH = 950;
+const SVG_WIDTH = 920;
 const SVG_HEIGHT = 150;
 const SVG_ID = "TimeSeriesNavigationChart"
 
@@ -270,7 +270,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
 
         return (
-            <div className="container2d">
+            <div className="container2d d-inline">
                 <div className="verticalContainer">
                     <div className="checkboxContainer">
                         <div className='custom-control custom-switch'>
