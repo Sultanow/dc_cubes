@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-import { Container, Card } from 'react-bootstrap';
+import { Container } from 'react-bootstrap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import DCState from '../../model/DCState'
 import Datacenter from '../../model/Datacenter'
@@ -106,13 +106,14 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         </div>  
                     </div>
                     </LoadingOverlay>
-                </div>
-                <div className="content-container">
-                    {/* The 2D Navigation chart is renderer in the line below */}
-                    {this.props.children} 
                     <div className="slidercontainer">
                         {slider}
                     </div>
+                </div>
+                <div className="content-container">
+                    {/* The 2D Navigation chart is rendered in the line below */}
+                    {this.props.children} 
+
                 </div>
             </Container>
         )
