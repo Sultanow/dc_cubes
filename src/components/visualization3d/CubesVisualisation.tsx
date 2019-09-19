@@ -74,7 +74,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     render() {
         const sliderMode = this.props.sliderMode;
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
-        const daysOfTheWeek = ['Sunday', 'Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+        const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         let slider, timestamp;
         let isLoading = this.isLoading;
 
@@ -92,19 +92,19 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         return (
             <Container className="cubes-visualization">
                 <div className="content-container">
-                <LoadingOverlay 
-                    active={isLoading}
-                    spinner={<BarLoader 
-                        color={"#e5e24a"}
-                        css={"background-color: #79aedb"}
-                    />}
-                    text='Loading Data...'
+                    <LoadingOverlay
+                        active={isLoading}
+                        spinner={<BarLoader
+                            color={"#e5e24a"}
+                            css={"background-color: #79aedb"}
+                        />}
+                        text='Loading Data...'
                     >
-                    <div id="cubes-visualisation" className="d-flex justify-content-center" >
-                        <div className="overlay">
-                            <div className="timestamp">{timestamp}</div>
-                        </div>  
-                    </div>
+                        <div id="cubes-visualisation" className="d-flex justify-content-center" >
+                            <div className="overlay">
+                                <div className="timestamp">{timestamp}</div>
+                            </div>
+                        </div>
                     </LoadingOverlay>
                     <div className="slidercontainer">
                         {slider}
@@ -112,7 +112,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 </div>
                 <div className="content-container">
                     {/* The 2D Navigation chart is rendered in the line below */}
-                    {this.props.children} 
+                    {this.props.children}
 
                 </div>
             </Container>
@@ -366,39 +366,35 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     onHover = (event: any) => {
         // calculate mouse position in normalized device coordinates acordign to scene width and height
         // (-1 to +1) for both components
-        console.log('Offset')
-        console.log(this.renderer.domElement.offsetLeft)
-        this.mouse.x = ((event.clientX - this.renderer.domElement.offsetLeft) / this.renderer.domElement.width) * 2 - 1;
-        this.mouse.y = -((event.clientY - this.renderer.domElement.offsetTop) / this.renderer.domElement.height) * 2 + 1;
-
-        // update the picking ray with the camera and mouse position
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-
-        // calculate objects intersecting the picking ray
-        var intersects = this.raycaster.intersectObjects(this.scene.children);
-
+        let intersects = this.getIntersections(event);
         // interaction on hover
         this.changeColorOfHoveredCube(intersects);
     };
     onCubeclick = (event: any) => {
         // check if middle mouse button was clicked
         if (event.which === 2) {
-            // TODO: Double code, needs refactoring, see onHover Function 
-            this.mouse.x = ((event.clientX - this.renderer.domElement.offsetLeft) / this.renderer.domElement.width) * 2 - 1;
-            this.mouse.y = -((event.clientY - this.renderer.domElement.offsetTop) / this.renderer.domElement.height) * 2 + 1;
 
-            // update the picking ray with the camera and mouse position
-            this.raycaster.setFromCamera(this.mouse, this.camera);
-
-            // calculate objects intersecting the picking ray
-            var intersects = this.raycaster.intersectObjects(this.scene.children);
-
+            let intersects = this.getIntersections(event);
             if (intersects.length > 0) {
                 alert(intersects[0].object.name);
             }
         }
     }
 
+    getIntersections(event: any) {
+
+        this.updateMousePositionProperty(event);
+        // update the picking ray with the camera and mouse position
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        // calculate objects intersecting the picking ray
+        return this.raycaster.intersectObjects(this.scene.children);
+    }
+
+    updateMousePositionProperty(event: any) {
+        var rect = this.renderer.domElement.getBoundingClientRect();
+        this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        this.mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
+    }
 
     changeColorOfHoveredCube(intersects: THREE.Intersection[]) {
         if (intersects.length > 0) {
