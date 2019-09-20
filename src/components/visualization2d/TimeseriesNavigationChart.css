@@ -1,25 +1,26 @@
 .area-min {
-    fill: rgba(70, 131, 180);
-    stroke: rgba(70, 131, 180);
+    fill        : rgba(70, 131, 180);
+    stroke      : rgba(70, 131, 180);
     stroke-width: 1px;
 }
 
 .line-avg {
-    fill: none;
-    stroke:rgba(0, 0, 0);
+    fill        : none;
+    stroke      : rgba(0, 0, 0);
     stroke-width: 1px;
 }
+
 .area-max {
-    fill: rgba(125, 226, 209);
-    stroke:rgba(125, 226, 209);
+    fill        : rgba(125, 226, 209);
+    stroke      : rgba(125, 226, 209);
     stroke-width: 1px;
 }
 
 .container2d {
-    width: auto;
-    display: inline-flex;
+    width         : auto;
+    display       : inline-flex;
     flex-direction: column;
-}   
+}
 
 .checkboxContainer {
     float: right;
@@ -30,43 +31,52 @@
 }
 
 .custom-control-input:checked~.custom-control-label::before {
-    border-color: #e5e24a;
+    border-color    : #e5e24a;
     background-color: #e5e24a;
 }
 
-#tooltip{
-    visibility: hidden;
-    font-weight: bold;
-    z-index: 3;
-    padding: 5px;
-    border: 1px solid grey;
-    border-radius: 4px;
-    font-size: small;
-    width: auto;
-    position: absolute;
-    pointer-events: none;
+#tooltip {
+    visibility      : hidden;
+    font-weight     : bold;
+    z-index         : 3;
+    padding         : 5px;
+    border          : 1px solid grey;
+    border-radius   : 4px;
+    font-size       : small;
+    width           : auto;
+    position        : absolute;
+    pointer-events  : none;
     background-color: rgba(243, 243, 243, 0.9);
 }
 
-#tooltipDate, #tooltipAvg{
+#tooltipDate,
+#tooltipAvg {
     font-weight: normal;
 }
 
 .mouseLine {
-    stroke-width: 1px;
-    opacity: 1;
+    stroke-width  : 1px;
+    opacity       : 1;
     stroke: black;
     pointer-events: none;
+}
+
+.mouseClick {
+    stroke: #da9214;
+    stroke-width: 2px;
+}
+
+.mouseMove {
+    stroke: black;
 }
 
 .mouseLine.hidden {
     opacity: 0;
 }
 
-/*Color for the brush */ 
+/*Color for the brush */
 .brush rect.selection {
-    fill: #39a7f6;
-    fill-opacity: .25;
+    fill          : #39a7f6;
+    fill-opacity  : .25;
     pointer-events: none;
 }
- 

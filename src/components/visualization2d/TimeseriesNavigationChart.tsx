@@ -133,12 +133,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
 
-            d3.select(".mouseLine").classed("hidden", false)
             d3.select("#mouseLine").attr("d", function () {
                 var d = "M" + xcoord + "," + SVG_HEIGHT;
                 d += " " + xcoord + "," + 0;
                 return d;
             });
+            d3.select(".mouseMove").classed("hidden", false);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
             if (datapoint != null) updateTooltip(datapoint);
 
@@ -148,7 +148,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             originalScope.lastShownIndex = -1;
             d3.select("#tooltipDate").html("");
             d3.select("#tooltipAvg").html("");
-            d3.select(".mouseLine").classed("hidden", true);
+            d3.select(".mouseMove").classed("hidden", true);
             d3.select("#tooltip").style("left", "").style("top", "").style("position", "");
 
             tooltipElement.style.visibility = "hidden";
@@ -190,11 +190,17 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         if (isBrushAreaTooSmall(brushMinimum, brushMaximum)) {
             let clickedXCoord = d3.mouse(document.getElementById(SVG_ID))[0];
+            d3.select("#selectedDatapointLine").attr("d", function () {
+                var d = "M" + clickedXCoord + "," + SVG_HEIGHT;
+                d += " " + clickedXCoord + "," + 0;
+                return d;
+            });
+            d3.select(".mouseClick").classed("hidden", false);
             let date = this.getValidDatapointFromMousePosition(clickedXCoord);
             this.props.resetSliderAndDates(date.timestamp);
             return;
         }
-
+        d3.select(".mouseClick").classed("hidden", true);
         const newTimespanData = {
             timespanAbsoluteTimestampUpperBound: endDate,
             timespanAbsoluteTimestampLowerBound: startDate,
@@ -303,7 +309,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
                     <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
-                    <g className="mouseLine">
+                    <g className="mouseLine mouseClick">
+                        <path id="selectedDatapointLine"></path>
+                    </g>
+                    <g className="mouseLine mouseMove">
                         <path id="mouseLine"></path>
                     </g>
                 </svg>
