@@ -51,7 +51,9 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
     render() {
         return (
             <Navbar className="topbar" expand="lg">
-                <img src={logo} alt="DC Cubes" style={{ height: "55px", width: "55px" }} />
+                <div id="icon-container">
+                    <img src={logo} alt="DC Cubes" style={{ height: "40px", width: "40px"}} />
+                </div>
                 <Link to="/"><Navbar.Brand>DC Cubes</Navbar.Brand></Link>
                 <Dropdown>
                     <Dropdown.Toggle className="topbar-button gap-topbar" variant="light" id="dropdown-basic">

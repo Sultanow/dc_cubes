@@ -20,5 +20,9 @@
 .topbar-button{
     color: #212529;
     background-color: #ffffff;
-    border-color: transparent;
+}
+
+#icon-container{
+    height: 40px;
+    width: 40px;
 }

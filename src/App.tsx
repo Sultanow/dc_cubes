@@ -195,9 +195,8 @@ class App extends React.Component<{}, AppState> {
                 solrQuery={this.state.solrQuery}
                 accessChild={this.accessChild} />} />
               <br/>  
-              {this.state.dataSourceError && 
-              <Alert variant="danger" className="alert-container">Datenquelle nicht erreichbar</Alert>}
-              {this.state.timespanError && <Alert variant="danger" className="alert-container">Zeitspanne nicht verfügbar</Alert>}
+              {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
+              {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
             </Container>
           </SidebarNew>
         </div>

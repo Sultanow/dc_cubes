@@ -100,3 +100,18 @@
   font-family: "Source Sans Pro";
   font-size: 14px;
 }
+
+.btn-light{
+  background-color: #f1f3f9;
+  border: none;
+}
+
+.btn-light:hover{
+  background-color: #f1f3f9;
+  border: none;
+}
+
+.btn-light:not(:disabled):not(.disabled).active, .btn-light:not(:disabled):not(.disabled):active, .show>.btn-light.dropdown-toggle{
+  background-color: #f1f3f9;
+  border: none;
+}
