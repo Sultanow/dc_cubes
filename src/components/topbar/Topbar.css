@@ -21,3 +21,8 @@
     color: #212529;
     background-color: #ffffff;
 }
+
+#icon-container{
+    height: 40px;
+    width: 40px;
+}
