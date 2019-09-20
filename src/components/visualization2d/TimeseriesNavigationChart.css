@@ -67,5 +67,6 @@
 .brush rect.selection {
     fill: #39a7f6;
     fill-opacity: .25;
+    pointer-events: none;
 }
  
