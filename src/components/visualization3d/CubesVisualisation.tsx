@@ -74,17 +74,14 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         const sliderMode = this.props.sliderMode;
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        let slider, timestamp;
+        let timestamp;
         let isLoading = this.isLoading;
 
         if (sliderMode === 'pointInTime') {
-            slider = <PointInTimeSlider max={this.props.maxRangeSlider} valueOfSlider={[this.props.valueOfSlider]} onChange={this.props.accessChild} />;
             timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</div>;
         } else if (sliderMode === 'timespan') {
-            slider = <TimeSpanSlider max={this.props.maxRangeSlider} timespanValuesOfSlider={this.props.timespanValuesOfSlider} onChange={this.props.accessChild} />;
             timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[0]} - {daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[1]}</div>;
         } else {
-            slider = '';
             timestamp = '';
         }
 
@@ -105,9 +102,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                             </div>
                         </div>
                     </LoadingOverlay>
-                    <div className="slidercontainer">
-                        {slider}
-                    </div>
                 </div>
                 <div className="content-container">
                     {/* The 2D Navigation chart is rendered in the line below */}
