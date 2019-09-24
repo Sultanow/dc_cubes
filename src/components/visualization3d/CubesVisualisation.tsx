@@ -10,7 +10,8 @@ import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider'
 import './CubesVisualisation.css'
 import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 import SectionRight from "../../components/SectionRight";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
@@ -47,7 +48,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     frameId: number;
 
     sceneWidth = window.innerWidth / 2;
-    sceneHeight = window.innerHeight / 1.8;
+    sceneHeight = window.innerHeight / 2;
 
     maxHeightOfbar = 800;
 
@@ -88,7 +89,17 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <div className="cubes-visualization col-md-8">
-                <div className="content-container">
+                <div className="content-header">
+                    <div className="param-info-container">
+                        <span style={{ marginRight: "40px", marginLeft: "10px" }}>CPU-Auslastung: {this.props.valueOfSlider}</span>
+                        <span>Mittelwert: </span>
+                    </div>
+                    <div>
+                        <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
+                        <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                    </div>
+                </div>
+                <div className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
                         spinner={<BarLoader
@@ -97,12 +108,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         />}
                         text='Loading Data...'
                     >
-                        <div id="cubes-visualisation" className="d-flex justify-content-start" >
-                            <div className="overlay">
-                                <div className="timestamp">{timestamp}</div>
-                            </div>
-                        </div>
+                    <div id="cubes-visualisation" className="d-flex justify-content-start" ></div>
                     </LoadingOverlay>
+                </div>
+                <div id="timestamp-container">
+                    <div>{timestamp}</div>
                 </div>
                 <div className="content-container">
                     {/* The 2D Navigation chart is rendered in the line below */}

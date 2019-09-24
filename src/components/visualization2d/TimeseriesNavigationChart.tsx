@@ -24,7 +24,7 @@ interface timestampData {
     count: number
 }
 
-const SVG_WIDTH = window.innerWidth / 2.2;
+const SVG_WIDTH = window.innerWidth / 2.4;
 const SVG_HEIGHT = 100;
 const SVG_ID = "TimeSeriesNavigationChart"
 
@@ -255,7 +255,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
 
         return (
-            <div className="container2d d-inline-flex">
+            <div className="container2d d-flex justify-content-center">
                 <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
                     {maxArea}
                     {avgline}

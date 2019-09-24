@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Accordion, Card, Button, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExpand } from '@fortawesome/free-solid-svg-icons'
+import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 
 export class SectionRight extends Component {
   render() {
@@ -17,9 +17,10 @@ export class SectionRight extends Component {
             id="section-right-accordion"
           >
             <Card.Header >
-              <Accordion.Toggle eventKey="0" as={Card.Header} className="accordion-btn ripple">
+              <Accordion.Toggle eventKey="0" as={Card.Header} className="accordion-btn">
                 <div>Systemstatus</div>
                 <div>
+                  <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
                   <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                 </div>
               </Accordion.Toggle>
@@ -110,6 +111,7 @@ export class SectionRight extends Component {
               <Accordion.Toggle eventKey="1" as={Card.Header} className="accordion-btn ripple">
                 <div>Kennzahlen</div>
                 <div>
+                  <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
                   <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                 </div>
               </Accordion.Toggle>
@@ -188,6 +190,7 @@ export class SectionRight extends Component {
               <Accordion.Toggle eventKey="2" as={Card.Header} className="accordion-btn ripple">
                 <div>Parameter-Übersicht</div>
                 <div>
+                  <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
                   <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                 </div>
               </Accordion.Toggle>
