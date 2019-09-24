@@ -24,8 +24,8 @@ interface timestampData {
     count: number
 }
 
-const SVG_WIDTH = 920;
-const SVG_HEIGHT = 150;
+const SVG_WIDTH = window.innerWidth / 2.2;
+const SVG_HEIGHT = 100;
 const SVG_ID = "TimeSeriesNavigationChart"
 
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
@@ -122,7 +122,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select("#" + SVG_ID).on("mousemove", function () {
 
             function updateTooltip(dp: timeseriesData) {
-                let offsetX = 20;
+                let offsetX = 1;
                 let offsetY = 5;
                 d3.select("#tooltipDate").html(dp.timestamp);
                 d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
@@ -132,6 +132,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
+            console.log(xcoord);
 
             d3.select("#mouseLine").attr("d", function () {
                 var d = "M" + xcoord + "," + SVG_HEIGHT;
@@ -254,7 +255,21 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
 
         return (
-            <div className="container2d d-inline">
+            <div className="container2d d-inline-flex">
+                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
+                    {maxArea}
+                    {avgline}
+                    {minArea}
+                    <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
+                    <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
+                    <g className="brush" ref={this.brushRef}></g>
+                    <g className="mouseLine mouseClick">
+                        <path id="selectedDatapointLine"></path>
+                    </g>
+                    <g className="mouseLine mouseMove">
+                        <path id="mouseLine"></path>
+                    </g>
+                </svg>
                 <div className="verticalContainer">
                     <div className="checkboxContainer">
                         <div className='custom-control custom-switch'>
@@ -302,20 +317,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                         <div>Average: <span id="tooltipAvg"></span></div>
                     </div>
                 </div>
-                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
-                    {maxArea}
-                    {avgline}
-                    {minArea}
-                    <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
-                    <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
-                    <g className="brush" ref={this.brushRef}></g>
-                    <g className="mouseLine mouseClick">
-                        <path id="selectedDatapointLine"></path>
-                    </g>
-                    <g className="mouseLine mouseMove">
-                        <path id="mouseLine"></path>
-                    </g>
-                </svg>
             </div>
         );
 

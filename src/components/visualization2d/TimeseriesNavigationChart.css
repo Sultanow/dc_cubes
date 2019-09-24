@@ -19,7 +19,8 @@
 .container2d {
     width         : auto;
     display       : inline-flex;
-    flex-direction: column;
+    /* flex-direction: column; */
+    height: 100%;
 }
 
 .checkboxContainer {

@@ -46,8 +46,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     frameId: number;
 
-    sceneWidth = 920;
-    sceneHeight = window.innerHeight / 2.2;
+    sceneWidth = window.innerWidth / 2;
+    sceneHeight = window.innerHeight / 1.8;
 
     maxHeightOfbar = 800;
 
@@ -87,7 +87,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         }
 
         return (
-            <Container className="cubes-visualization">
+            <div className="cubes-visualization col-md-8">
                 <div className="content-container">
                     <LoadingOverlay
                         active={isLoading}
@@ -97,7 +97,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         />}
                         text='Loading Data...'
                     >
-                        <div id="cubes-visualisation" className="d-flex justify-content-center" >
+                        <div id="cubes-visualisation" className="d-flex justify-content-start" >
                             <div className="overlay">
                                 <div className="timestamp">{timestamp}</div>
                             </div>
@@ -109,7 +109,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     {this.props.children}
 
                 </div>
-            </Container>
+            </div>
         )
     };
     componentDidMount() {
