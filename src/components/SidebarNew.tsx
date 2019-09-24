@@ -59,7 +59,7 @@ const useStyles = makeStyles((theme: Theme) =>
         easing: theme.transitions.easing.sharp,
         duration: theme.transitions.duration.enteringScreen,
       }),
-      backgroundColor: "#5b819e"
+      backgroundColor: "#1b76f0"
     },
     drawerClose: {
       transition: theme.transitions.create('width', {
@@ -71,7 +71,7 @@ const useStyles = makeStyles((theme: Theme) =>
       [theme.breakpoints.up('sm')]: {
         width: theme.spacing(9) + 1,
       },
-      backgroundColor: "#5b819e", 
+      backgroundColor: "#1b76f0", 
     },
     toolbar: {
       display: 'flex',

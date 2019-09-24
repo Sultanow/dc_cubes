@@ -7,7 +7,7 @@ import './Topbar.css'
 import QuickTimeSelection from './timeselection/QuickTimeSelection';
 import DCState from '../../model/DCState'
 import DetailTimeSelection from './timeselection/DetailTimeSelection';
-import logo from '../../img/cubes_yl.svg';
+import logo from '../../img/cubes_blor.svg';
 
 interface TopbarProps {
     dataSourceUrl: string

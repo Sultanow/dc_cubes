@@ -92,8 +92,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     <LoadingOverlay
                         active={isLoading}
                         spinner={<BarLoader
-                            color={"#e5e24a"}
-                            css={"background-color: #79aedb"}
+                            color={"#f7b613"}
+                            css={"background-color: #1b76ef"}
                         />}
                         text='Loading Data...'
                     >
