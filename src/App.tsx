@@ -7,6 +7,7 @@ import SidebarNew from './components/SidebarNew'
 import CubesVisualisation from './components/visualization3d/CubesVisualisation';
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import Topbar from './components/topbar/Topbar';
+import SectionRight from "./components/SectionRight"
 import DataSources from './components/datasource/config/DataSources';
 import SolrDataService from './components/datasource/service/solr/SolrDataService';
 import SolrAdapter from './components/datasource/service/solr/SolrAdapter';
@@ -164,25 +165,28 @@ class App extends React.Component<{}, AppState> {
               <Route exact path="/" render={
                 (props) =>
                   <React.Fragment>
-                    <CubesVisualisation {...props}
-                      data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
-                      clusterColors={this.state.clusterColors}
-                      grid={this.state.grid}
-                      maxH={this.state.maxH}
-                      sliderMode={this.state.sliderMode}
-                      maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
-                      timespanValuesOfSlider={this.state.selectedTimespan}
-                      valueOfSlider={this.state.selectedPointInTime}
-                      accessChild={this.accessChild}
-                      selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-                      selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
-                      dataSourceError={this.state.dataSourceError} >
-                      {TimeseriesNavigationChartComponent}
-                    </CubesVisualisation>
+                    <div className="content-row" >
+                      <CubesVisualisation {...props}
+                        data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                        clusterColors={this.state.clusterColors}
+                        grid={this.state.grid}
+                        maxH={this.state.maxH}
+                        sliderMode={this.state.sliderMode}
+                        maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
+                        timespanValuesOfSlider={this.state.selectedTimespan}
+                        valueOfSlider={this.state.selectedPointInTime}
+                        accessChild={this.accessChild}
+                        selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
+                        selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
+                        dataSourceError={this.state.dataSourceError} >
+                        {TimeseriesNavigationChartComponent}
+                      </CubesVisualisation>
+                      < SectionRight />
+                    </div>
                   </React.Fragment>
               } />
 
-            <Container>
+            <Container style={{ display: "contents" }}>
               <Route path="/data-sources" render={(props) => <DataSources {...props}
                 dataSource={this.state.dataSource}
                 dataSourceError={this.state.dataSourceError}

@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import json
+import random
 import matplotlib.pyplot as plt
 
 def pushData(row):
@@ -43,11 +44,30 @@ def pushData(row):
 
 if __name__ == "__main__":
     print("MLSkript.py ausgeführt")
-    mockupData = pd.read_csv("../src/data/df_all_pseudo-01.csv", header=0, delimiter=",", index_col=0)
-    unwantedCols = ["host","cluster","dc","perm","instanz","verfahren","service","response","minv","maxv","avg","var","dev_upp","dev_low","perc90","perc95","perc99.9","sum","sum_of_squares", "server"]
+    #mockupData = pd.read_csv("../../data/data.dsv", header=0, sep="|", index_col=0, low_memory=False)
+    #unwantedCols = ["host","cluster","dc","perm","instanz","verfahren","service","response","minv","maxv","avg","var","dev_upp","dev_low","perc90","perc95","perc99.9","sum","sum_of_squares", "server"]
     # mockupData.drop(unwantedCols, axis=1, inplace=True)
-    mockupData.plot(x="timestamp", y="count")
-    plt.show()
+    #mockupData.plot(x="timestamp", y="count")
+    #plt.show()
+
+    filename = "../../data/data.dsv"
+    chunksize = 500000
+    counter = 0
+    firstChunk = pd.read_csv(filename, nrows=chunksize, sep="|", encoding="latin1");
+
+    pd.set_option('display.max_colwidth', -1)
+    pd.set_option('display.max_columns', None)
+    # print("info: ", firstChunk.info())
+    # print("cols:", list(firstChunk.columns))
+    # print("shape:", firstChunk.shape)
+    for chunk in pd.read_csv(filename, chunksize=chunksize, sep="|", encoding="latin1"):
+        #print(chunk)
+        counter = counter + 1
+        print("\n\n ++++chunk NR: %5d ++++" % counter)
+        print("head: ", chunk.head(1))
+
+    # print("Die Datei enthält ca. %10e Zeilen bzw. Messwerte" % (counter * chunksize))
+
 
 
    # for index, row in mockupData.iterrows():

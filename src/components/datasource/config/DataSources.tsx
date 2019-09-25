@@ -37,10 +37,9 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
 
     render() {
         return (
-            <div className="main-canvas">
+            <div className="content-row">
                 <br/>
-                    <Row>
-                        <Col lg={4}>
+                        <Col lg={4} className="content-container" style={{display: "block"}}>
                         <h2>Datenquelle</h2>
                             <br/>
                             <fieldset>
@@ -84,7 +83,7 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                                 <Button onClick={this.changeDataSource}>{this.state.changeDataSource ? "Speichern" : "Ändern" }</Button>
                             </fieldset>
                         </Col>
-                        <Col lg={8}>
+                        <Col lg={8} className="content-container" style={{display: "block"}}>
                             
                             <Route path="/data-sources/csv" render={(props) => <CsvSettings {...props}  />}/>
                             <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props} 
@@ -99,7 +98,6 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                             <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
                             <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  />}/>
                         </Col>
-                    </Row>
             </div>
             
         )

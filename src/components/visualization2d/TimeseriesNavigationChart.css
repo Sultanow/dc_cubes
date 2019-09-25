@@ -19,7 +19,8 @@
 .container2d {
     width         : auto;
     display       : inline-flex;
-    flex-direction: column;
+    /* flex-direction: column; */
+    height: 100%;
 }
 
 .checkboxContainer {
@@ -31,8 +32,8 @@
 }
 
 .custom-control-input:checked~.custom-control-label::before {
-    border-color    : #e5e24a;
-    background-color: #e5e24a;
+    border-color    : #f7b614;
+    background-color: #f7b614;
 }
 
 #tooltip {
@@ -40,7 +41,7 @@
     font-weight     : bold;
     z-index         : 3;
     padding         : 5px;
-    border          : 1px solid grey;
+    /* border          : 1px solid grey; */
     border-radius   : 4px;
     font-size       : small;
     width           : auto;
