@@ -32,6 +32,12 @@ interface CubesVisProps {
     children?: React.ReactNode
 }
 
+interface Bar {
+    cube: any
+    datacenter: string
+    cluster: string
+}
+
 class CubesVisualisation extends React.Component<CubesVisProps> {
 
     scene: THREE.Scene;
@@ -41,10 +47,10 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     renderer: THREE.WebGLRenderer;
     raycaster: THREE.Raycaster;
     controls: OrbitControls;
-    bars: any[];
+    bars: Bar[];
     textSprites: any[];
     barPlaceholders: any[];
-
+    currentHelperBox: THREE.Box3Helper;
     frameId: number;
 
     sceneWidth = window.innerWidth / 2;
@@ -99,7 +105,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;</span>
                     </div>
                     <div>
-                        <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
+                        <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
                         <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                     </div>
                 </header>
@@ -112,7 +118,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         />}
                         text='Loading Data...'
                     >
-                    <div id="cubes-visualisation" className="d-flex justify-content-start" ></div>
+                        <div id="cubes-visualisation" className="d-flex justify-content-start" ></div>
                     </LoadingOverlay>
                 </div>
                 <div id="timestamp-container">
@@ -192,11 +198,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         // removes bars of the last selected timestamp
         for (let index = 0; index < this.bars.length; index++) {
-            this.scene.remove(this.bars[index]);
-            this.bars[index].geometry.dispose();
-            this.bars[index].geometry = null;
-            this.bars[index].material.dispose();
-            this.bars[index].material = null;
+            this.scene.remove(this.bars[index].cube);
+            this.bars[index].cube.geometry.dispose();
+            this.bars[index].cube.geometry = null;
+            this.bars[index].cube.material.dispose();
+            this.bars[index].cube.material = null;
             // this.bars[index].dispose();
             this.bars[index] = null;
         }
@@ -213,15 +219,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
             //set up view data
-
             let clusters = datacenter.clusters;
             clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
                 let instances = value_cluster.instances;
 
                 instances.forEach((value_instance: Instance, key_instance: string) => {
                     var h = value_instance.utilization;
-
-
 
                     let gridKey: string = key_dc + "_" + key_cluster + "_" + key_instance;
                     let clusterKey = key_dc + "_" + key_cluster;
@@ -231,7 +234,9 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     var x = gridValue[0];
                     var z = gridValue[1];
 
-                    this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), h.toString(), this.props.clusterColors[clusterKey]);
+                    // TODO: Refactor, too many arguments
+                    this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), h.toString(),
+                        this.props.clusterColors[clusterKey], key_dc, key_cluster);
 
                 })
             })
@@ -242,8 +247,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         return "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
     }
 
-    createBar(x: number, z: number, h: number, textLabel: string, color: number) {
-
+    createBar(x: number, z: number, h: number, textLabel: string, color: number, datacenter: string, cluster: string) {
         // Cube init
         var geometry = new THREE.BoxBufferGeometry(40, h, 40);
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, h / 2, 0));
@@ -274,7 +278,14 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         var wireframe = new THREE.LineSegments(geo, mat);
         cube.add(wireframe);
         this.textSprites.push(textSprite);
-        this.bars.push(cube);
+        // save the datacenter and cluster for each cube
+        cube.userData = {
+            datacenter: datacenter,
+            cluster: cluster
+        }
+
+        let bar: Bar = { cube: cube, datacenter: datacenter, cluster: cluster };
+        this.bars.push(bar);
 
         geometry.dispose();
         material.dispose();
@@ -375,8 +386,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // calculate mouse position in normalized device coordinates acordign to scene width and height
         // (-1 to +1) for both components
         let intersects = this.getIntersections(event);
-        // interaction on hover
-        this.changeColorOfHoveredCube(intersects);
+        if (intersects.length > 0) {
+            // interaction on hover
+            this.changeColorOfHoveredCube(intersects);
+            this.drawHelperBox();
+        }
     };
     onCubeclick = (event: any) => {
         // check if middle mouse button was clicked
@@ -404,37 +418,39 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
-    highlightCluster() {
-        //let datacenter = this.props.data.datacenters[0];
-        //let cluster = datacenter.clusters[0];
-        //es gibt leider keine Referenz zwischen cluster und Bars        
+    drawHelperBox() {
+        if (this.INTERSECTED != null) {
+            let datacenter = this.INTERSECTED.userData.datacenter;
+            let cluster = this.INTERSECTED.userData.cluster;
 
-        //Testen des Prinzips
-        //var group = new THREE.Group();
+            if (datacenter != null && cluster != null) {
+                let geom = new THREE.Geometry();
+                let allBarsOfThisCluster = this.bars.filter(bar => bar.cluster == cluster);
+                let gset = [];
+                console.log("allbars", allBarsOfThisCluster);
+                allBarsOfThisCluster.forEach(bar => {
+                    let cube = bar.cube;
+                    let boxGeom = new THREE.Geometry().fromBufferGeometry(cube.geometry);
+                    geom.merge(boxGeom, cube.matrix);
+                    gset.push(boxGeom);
+                });
+
+                let bufGeometry = new THREE.BufferGeometry().fromGeometry(geom);
+                bufGeometry.computeBoundingBox();
+                let bbox = bufGeometry.boundingBox.clone();
         
-        var geom = new THREE.Geometry();
-                        
-        var gset = [];
-        for (let i = 0; i < 8; i++) {
-            var b = this.bars[i];
-            var boxGeom = new THREE.Geometry().fromBufferGeometry(b.geometry);
-            geom.merge(boxGeom, b.matrix);
-            gset.push(boxGeom);
+                // remove old helper box 
+                if (this.currentHelperBox != null) this.scene.remove(this.currentHelperBox);
+                
+                // set new helper box as the current one
+                let helper = new THREE.Box3Helper(bbox, new THREE.Color(0xff0000));
+                this.currentHelperBox = helper;
+                // add the class property instead of the variable to ensure only one is shown at all times
+                this.scene.add(this.currentHelperBox);
+        
+                this.renderVis();
+            }
         }
-        //var merged = BufferGeometryUtils.mergeBufferGeometries(gset, true);
-        //var mesh = new THREE.Mesh(merged, new THREE.MeshNormalMaterial());
-        //mesh.geometry.computeBoundingBox();
-        
-        var bufGeometry = new THREE.BufferGeometry().fromGeometry(geom);
-        bufGeometry.computeBoundingBox();
-        var mesh2 = new THREE.Mesh( bufGeometry, new THREE.MeshNormalMaterial() );
-        var bbox = bufGeometry.boundingBox.clone();
-
-        var helper = new THREE.Box3Helper(bbox, new THREE.Color(0xff0000));
-        this.scene.add(helper);
-        console.log(mesh2);
-        
-        this.renderVis();
     }
 
     changeColorOfHoveredCube(intersects: THREE.Intersection[]) {
@@ -455,12 +471,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 this.renderVis();
             }
             this.INTERSECTED = null;
-        }
-
-        try {
-            this.highlightCluster();
-        } catch(e) {
-            console.log(e);
         }
     };
 
