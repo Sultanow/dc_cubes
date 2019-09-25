@@ -10,7 +10,8 @@ import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider'
 import './CubesVisualisation.css'
 import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 import SectionRight from "../../components/SectionRight";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
@@ -46,8 +47,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     frameId: number;
 
-    sceneWidth = 920;
-    sceneHeight = window.innerHeight / 2.2;
+    sceneWidth = window.innerWidth / 2;
+    sceneHeight = window.innerHeight / 2;
 
     maxHeightOfbar = 800;
 
@@ -87,29 +88,38 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         }
 
         return (
-            <Container className="cubes-visualization">
-                <div className="content-container">
+            <div className="cubes-visualization col-md-8">
+                <div className="content-header">
+                    <div className="param-info-container">
+                        <span style={{ marginRight: "40px", marginLeft: "10px" }}>CPU-Auslastung: {this.props.valueOfSlider}</span>
+                        <span>Mittelwert: </span>
+                    </div>
+                    <div>
+                        <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
+                        <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                    </div>
+                </div>
+                <div className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
                         spinner={<BarLoader
-                            color={"#e5e24a"}
-                            css={"background-color: #79aedb"}
+                            color={"#f7b613"}
+                            css={"background-color: #1b76ef"}
                         />}
                         text='Loading Data...'
                     >
-                        <div id="cubes-visualisation" className="d-flex justify-content-center" >
-                            <div className="overlay">
-                                <div className="timestamp">{timestamp}</div>
-                            </div>
-                        </div>
+                    <div id="cubes-visualisation" className="d-flex justify-content-start" ></div>
                     </LoadingOverlay>
+                </div>
+                <div id="timestamp-container">
+                    <div>{timestamp}</div>
                 </div>
                 <div className="content-container">
                     {/* The 2D Navigation chart is rendered in the line below */}
                     {this.props.children}
 
                 </div>
-            </Container>
+            </div>
         )
     };
     componentDidMount() {
@@ -390,6 +400,39 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
+    highlightCluster() {
+        //let datacenter = this.props.data.datacenters[0];
+        //let cluster = datacenter.clusters[0];
+        //es gibt leider keine Referenz zwischen cluster und Bars        
+
+        //Testen des Prinzips
+        //var group = new THREE.Group();
+        
+        var geom = new THREE.Geometry();
+                        
+        var gset = [];
+        for (let i = 0; i < 8; i++) {
+            var b = this.bars[i];
+            var boxGeom = new THREE.Geometry().fromBufferGeometry(b.geometry);
+            geom.merge(boxGeom, b.matrix);
+            gset.push(boxGeom);
+        }
+        //var merged = BufferGeometryUtils.mergeBufferGeometries(gset, true);
+        //var mesh = new THREE.Mesh(merged, new THREE.MeshNormalMaterial());
+        //mesh.geometry.computeBoundingBox();
+        
+        var bufGeometry = new THREE.BufferGeometry().fromGeometry(geom);
+        bufGeometry.computeBoundingBox();
+        var mesh2 = new THREE.Mesh( bufGeometry, new THREE.MeshNormalMaterial() );
+        var bbox = bufGeometry.boundingBox.clone();
+
+        var helper = new THREE.Box3Helper(bbox, new THREE.Color(0xff0000));
+        this.scene.add(helper);
+        console.log(mesh2);
+        
+        this.renderVis();
+    }
+
     changeColorOfHoveredCube(intersects: THREE.Intersection[]) {
         if (intersects.length > 0) {
             if (this.INTERSECTED !== intersects[0].object) {
@@ -410,6 +453,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             this.INTERSECTED = null;
         }
 
+        try {
+            this.highlightCluster();
+        } catch(e) {
+            console.log(e);
+        }
     };
 
     // draw Scene
