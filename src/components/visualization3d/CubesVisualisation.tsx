@@ -89,16 +89,20 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <div className="cubes-visualization col-md-8">
-                <div className="content-header">
+                <header className="content-header">
                     <div className="param-info-container">
-                        <span style={{ marginRight: "40px", marginLeft: "10px" }}>CPU-Auslastung: {this.props.valueOfSlider}</span>
-                        <span>Mittelwert: </span>
+                        <span style={{ marginRight: "40px", marginLeft: "10px", fontWeight: "bold" }}>CPU-Auslastung:&nbsp;
+                            <span style={{ fontWeight: "normal" }}>
+                                {this.props.valueOfSlider}
+                            </span>
+                        </span>
+                        <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;</span>
                     </div>
                     <div>
                         <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
                         <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                     </div>
-                </div>
+                </header>
                 <div className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
