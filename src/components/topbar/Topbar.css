@@ -23,6 +23,18 @@
     padding-right: 10px;
 }
 
+.topbar > a{
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: bolder;
+    text-transform: uppercase;
+    color: #1b76f0;
+}
+
+.topbar > a:hover{
+    color: #116ed3
+}
+
 .topbar-button{
     color: #212529;
     background-color: #ffffff;
