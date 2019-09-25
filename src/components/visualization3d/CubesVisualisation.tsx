@@ -15,7 +15,6 @@ import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 import SectionRight from "../../components/SectionRight";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
-import { all } from 'q';
 
 interface CubesVisProps {
     data: DCState
@@ -51,7 +50,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     bars: Bar[];
     textSprites: any[];
     barPlaceholders: any[];
-
+    currentHelperBox: THREE.Box3Helper;
     frameId: number;
 
     sceneWidth = window.innerWidth / 2;
@@ -432,16 +431,18 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     gset.push(boxGeom);
                 });
 
-                //var merged = BufferGeometryUtils.mergeBufferGeometries(gset, true);
-                //var mesh = new THREE.Mesh(merged, new THREE.MeshNormalMaterial());
-                //mesh.geometry.computeBoundingBox();
-        
                 let bufGeometry = new THREE.BufferGeometry().fromGeometry(geom);
                 bufGeometry.computeBoundingBox();
                 let bbox = bufGeometry.boundingBox.clone();
         
+                // remove old helper box 
+                if (this.currentHelperBox != null) this.scene.remove(this.currentHelperBox);
+                
+                // set new helper box as the current one
                 let helper = new THREE.Box3Helper(bbox, new THREE.Color(0xff0000));
-                this.scene.add(helper);
+                this.currentHelperBox = helper;
+                // add the class property instead of the variable to ensure only one is shown at all times
+                this.scene.add(this.currentHelperBox);
         
                 this.renderVis();
             }
