@@ -390,6 +390,39 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.mouse.y = - ((event.clientY - rect.top) / rect.height) * 2 + 1;
     }
 
+    highlightCluster() {
+        //let datacenter = this.props.data.datacenters[0];
+        //let cluster = datacenter.clusters[0];
+        //es gibt leider keine Referenz zwischen cluster und Bars        
+
+        //Testen des Prinzips
+        //var group = new THREE.Group();
+        
+        var geom = new THREE.Geometry();
+                        
+        var gset = [];
+        for (let i = 0; i < 8; i++) {
+            var b = this.bars[i];
+            var boxGeom = new THREE.Geometry().fromBufferGeometry(b.geometry);
+            geom.merge(boxGeom, b.matrix);
+            gset.push(boxGeom);
+        }
+        //var merged = BufferGeometryUtils.mergeBufferGeometries(gset, true);
+        //var mesh = new THREE.Mesh(merged, new THREE.MeshNormalMaterial());
+        //mesh.geometry.computeBoundingBox();
+        
+        var bufGeometry = new THREE.BufferGeometry().fromGeometry(geom);
+        bufGeometry.computeBoundingBox();
+        var mesh2 = new THREE.Mesh( bufGeometry, new THREE.MeshNormalMaterial() );
+        var bbox = bufGeometry.boundingBox.clone();
+
+        var helper = new THREE.Box3Helper(bbox, new THREE.Color(0xff0000));
+        this.scene.add(helper);
+        console.log(mesh2);
+        
+        this.renderVis();
+    }
+
     changeColorOfHoveredCube(intersects: THREE.Intersection[]) {
         if (intersects.length > 0) {
             if (this.INTERSECTED !== intersects[0].object) {
@@ -410,6 +443,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             this.INTERSECTED = null;
         }
 
+        try {
+            this.highlightCluster();
+        } catch(e) {
+            console.log(e);
+        }
     };
 
     // draw Scene
