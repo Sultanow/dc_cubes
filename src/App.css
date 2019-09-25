@@ -3,7 +3,6 @@
     background-color: #f1f3f9;
     min-height: 100vh;
     /* font-size: calc(10px + 2vmin); */
-    /*color: white;*/
     font-family: "Source Sans Pro";
 }
 
@@ -76,17 +75,12 @@ html, body {margin: 0; height: 100%; overflow: hidden}
 .content-container {
     background-color: #fff;
     padding: 15px;
-    /* margin: 5px; */
-    /* border: 1px solid rgba(0, 0, 0, 0.12); */
     width: 100%;
     display: inline-block;;
     justify-content: center;
 }
 
 .section-right {
-    /* margin-top: 15px; */
-    /* padding-right: 5px;
-  padding-left: 5px; */
     padding: 0;
 }
 
@@ -157,6 +151,7 @@ a:hover{
 }
 
 .card-header{
+    height: 40px;
     border: none;
     background-color: white;
     padding: 0;
@@ -185,7 +180,7 @@ a:hover{
 }
 
 #section-right-accordion .card-body{
-    height: 350px;
+    height: calc(100vh - 215px);
     margin-bottom: 0;
     margin-top: 0;
     overflow: scroll;
@@ -223,7 +218,6 @@ a:hover{
 
 .section-right-content-container{
     background-color: white;
-    /* border: 1px solid rgba(0, 0, 0, 0.12); */
     margin-left: 10px;
 }
 
@@ -259,6 +253,7 @@ a:hover{
     float: left;
     display: flex;
     justify-content: space-between;
+    height: 40px;
 }
 
 
@@ -271,4 +266,5 @@ a:hover{
     color: black;
     justify-content: center;
     display: flex;
+    height: 40px;
 }

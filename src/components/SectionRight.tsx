@@ -9,7 +9,7 @@ export class SectionRight extends Component {
       <div className="section-right col-md-4">
         <div
           className="section-right-content-container"
-          style={{ height: "100%", width: "100%" }}
+          style={{ height: "calc(100vh - 65px - 30px)", width: "100%" }}
         >
           <Accordion
             defaultActiveKey="0"
@@ -81,6 +81,24 @@ export class SectionRight extends Component {
                     </tr>
                     <tr>
                       <td>Lorem</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Ipsum</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Lorem</td>
+                      <td></td>
+                      <td></td>
+                      <td></td>
+                    </tr>
+                    <tr>
+                      <td>Ipsum</td>
                       <td></td>
                       <td></td>
                       <td></td>
