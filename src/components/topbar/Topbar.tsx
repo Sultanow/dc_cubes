@@ -50,7 +50,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
 
     render() {
         return (
-            <Navbar className="topbar" expand="lg">
+            <div className="topbar">
                 <div className="brand-container">
                     <div>
                         <Link to="/"><Navbar.Brand>DC</Navbar.Brand></Link>
@@ -130,7 +130,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                         <FontAwesomeIcon icon={faRedoAlt}/> <span>Aktualisieren</span>
                     </Button>
                 </Form>
-            </Navbar>
+            </div>
         )
     }
 

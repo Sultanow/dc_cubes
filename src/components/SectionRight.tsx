@@ -44,82 +44,94 @@ export class SectionRight extends Component {
                       <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                     <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
                   </tbody>
                 </Table>
