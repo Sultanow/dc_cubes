@@ -122,8 +122,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select("#" + SVG_ID).on("mousemove", function () {
 
             function updateTooltip(dp: timeseriesData) {
-                let offsetX = 1;
-                let offsetY = 5;
+                let offsetX = -70;
+                let offsetY = 90;
                 d3.select("#tooltipDate").html(dp.timestamp);
                 d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
                 d3.select("#tooltip").style("top", d3.event.pageY - offsetY + "px")
@@ -142,7 +142,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             d3.select(".mouseMove").classed("hidden", false);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
             if (datapoint != null) updateTooltip(datapoint);
-
+            
             tooltipElement.style.visibility = "visible";
 
         }).on("mouseleave", function () {
