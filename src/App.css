@@ -181,7 +181,7 @@ a:hover{
 }
 
 #section-right-accordion .card-body{
-    height: calc(100vh - 215px);
+    height: calc(100vh - 220px);
     margin-bottom: 0;
     margin-top: 0;
     overflow: scroll;
@@ -207,11 +207,17 @@ a:hover{
 
 .table{
     margin-bottom: 0;
+    font-size: 10px;
 }
 
 .table thead th {
     border-bottom: none;
     border-top: none;
+
+    position: -webkit-sticky; /* this is for all Safari (Desktop & iOS), not for Chrome*/
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .table-bordered {
@@ -234,7 +240,7 @@ a:hover{
   
   /* Track */
   ::-webkit-scrollbar-track {
-    background: ##fff; 
+    background: #fff; 
   }
    
   /* Handle */
@@ -250,9 +256,9 @@ a:hover{
 
   /* content header style */
 .content-header{
-    background-color: #4b5976;
+    background-color:white;
     border-bottom: 3px solid rgba(0, 0, 0, 0.12);
-    color: white;
+    color: black;
     width: 100%;
     padding: 10px;
     float: left;

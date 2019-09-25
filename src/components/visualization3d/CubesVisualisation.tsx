@@ -121,7 +121,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         <div id="cubes-visualisation" className="d-flex justify-content-start" ></div>
                     </LoadingOverlay>
                 </div>
-                <header className="content-header">
+                <header className="content-header" style={{ marginTop: "10px" }}>
                     <div className="param-info-container">
                         <div style={{ marginLeft: "10px"}}>{timestamp}</div>
                     </div>

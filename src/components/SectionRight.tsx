@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Accordion, Card, Button, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
+import { faExpand, faCogs, faSort } from '@fortawesome/free-solid-svg-icons'
 
 export class SectionRight extends Component {
   render() {
@@ -9,7 +9,7 @@ export class SectionRight extends Component {
       <div className="section-right col-md-4">
         <div
           className="section-right-content-container"
-          style={{ height: "calc(100vh - 65px - 30px)", width: "100%" }}
+          style={{ width: "100%" }}
         >
           <Accordion
             defaultActiveKey="0"
@@ -30,13 +30,79 @@ export class SectionRight extends Component {
                 <Table striped bordered hover>
                   <thead>
                     <tr>
-                      <th>Prozent</th>
-                      <th>Zeitpunkt</th>
-                      <th>Art des Vorfalls</th>
-                      <th>Ort des Vorfalls</th>
+                      <th>
+                        <span>Prozent</span>
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
+                      <th>
+                        <span>Zeitpunkt</span>
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
+                      <th>
+                        <span>Art des Vorfalls</span>
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
+                      <th>
+                        <span>Ort des Vorfalls</span>
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>80%</td>
+                      <td>Datum + Uhrzeit</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
                     <tr>
                       <td>80%</td>
                       <td>Datum + Uhrzeit</td>
@@ -151,9 +217,18 @@ export class SectionRight extends Component {
               <Table striped bordered hover>
                   <thead>
                     <tr>
-                      <th>Titel</th>
-                      <th>In Ansicht</th>
-                      <th>Ohne Filter</th>
+                      <th>
+                        Titel
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
+                      <th>
+                        In Ansicht
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </th>
+                      <th>
+                        Ohne Filter
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>  
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -192,26 +267,6 @@ export class SectionRight extends Component {
                       <td></td>
                       <td></td>
                     </tr>
-                    <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                    </tr>
                   </tbody>
                 </Table>
               </Card.Body>
@@ -230,15 +285,28 @@ export class SectionRight extends Component {
               <Table striped bordered hover>
                   <thead>
                     <tr>
-                      <th>Parameter</th>
-                      <th>Min</th>
-                      <th>Max</th>
-                      <th>Avg</th>
+                      <th>
+                        Parameter
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
+                      <th>
+                        Min
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
+                      <th>
+                        Max
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
+                      <th>
+                        Avg
+                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr>
                       <td>CPU-Auslastung</td>
+                      <td></td>
                       <td></td>
                       <td></td>
                     </tr>
@@ -268,36 +336,6 @@ export class SectionRight extends Component {
                     </tr>
                     <tr>
                       <td>Antwortzeit</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Lorem</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Ipsum</td>
-                      <td></td>
-                      <td></td>
-                      <td></td>
-                    </tr>
-                    <tr>
-                      <td>Lorem</td>
                       <td></td>
                       <td></td>
                       <td></td>

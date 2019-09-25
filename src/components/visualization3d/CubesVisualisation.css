@@ -1,6 +1,6 @@
 .cubes-visualization {
     padding: 0;
-    background-color: white;
+    /* background-color: white; */
     height: calc(100vh - 95px);
 }
 
