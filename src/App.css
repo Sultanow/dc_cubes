@@ -89,6 +89,7 @@ html, body {margin: 0; height: 100%; overflow: hidden}
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
     margin: 10px;
+    padding-right: 10px;
 }
 
 .alert-field {
@@ -194,6 +195,10 @@ a:hover{
     border-bottom: none;
 }
 
+.table-hover tbody tr:hover {
+    background-color: #ffb13ca2;
+}
+
 .table th{
     color: white;
     background-color: #4c5a76;
@@ -229,7 +234,7 @@ a:hover{
   
   /* Track */
   ::-webkit-scrollbar-track {
-    background: #f1f1f1; 
+    background: ##fff; 
   }
    
   /* Handle */
@@ -268,3 +273,4 @@ a:hover{
     display: flex;
     height: 40px;
 }
+
