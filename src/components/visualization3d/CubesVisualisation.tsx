@@ -12,7 +12,6 @@ import './CubesVisualisation.css'
 import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
-import SectionRight from "../../components/SectionRight";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
 
@@ -40,6 +39,11 @@ interface Bar {
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
 
+    state = {
+        mean: null
+        workload: null
+    }
+
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     mouse: THREE.Vector2;
@@ -59,6 +63,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     maxHeightOfbar = 800;
 
     isLoading: boolean = true;
+    isTimespanSelected = false;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -102,7 +107,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                                 {this.props.valueOfSlider}
                             </span>
                         </span>
-                        <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;</span>
+                        <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;
+                            <span style={{ fontWeight: "normal" }}>
+                                {this.state.mean}
+                            </span>
+                        </span>
                     </div>
                     <div>
                         <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
@@ -133,11 +142,24 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 <div className="content-container">
                     {/* The 2D Navigation chart is rendered in the line below */}
                     {this.props.children}
-
                 </div>
             </div>
         )
     };
+
+    setupMean(){
+        function calculateMean(array){
+            return array.reduce( (a,b) => a + b) / array.length;
+        }
+        if(!this.isTimespanSelected){
+            this.state.mean = calculateMean(this.props.timespanValuesOfSlider);
+            this.state.mean = true;
+        }
+        else{
+            this.stat
+        }
+    }
+
     componentDidMount() {
         console.log("Component Did mount")
         this.initVis();
@@ -159,11 +181,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             this.setBarPlaceholders();
             this.createCubeData()
             this.isLoading = false;
+            this.setupMean();
         }
         this.renderVis();
         var t1 = performance.now();
         console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
-
+        this.setupMean();
     }
 
     componentWillUnmount() {
