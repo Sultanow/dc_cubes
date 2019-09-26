@@ -1,19 +1,19 @@
 .area-min {
-    fill        : #1b76ef;
-    stroke      : #1b76ef;
-    stroke-width: .75px;
+    fill        : rgba(70, 131, 180);
+    stroke      : rgba(70, 131, 180);
+    stroke-width: 1px;
 }
 
 .line-avg {
     fill        : none;
     stroke      : rgba(0, 0, 0);
-    stroke-width: .75px;
+    stroke-width: 1px;
 }
 
 .area-max {
-    fill        : #79e2f2;
-    stroke      : #79e2f2;
-    stroke-width: .75px;
+    fill        : rgba(125, 226, 209);
+    stroke      : rgba(125, 226, 209);
+    stroke-width: 1px;
 }
 
 .container2d {
@@ -41,13 +41,13 @@
     font-weight     : bold;
     z-index         : 3;
     padding         : 5px;
-    border: 1px solid rgba(0, 0, 0, 0.12);
+
     border-radius   : 4px;
     font-size       : small;
     width           : 170px;
     position        : absolute;
     pointer-events  : none;
-    background-color: #f2f2f2f3;
+    background-color: #dbebffea;
     color: black;
 }
 
@@ -78,7 +78,7 @@
 
 /*Color for the brush */
 .brush rect.selection {
-    fill          : #1b76ef;
+    fill          : #39a7f6;
     fill-opacity  : .25;
     pointer-events: none;
 }

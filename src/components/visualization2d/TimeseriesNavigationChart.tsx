@@ -313,8 +313,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                         </div>
                     </div>
                     <div id="tooltip">
-                        <div>Datum: <span id="tooltipDate"></span></div>
-                        <div>Durchn.: <span id="tooltipAvg"></span></div>
+                        <div>Date: <span id="tooltipDate"></span></div>
+                        <div>Average: <span id="tooltipAvg"></span></div>
                     </div>
                 </div>
             </div>
