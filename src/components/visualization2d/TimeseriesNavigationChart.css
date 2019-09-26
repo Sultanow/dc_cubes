@@ -41,13 +41,14 @@
     font-weight     : bold;
     z-index         : 3;
     padding         : 5px;
-    /* border          : 1px solid grey; */
+
     border-radius   : 4px;
     font-size       : small;
-    width           : auto;
+    width           : 170px;
     position        : absolute;
     pointer-events  : none;
-    background-color: rgba(243, 243, 243, 0.9);
+    background-color: #dbebffea;
+    color: black;
 }
 
 #tooltipDate,

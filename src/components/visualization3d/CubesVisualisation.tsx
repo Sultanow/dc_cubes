@@ -121,9 +121,15 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         <div id="cubes-visualisation" className="d-flex justify-content-start" ></div>
                     </LoadingOverlay>
                 </div>
-                <div id="timestamp-container">
-                    <div>{timestamp}</div>
-                </div>
+                <header className="content-header" style={{ marginTop: "10px" }}>
+                    <div className="param-info-container">
+                        <div style={{ marginLeft: "10px"}}>{timestamp}</div>
+                    </div>
+                    <div>
+                        <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
+                        <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                    </div>
+                </header>
                 <div className="content-container">
                     {/* The 2D Navigation chart is rendered in the line below */}
                     {this.props.children}

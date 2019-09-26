@@ -50,18 +50,14 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
 
     render() {
         return (
-            <Navbar className="topbar" expand="lg">
-                <div className="brand-container">
-                    <div>
-                        <Link to="/"><Navbar.Brand>DC</Navbar.Brand></Link>
-                    </div>
+            <div className="topbar">
+                <Link href="/" className="brand-container" style={{ textDecoration: 'none', fontSize: "16px" }}>
+                    <span>DC</span>
                     <div id="icon-container">
                         <img src={logo} alt="DC Cubes" style={{ height: "40px", width: "40px"}} />
                     </div>
-                    <div>
-                        <Link to="/"><Navbar.Brand>Cubes</Navbar.Brand></Link>
-                    </div>
-                </div>
+                    <span>Cubes</span>
+                </Link>
                 <Dropdown>
                     <Dropdown.Toggle className="topbar-button gap-topbar" variant="light" id="dropdown-basic">
                         <FontAwesomeIcon icon={faFilter} /> Filter
@@ -130,7 +126,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                         <FontAwesomeIcon icon={faRedoAlt}/> <span>Aktualisieren</span>
                     </Button>
                 </Form>
-            </Navbar>
+            </div>
         )
     }
 

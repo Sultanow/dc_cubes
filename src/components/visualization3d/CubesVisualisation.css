@@ -1,15 +1,10 @@
 .cubes-visualization {
-    /* height: 50vh; */
-    /* margin-top: 15px; */
-    /* padding-right: 5px;
-    padding-left: 5px; */
     padding: 0;
+    /* background-color: white; */
+    height: calc(100vh - 95px);
 }
 
 .overlay {
-    /*opacity: 0.1;
-    filter: alpha(opacity = 0.1);
-    filter: progid:DXImageTransform.Microsoft.Alpha(opacity=0.1);*/
     position: absolute;
     z-index: 5;
     font-size: medium;
@@ -31,12 +26,3 @@
     -webkit-text-stroke-width: 0.5px;
     -webkit-text-stroke-color: white;
 }
-
-
-/* Important for proper on hover rendering if Bootstap card is used */
-
-
-/* 
-.card {
-    position: unset;
-} */

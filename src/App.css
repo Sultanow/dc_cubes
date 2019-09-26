@@ -3,7 +3,6 @@
     background-color: #f1f3f9;
     min-height: 100vh;
     /* font-size: calc(10px + 2vmin); */
-    /*color: white;*/
     font-family: "Source Sans Pro";
 }
 
@@ -76,17 +75,12 @@ html, body {margin: 0; height: 100%; overflow: hidden}
 .content-container {
     background-color: #fff;
     padding: 15px;
-    /* margin: 5px; */
-    /* border: 1px solid rgba(0, 0, 0, 0.12); */
     width: 100%;
     display: inline-block;;
     justify-content: center;
 }
 
 .section-right {
-    /* margin-top: 15px; */
-    /* padding-right: 5px;
-  padding-left: 5px; */
     padding: 0;
 }
 
@@ -95,6 +89,7 @@ html, body {margin: 0; height: 100%; overflow: hidden}
     -ms-flex-wrap: wrap;
     flex-wrap: wrap;
     margin: 10px;
+    padding-right: 10px;
 }
 
 .alert-field {
@@ -157,6 +152,7 @@ a:hover{
 }
 
 .card-header{
+    height: 40px;
     border: none;
     background-color: white;
     padding: 0;
@@ -185,7 +181,7 @@ a:hover{
 }
 
 #section-right-accordion .card-body{
-    height: 350px;
+    height: calc(100vh - 220px);
     margin-bottom: 0;
     margin-top: 0;
     overflow: scroll;
@@ -199,6 +195,10 @@ a:hover{
     border-bottom: none;
 }
 
+.table-hover tbody tr:hover {
+    background-color: #ffb13ca2;
+}
+
 .table th{
     color: white;
     background-color: #4c5a76;
@@ -207,11 +207,17 @@ a:hover{
 
 .table{
     margin-bottom: 0;
+    font-size: 10px;
 }
 
 .table thead th {
     border-bottom: none;
     border-top: none;
+
+    position: -webkit-sticky; /* this is for all Safari (Desktop & iOS), not for Chrome*/
+    position: sticky;
+    top: 0;
+    z-index: 5;
 }
 
 .table-bordered {
@@ -223,7 +229,6 @@ a:hover{
 
 .section-right-content-container{
     background-color: white;
-    /* border: 1px solid rgba(0, 0, 0, 0.12); */
     margin-left: 10px;
 }
 
@@ -235,7 +240,7 @@ a:hover{
   
   /* Track */
   ::-webkit-scrollbar-track {
-    background: #f1f1f1; 
+    background: #fff; 
   }
    
   /* Handle */
@@ -251,14 +256,15 @@ a:hover{
 
   /* content header style */
 .content-header{
-    background-color: #4b5976;
+    background-color:white;
     border-bottom: 3px solid rgba(0, 0, 0, 0.12);
-    color: white;
+    color: black;
     width: 100%;
     padding: 10px;
     float: left;
     display: flex;
     justify-content: space-between;
+    height: 40px;
 }
 
 
@@ -271,4 +277,6 @@ a:hover{
     color: black;
     justify-content: center;
     display: flex;
+    height: 40px;
 }
+
