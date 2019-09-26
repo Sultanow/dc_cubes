@@ -53,7 +53,7 @@ if __name__ == "__main__":
     filename = "../../data/data.dsv"
     chunksize = 500000
     counter = 0
-    firstChunk = pd.read_csv(filename, nrows=chunksize, sep="|", encoding="latin1");
+    firstChunk = pd.read_csv(filename, nrows=chunksize, sep="|", encoding="latin1")
 
     pd.set_option('display.max_colwidth', -1)
     pd.set_option('display.max_columns', None)
