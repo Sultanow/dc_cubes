@@ -132,7 +132,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
-            console.log(xcoord);
 
             d3.select("#mouseLine").attr("d", function () {
                 var d = "M" + xcoord + "," + SVG_HEIGHT;

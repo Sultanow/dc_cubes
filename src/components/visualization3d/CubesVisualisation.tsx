@@ -33,6 +33,7 @@ interface CubesVisProps {
 }
 
 interface Bar {
+    id: string
     cube: any
     datacenter: string
     cluster: string
@@ -186,7 +187,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         }
         this.renderVis();
         var t1 = performance.now();
-        console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
+        // console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
         this.setupMean();
     }
 
@@ -252,10 +253,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             let clusters = datacenter.clusters;
             clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
                 let instances = value_cluster.instances;
-
                 instances.forEach((value_instance: Instance, key_instance: string) => {
                     var h = value_instance.utilization;
-
                     let gridKey: string = key_dc + "_" + key_cluster + "_" + key_instance;
                     let clusterKey = key_dc + "_" + key_cluster;
 
@@ -266,7 +265,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
                     // TODO: Refactor, too many arguments
                     this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), h.toString(),
-                        this.props.clusterColors[clusterKey], key_dc, key_cluster);
+                        this.props.clusterColors[clusterKey], key_dc, key_cluster, gridKey);
 
                 })
             })
@@ -277,7 +276,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         return "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
     }
 
-    createBar(x: number, z: number, h: number, textLabel: string, color: number, datacenter: string, cluster: string) {
+    createBar(x: number, z: number, h: number, textLabel: string, color: number,
+             datacenter: string, cluster: string, instanceId: string) {
         // Cube init
         var geometry = new THREE.BoxBufferGeometry(40, h, 40);
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, h / 2, 0));
@@ -310,11 +310,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.textSprites.push(textSprite);
         // save the datacenter and cluster for each cube
         cube.userData = {
+            id: instanceId,
             datacenter: datacenter,
             cluster: cluster
         }
 
-        let bar: Bar = { cube: cube, datacenter: datacenter, cluster: cluster };
+        let bar: Bar = { id: instanceId, cube: cube, datacenter: datacenter, cluster: cluster };
         this.bars.push(bar);
 
         geometry.dispose();
@@ -457,7 +458,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 let geom = new THREE.Geometry();
                 let allBarsOfThisCluster = this.bars.filter(bar => bar.cluster == cluster);
                 let gset = [];
-                console.log("allbars", allBarsOfThisCluster);
+                
                 allBarsOfThisCluster.forEach(bar => {
                     let cube = bar.cube;
                     let boxGeom = new THREE.Geometry().fromBufferGeometry(cube.geometry);
