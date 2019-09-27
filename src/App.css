@@ -290,3 +290,24 @@ a:hover{
     box-shadow: 0px 3px 10px -4px rgba(0,0,0,0.4);
     border-radius: 4px;
 }
+
+.btn-sort{
+    display: contents;
+    font-size: inherit;
+}
+
+.btn-util{
+    display: contents;
+    font-size: inherit;
+    color: black;
+}
+
+.btn-util-light{
+    display: contents;
+    font-size: inherit;
+    color: white;
+}
+
+.btn-util:hover, .btn-util-light:hover{
+    color: grey;
+}

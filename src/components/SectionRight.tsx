@@ -20,8 +20,12 @@ export class SectionRight extends Component {
               <Accordion.Toggle eventKey="0" as={Card.Header} className="accordion-btn">
                 <div>Systemstatus</div>
                 <div>
-                  <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
-                  <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                  <Button className="btn-util-light">
+                    <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
+                  </Button>
+                  <Button className="btn-util-light">
+                    <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                  </Button>
                 </div>
               </Accordion.Toggle>
             </Card.Header>
@@ -32,19 +36,27 @@ export class SectionRight extends Component {
                     <tr>
                       <th>
                         <span>Prozent</span>
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                          <Button className="btn-sort">
+                            <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                          </Button>
                       </th>
                       <th>
                         <span>Zeitpunkt</span>
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                       <th>
                         <span>Art des Vorfalls</span>
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                       <th>
                         <span>Ort des Vorfalls</span>
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                     </tr>
                   </thead>
@@ -207,8 +219,12 @@ export class SectionRight extends Component {
               <Accordion.Toggle eventKey="1" as={Card.Header} className="accordion-btn ripple">
                 <div>Kennzahlen</div>
                 <div>
-                  <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
-                  <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                  <Button className="btn-util-light">
+                    <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
+                  </Button>
+                  <Button className="btn-util-light">
+                    <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                  </Button>
                 </div>
               </Accordion.Toggle>
             </Card.Header>
@@ -219,15 +235,21 @@ export class SectionRight extends Component {
                     <tr>
                       <th>
                         Titel
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                       <th>
                         In Ansicht
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                         </th>
                       <th>
                         Ohne Filter
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>  
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>  
+                        </Button>
                       </th>
                     </tr>
                   </thead>
@@ -275,8 +297,12 @@ export class SectionRight extends Component {
               <Accordion.Toggle eventKey="2" as={Card.Header} className="accordion-btn ripple">
                 <div>Parameter-Übersicht</div>
                 <div>
-                  <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
-                  <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                  <Button className="btn-util-light">
+                    <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
+                  </Button>
+                  <Button className="btn-util-light">
+                    <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                  </Button>
                 </div>
               </Accordion.Toggle>
             </Card.Header>
@@ -287,19 +313,27 @@ export class SectionRight extends Component {
                     <tr>
                       <th>
                         Parameter
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                       <th>
                         Min
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                       <th>
                         Max
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                       <th>
                         Avg
-                        <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        <Button className="btn-sort">
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                     </tr>
                   </thead>

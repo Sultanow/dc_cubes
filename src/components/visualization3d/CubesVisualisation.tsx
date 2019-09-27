@@ -12,6 +12,7 @@ import './CubesVisualisation.css'
 import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
+import { Button } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
 
@@ -41,7 +42,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     state = {
         mean: null
-        workload: null
     }
 
     scene: THREE.Scene;
@@ -63,7 +63,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     maxHeightOfbar = 800;
 
     isLoading: boolean = true;
-    isTimespanSelected = false;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -114,8 +113,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         </span>
                     </div>
                     <div>
-                        <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
-                        <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                        <Button className="btn-util">
+                            <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
+                        </Button>
+                        <Button className="btn-util">
+                            <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                        </Button>
                     </div>
                 </header>
                 <div className="content-container d-flex justify-content-center">
@@ -135,8 +138,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         <div style={{ marginLeft: "10px"}}>{timestamp}</div>
                     </div>
                     <div>
-                        <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
-                        <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                        <Button className="btn-util">
+                            <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
+                        </Button>
+                        <Button className="btn-util">
+                            <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
+                        </Button>
                     </div>
                 </header>
                 <div className="content-container">
@@ -151,13 +158,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         function calculateMean(array){
             return array.reduce( (a,b) => a + b) / array.length;
         }
-        if(!this.isTimespanSelected){
-            this.state.mean = calculateMean(this.props.timespanValuesOfSlider);
-            this.state.mean = true;
-        }
-        else{
-            this.stat
-        }
+        this.state.mean = calculateMean(this.props.timespanValuesOfSlider);
     }
 
     componentDidMount() {
