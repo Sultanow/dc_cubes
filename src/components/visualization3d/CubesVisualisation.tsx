@@ -15,6 +15,7 @@ import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 import { Button } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
+import Filter from "../Filter"
 
 interface CubesVisProps {
     data: DCState
@@ -41,10 +42,6 @@ interface Bar {
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
 
-    state = {
-        mean: null
-    }
-
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     mouse: THREE.Vector2;
@@ -64,6 +61,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     maxHeightOfbar = 800;
 
     isLoading: boolean = true;
+    mean: number = 0;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -100,7 +98,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <div className="cubes-visualization col-md-8">
-                <header className="content-header">
+                <Filter />
+                {/* <header className="content-header">
                     <div className="param-info-container">
                         <span style={{ marginRight: "40px", marginLeft: "10px", fontWeight: "bold" }}>CPU-Auslastung:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
@@ -109,7 +108,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         </span>
                         <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
-                                {this.state.mean}
+                                {this.mean}
                             </span>
                         </span>
                     </div>
@@ -121,7 +120,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                             <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                         </Button>
                     </div>
-                </header>
+                </header> */}
                 <div className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
@@ -159,7 +158,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         function calculateMean(array){
             return array.reduce( (a,b) => a + b) / array.length;
         }
-        this.state.mean = calculateMean(this.props.timespanValuesOfSlider);
+        this.mean = calculateMean(this.props.timespanValuesOfSlider);
     }
 
     componentDidMount() {

@@ -16,7 +16,7 @@ export class SectionRight extends Component {
             style={{ width: "100%" }}
             id="section-right-accordion"
           >
-            <Card.Header >
+            <Card.Header>
               <Accordion.Toggle eventKey="0" as={Card.Header} className="accordion-btn">
                 <div>Systemstatus</div>
                 <div>

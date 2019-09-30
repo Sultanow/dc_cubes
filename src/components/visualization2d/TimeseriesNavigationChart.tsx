@@ -318,7 +318,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 </div>
             </div>
         );
-
     }
 
     convertDateObjectToString(str: Date) {
