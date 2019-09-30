@@ -15,6 +15,7 @@ import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 import { Button } from "react-bootstrap";
 import LoadingOverlay from "react-loading-overlay";
 import BarLoader from 'react-spinners/BarLoader'
+import Filter from "../Filter"
 
 interface CubesVisProps {
     data: DCState
@@ -33,16 +34,13 @@ interface CubesVisProps {
 }
 
 interface Bar {
+    id: string
     cube: any
     datacenter: string
     cluster: string
 }
 
 class CubesVisualisation extends React.Component<CubesVisProps> {
-
-    state = {
-        mean: null
-    }
 
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -63,6 +61,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     maxHeightOfbar = 800;
 
     isLoading: boolean = true;
+    mean: number = 0;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -99,7 +98,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <div className="cubes-visualization col-md-8">
-                <header className="content-header">
+                <Filter />
+                {/* <header className="content-header">
                     <div className="param-info-container">
                         <span style={{ marginRight: "40px", marginLeft: "10px", fontWeight: "bold" }}>CPU-Auslastung:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
@@ -108,7 +108,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         </span>
                         <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
-                                {this.state.mean}
+                                {this.mean}
                             </span>
                         </span>
                     </div>
@@ -120,7 +120,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                             <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                         </Button>
                     </div>
-                </header>
+                </header> */}
                 <div className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
@@ -158,7 +158,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         function calculateMean(array){
             return array.reduce( (a,b) => a + b) / array.length;
         }
-        this.state.mean = calculateMean(this.props.timespanValuesOfSlider);
+        this.mean = calculateMean(this.props.timespanValuesOfSlider);
     }
 
     componentDidMount() {
@@ -186,7 +186,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         }
         this.renderVis();
         var t1 = performance.now();
-        console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
+        // console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
         this.setupMean();
     }
 
@@ -252,10 +252,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
             let clusters = datacenter.clusters;
             clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
                 let instances = value_cluster.instances;
-
                 instances.forEach((value_instance: Instance, key_instance: string) => {
                     var h = value_instance.utilization;
-
                     let gridKey: string = key_dc + "_" + key_cluster + "_" + key_instance;
                     let clusterKey = key_dc + "_" + key_cluster;
 
@@ -266,7 +264,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
                     // TODO: Refactor, too many arguments
                     this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), h.toString(),
-                        this.props.clusterColors[clusterKey], key_dc, key_cluster);
+                        this.props.clusterColors[clusterKey], key_dc, key_cluster, gridKey);
 
                 })
             })
@@ -277,7 +275,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         return "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
     }
 
-    createBar(x: number, z: number, h: number, textLabel: string, color: number, datacenter: string, cluster: string) {
+    createBar(x: number, z: number, h: number, textLabel: string, color: number,
+             datacenter: string, cluster: string, instanceId: string) {
         // Cube init
         var geometry = new THREE.BoxBufferGeometry(40, h, 40);
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, h / 2, 0));
@@ -310,11 +309,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         this.textSprites.push(textSprite);
         // save the datacenter and cluster for each cube
         cube.userData = {
+            id: instanceId,
             datacenter: datacenter,
             cluster: cluster
         }
 
-        let bar: Bar = { cube: cube, datacenter: datacenter, cluster: cluster };
+        let bar: Bar = { id: instanceId, cube: cube, datacenter: datacenter, cluster: cluster };
         this.bars.push(bar);
 
         geometry.dispose();
@@ -457,7 +457,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                 let geom = new THREE.Geometry();
                 let allBarsOfThisCluster = this.bars.filter(bar => bar.cluster == cluster);
                 let gset = [];
-                console.log("allbars", allBarsOfThisCluster);
+                
                 allBarsOfThisCluster.forEach(bar => {
                     let cube = bar.cube;
                     let boxGeom = new THREE.Geometry().fromBufferGeometry(cube.geometry);

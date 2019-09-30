@@ -44,16 +44,17 @@
     border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius   : 4px;
     font-size       : small;
-    width           : 170px;
+    width           : 180px;
     position        : absolute;
     pointer-events  : none;
-    background-color: #f2f2f2f3;
-    color: black;
+    background-color: #404040;
+    color: #cdcccc;
 }
 
 #tooltipDate,
 #tooltipAvg {
     font-weight: normal;
+    color: white;
 }
 
 .mouseLine {
