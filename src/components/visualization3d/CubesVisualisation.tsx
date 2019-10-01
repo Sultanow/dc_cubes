@@ -31,6 +31,7 @@ interface CubesVisProps {
     accessChild: any
     dataSourceError: boolean
     children?: React.ReactNode
+    isLoading: boolean
 }
 
 interface Bar {
@@ -60,7 +61,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     maxHeightOfbar = 800;
 
-    isLoading: boolean = true;
     mean: number = 0;
 
     constructor(props: CubesVisProps) {
@@ -86,7 +86,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         let timestamp;
-        let isLoading = this.isLoading;
+        let isLoading = this.props.isLoading;
 
         if (sliderMode === 'pointInTime') {
             timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</div>;
@@ -181,7 +181,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
             this.createCubeData()
-            this.isLoading = false;
             this.setupMean();
         }
         this.renderVis();
