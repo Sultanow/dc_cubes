@@ -121,27 +121,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         d3.select("#" + SVG_ID).on("mousemove", function () {
 
-            function updateTooltip(dp: timeseriesData) {
-                let offsetX = -70;
-                let offsetY = 90;
-                d3.select("#tooltipDate").html(dp.timestamp);
-                d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
-                d3.select("#tooltip").style("top", d3.event.pageY - offsetY + "px")
-                    .style("left", d3.event.pageX + offsetX + "px")
-            }
-
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
 
-            d3.select("#mouseLine").attr("d", function () {
-                var d = "M" + xcoord + "," + SVG_HEIGHT;
-                d += " " + xcoord + "," + 0;
-                return d;
-            });
-            d3.select(".mouseMove").classed("hidden", false);
+            originalScope.drawMouseline(xcoord);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
-            if (datapoint != null) updateTooltip(datapoint);
-            
+            if (datapoint != null) originalScope.updateTooltip(datapoint);
+
             tooltipElement.style.visibility = "visible";
 
         }).on("mouseleave", function () {
@@ -153,6 +139,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             tooltipElement.style.visibility = "hidden";
         });
+    }
+
+    private drawMouseline(xcoord: number) {
+        d3.select("#mouseLine").attr("d", function () {
+            var d = "M" + xcoord + "," + SVG_HEIGHT;
+            d += " " + xcoord + "," + 0;
+            return d;
+        });
+        d3.select(".mouseMove").classed("hidden", false);
     }
 
     calculateOffset(): number {
@@ -170,11 +165,32 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         brush.call(d3.brushX()
             .extent([[this.margin.left + this.margin.right, 0], [SVG_WIDTH - this.margin.left, this.height]])
             // TODO: decide if 'end' or 'end brush'
+            .on("brush", function () {
+                let mousePosition = d3.mouse(document.getElementById(SVG_ID));
+                let xcoord: number = mousePosition[0];
+                let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
+                if (datapoint != null) originalScope.updateTooltip(datapoint);
+                // originalScope.updateTooltip.call(originalScope, datapoint);
+            })
             .on("end", function () {
                 originalScope.brushEnd.call(originalScope);
             }));
     }
 
+    updateTooltip(dp: timeseriesData) {
+        let mousePosition = d3.mouse(document.getElementById(SVG_ID));
+        let bbox = document.getElementById(SVG_ID).getBoundingClientRect();
+        let xcoord: number = d3.event.pageX || mousePosition[0] + bbox.left;
+        let ycoord: number =d3.event.pageY || mousePosition[1] + bbox.top;
+
+
+        let offsetX = -70;
+        let offsetY = 90;
+        d3.select("#tooltipDate").html(dp.timestamp);
+        d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
+        d3.select("#tooltip").style("top", ycoord - offsetY + "px")
+            .style("left", xcoord + offsetX + "px")
+    }
     brushEnd() {
         let selectedArea = d3.event.selection || this.xScale.range(); // if selection is null, selectedArea = [0,880]
         let brushMinimum = selectedArea[0];
