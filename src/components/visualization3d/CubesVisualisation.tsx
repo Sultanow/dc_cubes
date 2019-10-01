@@ -98,8 +98,8 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         return (
             <div className="cubes-visualization col-md-8">
-                <Filter />
-                {/* <header className="content-header">
+                {/* <Filter /> */}
+                <header className="content-header">
                     <div className="param-info-container">
                         <span style={{ marginRight: "40px", marginLeft: "10px", fontWeight: "bold" }}>CPU-Auslastung:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
@@ -112,15 +112,15 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                             </span>
                         </span>
                     </div>
-                    <div>
+                    {/* <div>
                         <Button className="btn-util">
                             <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
                         </Button>
                         <Button className="btn-util">
                             <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                         </Button>
-                    </div>
-                </header> */}
+                    </div> */}
+                </header>
                 <div className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
@@ -137,14 +137,14 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                     <div className="param-info-container">
                         <div style={{ marginLeft: "10px"}}>{timestamp}</div>
                     </div>
-                    <div>
+                    {/* <div>
                         <Button className="btn-util">
                             <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
                         </Button>
                         <Button className="btn-util">
                             <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                         </Button>
-                    </div>
+                    </div> */}
                 </header>
                 <div className="content-container">
                     {/* The 2D Navigation chart is rendered in the line below */}
