@@ -46,6 +46,7 @@ interface AppState {
   intervalId: any
   rawTimeseriesData: any
   timespanError: boolean
+  isLoading: boolean
 }
 
 class App extends React.Component<{}, AppState> {
@@ -81,7 +82,8 @@ class App extends React.Component<{}, AppState> {
       rawTimeseriesData: null,
       isRawTimeseriesDataLoaded: false,
       intervalId: undefined,
-      timespanError: false
+      timespanError: false,
+      isLoading: true
     };
   }
 
@@ -112,6 +114,7 @@ class App extends React.Component<{}, AppState> {
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
         dataSourceError: false,
+        isLoading: false,
         // raw timesereis Data for 2d graph 
         rawTimeseriesData: data.data.response.docs,
         isRawTimeseriesDataLoaded: true,
@@ -178,7 +181,8 @@ class App extends React.Component<{}, AppState> {
                         accessChild={this.accessChild}
                         selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
                         selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
-                        dataSourceError={this.state.dataSourceError} >
+                        dataSourceError={this.state.dataSourceError}
+                        isLoading={this.state.isLoading} >
                         {TimeseriesNavigationChartComponent}
                       </CubesVisualisation>
                       < SectionRight />
