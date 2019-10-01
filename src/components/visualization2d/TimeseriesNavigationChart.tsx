@@ -24,7 +24,7 @@ interface timestampData {
     count: number
 }
 
-const SVG_WIDTH = window.innerWidth;
+const SVG_WIDTH = window.innerWidth / 1.5;
 const SVG_HEIGHT = 100;
 const SVG_ID = "TimeSeriesNavigationChart"
 
