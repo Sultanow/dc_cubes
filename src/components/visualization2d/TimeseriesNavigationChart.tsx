@@ -36,7 +36,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         min: null,
     }
 
-    private margin = { top: 0, right: 20, bottom: 25, left: 0 };
+    private margin = { top: 0, right: 20, bottom: 5, left: 0 };
     private width = SVG_WIDTH - (this.margin.left + this.margin.right);
     private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
@@ -102,7 +102,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat((d3.timeFormat("%Y-%m-%d"))))//.tickValues([]).tickSize(0));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickValues([]).tickSize(0));
         this.setupTooltip();
         this.setupBrush();
         d3.select(".x-axis").selectAll(".tick text");
@@ -207,11 +207,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         function isBrushAreaTooSmall(brushMinimum, brushMaximum) {
             const brushThreshold = 2;
-            return (brushMinimum === 0 || brushMaximum - brushMinimum < brushThreshold)
+            return (brushMinimum <= 0 || brushMaximum - brushMinimum < brushThreshold)
         }
 
-        let startDate = this.convertDateObjectToString(this.xScale.invert(brushMinimum));
-        let endDate = this.convertDateObjectToString(this.xScale.invert(brushMaximum));
 
         if (isBrushAreaTooSmall(brushMinimum, brushMaximum)) {
             let clickedXCoord = d3.mouse(document.getElementById(SVG_ID))[0];
@@ -225,6 +223,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.props.resetSliderAndDates(date.timestamp);
             return;
         }
+        let startDate = this.getValidDatapointFromMousePosition(brushMinimum).timestamp;
+        let endDate = this.getValidDatapointFromMousePosition(brushMaximum).timestamp;
+
         d3.select(".mouseClick").classed("hidden", true);
         const newTimespanData = {
             timespanAbsoluteTimestampUpperBound: endDate,
@@ -234,6 +235,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             timespanTypeLowerBound: 'absolute',
             sliderMode: 'timespan'
         }
+        
         this.props.updateTimespanData(newTimespanData)
     }
 
