@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Form, Tab, Tabs, Col, Row, Badge } from 'react-bootstrap';
-import httpClient from 'axios';
+import { Form, Tab, Tabs, Col, Row, Badge, Table } from 'react-bootstrap'
+import httpClient from 'axios'
 
 interface SolrSettingsProps {
   dataSourceUrl: string
@@ -11,6 +11,7 @@ interface SolrSettingsProps {
   solrCore: string
   solrQuery: string
   accessChild: any
+  previewData: any
 }
 
 /* interface SolrSettingsState {
@@ -32,6 +33,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       solrInstanceStatus: false, // false -> offline, true -> online
       items: [],
+      previewData: null
     }
   }
 
@@ -86,6 +88,25 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
                   </Form>
                 </Tab>
                 <Tab eventKey="profile" title="Vorschau">
+                  <br/>
+                  <Table striped bordered hover responsive size="sm" className="previewTable">
+                    <thead>
+                      <tr>{
+                        this.state.previewData && Object.keys(this.state.previewData[0]).map(element => {
+                          return <th>{element}</th>    
+                        })
+                      }
+                      </tr>
+                    </thead>
+                    <tbody>{
+                      this.state.previewData && this.state.previewData.map(element => {
+                        return (<tr>{ Object.values(element).map(el => {
+                          return (<td>{el}</td>)
+                        })}</tr>)
+                      })
+                    }
+                    </tbody>
+                  </Table>
                 </Tab>
             </Tabs>
         </div>
@@ -95,6 +116,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
   componentDidMount() {
     const url = this.state.solrBaseUrl.concat("admin/cores?action=STATUS&indexInfo=false&wt=json")
     this.getAllSolrCores(url)
+    this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore)
   }
 
   handleChange = (e) => {
@@ -127,6 +149,8 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
       })
       this.props.setSolrUrlPart("solrCore", value)
     }
+
+    this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore)
   };
 
   getAllSolrCores = (url: string) => {
@@ -143,7 +167,22 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
         this.props.accessChild('dataSourceError', false)
     })
     .catch((error) => {
-        console.log(error)
+      this.props.accessChild('dataSourceError', true)
+      console.log(error)
     }); 
+  }
+
+  getPreviewData = (solrBaseUrl: string, solrCore: string) => {
+    const url = solrBaseUrl + solrCore + '/query?q=*:*&start=0&rows=5'
+
+    httpClient.get(url)
+    .then((data) => {
+        const previewData = data.data.response.docs || null
+        this.setState({previewData: previewData})
+        this.props.accessChild('dataSourceError', false)
+    })
+    .catch((error) => {
+        console.log(error)
+    });
   }
 }  

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from "react-router-dom";
-import { Navbar, Dropdown, Form, Row, Button } from 'react-bootstrap';
+import { Dropdown, Form, Row, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faFilter, faSearchPlus, faClock, faRedoAlt } from '@fortawesome/free-solid-svg-icons'
 import './Topbar.css'

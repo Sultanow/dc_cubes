@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form, Container, Col } from 'react-bootstrap'
+import { Form, Col } from 'react-bootstrap'
 import './SelectRefreshInterval.css'
 
 function SelectRefreshInterval (props) {
