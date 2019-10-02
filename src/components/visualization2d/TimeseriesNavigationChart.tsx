@@ -36,7 +36,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         min: null,
     }
 
-    private margin = { top: 0, right: 20, bottom: 5, left: 0 };
+    private margin = { top: 0, right: 20, bottom: 25, left: 0 };
     private width = SVG_WIDTH - (this.margin.left + this.margin.right);
     private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
@@ -102,7 +102,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     componentDidUpdate() {
         d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
-        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickValues([]).tickSize(0));
+        d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickFormat((d3.timeFormat("%Y-%m-%d"))))//.tickValues([]).tickSize(0));
         this.setupTooltip();
         this.setupBrush();
         d3.select(".x-axis").selectAll(".tick text");
@@ -117,6 +117,17 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
+            let yAxis = d3.select("#"+SVG_ID).select(".y-axis").node() as Element
+            let bboxYaxis = yAxis.getBoundingClientRect();
+            let bboxSvg = document.getElementById(SVG_ID).getBoundingClientRect();
+            let xPositionOfYAxis = bboxYaxis.right - bboxSvg.left;
+            
+            if (xcoord < xPositionOfYAxis) {
+                originalScope.hideTooltip();
+                return;
+            } 
+            
+            
 
             originalScope.drawMouseline(xcoord);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
@@ -125,16 +136,23 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             tooltipElement.style.visibility = "visible";
 
         }).on("mouseleave", function () {
-            d3.select("#tooltipDate").html("");
-            d3.select("#tooltipAvg").html("");
-            d3.select(".mouseMove").classed("hidden", true);
-            d3.select("#tooltip").style("left", "").style("top", "").style("position", "");
-
-            tooltipElement.style.visibility = "hidden";
+            originalScope.hideTooltip();
         });
+    
     }
 
-    private drawMouseline(xcoord: number) {
+    hideTooltip() {
+        
+        let tooltipElement: HTMLElement = document.getElementById('tooltip');
+        d3.select("#tooltipDate").html("");
+        d3.select("#tooltipAvg").html("");
+        d3.select(".mouseMove").classed("hidden", true);
+        d3.select("#tooltip").style("left", "").style("top", "").style("position", "");
+
+        tooltipElement.style.visibility = "hidden";
+    }
+
+    drawMouseline(xcoord: number) {
         d3.select("#mouseLine").attr("d", function () {
             var d = "M" + xcoord + "," + SVG_HEIGHT;
             d += " " + xcoord + "," + 0;
@@ -149,7 +167,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let elemSvg = d3.select("#" + SVG_ID).node() as Element;
         let bBoxSvg = elemSvg.getBoundingClientRect();
 
-        return bBoxAxis.right - bBoxSvg.left - 6; // ToDo: magic number
+        return bBoxAxis.right - bBoxSvg.left - 8; // ToDo: magic number
     }
 
     setupBrush() {
