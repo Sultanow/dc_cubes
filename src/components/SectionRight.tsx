@@ -19,14 +19,14 @@ export class SectionRight extends Component {
             <Card.Header>
               <Accordion.Toggle eventKey="0" as={Card.Header} className="accordion-btn">
                 <div>Systemstatus</div>
-                <div>
+                {/* <div>
                   <Button className="btn-util-light">
                     <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
                   </Button>
                   <Button className="btn-util-light">
                     <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                   </Button>
-                </div>
+                </div> */}
               </Accordion.Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="0" >
@@ -67,150 +67,6 @@ export class SectionRight extends Component {
                       <td>Leerlauf</td>
                       <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
-                    <tr>
-                      <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
-                      <td>Leerlauf</td>
-                      <td>Server 17, Cluster 9, RZ 2</td>
-                    </tr>
                   </tbody>
                 </Table>
               </Card.Body>
@@ -218,14 +74,14 @@ export class SectionRight extends Component {
             <Card.Header >
               <Accordion.Toggle eventKey="1" as={Card.Header} className="accordion-btn ripple">
                 <div>Kennzahlen</div>
-                <div>
+                {/* <div>
                   <Button className="btn-util-light">
                     <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
                   </Button>
                   <Button className="btn-util-light">
                     <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                   </Button>
-                </div>
+                </div> */}
               </Accordion.Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="1" >
@@ -296,14 +152,14 @@ export class SectionRight extends Component {
             <Card.Header >
               <Accordion.Toggle eventKey="2" as={Card.Header} className="accordion-btn ripple">
                 <div>Parameter-Übersicht</div>
-                <div>
+                {/* <div>
                   <Button className="btn-util-light">
                     <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px"}} />
                   </Button>
                   <Button className="btn-util-light">
                     <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
                   </Button>
-                </div>
+                </div> */}
               </Accordion.Toggle>
             </Card.Header>
             <Accordion.Collapse eventKey="2">
@@ -384,26 +240,8 @@ export class SectionRight extends Component {
     );
   }
 
-  setupAccordion() {
-    var accordionElement: HTMLElement = document.getElementById("section-right-accordion");
-
-    /* always keep at least 1 open by preventing the current to close itself */
-
-
-    // $('[data-toggle="collapse"]').on('click',function(e){
-    // if ( $(this).parents('.accordion').find('.collapse.show') ){
-    //     var idx = $(this).index('[data-toggle="collapse"]');
-    //     if (idx == $('.collapse.show').index('.collapse')) {
-    //         // prevent collapse
-    //         e.stopPropagation();
-    //     }
-    // }
-    // });  
-
-  }
-
   componentDidUpdate() {
-    this.setupAccordion();
+    
   }
 }
 
