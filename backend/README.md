@@ -13,4 +13,4 @@ Mit dem Befehl `pipenv shell` wechselst du, von der globalen Python Umgebung,in 
 
 Benutze `pipenv install <packagename>` bzw. `pipenv unistall <packagename>` um eine Dependency in die Umgebung zu de/installieren.
 
-Mit `pipenv exit` verlässt du die Umgebung
+Mit `exit` verlässt du die Umgebung

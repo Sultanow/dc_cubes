@@ -10,6 +10,7 @@ requests = "*"
 pandas = "*"
 matplotlib = "*"
 numpy = "*"
+plotly = "*"
 
 [requires]
 python_version = "3.7"
