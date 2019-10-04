@@ -1,6 +1,6 @@
 # %%
 import pandas as pd
-filename = "C:/Users/Ivan/Development/Bachelorarbeit/ml/export_db_mv-details_7days_raw.dsv"
+filename = "C:/Users/Ivan/Development/Bachelorarbeit/ml/export_db_mv-details_raw_20190927.dsv"
 chunksize = 500000
 df = pd.DataFrame()
 
@@ -22,7 +22,7 @@ df.head(10)
 
 # %%
 # CSV export damit die Daten des gewünschten Targets nicht erneut gefilter werden müssen
-df.to_csv('backend/ISTATX_istatx1.csv', encoding='utf-8', index=False)
+df.to_csv('backend/ISTATX_istatx1_new.csv', encoding='utf-8', index=False)
 # Beachte das diese Daten nicht gepsuht werden sollen!
 
 # %%
