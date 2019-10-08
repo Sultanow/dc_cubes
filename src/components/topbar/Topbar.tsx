@@ -51,7 +51,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
     render() {
         return (
             <div className="topbar">
-                <Link href="/" className="brand-container" style={{ textDecoration: 'none', fontSize: "16px" }}>
+                <Link to="/" className="brand-container" style={{ textDecoration: 'none', fontSize: "16px" }}>
                     <span>DC</span>
                     <div id="icon-container">
                         <img src={logo} alt="DC Cubes" style={{ height: "40px", width: "40px"}} />

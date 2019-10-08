@@ -92,16 +92,16 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
                   <Table striped bordered hover responsive size="sm" className="previewTable">
                     <thead>
                       <tr>{
-                        this.state.previewData && Object.keys(this.state.previewData[0]).map(element => {
-                          return <th>{element}</th>    
+                        this.state.previewData && Object.keys(this.state.previewData[0]).map((element, index) => {
+                          return <th key={index}>{element}</th>    
                         })
                       }
                       </tr>
                     </thead>
                     <tbody>{
-                      this.state.previewData && this.state.previewData.map(element => {
-                        return (<tr>{ Object.values(element).map(el => {
-                          return (<td>{el}</td>)
+                      this.state.previewData && this.state.previewData.map((element, index) => {
+                        return (<tr key={index}>{ Object.values(element).map((elementAttribute, id) => {
+                        return (<td key={id}>{elementAttribute}</td>)
                         })}</tr>)
                       })
                     }
@@ -116,7 +116,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
   componentDidMount() {
     const url = this.state.solrBaseUrl.concat("admin/cores?action=STATUS&indexInfo=false&wt=json")
     this.getAllSolrCores(url)
-    this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore)
+    this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore, this.state.solrQuery)
   }
 
   handleChange = (e) => {
@@ -150,7 +150,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
       this.props.setSolrUrlPart("solrCore", value)
     }
 
-    this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore)
+    this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore, this.state.solrQuery)
   };
 
   getAllSolrCores = (url: string) => {
@@ -172,13 +172,13 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
     }); 
   }
 
-  getPreviewData = (solrBaseUrl: string, solrCore: string) => {
-    const url = solrBaseUrl + solrCore + '/query?q=*:*&start=0&rows=5'
+  getPreviewData = (solrBaseUrl: string, solrCore: string, solrQuery) => {
+    const url = solrBaseUrl + solrCore + solrQuery
 
     httpClient.get(url)
     .then((data) => {
         const previewData = data.data.response.docs || null
-        this.setState({previewData: previewData})
+        this.setState({previewData: previewData.length >= 1 ? previewData.slice(0, 5) : null})
         this.props.accessChild('dataSourceError', false)
     })
     .catch((error) => {
