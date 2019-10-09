@@ -1,9 +1,10 @@
-const http = require('http');
-const express = require("express");
-const cors = require("cors");
+import http from 'http'
+import express from 'express'
+import cors from 'cors'
+import config from './nodeConfig.json'
+
 const app = express();
 app.use(cors());
-const config = require("./nodeConfig.json");
 
 const port = config.port;
 const historical = config.historicalDataCore;
@@ -30,10 +31,10 @@ app.listen(port, function () {
 
 
 // TODO Personalize query / change query params
-function getQueryHistorical(params) {
+function getQueryHistorical(from, to) {
     return `/solr/${historical}/query?q=*:*&start=0&rows=30000`;
 }
-function getQueryForecast(params) {
+function getQueryForecast(from, to) {
     return `/solr/${forecast}/query?q=*:*&start=0&rows=30000`;
 }
 
