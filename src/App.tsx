@@ -47,6 +47,8 @@ interface AppState {
   rawTimeseriesData: any
   timespanError: boolean
   isLoading: boolean
+
+  currentAvgValue: number
 }
 
 class App extends React.Component<{}, AppState> {
@@ -83,7 +85,8 @@ class App extends React.Component<{}, AppState> {
       isRawTimeseriesDataLoaded: false,
       intervalId: undefined,
       timespanError: false,
-      isLoading: true
+      isLoading: true,
+      currentAvgValue: 0
     };
   }
 
@@ -135,7 +138,10 @@ class App extends React.Component<{}, AppState> {
   render() {
     var TimeseriesNavigationChartComponent;
     if (this.state.isRawTimeseriesDataLoaded) {
-      TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData} updateTimespanData={this.updateTimespanData} resetSliderAndDates={this.resetSliderAndDates} />
+      TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
+        updateTimespanData={this.updateTimespanData}
+        resetSliderAndDates={this.updateSliderAndDates}
+        updateCurrentAvg={this.updateCurrentAvg} />
     }
     else {
       TimeseriesNavigationChartComponent = null;
@@ -185,6 +191,7 @@ class App extends React.Component<{}, AppState> {
                       isLoading={this.state.isLoading}
                       timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
                       timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
+                      currentAvg={this.state.currentAvgValue}
                     >
                       {TimeseriesNavigationChartComponent}
                     </CubesVisualisation>
@@ -252,7 +259,11 @@ class App extends React.Component<{}, AppState> {
     })
   }
 
-  resetSliderAndDates = (DateToReset: string) => {
+  updateCurrentAvg = (avg: number) => {
+    this.setState<never>({ currentAvgValue: avg })
+  }
+
+  updateSliderAndDates = (DateToReset: string) => {
     this.setState({ timeSelectionMode: "pointInTime", pointInTimeTimestamp: DateToReset, sliderMode: "pointInTime" });
     this.calculateAndSetPositionOfPointInTimeSlider();
   }
@@ -260,10 +271,9 @@ class App extends React.Component<{}, AppState> {
   calculateAndSetPositionOfPointInTimeSlider = () => {
     if (this.state.pointInTimeTimestamp) {
       const newPosition = this.state.temporalAxis.indexOf(this.state.pointInTimeTimestamp)
-
       if (newPosition !== -1) {
         this.setState({ selectedPointInTime: newPosition })
-      } else {
+      } else {        
         this.setState({ selectedPointInTime: this.state.temporalAxis.length - 2 })
       }
     }

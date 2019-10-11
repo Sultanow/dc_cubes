@@ -6,6 +6,7 @@ interface TimeseriesNavigationChartProps {
     timeseriesData: [{ timestamp: string, count: number }]
     updateTimespanData: any
     resetSliderAndDates: any
+    updateCurrentAvg: any
 }
 
 interface TimeseriesNavigationChartState {
@@ -53,6 +54,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     private uniqueTimestamps: string[];
     private dataAvg: timeseriesData[];
+    private currentAvgValue: number;
 
     constructor(props: any) {
         super(props);
@@ -196,6 +198,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         
         d3.select("#tooltipDate").html(dp.timestamp);
         d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
+        this.currentAvgValue = Math.floor(dp.count);
+        
         d3.select("#tooltip").style("top", ycoord - offsetY + "px")
             .style("left", xcoord + offsetX + "px")
     }
@@ -221,6 +225,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             d3.select(".mouseClick").classed("hidden", false);
             let date = this.getValidDatapointFromMousePosition(clickedXCoord);
             this.props.resetSliderAndDates(date.timestamp);
+            this.props.updateCurrentAvg(this.currentAvgValue);
             return;
         }
         let startDate = this.getValidDatapointFromMousePosition(brushMinimum).timestamp;
@@ -236,7 +241,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             sliderMode: 'timespan'
         }
         
-        this.props.updateTimespanData(newTimespanData)
+        this.props.updateTimespanData(newTimespanData);
+        this.props.updateCurrentAvg(this.currentAvgValue);
     }
 
     getValidDatapointFromMousePosition(xCoord) {
@@ -340,7 +346,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     </div>
                     <div id="tooltip">
                         <div>Datum: <span id="tooltipDate"></span></div>
-                        <div>Durchn.: <span id="tooltipAvg"></span></div>
+                        <div>Durchs.: <span id="tooltipAvg">{this.currentAvgValue}</span></div>
                     </div>
                 </div>
             </div>

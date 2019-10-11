@@ -32,8 +32,9 @@ interface CubesVisProps {
     dataSourceError: boolean
     children?: React.ReactNode
     isLoading: boolean
-    timespanAbsoluteTimestampLowerBound
-    timespanAbsoluteTimestampUpperBound 
+    timespanAbsoluteTimestampLowerBound: Date
+    timespanAbsoluteTimestampUpperBound: Date
+    currentAvg: number
 }
 
 interface Bar {
@@ -62,8 +63,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     sceneHeight = window.innerHeight / 2;
 
     maxHeightOfbar = 800;
-
-    mean: number = 0;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -110,7 +109,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         </span>
                         <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
-                                {this.mean}
+                                {this.props.currentAvg}
                             </span>
                         </span>
                     </div>
@@ -156,13 +155,6 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         )
     };
 
-    setupMean(){
-        function calculateMean(array){
-            return array.reduce( (a,b) => a + b) / array.length;
-        }
-        this.mean = calculateMean(this.props.timespanValuesOfSlider);
-    }
-
     componentDidMount() {
         console.log("Component Did mount")
         this.initVis();
@@ -182,13 +174,11 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
         if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
-            this.createCubeData()
-            this.setupMean();
+            this.createCubeData();
         }
         this.renderVis();
         var t1 = performance.now();
         // console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
-        this.setupMean();
     }
 
     componentWillUnmount() {
