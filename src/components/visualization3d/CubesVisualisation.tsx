@@ -32,6 +32,8 @@ interface CubesVisProps {
     dataSourceError: boolean
     children?: React.ReactNode
     isLoading: boolean
+    timespanAbsoluteTimestampLowerBound
+    timespanAbsoluteTimestampUpperBound 
 }
 
 interface Bar {
@@ -91,7 +93,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         if (sliderMode === 'pointInTime') {
             timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</div>;
         } else if (sliderMode === 'timespan') {
-            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[0]} - {daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedTimespanTimestamp[1]}</div>;
+            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampLowerBound).getDay()]} {this.props.selectedTimespanTimestamp[0]} - {daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampUpperBound).getDay()]} {this.props.selectedTimespanTimestamp[1]}</div>;
         } else {
             timestamp = '';
         }
