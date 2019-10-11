@@ -81,9 +81,14 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
                             </Form.Control>
                         </Form.Group>
 
-                        <Form.Group controlId="exampleForm.ControlTextarea1">
+                        <Form.Group>
                           <Form.Label>Query:</Form.Label>
                           <Form.Control onChange={this.handleChange} as="textarea" rows="3" name="solrQuery" value={this.props.solrQuery} />
+                        </Form.Group>
+
+                        <Form.Group>
+                          <Form.Label>Datenstruktur Mapping:</Form.Label>
+                          <Form.Control as="textarea" rows="3" name="mappingField"/>
                         </Form.Group>
                   </Form>
                 </Tab>
