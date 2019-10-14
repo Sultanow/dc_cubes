@@ -17,6 +17,7 @@ interface DataSourcesProps {
     setDataSource: any
     setSolrUrlPart: any
     history: any
+    customMapping: any
     accessChild: any
 }
 
@@ -94,6 +95,7 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                                 solrBaseUrl={this.props.solrBaseUrl}
                                 solrCore={this.props.solrCore}
                                 solrQuery={this.props.solrQuery}
+                                customMapping={this.props.customMapping}
                                 accessChild={this.props.accessChild} />}/>
                             <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
                             <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  />}/>
