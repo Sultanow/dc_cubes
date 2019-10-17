@@ -18,29 +18,33 @@ export default class SolrAdapter {
     // TODO: Colors should be generated dynamically according to the count of clusters
     public colors = [0x46ACC2, 0x98DFAF, 0xF8333C, 0xFFD23F];
     public colorCounter = 0;
-    
+
 
     //generate data from socket json format
-    receivedData(json: object, customMapping) {
+    receivedData(json: any) {
         let datajson = json["response"]["docs"]
         let l = datajson.length
         this.timeSeries = new Map<string, DCState>();
         this.temporalAxis = [];
 
-        datajson.forEach(element => {
+        for (let i = 0; i < l; i++) {
+
+
+
+            let strTimeStamp: string = datajson[i]["timestamp"];
+            let strCluster: string = datajson[i]["cluster"];
+            let strDataCenter: string = datajson[i]["dc"];
+            let strInstance: string = datajson[i]["instanz"];
+            let strUtilization: string = datajson[i]["count"];
             // TODO: make stringutilization dynamic to vis diffrent metrics
-            const {strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization} = customMapping(element)
 
             if (this.maxh <= Number(strUtilization)) {
                 this.maxh = Number(strUtilization);
             }
 
-            if (strTimeStamp && strCluster && strDataCenter && strInstance && strUtilization) {
-                this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization);
-            } else {
-                return false
-            }
-        });
+            this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization);
+        }
+
 
         /*_______________________*/
         //Do this separately, since it only happeans upon document upload 

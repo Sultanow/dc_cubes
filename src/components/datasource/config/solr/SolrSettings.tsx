@@ -10,7 +10,6 @@ interface SolrSettingsProps {
   solrBaseUrl: string
   solrCore: string
   solrQuery: string
-  customMapping: any
   accessChild: any
   previewData: any
 }
@@ -84,12 +83,12 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
 
                         <Form.Group>
                           <Form.Label>Query:</Form.Label>
-                          <Form.Control onChange={this.handleChange} as="textarea" rows="2" name="solrQuery" value={this.props.solrQuery} />
+                          <Form.Control onChange={this.handleChange} as="textarea" rows="3" name="solrQuery" value={this.props.solrQuery} />
                         </Form.Group>
 
                         <Form.Group>
                           <Form.Label>Datenstruktur Mapping:</Form.Label>
-                          <Form.Control onChange={this.handleChange} as="textarea" rows="12" name="mappingField" value={this.props.customMapping.toString()} />
+                          <Form.Control as="textarea" rows="3" name="mappingField"/>
                         </Form.Group>
                   </Form>
                 </Tab>
@@ -154,10 +153,6 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
         [name]: value
       })
       this.props.setSolrUrlPart("solrCore", value)
-    }
-
-    if (name === "mappingField") {
-      this.props.accessChild("customMapping", eval(value))
     }
 
     this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore, this.state.solrQuery)

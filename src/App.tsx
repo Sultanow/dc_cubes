@@ -49,7 +49,6 @@ interface AppState {
   isLoading: boolean
 
   currentAvgValue: number
-  customMapping: any
 }
 
 class App extends React.Component<{}, AppState> {
@@ -87,15 +86,7 @@ class App extends React.Component<{}, AppState> {
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      currentAvgValue: 0,
-      customMapping: (element: object) => {
-        const strTimeStamp: string = element["timestamp"];
-        const strCluster: string = element["cluster"];
-        const strDataCenter: string = element["dc"];
-        const strInstance: string = element["instanz"];
-        const strUtilization: string = element["count"];
-        return {strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization}
-      }
+      currentAvgValue: 0
     };
   }
 
@@ -116,8 +107,8 @@ class App extends React.Component<{}, AppState> {
     dataService.getLogDataFromSolr(dataSourceUrl).then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
-      solrAdapter.receivedData(data.data, this.state.customMapping)
 
+      solrAdapter.receivedData(data.data);
       this.setState({
         // there is a bug, the last element is allways undefined
         temporalAxis: solrAdapter.temporalAxis,
@@ -135,9 +126,9 @@ class App extends React.Component<{}, AppState> {
         // Recalculate the slider positions
         this.calculateAndSetPositionOfPointInTimeSlider()
         this.calculateAndSetBoundariesOfTimespanSlider()
-      });  
+      });
 
-      
+
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
@@ -220,7 +211,6 @@ class App extends React.Component<{}, AppState> {
                 solrBaseUrl={this.state.solrBaseUrl}
                 solrCore={this.state.solrCore}
                 solrQuery={this.state.solrQuery}
-                customMapping={this.state.customMapping}
                 accessChild={this.accessChild} />} />
               <br />
               {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
@@ -260,9 +250,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   accessChild = (stateElement, value) => {
-    this.setState<never>({ [stateElement]: value }, () => {
-      console.log(this.state.customMapping.toString())
-    })
+    this.setState<never>({ [stateElement]: value })
   }
 
   updateTimespanData = (newTimespanData: object) => {
