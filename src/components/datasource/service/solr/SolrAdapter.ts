@@ -35,11 +35,7 @@ export default class SolrAdapter {
                 this.maxh = Number(strUtilization);
             }
 
-            if (strTimeStamp && strCluster && strDataCenter && strInstance && strUtilization) {
-                this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization);
-            } else {
-                return false
-            }
+            this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization);
         });
 
         /*_______________________*/
