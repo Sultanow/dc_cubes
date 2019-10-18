@@ -6,7 +6,7 @@ import { faExpand, faCogs, faSort } from '@fortawesome/free-solid-svg-icons'
 export class SectionRight extends Component {
   render() {
     return (
-      <div className="section-right col-md-4">
+      <div className="section-right col-md-3">
         <div
           className="section-right-content-container"
           style={{ width: "100%" }}

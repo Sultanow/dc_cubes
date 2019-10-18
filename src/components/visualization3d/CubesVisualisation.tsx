@@ -59,15 +59,12 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     currentHelperBox: THREE.Box3Helper;
     frameId: number;
 
-    sceneWidth = window.innerWidth / 2;
-    sceneHeight = window.innerHeight / 2;
-
     maxHeightOfbar = 800;
 
     constructor(props: CubesVisProps) {
         super(props);
         this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(75, this.sceneWidth / this.sceneHeight, 0.1, 3000);
+        this.camera = new THREE.PerspectiveCamera(75, 2, 0.1, 3000);
         // set initial camera position
         this.camera.position.set(500, 1000, 1200);
 
@@ -98,7 +95,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
         }
 
         return (
-            <div className="cubes-visualization col-md-8">
+            <div className="cubes-visualization col-md-9">
                 {/* <Filter /> */}
                 <header className="content-header">
                     <div className="param-info-container">
@@ -122,17 +119,19 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
                         </Button>
                     </div> */}
                 </header>
-                <div className="content-container d-flex justify-content-center">
-                    <LoadingOverlay
+                <div style={{height:"63vh"}} className="content-container d-flex justify-content-center">
+                    {/* <LoadingOverlay
                         active={isLoading}
                         spinner={<BarLoader
                             color={"#f7b613"}
                             css={"background-color: #1b76ef"}
                         />}
-                        text='Loading Data...'
-                    >
-                        <div id="cubes-visualisation" className="d-flex justify-content-start" ></div>
-                    </LoadingOverlay>
+                        text='Loading Data...' 
+                    >   */} 
+                    <div style={{ height:"100%", width:"100%"}}>
+                        <div id="cubes-visualization" style={{ height:"100%", width:"100%"}} />
+                    </div>
+                    {/* </LoadingOverlay> */} 
                 </div>
                 <header className="content-header" style={{ marginTop: "10px" }}>
                     <div className="param-info-container">
@@ -183,19 +182,16 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
 
     componentWillUnmount() {
         window.cancelAnimationFrame(this.frameId);
-        const visFromDom = document.getElementById("cubes-visualisation");
+        const visFromDom = document.getElementById("cubes-visualization");
         if (visFromDom) {
             visFromDom.removeChild(this.renderer.domElement);
         }
     };
 
     initVis() {
-
         this.scene.background = new THREE.Color(0xffffff);
 
-        this.renderer.setSize(this.sceneWidth, this.sceneHeight);
-
-        const visFromDom = document.getElementById("cubes-visualisation");
+        const visFromDom = document.getElementById("cubes-visualization");
         if (visFromDom) visFromDom.appendChild(this.renderer.domElement);
 
         // this.render();
@@ -498,14 +494,31 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
     // draw Scene
     renderVis() {
         // console.log("RENDER");
+        this.resizeCanvasToDisplaySize();
         this.renderer.render(this.scene, this.camera);
     };
 
-    // run visualisation loop (update, render, repeat)
+    // run visualization loop (update, render, repeat)
     loopVis = () => {
         this.renderVis();
         this.frameId = window.requestAnimationFrame(this.loopVis);
     };
+
+    resizeCanvasToDisplaySize() {
+        const canvas = this.renderer.domElement
+        const width = canvas.parentElement.parentElement.clientWidth
+        const height = canvas.parentElement.parentElement.clientHeight
+        if (canvas.width !== width ||canvas.height !== height) {
+            // you must pass false here or three.js sadly fights the browser
+            this.renderer.setSize(width, height, false);
+            this.camera.aspect = width / height;
+            this.camera.updateProjectionMatrix();
+      
+            // set render target sizes here
+        }
+    }
+
+ 
 }
 
 export default CubesVisualisation;
