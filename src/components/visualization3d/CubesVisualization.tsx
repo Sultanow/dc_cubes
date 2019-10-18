@@ -8,7 +8,7 @@ import Cluster from '../../model/Cluster'
 import Instance from '../../model/Instance'
 import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider'
-import './CubesVisualisation.css'
+import './CubesVisualization.css'
 import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
@@ -44,7 +44,7 @@ interface Bar {
     cluster: string
 }
 
-class CubesVisualisation extends React.Component<CubesVisProps> {
+class CubesVisualization extends React.Component<CubesVisProps> {
 
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -516,9 +516,7 @@ class CubesVisualisation extends React.Component<CubesVisProps> {
       
             // set render target sizes here
         }
-    }
-
- 
+    } 
 }
 
-export default CubesVisualisation;
+export default CubesVisualization;

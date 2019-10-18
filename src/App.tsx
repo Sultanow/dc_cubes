@@ -4,7 +4,7 @@ import { Alert, Container } from 'react-bootstrap';
 import './App.css';
 // import Sidebar from './components/Sidebar'
 import SidebarNew from './components/SidebarNew'
-import CubesVisualisation from './components/visualization3d/CubesVisualisation';
+import CubesVisualization from './components/visualization3d/CubesVisualization';
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import Topbar from './components/topbar/Topbar';
 import SectionRight from "./components/SectionRight"
@@ -184,7 +184,7 @@ class App extends React.Component<{}, AppState> {
               (props) =>
                 <React.Fragment>
                   <div className="content-row" >
-                    <CubesVisualisation {...props}
+                    <CubesVisualization {...props}
                       data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
                       clusterColors={this.state.clusterColors}
                       grid={this.state.grid}
@@ -203,7 +203,7 @@ class App extends React.Component<{}, AppState> {
                       currentAvg={this.state.currentAvgValue}
                     >
                       {TimeseriesNavigationChartComponent}
-                    </CubesVisualisation>
+                    </CubesVisualization>
                     < SectionRight />
                   </div>
                 </React.Fragment>
