@@ -120,18 +120,18 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                     </div> */}
                 </header>
                 <div style={{height:"63vh"}} className="content-container d-flex justify-content-center">
-                    {/* <LoadingOverlay
+                    <LoadingOverlay
                         active={isLoading}
                         spinner={<BarLoader
                             color={"#f7b613"}
                             css={"background-color: #1b76ef"}
                         />}
                         text='Loading Data...' 
-                    >   */} 
-                    <div style={{ height:"100%", width:"100%"}}>
-                        <div id="cubes-visualization" style={{ height:"100%", width:"100%"}} />
-                    </div>
-                    {/* </LoadingOverlay> */} 
+                    >
+                        <div style={{ height:"100%", width:"100%"}}>
+                            <div id="cubes-visualization" style={{ height:"100%", width:"100%"}} />
+                        </div>
+                    </LoadingOverlay>
                 </div>
                 <header className="content-header" style={{ marginTop: "10px" }}>
                     <div className="param-info-container">

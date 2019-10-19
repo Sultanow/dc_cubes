@@ -26,3 +26,8 @@
     -webkit-text-stroke-width: 0.5px;
     -webkit-text-stroke-color: white;
 }
+
+._loading_overlay_wrapper {
+    height: 100%;
+    width: 100%;
+}
