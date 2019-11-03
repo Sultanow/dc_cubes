@@ -82,7 +82,12 @@ Folgende Skripte ausführen (Reihenfolge ist wichtig!):
 Folgenden Link im Browser öffnen: `http://localhost:8983/solr/dc_cubes/select?q=*%3A*`.
 Werden hier Daten angezeigt, dann hat der Import funktioniert.
 
-## 7. DC Cubes starten
+## 7. DC Cubes Backend starten
+1. `cd C:\development\repos\dc_cubes\backend\`
+2. `npm install`
+3. `npm start`
+
+## 8. DC Cubes Frontend starten
 1. `cd C:\development\repos\dc_cubes\`
 2. `npm install`
 3. `npm start`
