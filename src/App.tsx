@@ -50,6 +50,7 @@ interface AppState {
   isLoading: boolean
 
   currentAvgValue: number
+  selectedMeasure: string
   customMapping: any
 }
 
@@ -90,13 +91,14 @@ class App extends React.Component<{}, AppState> {
       timespanError: false,
       isLoading: true,
       currentAvgValue: 0,
-      customMapping: (element: object) => {
+      selectedMeasure: "count",
+      customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element["timestamp"];
         const strCluster: string = element["cluster"];
         const strDataCenter: string = element["dc"];
         const strInstance: string = element["instanz"];
-        const strUtilization: string = element["count"];
-        return {strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization}
+        const strSelectedMeasure: string = element[selectedMeasure];
+        return {strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure}
       }
     };
   }

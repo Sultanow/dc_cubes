@@ -21,21 +21,20 @@ export default class SolrAdapter {
     
 
     //generate data from socket json format
-    receivedData(json: object, customMapping) {
+    receivedData(json: object, customMapping, selectedMeasure: string) {
         let datajson = json["response"]["docs"]
-        let l = datajson.length
         this.timeSeries = new Map<string, DCState>();
         this.temporalAxis = [];
 
         datajson.forEach(element => {
             // TODO: make stringutilization dynamic to vis diffrent metrics
-            const {strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization} = customMapping(element)
+            const {strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure} = customMapping(element, selectedMeasure)
 
-            if (this.maxh <= Number(strUtilization)) {
-                this.maxh = Number(strUtilization);
+            if (this.maxh <= Number(strSelectedMeasure)) {
+                this.maxh = Number(strSelectedMeasure);
             }
 
-            this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization);
+            this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure);
         });
 
         /*_______________________*/
