@@ -12,7 +12,6 @@ interface SolrSettingsProps {
   solrQuery: string
   customMapping: any
   accessChild: any
-  previewData: any
 }
 
 /* interface SolrSettingsState {

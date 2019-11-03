@@ -1,21 +1,21 @@
 import React from 'react'
 import * as THREE from 'three'
-import { Container } from 'react-bootstrap';
+/* import { Container } from 'react-bootstrap' */
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import DCState from '../../model/DCState'
 import Datacenter from '../../model/Datacenter'
 import Cluster from '../../model/Cluster'
 import Instance from '../../model/Instance'
-import PointInTimeSlider from '../slider/PointInTimeSlider'
-import TimeSpanSlider from '../slider/TimespanSlider'
+/* import PointInTimeSlider from '../slider/PointInTimeSlider'
+import TimeSpanSlider from '../slider/TimespanSlider' */
 import './CubesVisualization.css'
-import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
+/* import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
-import { Button } from "react-bootstrap";
-import LoadingOverlay from "react-loading-overlay";
+import { Button } from "react-bootstrap"; */
+import LoadingOverlay from "react-loading-overlay"
 import BarLoader from 'react-spinners/BarLoader'
-import Filter from "../Filter"
+/* import Filter from "../Filter" */
 
 interface CubesVisProps {
     data: DCState
@@ -27,13 +27,13 @@ interface CubesVisProps {
     valueOfSlider: number
     timespanValuesOfSlider: [number, number]
     selectedPointInTimeTimestamp: string
-    selectedTimespanTimestamp: string
+    selectedTimespanTimestamps: string[]
     accessChild: any
     dataSourceError: boolean
     children?: React.ReactNode
     isLoading: boolean
-    timespanAbsoluteTimestampLowerBound: Date
-    timespanAbsoluteTimestampUpperBound: Date
+    timespanAbsoluteTimestampLowerBound: string
+    timespanAbsoluteTimestampUpperBound: string
     currentAvg: number
 }
 
@@ -89,7 +89,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         if (sliderMode === 'pointInTime') {
             timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</div>;
         } else if (sliderMode === 'timespan') {
-            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampLowerBound).getDay()]} {this.props.selectedTimespanTimestamp[0]} - {daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampUpperBound).getDay()]} {this.props.selectedTimespanTimestamp[1]}</div>;
+            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampLowerBound).getDay()]} {this.props.selectedTimespanTimestamps[0]} - {daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampUpperBound).getDay()]} {this.props.selectedTimespanTimestamps[1]}</div>;
         } else {
             timestamp = '';
         }
@@ -442,7 +442,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
 
             if (datacenter != null && cluster != null) {
                 let geom = new THREE.Geometry();
-                let allBarsOfThisCluster = this.bars.filter(bar => bar.cluster == cluster);
+                let allBarsOfThisCluster = this.bars.filter(bar => bar.cluster === cluster);
                 let gset = [];
                 
                 allBarsOfThisCluster.forEach(bar => {

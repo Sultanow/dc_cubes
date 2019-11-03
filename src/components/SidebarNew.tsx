@@ -16,7 +16,6 @@ import { BarChart, Settings, Tune, Description } from '@material-ui/icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faCoins } from '@fortawesome/free-solid-svg-icons'
 import './Sidebar.css'
-import { fontFamily } from '@material-ui/system';
 
 const drawerWidth = 240;
 

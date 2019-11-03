@@ -15,6 +15,7 @@ import DCState from './model/DCState'
 
 interface AppState {
   logData: []
+  backendUrl: string
   dataSource: string
   dataSourceUrl: string
   solrBaseUrl: string
@@ -58,6 +59,7 @@ class App extends React.Component<{}, AppState> {
     super(props);
     this.state = {
       logData: [],
+      backendUrl: "http://localhost:8080",
       dataSource: 'solr',
       dataSourceUrl: 'http://localhost:8983/solr/dc_cubes/query?q=*:*&start=0&rows=30000',
       solrBaseUrl: 'http://localhost:8983/solr/',
@@ -75,7 +77,7 @@ class App extends React.Component<{}, AppState> {
       timespanAmountLowerBound: 10,
       timespanTimeUnitUpperBound: 'minutes',
       timespanAmountUpperBound: 10,
-      pointInTimeTimestamp: undefined,
+      pointInTimeTimestamp: "",
       sliderMode: 'pointInTime',
       temporalAxis: [],
       timeSeries: new Map(),
@@ -101,22 +103,22 @@ class App extends React.Component<{}, AppState> {
 
   componentDidMount() {
     // Get initial log data based on default values
-    this.getLogData(this.state.dataSourceUrl);
+    this.getLogData(this.state.solrQuery, this.state.backendUrl);
 
     // Set the initial data refresh interval, default interval is 10 minutes
     let intervalId = setInterval(() => {
-      this.getLogData(this.state.dataSourceUrl);
+      this.getLogData(this.state.solrQuery, this.state.backendUrl);
     }, 600000);
     this.setState<never>({ intervalId: intervalId });
   }
 
-  getLogData = (dataSourceUrl: string) => {
+  getLogData = (solrQuery: string, backendUrl: string) => {
     // TODO: implement other data sources
-    let dataService = new SolrDataService();
-    dataService.getLogDataFromSolr(dataSourceUrl).then((data: any) => {
+    const dataService = new SolrDataService(backendUrl);
+    dataService.getLogDataFromSolr(solrQuery).then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
-      solrAdapter.receivedData(data.data, this.state.customMapping)
+      solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure)
 
       this.setState({
         // there is a bug, the last element is allways undefined
@@ -195,7 +197,7 @@ class App extends React.Component<{}, AppState> {
                       valueOfSlider={this.state.selectedPointInTime}
                       accessChild={this.accessChild}
                       selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-                      selectedTimespanTimestamp={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
+                      selectedTimespanTimestamps={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
                       dataSourceError={this.state.dataSourceError}
                       isLoading={this.state.isLoading}
                       timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
@@ -249,7 +251,7 @@ class App extends React.Component<{}, AppState> {
 
     // Set new data refresh interval
     var intervalId = setInterval(() => {
-      this.getLogData(this.state.dataSourceUrl);
+      this.getLogData(this.state.dataSourceUrl, this.state.backendUrl);
     }, refreshInterval);
     this.setState<never>({ intervalId: intervalId });
   }
@@ -436,7 +438,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   setDataSourceUrl = (dataSourceUrl: string) => {
-    this.getLogData(dataSourceUrl)
+    this.getLogData(dataSourceUrl, this.state.backendUrl)
     this.setState({ dataSourceUrl: dataSourceUrl })
   }
 
@@ -445,7 +447,7 @@ class App extends React.Component<{}, AppState> {
       [solrUrlPartName]: solrUrlPart
     }, () => {
       const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery)
-      this.getLogData(dataSourceUrl)
+      this.getLogData(dataSourceUrl, this.state.backendUrl)
     })
   }
 }

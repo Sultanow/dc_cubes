@@ -6,7 +6,7 @@
 
 .line-avg {
     fill        : none;
-    stroke      : rgba(0, 0, 0);
+    stroke      : rgba(0, 0, 0, 0);
     stroke-width: .75px;
 }
 
