@@ -41,6 +41,27 @@ app.get("/forecast/:from/:to", function (req, res) {
     querySolr(solrQuery, res);
 });
 
+app.get("/startScript", function (req, res) {
+    const { spawn } = require("child_process");
+    const pythonProcess = spawn("python", ["proofOfConcept.py"]);
+    let dataChunks = [];
+    let pythonOutput = null;
+    pythonProcess.stdout.on("data", function (chunk) {
+        dataChunks.push(chunk);
+    }).on('end', function () {
+        pythonOutput = Buffer.concat(dataChunks);
+        console.log("success: ", pythonOutput.toString());
+        if (pythonOutput) {
+            res.write(pythonOutput);
+            res.status(200);
+            res.send();
+        } else {
+            res.status(404);
+            res.send();
+        }
+    })
+});
+
 app.listen(port, function () {
     console.log("NodeServer listening on Port " + port);
 });
@@ -55,7 +76,7 @@ function getQueryForecast(from, to) {
 }
 
 
-function querySolr(queryString, originalRes ) {
+function querySolr(queryString, originalRes) {
     const options = {
         host: '127.0.0.1',
         port: "8983",
@@ -70,7 +91,7 @@ function querySolr(queryString, originalRes ) {
             // You can process streamed parts here...
             bodyChunks.push(chunk);
         }).on('end', function () {
-            queryResult =  Buffer.concat(bodyChunks);
+            queryResult = Buffer.concat(bodyChunks);
             if (queryResult) {
                 originalRes.status(200);
                 originalRes.write(queryResult);
