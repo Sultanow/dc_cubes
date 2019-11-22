@@ -234,15 +234,15 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         this.textSprites.length = 0;
         this.renderer.renderLists.dispose();
 
-        this.props.data.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
+        this.props.data.datacenters.forEach((datacenter: Datacenter, keyDC: string) => {
             //set up view data
             let clusters = datacenter.clusters;
-            clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
-                let instances = value_cluster.instances;
-                instances.forEach((value_instance: Instance, key_instance: string) => {
-                    var h = value_instance.utilization;
-                    let gridKey: string = key_dc + "_" + key_cluster + "_" + key_instance;
-                    let clusterKey = key_dc + "_" + key_cluster;
+            clusters.forEach((valueCluster: Cluster, keyCluster: string) => {
+                let instances = valueCluster.instances;
+                instances.forEach((valueInstance: Instance, keyInstance: string) => {
+                    var h = valueInstance.utilization;
+                    let gridKey: string = keyDC + "_" + keyCluster + "_" + keyInstance;
+                    let clusterKey = keyDC + "_" + keyCluster;
 
                     let gridValue: Array<number> = this.props.grid.get(gridKey);
 
@@ -251,7 +251,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
 
                     // TODO: Refactor, too many arguments
                     this.createBar(x * 150, z * 150, this.scaleLog(h, this.props.maxH), h.toString(),
-                        this.props.clusterColors[clusterKey], key_dc, key_cluster, gridKey);
+                        this.props.clusterColors[clusterKey], keyDC, keyCluster, gridKey);
 
                 })
             })
@@ -259,7 +259,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     };
 
     generateRandomColor(): string {
-        return "#000000".replace(/0/g, function () { return (~~(Math.random() * 16)).toString(16); });
+        return "#000000".replace(/0/g, () => { return (~~(Math.random() * 16)).toString(16); });
     }
 
     createBar(x: number, z: number, h: number, textLabel: string, color: number,

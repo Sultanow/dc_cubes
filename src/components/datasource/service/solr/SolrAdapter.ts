@@ -34,7 +34,9 @@ export default class SolrAdapter {
                 this.maxh = Number(strSelectedMeasure);
             }
 
-            this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure);
+            if (strTimeStamp !== undefined || null) {
+                this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure);
+            }
         });
 
         /*_______________________*/
@@ -43,25 +45,25 @@ export default class SolrAdapter {
         let instancesToClusterToDCMap = new Map<string, Map<string, Set<string>>>();
         let timestampValues: Array<DCState> = Array.from(this.timeSeries.values());
         timestampValues.forEach((dcState: DCState) => {
-            dcState.datacenters.forEach((datacenter: Datacenter, key_dc: string) => {
+            dcState.datacenters.forEach((datacenter: Datacenter, keyDC: string) => {
                 let instancesToClusterMap: Map<string, Set<string>>;
-                if (instancesToClusterToDCMap.has(key_dc)) {
-                    instancesToClusterMap = instancesToClusterToDCMap.get(key_dc);
+                if (instancesToClusterToDCMap.has(keyDC)) {
+                    instancesToClusterMap = instancesToClusterToDCMap.get(keyDC);
                 } else {
                     instancesToClusterMap = new Map<string, Set<string>>();
-                    instancesToClusterToDCMap.set(key_dc, instancesToClusterMap);
+                    instancesToClusterToDCMap.set(keyDC, instancesToClusterMap);
                 }
 
                 let clusters = datacenter.clusters;
-                clusters.forEach((value_cluster: Cluster, key_cluster: string) => {
+                clusters.forEach((valueCluster: Cluster, keyCluster: string) => {
                     let instances: Set<string>;
-                    if (instancesToClusterMap.has(key_cluster)) {
-                        instances = instancesToClusterMap.get(key_cluster);
+                    if (instancesToClusterMap.has(keyCluster)) {
+                        instances = instancesToClusterMap.get(keyCluster);
                     } else {
                         instances = new Set<string>();
-                        instancesToClusterMap.set(key_cluster, instances);
+                        instancesToClusterMap.set(keyCluster, instances);
                     }
-                    Array.from(value_cluster.instances.keys()).forEach((s) => instances.add(s));
+                    Array.from(valueCluster.instances.keys()).forEach((s) => instances.add(s));
                 });
             });
         });
@@ -69,17 +71,17 @@ export default class SolrAdapter {
         var dc = 0;
         this.maxX = 0;
         var colorIndex = 0;
-        instancesToClusterToDCMap.forEach((instancesToClusterMap: Map<string, Set<string>>, key_dc: string) => {
+        instancesToClusterToDCMap.forEach((instancesToClusterMap: Map<string, Set<string>>, keyDC: string) => {
             var x = 0;
             var z = dc * this.maxZ;
-            instancesToClusterMap.forEach((instances: Set<string>, key_cluster: string) => {
-                let clusterKey: string = key_dc + "_" + key_cluster;
+            instancesToClusterMap.forEach((instances: Set<string>, keyCluster: string) => {
+                let clusterKey: string = keyDC + "_" + keyCluster;
 
                 this.clusterColors[clusterKey] = this.colors[this.colorCounter];
                 this.colorCounter++;
 
-                instances.forEach((key_instance) => {
-                    let gridKey: string = clusterKey + "_" + key_instance;
+                instances.forEach((keyInstance) => {
+                    let gridKey: string = clusterKey + "_" + keyInstance;
                     if (!this.grid.has(gridKey)) {
                         this.grid.set(gridKey, [x, z]);
                         z = z + 1;
@@ -108,9 +110,8 @@ export default class SolrAdapter {
         this.pointInTimeCount = this.temporalAxis.length;
     }
 
-    //build main structure from the data
+    // Build main structure from the data
     buildTimeSeries(strTimeStamp: string, strCluster: string, strDataCenter: string, strInstance: string, strUtilization: string) {
-
 
         let dcState: DCState;
 

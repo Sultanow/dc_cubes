@@ -2,7 +2,6 @@ import React from 'react';
 import { BrowserRouter, Route } from "react-router-dom";
 import { Alert, Container } from 'react-bootstrap';
 import './App.css';
-// import Sidebar from './components/Sidebar'
 import SidebarNew from './components/SidebarNew'
 import CubesVisualization from './components/visualization3d/CubesVisualization';
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
@@ -149,12 +148,12 @@ class App extends React.Component<{}, AppState> {
   }
 
   render() {
-    var TimeseriesNavigationChartComponent;
+    let TimeseriesNavigationChartComponent;
     if (this.state.isRawTimeseriesDataLoaded) {
       TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
-        updateTimespanData={this.updateTimespanData}
-        resetSliderAndDates={this.updateSliderAndDates}
-        updateCurrentAvg={this.updateCurrentAvg} />
+      updateTimespanData={this.updateTimespanData}
+      resetSliderAndDates={this.updateSliderAndDates}
+      updateCurrentAvg={this.updateCurrentAvg} />
     }
     else {
       TimeseriesNavigationChartComponent = null;
@@ -194,7 +193,7 @@ class App extends React.Component<{}, AppState> {
                       grid={this.state.grid}
                       maxH={this.state.maxH}
                       sliderMode={this.state.sliderMode}
-                      maxRangeSlider={((this.state.temporalAxis.length - 2) > 0) ? (this.state.temporalAxis.length - 2) : 1} // Ensure that max of slider is larger than min
+                      maxRangeSlider={((this.state.temporalAxis.length - 1) > 0) ? (this.state.temporalAxis.length - 1) : 1} // Ensure that max of slider is larger than min
                       timespanValuesOfSlider={this.state.selectedTimespan}
                       valueOfSlider={this.state.selectedPointInTime}
                       accessChild={this.accessChild}
@@ -290,7 +289,7 @@ class App extends React.Component<{}, AppState> {
       if (newPosition !== -1) {
         this.setState({ selectedPointInTime: newPosition })
       } else {        
-        this.setState({ selectedPointInTime: this.state.temporalAxis.length - 2 })
+        this.setState({ selectedPointInTime: this.state.temporalAxis.length - 1 })
       }
     }
   }
@@ -346,7 +345,7 @@ class App extends React.Component<{}, AppState> {
       this.setState({ timespanError: true })
 
     } else if (typeLowerBound === 'now' && typeUpperBound === 'now') {
-      this.setState({ selectedTimespan: [this.state.temporalAxis.length - 2, this.state.temporalAxis.length - 2] })
+      this.setState({ selectedTimespan: [this.state.temporalAxis.length - 1, this.state.temporalAxis.length - 1] })
 
     } else {
       this.setState({ timespanError: true })
