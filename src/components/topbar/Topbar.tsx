@@ -8,6 +8,7 @@ import QuickTimeSelection from './timeselection/QuickTimeSelection';
 import DCState from '../../model/DCState'
 import DetailTimeSelection from './timeselection/DetailTimeSelection';
 import logo from '../../img/cubes_blor.svg';
+import TimeUnit from '../../model/TimeUnit'
 
 interface TopbarProps {
     dataSourceUrl: string
@@ -21,9 +22,9 @@ interface TopbarProps {
     timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours' | 'days'
+    timespanTimeUnitLowerBound: TimeUnit
     timespanAmountLowerBound: number
-    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours' | 'days'
+    timespanTimeUnitUpperBound: TimeUnit
     timespanAmountUpperBound: number
     pointInTimeTimestamp: string
     updateTimespanData: any

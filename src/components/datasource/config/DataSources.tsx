@@ -5,9 +5,10 @@ import CsvSettings from './csv/CsvSettings'
 import PrometheusSettings from './prometheus/PrometheusSettings'
 import ElasticsearchSettings from './elasticsearch/ElasticsearchSettings'
 import { Row, Col, Form, Button } from 'react-bootstrap';
+import DataSource from '../../../model/DataSource'
 
 interface DataSourcesProps {
-    dataSource: string
+    dataSource: DataSource
     dataSourceError: boolean
     dataSourceUrl: string
     solrBaseUrl: string

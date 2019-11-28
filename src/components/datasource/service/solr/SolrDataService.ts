@@ -1,11 +1,15 @@
 import httpClient from 'axios';
+import AggregationType from '../../../../model/AggregationType'
+import DataSourceService from '../../../../model/DataSourceService'
 
-export default class SolrDataService {
+export default class SolrDataService implements DataSourceService {
 
-    backendUrl: string
+    solrBaseUrl: string
+    solrCore: string
 
-    constructor(backendUrl: string) {
-        this.backendUrl = backendUrl
+    constructor(solrBaseUrl: string, solrCore: string) {
+        this.solrBaseUrl = solrBaseUrl
+        this.solrCore = solrCore
     }
 
     /**
@@ -13,14 +17,13 @@ export default class SolrDataService {
     * The Solr instance needs to send the appropriate CORS headers. 
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
-    getLogDataFromSolr = (url: string): any => {
-        //const sortBy = '&sort=timestamp+asc'
-        //const query = 'q=*:*&fq=timestamp:[' + startDateTime + ' TO ' + endDateTime + ']' + sortBy;
-        //const url = this.backendUrl + "/historical/?" + encodeURIComponent("solrQuery") + '=' + encodeURIComponent(solrQuery)
+    getLogData = (from: string, to: string): any => {
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']' + '&sort=timestamp+asc' + '&rows=2147483647'
+        const url = this.solrBaseUrl + this.solrCore + query
         return httpClient.get(url);
     };
         
-    getAggregatedLogDataFromSolr = (startDate: string, endDate: string, typeOfAggregation: string) => {
+    getAggregatedLogDataFromSolr = (startDate: string, endDate: string, aggregationType: AggregationType) => {
         // TODO: implement aggregation queries
     };
 

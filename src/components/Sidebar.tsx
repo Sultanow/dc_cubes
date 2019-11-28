@@ -4,9 +4,10 @@ import { Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faChartBar, faBars, faCoins, faChartLine, faCogs, faFile } from '@fortawesome/free-solid-svg-icons'
 import './Sidebar.css'
+import DataSource from '../model/DataSource'
 
 interface SidebarProps {
-    dataSource: string
+    dataSource: DataSource
 }
 
 export default class Sidebar extends Component<SidebarProps,{}>

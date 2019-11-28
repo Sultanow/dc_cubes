@@ -1,21 +1,24 @@
-import React from 'react';
-import { BrowserRouter, Route } from "react-router-dom";
-import { Alert, Container } from 'react-bootstrap';
-import './App.css';
+import React from 'react'
+import { BrowserRouter, Route } from "react-router-dom"
+import { Alert, Container } from 'react-bootstrap'
+import './App.css'
 import SidebarNew from './components/SidebarNew'
-import CubesVisualization from './components/visualization3d/CubesVisualization';
-import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
-import Topbar from './components/topbar/Topbar';
+import CubesVisualization from './components/visualization3d/CubesVisualization'
+import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart'
+import Topbar from './components/topbar/Topbar'
 import SectionRight from "./components/SectionRight"
-import DataSources from './components/datasource/config/DataSources';
-import SolrDataService from './components/datasource/service/solr/SolrDataService';
-import SolrAdapter from './components/datasource/service/solr/SolrAdapter';
+import DataSources from './components/datasource/config/DataSources'
+import DataService from './components/datasource/DataService'
+import SolrAdapter from './components/datasource/service/solr/SolrAdapter'
 import DCState from './model/DCState'
+import TimeUnit from './model/TimeUnit'
+import DataSource from './model/DataSource'
+import AggregationType from './model/AggregationType'
 
 interface AppState {
   logData: []
   backendUrl: string
-  dataSource: string
+  dataSource: DataSource
   dataSourceUrl: string
   solrBaseUrl: string
   solrCore: any
@@ -29,9 +32,9 @@ interface AppState {
   timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
   timespanAbsoluteTimestampLowerBound: string
   timespanAbsoluteTimestampUpperBound: string
-  timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours' | 'days'
+  timespanTimeUnitLowerBound: TimeUnit
   timespanAmountLowerBound: number
-  timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours' | 'days'
+  timespanTimeUnitUpperBound: TimeUnit
   timespanAmountUpperBound: number
   pointInTimeTimestamp: string
 
@@ -51,12 +54,17 @@ interface AppState {
   currentAvgValue: number
   selectedMeasure: string
   customMapping: any
+  aggregationType: AggregationType
 }
 
 class App extends React.Component<{}, AppState> {
 
   constructor(props: object) {
-    super(props);
+    super(props)
+    // Set initial lower bound of timespan by subtracting days
+    const currentDate = new Date()
+    currentDate.setDate(currentDate.getDate()-1000)
+
     this.state = {
       logData: [],
       backendUrl: "http://localhost:8080",
@@ -71,7 +79,7 @@ class App extends React.Component<{}, AppState> {
       timeSelectionMode: 'pointInTime',
       timespanTypeLowerBound: 'now',
       timespanTypeUpperBound: 'now',
-      timespanAbsoluteTimestampLowerBound: new Date().toISOString().split('.')[0] + "Z",
+      timespanAbsoluteTimestampLowerBound: currentDate.toISOString().split('.')[0] + "Z",
       timespanAbsoluteTimestampUpperBound: new Date().toISOString().split('.')[0] + "Z",
       timespanTimeUnitLowerBound: 'minutes',
       timespanAmountLowerBound: 10,
@@ -91,6 +99,7 @@ class App extends React.Component<{}, AppState> {
       isLoading: true,
       currentAvgValue: 0,
       selectedMeasure: "count",
+      aggregationType: "average",
       customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element["timestamp"];
         const strCluster: string = element["cluster"];
@@ -104,19 +113,19 @@ class App extends React.Component<{}, AppState> {
 
   componentDidMount() {
     // Get initial log data based on default values
-    this.getLogData(this.state.dataSourceUrl, this.state.backendUrl);
+    this.getLogData();
 
     // Set the initial data refresh interval, default interval is 10 minutes
     let intervalId = setInterval(() => {
-      this.getLogData(this.state.dataSourceUrl, this.state.backendUrl);
+      this.getLogData();
     }, 600000);
     this.setState<never>({ intervalId: intervalId });
   }
 
-  getLogData = (solrQuery: string, backendUrl: string) => {
+  getLogData = () => {
     // TODO: implement other data sources
-    const dataService = new SolrDataService(backendUrl);
-    dataService.getLogDataFromSolr(solrQuery).then((data: any) => {
+    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore)
+    dataService.getLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
       solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure)
@@ -251,8 +260,8 @@ class App extends React.Component<{}, AppState> {
     }
 
     // Set new data refresh interval
-    var intervalId = setInterval(() => {
-      this.getLogData(this.state.dataSourceUrl, this.state.backendUrl);
+    const intervalId = setInterval(() => {
+      this.getLogData();
     }, refreshInterval);
     this.setState<never>({ intervalId: intervalId });
   }
@@ -439,8 +448,9 @@ class App extends React.Component<{}, AppState> {
   }
 
   setDataSourceUrl = (dataSourceUrl: string) => {
-    this.getLogData(dataSourceUrl, this.state.backendUrl)
-    this.setState({ dataSourceUrl: dataSourceUrl })
+    this.setState({ dataSourceUrl: dataSourceUrl }, () => {
+      this.getLogData()
+    })
   }
 
   setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
@@ -448,7 +458,7 @@ class App extends React.Component<{}, AppState> {
       [solrUrlPartName]: solrUrlPart
     }, () => {
       const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery)
-      this.getLogData(dataSourceUrl, this.state.backendUrl)
+      this.setDataSourceUrl(dataSourceUrl)
     })
   }
 }

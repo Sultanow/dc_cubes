@@ -4,16 +4,17 @@ import TimespanOrPointInTimeNotAvailable from '../../error/TimespanOrPointInTime
 import Flatpickr from 'react-flatpickr'
 import 'flatpickr/dist/themes/light.css'
 import SelectRefreshInterval from './SelectRefreshInterval'
-import "./DetailTimeSelection.css"
+import './DetailTimeSelection.css'
+import TimeUnit from '../../../model/TimeUnit'
 
 interface DetailTimeSelectionProps {
     timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
     timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours' | 'days'
+    timespanTimeUnitLowerBound: TimeUnit
     timespanAmountLowerBound: any
-    timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours' | 'days'
+    timespanTimeUnitUpperBound: TimeUnit
     timespanAmountUpperBound: any
     refreshInterval: any
     refreshTimeUnit: string
