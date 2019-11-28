@@ -3,8 +3,75 @@ import { Accordion, Card, Button, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExpand, faCogs, faSort } from '@fortawesome/free-solid-svg-icons'
 
-export class SectionRight extends Component {
+interface SectionRightState {
+
+  dataSystem: Systemstatus[];
+  dataRatios: Ratio[];
+  dataParameters: Parameter[];
+}
+interface Systemstatus {
+  percent: number;
+  timestamp: Date;
+  incidentType: string;
+  incidentPlace: string;
+}
+
+interface Ratio {
+  title: string;
+  inView: string;
+  withoutFilter: string;
+}
+
+interface Parameter {
+  parameter: string;
+  min: number;
+  max: number;
+  avg: number;
+}
+
+export class SectionRight extends React.Component<{}, SectionRightState> {
+
+  constructor(props: object) {
+
+    let mockSystem: Systemstatus[] = [{
+      percent: 80,
+      timestamp: new Date("2019-10-10 15:10"),
+      incidentPlace: "Server 1",
+      incidentType: "Überlastung"
+    },
+    {
+      percent: 90,
+      timestamp: new Date("2019-10-11 15:10"),
+      incidentPlace: "Server 1",
+      incidentType: "Überlastung"
+    },
+    {
+      percent: 87,
+      timestamp: new Date("2019-10-12 15:10"),
+      incidentPlace: "Server 1",
+      incidentType: "Überlastung"
+    }]
+
+
+    super(props);
+    this.state = {
+      dataSystem: mockSystem,
+      dataRatios: [],
+      dataParameters: []
+    }
+
+  }
+
+  sortColumn(event, sortKey) {
+
+    console.log(event);
+    debugger;
+  }
+
   render() {
+    let dataSystem: Systemstatus[] = this.state.dataSystem;
+    let dataRatios: Ratio[] = this.state.dataRatios;
+    let dataParams: Parameter[] = this.state.dataParameters;
     return (
       <div className="section-right col-md-3">
         <div
@@ -36,37 +103,65 @@ export class SectionRight extends Component {
                     <tr>
                       <th>
                         <span>Prozent</span>
-                          <Button className="btn-sort">
-                            <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
-                          </Button>
+                        <Button className="btn-sort" onClick={e => this.sortColumn(e, "percent")}>
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
+                        </Button>
                       </th>
                       <th>
                         <span>Zeitpunkt</span>
-                        <Button className="btn-sort">
+                        <Button className="btn-sort" onClick={e => this.sortColumn(e, "timestamp")}>
                           <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
                         </Button>
                       </th>
                       <th>
                         <span>Art des Vorfalls</span>
-                        <Button className="btn-sort">
+                        <Button className="btn-sort" onClick={e => this.sortColumn(e, "incidentType")}>
                           <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
                         </Button>
                       </th>
                       <th>
                         <span>Ort des Vorfalls</span>
-                        <Button className="btn-sort">
+                        <Button className="btn-sort" onClick={e => this.sortColumn(e, "incidentType")}>
                           <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
                         </Button>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
+                    {dataSystem.map(function (element: Systemstatus, index) {
+                      return (
+                        <tr key={index} data-item={element}>
+                          <td data-title="">{element.percent}</td>
+                          <td data-title="">{element.timestamp.toDateString()}</td>
+                          <td data-title="">{element.incidentType}</td>
+                          <td data-title="">{element.incidentPlace}</td>
+                        </tr>
+                      )
+                    })}
+                    {/* <tr>
                       <td>80%</td>
-                      <td>Datum + Uhrzeit</td>
+                      <td>01.01.2018 09:50</td>
                       <td>Leerlauf</td>
                       <td>Server 17, Cluster 9, RZ 2</td>
                     </tr>
+                    <tr>
+                      <td>70%</td>
+                      <td>01.01.2019 09:50</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>40%</td>
+                      <td>01.11.2019 09:50</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr>
+                    <tr>
+                      <td>60%</td>
+                      <td>15.11.2019 09:50</td>
+                      <td>Leerlauf</td>
+                      <td>Server 17, Cluster 9, RZ 2</td>
+                    </tr> */}
                   </tbody>
                 </Table>
               </Card.Body>
@@ -86,7 +181,7 @@ export class SectionRight extends Component {
             </Card.Header>
             <Accordion.Collapse eventKey="1" >
               <Card.Body>
-              <Table striped bordered hover>
+                <Table striped bordered hover>
                   <thead>
                     <tr>
                       <th>
@@ -100,17 +195,27 @@ export class SectionRight extends Component {
                         <Button className="btn-sort">
                           <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
                         </Button>
-                        </th>
+                      </th>
                       <th>
                         Ohne Filter
                         <Button className="btn-sort">
-                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>  
+                          <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
                         </Button>
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
+
+                    {dataRatios.map(function (element: Ratio, index) {
+                      return (
+                        <tr key={index} data-item={element}>
+                          <td data-title="">{element.title}</td>
+                          <td data-title="">{element.inView}</td>
+                          <td data-title="">{element.withoutFilter}</td>
+                        </tr>
+                      )
+                    })}
+                    {/* <tr>
                       <td>Min</td>
                       <td></td>
                       <td></td>
@@ -144,7 +249,7 @@ export class SectionRight extends Component {
                       <td>Data</td>
                       <td></td>
                       <td></td>
-                    </tr>
+                    </tr> */}
                   </tbody>
                 </Table>
               </Card.Body>
@@ -164,12 +269,12 @@ export class SectionRight extends Component {
             </Card.Header>
             <Accordion.Collapse eventKey="2">
               <Card.Body>
-              <Table striped bordered hover>
+                <Table striped bordered hover>
                   <thead>
                     <tr>
                       <th>
                         Parameter
-                        <Button className="btn-sort">
+                        <Button className="btn-sort" >
                           <FontAwesomeIcon icon={faSort} className="ml-1"></FontAwesomeIcon>
                         </Button>
                       </th>
@@ -194,7 +299,18 @@ export class SectionRight extends Component {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
+
+                    {dataParams.map(function (element: Parameter, index) {
+                      return (
+                        <tr key={index} data-item={element}>
+                          <td data-title="">{element.parameter}</td>
+                          <td data-title="">{element.min}</td>
+                          <td data-title="">{element.max}</td>
+                          <td data-title="">{element.avg}</td>
+                        </tr>
+                      )
+                    })}
+                    {/* <tr>
                       <td>CPU-Auslastung</td>
                       <td></td>
                       <td></td>
@@ -229,7 +345,7 @@ export class SectionRight extends Component {
                       <td></td>
                       <td></td>
                       <td></td>
-                    </tr>
+                    </tr> */}
                   </tbody>
                 </Table>
               </Card.Body>
@@ -241,7 +357,7 @@ export class SectionRight extends Component {
   }
 
   componentDidUpdate() {
-    
+
   }
 }
 
