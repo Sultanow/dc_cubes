@@ -434,12 +434,20 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     handlePredictionActivated() {
-        console.log("Prediction activated", this);
-
+        // debugger;
+        let lineElem = d3.select(".line-avg").node() as Element
+        let bbox = lineElem.getBoundingClientRect()
+        console.log(bbox);
+        this.drawTimeNowLine()
     }
 
     drawTimeNowLine() {
-
+        let xcoord = this.xScale.range()[1];
+        d3.select("#timeNowLine").attr("d", function () {
+            var d = "M" + xcoord + "," + SVG_HEIGHT;
+            d += " " + xcoord + "," + 0;
+            return d;
+        });
     }
 
     handlePredictionDeactivated() {

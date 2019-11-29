@@ -70,6 +70,12 @@
     color      : white;
 }
 
+#timeNowLine {
+    stroke      : black;
+    stroke-width: 1px;
+    opacity     : 1;
+}
+
 .mouseLine {
     stroke-width  : 1px;
     opacity       : 1;
