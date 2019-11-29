@@ -26,7 +26,8 @@ interface timestampData {
     count: number
 }
 
-const SVG_WIDTH = window.innerWidth / 1.5;
+const TRANSLATION_X = 40;
+const SVG_WIDTH = window.innerWidth / 1.7;
 const SVG_HEIGHT = 100;
 const SVG_ID = "TimeSeriesNavigationChart"
 
@@ -38,8 +39,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         min: null,
     }
 
-    private margin = { top: 0, right: 20, bottom: 5, left: 0 };
-    private width = SVG_WIDTH - (this.margin.left + this.margin.right);
+    private margin = { top: 0, right: 0, bottom: 5, left: 0 };
+    private width = SVG_WIDTH - TRANSLATION_X//- (this.margin.left + this.margin.right);
     private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
@@ -112,7 +113,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickValues([]).tickSize(0));
         this.setupTooltip();
         this.setupBrush();
-        d3.select(".x-axis").selectAll(".tick text");
     }
 
     setupTooltip() {
@@ -167,12 +167,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     calculateOffset(): number {
-        let elemAxis = d3.select(".y-axis").node() as Element;
-        let bBoxAxis = elemAxis.getBoundingClientRect();
-        let elemSvg = d3.select("#" + SVG_ID).node() as Element;
-        let bBoxSvg = elemSvg.getBoundingClientRect();
-
-        return bBoxAxis.right - bBoxSvg.left - 8; // ToDo: magic number
+        let offset = TRANSLATION_X;
+        offset -= 2;
+        return offset;
     }
 
     setupBrush() {
@@ -227,6 +224,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             });
             d3.select(".mouseClick").classed("hidden", false);
             let date = this.getValidDatapointFromMousePosition(clickedXCoord);
+            if (date == null) return;
             this.props.resetSliderAndDates(date.timestamp);
             this.props.updateCurrentAvg(this.currentAvgValue);
             return;
@@ -250,11 +248,16 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     getValidDatapointFromMousePosition(xCoord) {
         let offset: number = this.calculateOffset();
-        let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
-        let dateString = this.convertDateObjectToString(this.xScale.invert(xCoord - offset));
-        let indexOfDatapoint = bisectDate(this.dataAvg, dateString);
+        let newDate: Date = this.xScale.invert(xCoord - offset);
+        newDate = this.roundDateToNearest15Min(newDate);
+        let newDateString = this.convertDateObjectToString(newDate);
+        return this.dataAvg.find(x => x.timestamp == newDateString);
+    }
 
-        return this.dataAvg[indexOfDatapoint]
+    roundDateToNearest15Min(date: Date): Date {
+        let minutes = 15;
+        let ms = 1000 * 60 * minutes;
+        return new Date(Math.round(date.getTime() / ms) * ms);
     }
 
     toggleChartMax() {
@@ -278,30 +281,30 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         if (this.props.showPrediction) {
             this.handlePredictionActivated()
         }
-
+        const translation = "translate(" + TRANSLATION_X + ",0)";
         var maxArea = null;
         if (this.state.max != null) {
-            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform="translate(40,0)" />
+            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform={translation} />
         }
 
         var avgline = null;
         if (this.state.average != null) {
-            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" transform="translate(40,0)" />
+            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" transform={translation} />
         }
 
         var minArea = null;
         if (this.state.min != null) {
-            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform="translate(40,0)" />
+            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform={translation} />
         }
 
         return (
             <div className="container2d d-flex justify-content-center">
-                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
+                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT} transform={translation}>
                     {maxArea}
                     {avgline}
                     {minArea}
-                    <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
-                    <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
+                    <g className="x-axis" transform={'translate(' + TRANSLATION_X + "," + this.height + ')'} ref={this.xAxisRef}></g>;
+                    <g className="y-axis" transform={translation} ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
                     <g className="mouseLine mouseClick">
                         <path id="selectedDatapointLine"></path>
