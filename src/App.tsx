@@ -63,7 +63,7 @@ class App extends React.Component<{}, AppState> {
     super(props)
     // Set initial lower bound of timespan by subtracting days
     const currentDate = new Date()
-    currentDate.setDate(currentDate.getDate()-1000)
+    currentDate.setDate(currentDate.getDate() - 1000)
 
     this.state = {
       logData: [],
@@ -106,7 +106,7 @@ class App extends React.Component<{}, AppState> {
         const strDataCenter: string = element["dc"];
         const strInstance: string = element["instanz"];
         const strSelectedMeasure: string = element[selectedMeasure];
-        return {strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure}
+        return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure }
       }
     };
   }
@@ -147,9 +147,9 @@ class App extends React.Component<{}, AppState> {
         // Recalculate the slider positions
         this.calculateAndSetPositionOfPointInTimeSlider()
         this.calculateAndSetBoundariesOfTimespanSlider()
-      });  
+      });
 
-      
+
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
@@ -160,9 +160,9 @@ class App extends React.Component<{}, AppState> {
     let TimeseriesNavigationChartComponent;
     if (this.state.isRawTimeseriesDataLoaded) {
       TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
-      updateTimespanData={this.updateTimespanData}
-      resetSliderAndDates={this.updateSliderAndDates}
-      updateCurrentAvg={this.updateCurrentAvg} />
+        updateTimespanData={this.updateTimespanData}
+        resetSliderAndDates={this.updateSliderAndDates}
+        updateCurrentAvg={this.updateCurrentAvg} />
     }
     else {
       TimeseriesNavigationChartComponent = null;
@@ -190,7 +190,10 @@ class App extends React.Component<{}, AppState> {
               pointInTimeTimestamp={this.state.pointInTimeTimestamp}
               updateTimespanData={this.updateTimespanData}
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
-              changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
+              changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh}
+              handlePredictionActivated={this.handlePredictionActivated}
+              handlePredictionDeactivated={this.handlePredictionDeactivated}
+            />
 
             <Route exact path="/" render={
               (props) =>
@@ -266,6 +269,15 @@ class App extends React.Component<{}, AppState> {
     this.setState<never>({ intervalId: intervalId });
   }
 
+  handlePredictionActivated = () => {
+    console.log("prediction activated");
+
+  }
+
+  handlePredictionDeactivated = () => {
+    console.log("prediction deactivated");
+  }
+
   clearIntervalOfDataRefresh = () => {
     // Deactivates automatic data refresh
     clearInterval(this.state.intervalId);
@@ -297,7 +309,7 @@ class App extends React.Component<{}, AppState> {
       const newPosition = this.state.temporalAxis.indexOf(this.state.pointInTimeTimestamp)
       if (newPosition !== -1) {
         this.setState({ selectedPointInTime: newPosition })
-      } else {        
+      } else {
         this.setState({ selectedPointInTime: this.state.temporalAxis.length - 1 })
       }
     }

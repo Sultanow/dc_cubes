@@ -18,6 +18,8 @@ interface QuickTimeSelectionProps {
     refreshTimeUnit: string
     accessTopbar: any
     updateTimespanData: any
+    handlePredictionActivated: any
+    handlePredictionDeactivated: any
 }
 
 interface QuickTimeSelectionState {
@@ -36,18 +38,18 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
             timespanAmount: 10,
             timespanTimeUnit: 'hours',
             dataNotAvailableError: false,
-            pointInTimeTimestamp: new Date().toISOString().split('.')[0]+"Z",
+            pointInTimeTimestamp: new Date().toISOString().split('.')[0] + "Z",
             pointInTimeType: 'now'
         }
-      }
+    }
 
     render() {
         return (
-            <Container> 
+            <Container>
                 <Row>
                     <Col>
                         Schnellwahl Zeitraum
-                    </Col> 
+                    </Col>
                     <Col>
                         <Form.Check
                             custom
@@ -59,9 +61,9 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                             checked={this.props.timespanTypeUpperBound === 'next' ? true : false}
                             onChange={this.togglePrognosis}
                         />
-                    </Col> 
+                    </Col>
                 </Row>
-                <br/> 
+                <br />
                 <Form.Row>
                     <Col lg={3}>
                         <Form.Control className="gap-refresh-interval" as="select" name="timespanDirection" value={this.props.timespanTypeUpperBound === 'next' ? 'next' : 'last'} onChange={this.handleChangeOfTimespanDirection}>
@@ -70,7 +72,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                         </Form.Control>
                     </Col>
                     <Col lg={3}>
-                        <Form.Control className="gap-refresh-interval" type="number" name="timespanAmount" min="1" max="9999" value={this.state.timespanAmount} onChange={this.handleLocalChange}/>
+                        <Form.Control className="gap-refresh-interval" type="number" name="timespanAmount" min="1" max="9999" value={this.state.timespanAmount} onChange={this.handleLocalChange} />
                     </Col>
                     <Col lg={3}>
                         <Form.Control className="gap-refresh-interval" as="select" name="timespanTimeUnit" value={this.state.timespanTimeUnit} onChange={this.handleLocalChange}>
@@ -88,7 +90,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                 <Row>
                     <Col>
                         Schnellwahl Zeitpunkt
-                    </Col> 
+                    </Col>
                     <Col>
                         <Form.Check
                             custom
@@ -99,24 +101,26 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                             checked={this.props.sliderMode !== 'hidden'}
                             onChange={this.changeDisplayOfSlider}
                         />
-                    </Col> 
+                    </Col>
                 </Row>
-                <br/>
+                <br />
                 <Form.Row>
-                    <Col> 
-                        <Flatpickr  
+                    <Col>
+                        <Flatpickr
                             data-enable-time
-                            options={{static: true,
-                                    time_24hr: true, 
-                                    enableSeconds: true, 
-                                    minuteIncrement: 1,
-                                    dateFormat: "Y-m-d\\TH:i:S\\Z",
-                                    altFormat: "Y-m-d\\ H:i:S\\",
-                                    altInput: true}}
+                            options={{
+                                static: true,
+                                time_24hr: true,
+                                enableSeconds: true,
+                                minuteIncrement: 1,
+                                dateFormat: "Y-m-d\\TH:i:S\\Z",
+                                altFormat: "Y-m-d\\ H:i:S\\",
+                                altInput: true
+                            }}
                             value={this.state.pointInTimeTimestamp}
-                            onChange={this.updatePointInTime} 
-                            name='value' 
-                        />  
+                            onChange={this.updatePointInTime}
+                            name='value'
+                        />
                     </Col>
                     <Col>
                         <Button onClick={this.setCurrentTime}>Jetzt</Button>
@@ -131,19 +135,19 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                         Aktualisieren alle
                     </Col>
                 </Row>
-                <br/>
+                <br />
                 <Row>
-                    <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
-                                            handleRefreshChange={this.handleRefreshChange}
-                                            refreshInterval={this.props.refreshInterval} 
-                                            refreshTimeUnit={this.props.refreshTimeUnit} />
+                    <SelectRefreshInterval automaticRefresh={this.props.automaticRefresh}
+                        handleRefreshChange={this.handleRefreshChange}
+                        refreshInterval={this.props.refreshInterval}
+                        refreshTimeUnit={this.props.refreshTimeUnit} />
                 </Row>
-                {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />}  
+                {this.state.dataNotAvailableError && <TimespanOrPointInTimeNotAvailable />}
             </Container>
         )
     }
 
-    handleChangeOfTimespanDirection = (e) => {       
+    handleChangeOfTimespanDirection = (e) => {
         let element = e.target.name
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         let stateElement
@@ -176,12 +180,12 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
 
     setCurrentTime = () => {
         let now = new Date()
-        const current = now.toISOString().split('.')[0]+"Z"
-        this.setState({pointInTimeType: 'now', pointInTimeTimestamp: current})
+        const current = now.toISOString().split('.')[0] + "Z"
+        this.setState({ pointInTimeType: 'now', pointInTimeTimestamp: current })
     }
 
     handleTimespan = () => {
-        this.setState({dataNotAvailableError: false})
+        this.setState({ dataNotAvailableError: false })
 
         // Check if past or prognosis
         if (this.props.timespanTypeUpperBound === 'now') {
@@ -214,29 +218,29 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
     }
 
     updatePointInTime = (e) => {
-        this.setState({dataNotAvailableError: false})
+        this.setState({ dataNotAvailableError: false })
 
         // Check if new date is selected
         if (e[0]) {
             this.setState({
                 dataNotAvailableError: false,
-                pointInTimeTimestamp: e[0].toISOString().split('.')[0]+"Z",
+                pointInTimeTimestamp: e[0].toISOString().split('.')[0] + "Z",
                 pointInTimeType: 'absolute'
             }, () => {
                 this.props.accessChild('pointInTimeTimestamp', this.state.pointInTimeTimestamp)
                 let selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.pointInTimeTimestamp)
 
                 if (selectedPointInTime === -1) {
-                    this.setState({dataNotAvailableError: true})
+                    this.setState({ dataNotAvailableError: true })
                 }
             })
         }
     }
 
     handlePointInTime = () => {
-        this.setState({dataNotAvailableError: false})
+        this.setState({ dataNotAvailableError: false })
         this.props.accessChild('timeSelectionMode', 'pointInTime')
-        
+
         let selectedPointInTime
         if (this.state.pointInTimeType === 'now') {
             selectedPointInTime = this.props.temporalAxis.length - 1
@@ -249,7 +253,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
             this.props.accessChild('pointInTimeTimestamp', this.state.pointInTimeTimestamp)
             this.props.accessChild('selectedPointInTime', selectedPointInTime)
         } else {
-            this.setState({dataNotAvailableError: true})
+            this.setState({ dataNotAvailableError: true })
         }
     }
 
@@ -265,9 +269,11 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
         if (e.target.checked) {
             this.props.accessChild('timespanTypeLowerBound', 'now')
             this.props.accessChild('timespanTypeUpperBound', 'next')
+            this.props.handlePredictionActivated()
         } else {
             this.props.accessChild('timespanTypeLowerBound', 'last')
             this.props.accessChild('timespanTypeUpperBound', 'now')
+            this.props.handlePredictionDeactivated()
         }
     }
 }
