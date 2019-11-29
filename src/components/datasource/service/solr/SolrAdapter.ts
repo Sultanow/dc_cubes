@@ -18,7 +18,7 @@ export default class SolrAdapter {
     // TODO: Colors should be generated dynamically according to the count of clusters
     public colors = [0x46ACC2, 0x98DFAF, 0xF8333C, 0xFFD23F];
     public colorCounter = 0;
-    
+
 
     //generate data from socket json format
     receivedData(json: object, customMapping, selectedMeasure: string) {
@@ -28,7 +28,7 @@ export default class SolrAdapter {
 
         datajson.forEach(element => {
             // TODO: make stringutilization dynamic to vis diffrent metrics
-            const {strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure} = customMapping(element, selectedMeasure)
+            const { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure } = customMapping(element, selectedMeasure)
 
             if (this.maxh <= Number(strSelectedMeasure)) {
                 this.maxh = Number(strSelectedMeasure);

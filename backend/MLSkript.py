@@ -44,7 +44,7 @@ def pushData(row):
 
 if __name__ == "__main__":
     print("MLSkript.py ausgeführt")
-    filePath = "../predictions.csv"
+    filePath = "C:/Users/Sebastian/Desktop/Uni/_Bachelorarbeit/data/PresentationPrediction.csv"
     df = pd.read_csv(filePath, sep=",", encoding="latin1")
     df.apply(pushData, axis=1)
     print("Data was pushed to Solr/dc_cubes_forecast.")

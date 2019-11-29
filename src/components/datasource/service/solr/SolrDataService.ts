@@ -4,12 +4,14 @@ import DataSourceService from '../../../../model/DataSourceService'
 
 export default class SolrDataService implements DataSourceService {
 
-    solrBaseUrl: string
-    solrCore: string
+    solrBaseUrl: string;
+    solrCore: string;
+    solrForecastCore: string;
 
-    constructor(solrBaseUrl: string, solrCore: string) {
-        this.solrBaseUrl = solrBaseUrl
-        this.solrCore = solrCore
+    constructor(solrBaseUrl: string, solrCore: string, solrForecastCore: string) {
+        this.solrBaseUrl = solrBaseUrl;
+        this.solrCore = solrCore;
+        this.solrForecastCore = solrForecastCore;
     }
 
     /**
@@ -18,11 +20,18 @@ export default class SolrDataService implements DataSourceService {
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
     getLogData = (from: string, to: string): any => {
-        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']' + '&sort=timestamp+asc' + '&rows=2147483647'
-        const url = this.solrBaseUrl + this.solrCore + query
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']' + '&sort=timestamp+asc' + '&rows=2147483647';
+        const url = this.solrBaseUrl + this.solrCore + query;
         return httpClient.get(url);
     };
-        
+
+    getForecast = (from: string, to: string): any => {
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']' + '&sort=timestamp+asc' + '&rows=2147483647';
+        const url = this.solrBaseUrl + this.solrForecastCore + query;
+        return httpClient.get(url);
+    };
+
+
     getAggregatedLogDataFromSolr = (startDate: string, endDate: string, aggregationType: AggregationType) => {
         // TODO: implement aggregation queries
     };

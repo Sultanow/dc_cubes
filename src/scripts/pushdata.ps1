@@ -6,9 +6,9 @@
 $solrProtocol = "http";
 $solrHost = "localhost"
 $solrPort = 8983
-$solrCore = "dc_cubes";
+$solrCore = "dc_cubes_forecast";
 $solrBaseUrl = "$($solrProtocol)://$($solrHost):$($solrPort)/solr/$($solrCore)/";
-$csvFile = ".\df_all_pseudo-01.csv"
+$csvFile = "C:/Users/Sebastian/Desktop/Uni/_Bachelorarbeit/data/PresentationPrediction.csv"
 $commitSize = 1000;
 
 function SaveItem($timestamp, $hosti, $cluster, $dc, $perm, $instanz, $verfahren, $response, $count, $minv, $maxv, $avg, $var, $dev_upp, $dev_low, $perc90, $perc95, $perc99, $sum, $sum_of_squares, $server ) {

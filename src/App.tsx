@@ -21,7 +21,8 @@ interface AppState {
   dataSource: DataSource
   dataSourceUrl: string
   solrBaseUrl: string
-  solrCore: any
+  solrCore: string
+  solrForecastCore: string
   solrQuery: string
   dataSourceError: boolean
   selectedPointInTime: number
@@ -57,6 +58,13 @@ interface AppState {
   aggregationType: AggregationType
 
   predictionActivated: boolean
+  forecastDataReceived: boolean
+  rawForecastData: any,
+  isRawForecastDataLoaded: boolean
+  forecastTemporalAxis: string[]
+  forecastTimeSeries: Map<string, DCState>
+  forecastGrid: Map<string, Array<number>>
+  forecastMaxH: number
 }
 
 class App extends React.Component<{}, AppState> {
@@ -74,6 +82,7 @@ class App extends React.Component<{}, AppState> {
       dataSourceUrl: 'http://localhost:8983/solr/dc_cubes/query?q=*:*&start=0&rows=30000',
       solrBaseUrl: 'http://localhost:8983/solr/',
       solrCore: 'dc_cubes',
+      solrForecastCore: 'dc_cubes_forecast',
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceError: true,
       selectedPointInTime: 0,
@@ -95,6 +104,7 @@ class App extends React.Component<{}, AppState> {
       grid: new Map(),
       maxH: 0,
       rawTimeseriesData: null,
+      rawForecastData: null,
       isRawTimeseriesDataLoaded: false,
       intervalId: undefined,
       timespanError: false,
@@ -110,7 +120,13 @@ class App extends React.Component<{}, AppState> {
         const strSelectedMeasure: string = element[selectedMeasure];
         return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure }
       },
-      predictionActivated: false
+      predictionActivated: false,
+      forecastDataReceived: false,
+      isRawForecastDataLoaded: false,
+      forecastTemporalAxis: [],
+      forecastTimeSeries: new Map(),
+      forecastGrid: new Map(),
+      forecastMaxH: 0,
     };
   }
 
@@ -127,7 +143,8 @@ class App extends React.Component<{}, AppState> {
 
   getLogData = () => {
     // TODO: implement other data sources
-    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore)
+    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore, this.state.solrForecastCore)
+
     dataService.getLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
@@ -141,7 +158,7 @@ class App extends React.Component<{}, AppState> {
         grid: solrAdapter.grid,
         maxH: solrAdapter.maxh,
         dataSourceError: false,
-        isLoading: false,
+        isLoading: true, // still need to load forecast data
         // raw timesereis Data for 2d graph 
         rawTimeseriesData: data.data.response.docs,
         isRawTimeseriesDataLoaded: true,
@@ -152,7 +169,28 @@ class App extends React.Component<{}, AppState> {
         this.calculateAndSetBoundariesOfTimespanSlider()
       });
 
+    }).catch((error: any) => {
+      this.setState({ dataSourceError: true })
+      console.log(error)
+    });
 
+    dataService.getForecast().then((data: any) => {
+      const solrAdapter = new SolrAdapter();
+      solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure);
+
+      this.setState({
+        // there is a bug, the last element is allways undefined
+        forecastTemporalAxis: solrAdapter.temporalAxis,
+        forecastTimeSeries: solrAdapter.timeSeries,
+        forecastGrid: solrAdapter.grid,
+        forecastMaxH: solrAdapter.maxh,
+        dataSourceError: false,
+        isLoading: false,
+        // raw timesereis Data for 2d graph 
+        rawForecastData: data.data.response.docs,
+        isRawForecastDataLoaded: true,
+        forecastDataReceived: true
+      });
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
@@ -163,10 +201,12 @@ class App extends React.Component<{}, AppState> {
     let TimeseriesNavigationChartComponent;
     if (this.state.isRawTimeseriesDataLoaded) {
       TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
+        forecastData={this.state.rawForecastData}
         updateTimespanData={this.updateTimespanData}
         resetSliderAndDates={this.updateSliderAndDates}
         updateCurrentAvg={this.updateCurrentAvg}
         showPrediction={this.state.predictionActivated}
+        forecastReceived={this.state.forecastDataReceived}
       />
     }
     else {
