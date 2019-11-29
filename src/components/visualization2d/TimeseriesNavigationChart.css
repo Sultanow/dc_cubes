@@ -70,7 +70,11 @@
     color      : white;
 }
 
-#timeNowLine {
+.timeNowLine.hidden {
+    opacity: 0;
+}
+
+.timeNowLine {
     stroke      : black;
     stroke-width: 1px;
     opacity     : 1;

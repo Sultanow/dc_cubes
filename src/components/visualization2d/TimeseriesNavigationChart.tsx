@@ -58,6 +58,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private dataAvg: timeseriesData[];
     private currentAvgValue: number;
 
+    private lastHistoricTimestamp: Date;
+
     constructor(props: any) {
         super(props);
         this.xAxisRef = React.createRef();
@@ -83,7 +85,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
-
+        this.lastHistoricTimestamp = timeDomain[1];
         this.uniqueTimestamps = this.filterUniqueTimestamps();
 
         // generate the max area
@@ -106,6 +108,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         const min = this.areaGenerator(this.prepareDateForMinLine());
         this.setState({ min })
 
+
+        this.drawTimeNowLine()
     }
 
     componentDidUpdate() {
@@ -281,6 +285,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         if (this.props.showPrediction) {
             this.handlePredictionActivated()
         }
+        else {
+            this.handlePredictionDeactivated();
+        }
         const translation = "translate(" + TRANSLATION_X + ",0)";
         var maxArea = null;
         if (this.state.max != null) {
@@ -437,24 +444,31 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     handlePredictionActivated() {
-        // debugger;
-        let lineElem = d3.select(".line-avg").node() as Element
-        let bbox = lineElem.getBoundingClientRect()
-        console.log(bbox);
-        this.drawTimeNowLine()
+        this.showTimeNowLine()
+    }
+
+    handlePredictionDeactivated() {
+        this.hideTimeNowLine();
+
     }
 
     drawTimeNowLine() {
-        let xcoord = this.xScale.range()[1];
+        let xcoord = this.xScale(this.lastHistoricTimestamp);
+        xcoord += this.calculateOffset();
         d3.select("#timeNowLine").attr("d", function () {
             var d = "M" + xcoord + "," + SVG_HEIGHT;
             d += " " + xcoord + "," + 0;
             return d;
         });
+        this.hideTimeNowLine();
+    }
+    showTimeNowLine() {
+        d3.select(".timeNowLine").classed("hidden", false);
     }
 
-    handlePredictionDeactivated() {
-
+    hideTimeNowLine() {
+        d3.select(".timeNowLine").classed("hidden", true);
     }
+
 }
 
