@@ -55,6 +55,8 @@ interface AppState {
   selectedMeasure: string
   customMapping: any
   aggregationType: AggregationType
+
+  predictionActivated: boolean
 }
 
 class App extends React.Component<{}, AppState> {
@@ -107,7 +109,8 @@ class App extends React.Component<{}, AppState> {
         const strInstance: string = element["instanz"];
         const strSelectedMeasure: string = element[selectedMeasure];
         return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure }
-      }
+      },
+      predictionActivated: false
     };
   }
 
@@ -163,8 +166,7 @@ class App extends React.Component<{}, AppState> {
         updateTimespanData={this.updateTimespanData}
         resetSliderAndDates={this.updateSliderAndDates}
         updateCurrentAvg={this.updateCurrentAvg}
-        handlePredictionActivated={something => this.handlePredictionActivated = something}
-        handlePredictionDeactivated={something => this.handlePredictionDeactivated = something}
+        showPrediction={this.state.predictionActivated}
       />
     }
     else {
@@ -194,8 +196,8 @@ class App extends React.Component<{}, AppState> {
               updateTimespanData={this.updateTimespanData}
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
               changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh}
-              handlePredictionActivated={this.handlePredictionActivated}
-              handlePredictionDeactivated={this.handlePredictionDeactivated}
+              handlePredictionActivated={this.handlePredictionActivated.bind(this)}
+              handlePredictionDeactivated={this.handlePredictionDeactivated.bind(this)}
             />
 
             <Route exact path="/" render={
@@ -273,12 +275,13 @@ class App extends React.Component<{}, AppState> {
   }
 
   handlePredictionActivated = () => {
-    console.log("prediction activated");
+    console.log("App.tsx, prediction activated");
+    this.setState({ predictionActivated: true });
 
   }
 
   handlePredictionDeactivated = () => {
-    console.log("prediction deactivated");
+    this.setState({ predictionActivated: false });
   }
 
   clearIntervalOfDataRefresh = () => {

@@ -7,8 +7,7 @@ interface TimeseriesNavigationChartProps {
     updateTimespanData: any
     resetSliderAndDates: any
     updateCurrentAvg: any
-    handlePredictionActivated: any
-    handlePredictionDeactivated: any
+    showPrediction: boolean
 }
 
 interface TimeseriesNavigationChartState {
@@ -69,9 +68,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidMount() {
-
-        this.props.handlePredictionActivated(this.handlePredictionActivated);
-        this.props.handlePredictionDeactivated(this.handlePredictionDeactivated);
 
         const { timeseriesData } = this.props;
         if (!timeseriesData) return;
@@ -278,6 +274,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     render() {
+
+        if (this.props.showPrediction) {
+            this.handlePredictionActivated()
+        }
+
         var maxArea = null;
         if (this.state.max != null) {
             maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform="translate(40,0)" />
@@ -307,6 +308,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     </g>
                     <g className="mouseLine mouseMove">
                         <path id="mouseLine"></path>
+                    </g>
+                    <g className="timeNowLine">
+                        <path id="timeNowLine"></path>
                     </g>
                 </svg>
                 <div className="verticalContainer">
@@ -430,11 +434,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     handlePredictionActivated() {
-        console.log("here");
+        console.log("Prediction activated", this);
+
+    }
+
+    drawTimeNowLine() {
+
     }
 
     handlePredictionDeactivated() {
-        console.log("there");
 
     }
 }
