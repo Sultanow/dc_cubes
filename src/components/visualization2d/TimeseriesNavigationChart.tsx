@@ -7,6 +7,8 @@ interface TimeseriesNavigationChartProps {
     updateTimespanData: any
     resetSliderAndDates: any
     updateCurrentAvg: any
+    handlePredictionActivated: any
+    handlePredictionDeactivated: any
 }
 
 interface TimeseriesNavigationChartState {
@@ -61,9 +63,16 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.xAxisRef = React.createRef();
         this.yAxisRef = React.createRef();
         this.brushRef = React.createRef();
+
+        this.handlePredictionActivated.bind(this);
+        this.handlePredictionDeactivated.bind(this);
     }
 
     componentDidMount() {
+
+        this.props.handlePredictionActivated(this.handlePredictionActivated);
+        this.props.handlePredictionDeactivated(this.handlePredictionDeactivated);
+
         const { timeseriesData } = this.props;
         if (!timeseriesData) return;
 
@@ -119,17 +128,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
-            let yAxis = d3.select("#"+SVG_ID).select(".y-axis").node() as Element
+            let yAxis = d3.select("#" + SVG_ID).select(".y-axis").node() as Element
             let bboxYaxis = yAxis.getBoundingClientRect();
             let bboxSvg = document.getElementById(SVG_ID).getBoundingClientRect();
             let xPositionOfYAxis = bboxYaxis.right - bboxSvg.left;
-            
+
             if (xcoord < xPositionOfYAxis) {
                 originalScope.hideTooltip();
                 return;
-            } 
-            
-            
+            }
 
             originalScope.drawMouseline(xcoord);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
@@ -140,11 +147,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }).on("mouseleave", function () {
             originalScope.hideTooltip();
         });
-    
+
     }
 
     hideTooltip() {
-        
+
         let tooltipElement: HTMLElement = document.getElementById('tooltip');
         d3.select("#tooltipDate").html("");
         d3.select("#tooltipAvg").html("");
@@ -192,14 +199,14 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let mousePosition = d3.mouse(document.getElementById(SVG_ID));
         let bbox = document.getElementById(SVG_ID).getBoundingClientRect();
         let xcoord: number = d3.event.pageX || mousePosition[0] + bbox.left;
-        let ycoord: number =d3.event.pageY || mousePosition[1] + bbox.top;
+        let ycoord: number = d3.event.pageY || mousePosition[1] + bbox.top;
         let offsetX = -70;
         let offsetY = 90;
-        
+
         d3.select("#tooltipDate").html(dp.timestamp);
         d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
         this.currentAvgValue = Math.floor(dp.count);
-        
+
         d3.select("#tooltip").style("top", ycoord - offsetY + "px")
             .style("left", xcoord + offsetX + "px")
     }
@@ -240,7 +247,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             timespanTypeLowerBound: 'absolute',
             sliderMode: 'timespan'
         }
-        
+
         this.props.updateTimespanData(newTimespanData);
         this.props.updateCurrentAvg(this.currentAvgValue);
     }
@@ -422,5 +429,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         return valuesOnTimestamp;
     }
 
+    handlePredictionActivated() {
+        console.log("here");
+    }
+
+    handlePredictionDeactivated() {
+        console.log("there");
+
+    }
 }
 

@@ -162,7 +162,10 @@ class App extends React.Component<{}, AppState> {
       TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
         updateTimespanData={this.updateTimespanData}
         resetSliderAndDates={this.updateSliderAndDates}
-        updateCurrentAvg={this.updateCurrentAvg} />
+        updateCurrentAvg={this.updateCurrentAvg}
+        handlePredictionActivated={something => this.handlePredictionActivated = something}
+        handlePredictionDeactivated={something => this.handlePredictionDeactivated = something}
+      />
     }
     else {
       TimeseriesNavigationChartComponent = null;
