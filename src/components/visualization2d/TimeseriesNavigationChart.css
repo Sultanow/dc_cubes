@@ -6,7 +6,7 @@
 
 .line-avg {
     fill        : none;
-    stroke      : rgba(0, 0, 0, 0);
+    stroke      : rgba(0, 0, 0, 0.7);
     stroke-width: .75px;
 }
 
@@ -16,9 +16,18 @@
     stroke-width: .75px;
 }
 
+.verticalContainer {
+    order: 1;
+}
+
+#TimeSeriesNavigationChart {
+    order: 2;
+}
+
 .container2d {
     width            : auto;
     display          : inline-flex;
+    flex-direction   : column;
     /* flex-direction: column; */
     height           : 100%;
 }
@@ -29,6 +38,10 @@
 
 .timeseriesCheckbox {
     margin: 5px;
+}
+
+.custom-switch {
+    margin-left: 2.25em;
 }
 
 .custom-control-input:checked~.custom-control-label::before {
