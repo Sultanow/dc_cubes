@@ -8,10 +8,14 @@ export default class DataService {
     private dataSourceService: DataSourceService
     private from: string
     private to: string
+    private selectedMeasure: string
+    private aggregationType: AggregationType
 
-    constructor(dataSource: DataSource, from: string, to: string, solrBaseUrl: string, solrCore: string) {
+    constructor(dataSource: DataSource, from: string, to: string, selectedMeasure: string, aggregationType: AggregationType, solrBaseUrl: string, solrCore: string) {
         this.from = from
         this.to = to
+        this.selectedMeasure = selectedMeasure
+        this.aggregationType = aggregationType
         
         if (dataSource === 'solr') {
             this.dataSourceService = new SolrDataService(solrBaseUrl, solrCore)
@@ -28,8 +32,8 @@ export default class DataService {
         return this.dataSourceService.getLogData(this.from, this.to)
     };
         
-    getAggregatedLogDataFromSolr = (startDate: string, endDate: string, aggregationType: AggregationType) => {
-        // TODO: implement aggregation queries
+    getAggregatedLogData = () => {
+        return this.dataSourceService.getAggregatedLogData(this.from, this.to, this.selectedMeasure, this.aggregationType)
     };
 
     getAllSolrCores = () => {

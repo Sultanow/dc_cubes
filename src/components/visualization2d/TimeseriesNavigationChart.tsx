@@ -6,7 +6,7 @@ interface TimeseriesNavigationChartProps {
     timeseriesData: [{ timestamp: string, count: number }]
     updateTimespanData: any
     resetSliderAndDates: any
-    updateCurrentAvg: any
+    accessChild: any
 }
 
 interface TimeseriesNavigationChartState {
@@ -225,7 +225,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             d3.select(".mouseClick").classed("hidden", false);
             let date = this.getValidDatapointFromMousePosition(clickedXCoord);
             this.props.resetSliderAndDates(date.timestamp);
-            this.props.updateCurrentAvg(this.currentAvgValue);
+            this.props.accessChild("currentAvgValue", this.currentAvgValue);
             return;
         }
         let startDate = this.getValidDatapointFromMousePosition(brushMinimum).timestamp;
@@ -242,7 +242,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
         
         this.props.updateTimespanData(newTimespanData);
-        this.props.updateCurrentAvg(this.currentAvgValue);
+        this.props.accessChild("currentAvgValue", this.currentAvgValue);
     }
 
     getValidDatapointFromMousePosition(xCoord) {

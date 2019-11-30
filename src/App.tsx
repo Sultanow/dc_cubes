@@ -14,6 +14,9 @@ import DCState from './model/DCState'
 import TimeUnit from './model/TimeUnit'
 import DataSource from './model/DataSource'
 import AggregationType from './model/AggregationType'
+import Datacenter from './model/Datacenter'
+import Instance from './model/Instance'
+import Cluster from './model/Cluster'
 
 interface AppState {
   logData: []
@@ -55,6 +58,7 @@ interface AppState {
   selectedMeasure: string
   customMapping: any
   aggregationType: AggregationType
+  aggregatedData: DCState
 }
 
 class App extends React.Component<{}, AppState> {
@@ -99,7 +103,8 @@ class App extends React.Component<{}, AppState> {
       isLoading: true,
       currentAvgValue: 0,
       selectedMeasure: "count",
-      aggregationType: "average",
+      aggregationType: "avg",
+      aggregatedData: undefined,
       customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element["timestamp"];
         const strCluster: string = element["cluster"];
@@ -123,8 +128,13 @@ class App extends React.Component<{}, AppState> {
   }
 
   getLogData = () => {
-    // TODO: implement other data sources
-    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore)
+    const dataService = new DataService(this.state.dataSource,
+                                        this.state.timespanAbsoluteTimestampLowerBound,
+                                        this.state.timespanAbsoluteTimestampUpperBound, 
+                                        this.state.selectedMeasure, 
+                                        this.state.aggregationType, 
+                                        this.state.solrBaseUrl, 
+                                        this.state.solrCore)
     dataService.getLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
@@ -147,13 +157,25 @@ class App extends React.Component<{}, AppState> {
         // Recalculate the slider positions
         this.calculateAndSetPositionOfPointInTimeSlider()
         this.calculateAndSetBoundariesOfTimespanSlider()
-      });  
-
-      
+      })  
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
-    });
+    })
+
+    dataService.getAggregatedLogData().then((data: any) => {
+      const solrAdapter = new SolrAdapter
+      let strTimeStamp = "timespan"
+
+      data.data.facets.datacenters.buckets.forEach(strDataCenter => {
+        strDataCenter.clusters.buckets.forEach(strCluster => {
+          strCluster.instances.buckets.forEach(strInstance => {
+            solrAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue))) 
+          })
+        })
+      })
+      this.setState<never>({ aggData: solrAdapter.timeSeries.get("timespan") });      
+    })
   }
 
   render() {
@@ -162,11 +184,20 @@ class App extends React.Component<{}, AppState> {
       TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
       updateTimespanData={this.updateTimespanData}
       resetSliderAndDates={this.updateSliderAndDates}
-      updateCurrentAvg={this.updateCurrentAvg} />
+      accessChild={this.accessChild} />
     }
     else {
       TimeseriesNavigationChartComponent = null;
     }
+
+    // Select data to display in 3D visualization
+    let dataFor3DVisualization
+    if (this.state.timeSelectionMode === 'pointInTime') {
+      dataFor3DVisualization = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])
+    } else {
+      dataFor3DVisualization = this.state.aggregatedData
+    }
+
     return (
       <BrowserRouter>
         <div className="App">
@@ -197,7 +228,7 @@ class App extends React.Component<{}, AppState> {
                 <React.Fragment>
                   <div className="content-row" >
                     <CubesVisualization {...props}
-                      data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                      data={dataFor3DVisualization}
                       clusterColors={this.state.clusterColors}
                       grid={this.state.grid}
                       maxH={this.state.maxH}
@@ -272,19 +303,14 @@ class App extends React.Component<{}, AppState> {
   }
 
   accessChild = (stateElement, value) => {
-    this.setState<never>({ [stateElement]: value }, () => {
-      console.log(this.state.customMapping.toString())
-    })
+    this.setState<never>({ [stateElement]: value })
   }
 
   updateTimespanData = (newTimespanData: object) => {
     this.setState<never>(newTimespanData, () => {
       this.calculateAndSetBoundariesOfTimespanSlider()
+      this.getLogData()
     })
-  }
-
-  updateCurrentAvg = (avg: number) => {
-    this.setState<never>({ currentAvgValue: avg })
   }
 
   updateSliderAndDates = (DateToReset: string) => {
