@@ -168,9 +168,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             // if (d == null) return this.parseDate(this.combinedData[this.combinedData.length / 2].timestamp);
             return this.parseDate(d.timestamp);
         });
-        const combinedMaxCount = [0, d3.max(this.combinedData, d => {
-            return d.count + 100;
-        })];
+
+        let maxOfHistoric = this.yScale.domain()[1];
+        let maxOfPrediction = Math.max.apply(Math, this.props.forecastData.map(function (d) { return d.count; }));
+        let combinedMaxCount = [0, (maxOfHistoric > maxOfPrediction ? maxOfPrediction : maxOfPrediction)];
+        console.log("combinedMax:", combinedMaxCount);
+        console.log("Max hist, pred:", maxOfHistoric, maxOfPrediction);
         this.combinedXScale.domain(combinedTimeDomain);
         this.combinedYScale.domain(combinedMaxCount);
 
@@ -194,9 +197,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 // if (d == null) return this.parseDate(this.combinedData[this.combinedData.length / 2].timestamp);
                 return this.parseDate(d.timestamp);
             });
-            const combinedMaxCount = [0, d3.max(this.combinedData, d => {
-                return d.count + 100;
-            })];
+            let maxOfHistoric = this.yScale.domain()[1];
+            let maxOfPrediction = Math.max.apply(Math, this.props.forecastData.map(function (d) { return d.count; }));
+            let combinedMaxCount = [0, (maxOfHistoric > maxOfPrediction ? maxOfHistoric : maxOfPrediction)];
+            console.log("combinedMax:", combinedMaxCount);
+            console.log("Max hist, pred:", maxOfHistoric, maxOfPrediction);
             this.combinedXScale.domain(combinedTimeDomain);
             this.combinedYScale.domain(combinedMaxCount);
             // generate the average line 
@@ -209,12 +214,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             if (this.combinedUniqueTimestamps == null) {
                 this.combinedUniqueTimestamps = this.filterUniqueTimestamps(this.combinedData);
             }
-            console.log("this.combinedUniqueTiemstamps:", this.combinedUniqueTimestamps);
+            // console.log("this.combinedUniqueTiemstamps:", this.combinedUniqueTimestamps);
 
             if (!this.state.combinedAverage) {
                 const combinedAverage = this.combinedLineGenerator(this.prepareDataForAvgLine(this.combinedUniqueTimestamps, this.props.forecastData));
                 this.setState({ combinedAverage });
                 this.forecastPreparationDone = true;
+                debugger;
             }
             d3.select(this.yAxisRef.current).call(d3.axisLeft(this.combinedYScale).ticks(5));
             d3.select(this.xAxisRef.current).call(d3.axisBottom(this.combinedXScale).tickValues([]).tickSize(0));
