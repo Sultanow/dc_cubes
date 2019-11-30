@@ -19,7 +19,11 @@ interface TimeseriesNavigationChartState {
     combinedMax: string,
     combinedAverage: string,
     combinedMin: string,
+
+    // these are used if prediction is shown
     historicAvg: string,
+    historicMax: string,
+    historicMin: string
 }
 
 interface timeseriesData {
@@ -48,6 +52,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         combinedAverage: null,
         combinedMin: null,
         historicAvg: null,
+        historicMin: null,
+        historicMax: null,
     }
 
     private margin = { top: 0, right: 0, bottom: 5, left: 0 };
@@ -63,6 +69,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private lineGenerator = d3.line<timeseriesData>().curve(d3.curveMonotoneX);
     private combinedLineGenerator = d3.line<timeseriesData>().curve(d3.curveMonotoneX);
     private areaGenerator = d3.area<timeseriesData>().curve(d3.curveMonotoneX);
+    private combinedAreaGenerator = d3.area<timeseriesData>().curve(d3.curveMonotoneX);
 
     private xAxisRef: React.RefObject<SVGGElement>;
     private yAxisRef: React.RefObject<SVGGElement>;
@@ -79,6 +86,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     forecastPreparationDone: boolean;
     preparedAvgData: timeseriesData[];
     timeNowLineIsDrawn: boolean;
+    preparedMinData: timeseriesData[];
+    preparedMaxData: timeseriesData[];
 
     constructor(props: any) {
         super(props);
@@ -107,13 +116,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             return d.count + 100;
         })];
         if (this.props.forecastData) {
-
-            // this.combinedData = this.props.timeseriesData.concat(this.props.forecastData);
-
-            // // drop the null elements
-            // // more correct: = this.combinedData.filter(d => d !== null)
-            // // but it's always the last element, so remove it with pop
-            // this.combinedData.pop();
             this.isDataCombined = true;
         }
 
@@ -126,13 +128,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
         this.areaGenerator.y0(this.yScale(0))
         this.areaGenerator.y1(d => { return this.yScale(d.count); });
-        const max = this.areaGenerator(this.prepareDataForMaxLine());
+
+        this.preparedMaxData = this.prepareDataForMaxLine(this.uniqueTimestamps, this.props.timeseriesData);
+        const max = this.areaGenerator(this.preparedMaxData);
         this.setState({ max })
 
         // generate the average line 
         this.lineGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); });
         this.lineGenerator.y(d => { return this.yScale(d.count); })
-        this.preparedAvgData = (this.prepareDataForAvgLine(this.uniqueTimestamps, this.props.timeseriesData));
+        this.preparedAvgData = this.prepareDataForAvgLine(this.uniqueTimestamps, this.props.timeseriesData);
         const average = this.lineGenerator(this.preparedAvgData);
         this.setState({ average })
 
@@ -140,7 +144,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
         this.areaGenerator.y0(this.yScale(0))
         this.areaGenerator.y1(d => { return this.yScale(d.count); });
-        const min = this.areaGenerator(this.prepareDateForMinLine());
+        this.preparedMinData = this.prepareDateForMinLine(this.uniqueTimestamps, this.props.timeseriesData);
+        const min = this.areaGenerator(this.preparedMinData);
         this.setState({ min })
 
     }
@@ -173,9 +178,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.combinedXScale.domain(combinedTimeDomain);
             this.combinedYScale.domain(combinedMaxCount);
             // generate the average line 
-
             this.combinedLineGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); });
             this.combinedLineGenerator.y(d => { return this.combinedYScale(d.count); });
+            //area generator
+            this.combinedAreaGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); })
+            this.combinedAreaGenerator.y0(this.combinedYScale(0))
+            this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
 
             if (this.combinedUniqueTimestamps == null) {
                 this.combinedUniqueTimestamps = this.filterUniqueTimestamps(this.props.forecastData);
@@ -185,14 +193,17 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 this.setState({ combinedAverage });
                 const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
                 this.setState({ historicAvg })
+                const historicMin = this.combinedAreaGenerator(this.preparedMinData);
+                this.setState({ historicMin })
+                const historicMax = this.combinedAreaGenerator(this.preparedMaxData);
+                this.setState({ historicMax })
+
                 this.forecastPreparationDone = true;
             }
             if (!this.timeNowLineIsDrawn) {
                 this.drawTimeNowLine()
                 this.timeNowLineIsDrawn = true;
             }
-            // d3.select(this.yAxisRef.current).call(d3.axisLeft(this.combinedYScale).ticks(5));
-            // d3.select(this.xAxisRef.current).call(d3.axisBottom(this.combinedXScale).tickValues([]).tickSize(0));
         }
         else {
             d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
@@ -301,7 +312,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             return (brushMinimum <= 0 || brushMaximum - brushMinimum < brushThreshold)
         }
 
-
         if (isBrushAreaTooSmall(brushMinimum, brushMaximum)) {
             let clickedXCoord = d3.mouse(document.getElementById(SVG_ID))[0];
             d3.select("#selectedDatapointLine").attr("d", function () {
@@ -401,7 +411,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     render() {
         const translation = "translate(" + TRANSLATION_X + ",0)";
         var maxArea = null;
-        if (this.state.max != null) {
+        if (!this.props.showPrediction && this.state.max != null) {
             maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform={translation} />
         }
 
@@ -409,22 +419,32 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         if (!this.props.showPrediction && this.state.average != null) {
             avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" transform={translation} />
         }
+        var minArea = null;
+        if (!this.props.showPrediction && this.state.min != null) {
+            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform={translation} />
+        }
+
 
         var forecastLine = null;
         var histroicAvgLine = null;
+        var historicMinLine = null;
+        var historicMaxLine = null;
         if (this.props.showPrediction) {
             if (this.state.combinedAverage != null) {
                 forecastLine = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" transform={translation} />
             }
 
-            if (this.state.combinedAverage != null) {
-                histroicAvgLine = <path className="line-avg prediction" d={this.state.historicAvg} strokeLinecap="round" transform={translation} />
+            if (this.state.historicAvg != null) {
+                histroicAvgLine = <path className="line-avg" d={this.state.historicAvg} strokeLinecap="round" transform={translation} />
             }
-        }
 
-        var minArea = null;
-        if (this.state.min != null) {
-            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform={translation} />
+            if (this.state.historicMax != null) {
+                historicMaxLine = <path className="area-max prediction" d={this.state.historicMax} strokeLinecap="round" transform={translation} />
+            }
+
+            if (this.state.historicMin != null) {
+                historicMinLine = <path className="area-min prediction" d={this.state.historicMin} strokeLinecap="round" transform={translation} />
+            }
         }
 
         if (this.props.showPrediction && this.props.forecastData) {
@@ -435,14 +455,18 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         }
 
+        console.log("+++++++++++++++", historicMaxLine == null, historicMaxLine == null);
+
         return (
             <div className="container2d d-flex justify-content-center">
                 <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT} transform={translation}>
                     {maxArea}
+                    {historicMaxLine}
                     {avgline}
                     {histroicAvgLine}
-                    {forecastLine}
                     {minArea}
+                    {historicMinLine}
+                    {forecastLine}
                     <g className="x-axis" transform={'translate(' + TRANSLATION_X + "," + this.height + ')'} ref={this.xAxisRef}></g>;
                     <g className="y-axis" transform={translation} ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
@@ -524,11 +548,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         })
         return uniqueTimestamps;
     }
-    prepareDataForMaxLine() {
+    prepareDataForMaxLine(timestamps: string[], timeseries: timeseriesData[]) {
         const valuesOnTimestamp: timeseriesData[] = [];
-        this.uniqueTimestamps.forEach(timestamp => {
+        timestamps.forEach(timestamp => {
             const values = []
-            this.props.timeseriesData.forEach(element => {
+            timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
                     values.push(element.count);
                 }
@@ -539,11 +563,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         return valuesOnTimestamp;
     }
 
-    prepareDateForMinLine() {
+    prepareDateForMinLine(timestamps: string[], timeseries: timeseriesData[]) {
         const valuesOnTimestamp: timeseriesData[] = [];
-        this.uniqueTimestamps.forEach(timestamp => {
+        timestamps.forEach(timestamp => {
             const values = []
-            this.props.timeseriesData.forEach(element => {
+            timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
                     values.push(element.count);
                 }
