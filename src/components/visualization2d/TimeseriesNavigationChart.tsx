@@ -200,6 +200,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.combinedXScale.domain(combinedTimeDomain);
             this.combinedYScale.domain(combinedMaxCount);
             // generate the average line 
+
+            // console.log("CombinedYScaleDomain: ", this.combinedYScale.domain());
+
             this.combinedLineGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); });
             this.combinedLineGenerator.y(d => { return this.combinedYScale(d.count); });
 
@@ -540,20 +543,22 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     prepareDataForAvgLine(timestamps: string[], timeseries: timeseriesData[]) {
         const valuesOnTimestamp: timeseriesData[] = [];
         timestamps.forEach(timestamp => {
-            const values = []
+            let counter = 0
+            let sum = 0;
             timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
-                    values.push(element.count);
+                    counter++;
+                    sum += element.count
                 }
             });
 
-            var sum, avg = 0;
-            if (values.length) {
-                sum = values.reduce(function (a, b) { return a + b; });
-                avg = sum / values.length;
+            let avg = 0;
+            if (counter !== 0) {
+                avg = sum / counter;
             }
             valuesOnTimestamp.push({ timestamp: timestamp, count: avg })
         });
+        // todo combinedAvg for tooltip/mouseevents
         this.dataAvg = valuesOnTimestamp;
         return valuesOnTimestamp;
     }
