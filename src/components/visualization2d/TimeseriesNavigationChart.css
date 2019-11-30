@@ -75,8 +75,8 @@
 }
 
 .timeNowLine {
-    stroke      : black;
-    stroke-width: 1px;
+    stroke      : #21fa0d;
+    stroke-width: 2px;
     opacity     : 1;
 }
 

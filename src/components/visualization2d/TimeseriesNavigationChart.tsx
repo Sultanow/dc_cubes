@@ -78,11 +78,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     isDataCombined: boolean;
     forecastPreparationDone: boolean;
     preparedAvgData: timeseriesData[];
+    timeNowLineIsDrawn: boolean;
 
     constructor(props: any) {
         super(props);
         this.isDataCombined = false;
         this.forecastPreparationDone = false;
+        this.timeNowLineIsDrawn = false;
         this.xAxisRef = React.createRef();
         this.yAxisRef = React.createRef();
         this.brushRef = React.createRef();
@@ -141,7 +143,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         const min = this.areaGenerator(this.prepareDateForMinLine());
         this.setState({ min })
 
-        this.drawTimeNowLine()
     }
 
 
@@ -152,8 +153,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidUpdate() {
-
-
         if (!this.forecastPreparationDone && this.props.forecastReceived) {
             let minHistoricTs = this.xScale.domain()[0];
             let maxHistoricTs = this.xScale.domain()[1];
@@ -188,7 +187,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 this.setState({ historicAvg })
                 this.forecastPreparationDone = true;
             }
-
+            if (!this.timeNowLineIsDrawn) {
+                this.drawTimeNowLine()
+                this.timeNowLineIsDrawn = true;
+            }
             // d3.select(this.yAxisRef.current).call(d3.axisLeft(this.combinedYScale).ticks(5));
             // d3.select(this.xAxisRef.current).call(d3.axisBottom(this.combinedXScale).tickValues([]).tickSize(0));
         }
