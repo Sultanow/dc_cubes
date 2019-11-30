@@ -331,7 +331,7 @@ class App extends React.Component<{}, AppState> {
 
   accessChild = (stateElement, value) => {
     this.setState<never>({ [stateElement]: value }, () => {
-      console.log(this.state.customMapping.toString())
+      // console.log(this.state.customMapping.toString())
     })
   }
 
