@@ -195,12 +195,12 @@ class App extends React.Component<{}, AppState> {
       TimeseriesNavigationChartComponent = null;
     }
 
-    // Select data to display in 3D visualization
     let dataFor3DVisualization
-    if (this.state.timeSelectionMode === 'pointInTime') {
-      dataFor3DVisualization = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])
-    } else {
+    // Check if timespan or pointInTime mode is selected and select the data for 3D visualization accordingly
+    if (this.state.aggregatedData !== undefined) {
       dataFor3DVisualization = this.state.aggregatedData
+    } else {
+      dataFor3DVisualization = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])
     }
 
     return (
