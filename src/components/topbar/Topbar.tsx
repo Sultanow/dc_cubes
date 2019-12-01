@@ -30,6 +30,8 @@ interface TopbarProps {
     updateTimespanData: any
     changeIntervalOfDataRefresh: any
     clearIntervalOfDataRefresh: any
+    handlePredictionActivated: any
+    handlePredictionDeactivated: any
 }
 
 interface TopbarState {
@@ -55,7 +57,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                 <Link to="/" className="brand-container" style={{ textDecoration: 'none', fontSize: "16px" }}>
                     <span>DC</span>
                     <div id="icon-container">
-                        <img src={logo} alt="DC Cubes" style={{ height: "40px", width: "40px"}} />
+                        <img src={logo} alt="DC Cubes" style={{ height: "40px", width: "40px" }} />
                     </div>
                     <span>Cubes</span>
                 </Link>
@@ -103,7 +105,10 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                         refreshTimeUnit={this.state.refreshTimeUnit}
                                         automaticRefresh={this.state.automaticRefresh}
                                         accessTopbar={this.accessTopbar}
-                                        updateTimespanData={this.props.updateTimespanData} />
+                                        updateTimespanData={this.props.updateTimespanData}
+                                        handlePredictionActivated={this.props.handlePredictionActivated}
+                                        handlePredictionDeactivated={this.props.handlePredictionDeactivated}
+                                    />
                                 </Dropdown.Menu>
                             </Dropdown>
                             <DetailTimeSelection timespanTypeLowerBound={this.props.timespanTypeLowerBound}
@@ -124,7 +129,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                 </Form>
                 <Form>
                     <Button className="topbar-button" variant="light" onClick={this.manualRefresh}>
-                        <FontAwesomeIcon icon={faRedoAlt}/> <span>Aktualisieren</span>
+                        <FontAwesomeIcon icon={faRedoAlt} /> <span>Aktualisieren</span>
                     </Button>
                 </Form>
             </div>

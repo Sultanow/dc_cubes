@@ -59,6 +59,8 @@ interface AppState {
   customMapping: any
   aggregationType: AggregationType
   aggregatedData: DCState
+  
+  predictionActivated: boolean
 }
 
 class App extends React.Component<{}, AppState> {
@@ -67,7 +69,7 @@ class App extends React.Component<{}, AppState> {
     super(props)
     // Set initial lower bound of timespan by subtracting days
     const currentDate = new Date()
-    currentDate.setDate(currentDate.getDate()-1000)
+    currentDate.setDate(currentDate.getDate() - 1000)
 
     this.state = {
       logData: [],
@@ -111,8 +113,9 @@ class App extends React.Component<{}, AppState> {
         const strDataCenter: string = element["dc"];
         const strInstance: string = element["instanz"];
         const strSelectedMeasure: string = element[selectedMeasure];
-        return {strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure}
-      }
+        return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure }
+      },
+      predictionActivated: false
     };
   }
 
@@ -182,9 +185,11 @@ class App extends React.Component<{}, AppState> {
     let TimeseriesNavigationChartComponent;
     if (this.state.isRawTimeseriesDataLoaded) {
       TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
-      updateTimespanData={this.updateTimespanData}
-      resetSliderAndDates={this.updateSliderAndDates}
-      accessChild={this.accessChild} />
+        updateTimespanData={this.updateTimespanData}
+        resetSliderAndDates={this.updateSliderAndDates}
+        accessChild={this.accessChild}
+        showPrediction={this.state.predictionActivated}
+      />
     }
     else {
       TimeseriesNavigationChartComponent = null;
@@ -221,7 +226,10 @@ class App extends React.Component<{}, AppState> {
               pointInTimeTimestamp={this.state.pointInTimeTimestamp}
               updateTimespanData={this.updateTimespanData}
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
-              changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh} />
+              changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh}
+              handlePredictionActivated={this.handlePredictionActivated.bind(this)}
+              handlePredictionDeactivated={this.handlePredictionDeactivated.bind(this)}
+            />
 
             <Route exact path="/" render={
               (props) =>
@@ -297,6 +305,16 @@ class App extends React.Component<{}, AppState> {
     this.setState<never>({ intervalId: intervalId });
   }
 
+  handlePredictionActivated = () => {
+    console.log("App.tsx, prediction activated");
+    this.setState({ predictionActivated: true });
+
+  }
+
+  handlePredictionDeactivated = () => {
+    this.setState({ predictionActivated: false });
+  }
+
   clearIntervalOfDataRefresh = () => {
     // Deactivates automatic data refresh
     clearInterval(this.state.intervalId);
@@ -323,7 +341,7 @@ class App extends React.Component<{}, AppState> {
       const newPosition = this.state.temporalAxis.indexOf(this.state.pointInTimeTimestamp)
       if (newPosition !== -1) {
         this.setState({ selectedPointInTime: newPosition })
-      } else {        
+      } else {
         this.setState({ selectedPointInTime: this.state.temporalAxis.length - 1 })
       }
     }

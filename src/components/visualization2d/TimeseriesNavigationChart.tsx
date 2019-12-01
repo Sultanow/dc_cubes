@@ -7,6 +7,7 @@ interface TimeseriesNavigationChartProps {
     updateTimespanData: any
     resetSliderAndDates: any
     accessChild: any
+    showPrediction: boolean
 }
 
 interface TimeseriesNavigationChartState {
@@ -25,7 +26,8 @@ interface timestampData {
     count: number
 }
 
-const SVG_WIDTH = window.innerWidth / 1.5;
+const TRANSLATION_X = 40;
+const SVG_WIDTH = window.innerWidth / 1.7;
 const SVG_HEIGHT = 100;
 const SVG_ID = "TimeSeriesNavigationChart"
 
@@ -37,8 +39,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         min: null,
     }
 
-    private margin = { top: 0, right: 20, bottom: 5, left: 0 };
-    private width = SVG_WIDTH - (this.margin.left + this.margin.right);
+    private margin = { top: 0, right: 0, bottom: 5, left: 0 };
+    private width = SVG_WIDTH - TRANSLATION_X//- (this.margin.left + this.margin.right);
     private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
@@ -56,14 +58,20 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private dataAvg: timeseriesData[];
     private currentAvgValue: number;
 
+    private lastHistoricTimestamp: Date;
+
     constructor(props: any) {
         super(props);
         this.xAxisRef = React.createRef();
         this.yAxisRef = React.createRef();
         this.brushRef = React.createRef();
+
+        this.handlePredictionActivated.bind(this);
+        this.handlePredictionDeactivated.bind(this);
     }
 
     componentDidMount() {
+
         const { timeseriesData } = this.props;
         if (!timeseriesData) return;
 
@@ -77,7 +85,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
-
+        this.lastHistoricTimestamp = timeDomain[1];
         this.uniqueTimestamps = this.filterUniqueTimestamps();
 
         // generate the max area
@@ -100,6 +108,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         const min = this.areaGenerator(this.prepareDateForMinLine());
         this.setState({ min })
 
+
+        this.drawTimeNowLine()
     }
 
     componentDidUpdate() {
@@ -107,7 +117,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale).tickValues([]).tickSize(0));
         this.setupTooltip();
         this.setupBrush();
-        d3.select(".x-axis").selectAll(".tick text");
     }
 
     setupTooltip() {
@@ -119,17 +128,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             let mousePosition = d3.mouse(document.getElementById(SVG_ID));
             let xcoord: number = mousePosition[0];
-            let yAxis = d3.select("#"+SVG_ID).select(".y-axis").node() as Element
+            let yAxis = d3.select("#" + SVG_ID).select(".y-axis").node() as Element
             let bboxYaxis = yAxis.getBoundingClientRect();
             let bboxSvg = document.getElementById(SVG_ID).getBoundingClientRect();
             let xPositionOfYAxis = bboxYaxis.right - bboxSvg.left;
-            
+
             if (xcoord < xPositionOfYAxis) {
                 originalScope.hideTooltip();
                 return;
-            } 
-            
-            
+            }
 
             originalScope.drawMouseline(xcoord);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
@@ -140,11 +147,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }).on("mouseleave", function () {
             originalScope.hideTooltip();
         });
-    
+
     }
 
     hideTooltip() {
-        
+
         let tooltipElement: HTMLElement = document.getElementById('tooltip');
         d3.select("#tooltipDate").html("");
         d3.select("#tooltipAvg").html("");
@@ -164,12 +171,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     calculateOffset(): number {
-        let elemAxis = d3.select(".y-axis").node() as Element;
-        let bBoxAxis = elemAxis.getBoundingClientRect();
-        let elemSvg = d3.select("#" + SVG_ID).node() as Element;
-        let bBoxSvg = elemSvg.getBoundingClientRect();
-
-        return bBoxAxis.right - bBoxSvg.left - 8; // ToDo: magic number
+        let offset = TRANSLATION_X;
+        offset -= 2;
+        return offset;
     }
 
     setupBrush() {
@@ -192,14 +196,14 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let mousePosition = d3.mouse(document.getElementById(SVG_ID));
         let bbox = document.getElementById(SVG_ID).getBoundingClientRect();
         let xcoord: number = d3.event.pageX || mousePosition[0] + bbox.left;
-        let ycoord: number =d3.event.pageY || mousePosition[1] + bbox.top;
+        let ycoord: number = d3.event.pageY || mousePosition[1] + bbox.top;
         let offsetX = -70;
         let offsetY = 90;
-        
+
         d3.select("#tooltipDate").html(dp.timestamp);
         d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
         this.currentAvgValue = Math.floor(dp.count);
-        
+
         d3.select("#tooltip").style("top", ycoord - offsetY + "px")
             .style("left", xcoord + offsetX + "px")
     }
@@ -224,6 +228,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             });
             d3.select(".mouseClick").classed("hidden", false);
             let date = this.getValidDatapointFromMousePosition(clickedXCoord);
+            if (date == null) return;
             this.props.resetSliderAndDates(date.timestamp);
             this.props.accessChild("currentAvgValue", this.currentAvgValue);
             return;
@@ -240,18 +245,23 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             timespanTypeLowerBound: 'absolute',
             sliderMode: 'timespan'
         }
-        
+
         this.props.updateTimespanData(newTimespanData);
         this.props.accessChild("currentAvgValue", this.currentAvgValue);
     }
 
     getValidDatapointFromMousePosition(xCoord) {
         let offset: number = this.calculateOffset();
-        let bisectDate = d3.bisector(function (d: timeseriesData) { return d.timestamp; }).left;
-        let dateString = this.convertDateObjectToString(this.xScale.invert(xCoord - offset));
-        let indexOfDatapoint = bisectDate(this.dataAvg, dateString);
+        let newDate: Date = this.xScale.invert(xCoord - offset);
+        newDate = this.roundDateToNearest15Min(newDate);
+        let newDateString = this.convertDateObjectToString(newDate);
+        return this.dataAvg.find(x => x.timestamp == newDateString);
+    }
 
-        return this.dataAvg[indexOfDatapoint]
+    roundDateToNearest15Min(date: Date): Date {
+        let minutes = 15;
+        let ms = 1000 * 60 * minutes;
+        return new Date(Math.round(date.getTime() / ms) * ms);
     }
 
     toggleChartMax() {
@@ -271,35 +281,46 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     render() {
+
+        if (this.props.showPrediction) {
+            this.handlePredictionActivated()
+        }
+        else {
+            this.handlePredictionDeactivated();
+        }
+        const translation = "translate(" + TRANSLATION_X + ",0)";
         var maxArea = null;
         if (this.state.max != null) {
-            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform="translate(40,0)" />
+            maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform={translation} />
         }
 
         var avgline = null;
         if (this.state.average != null) {
-            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" transform="translate(40,0)" />
+            avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" transform={translation} />
         }
 
         var minArea = null;
         if (this.state.min != null) {
-            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform="translate(40,0)" />
+            minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform={translation} />
         }
 
         return (
             <div className="container2d d-flex justify-content-center">
-                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT}>
+                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT} transform={translation}>
                     {maxArea}
                     {avgline}
                     {minArea}
-                    <g className="x-axis" transform={'translate(39,' + this.height + ')'} ref={this.xAxisRef}></g>;
-                    <g className="y-axis" transform="translate(39,0)" ref={this.yAxisRef}></g>;
+                    <g className="x-axis" transform={'translate(' + TRANSLATION_X + "," + this.height + ')'} ref={this.xAxisRef}></g>;
+                    <g className="y-axis" transform={translation} ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
                     <g className="mouseLine mouseClick">
                         <path id="selectedDatapointLine"></path>
                     </g>
                     <g className="mouseLine mouseMove">
                         <path id="mouseLine"></path>
+                    </g>
+                    <g className="timeNowLine">
+                        <path id="timeNowLine"></path>
                     </g>
                 </svg>
                 <div className="verticalContainer">
@@ -420,6 +441,33 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         });
         this.dataAvg = valuesOnTimestamp;
         return valuesOnTimestamp;
+    }
+
+    handlePredictionActivated() {
+        this.showTimeNowLine()
+    }
+
+    handlePredictionDeactivated() {
+        this.hideTimeNowLine();
+
+    }
+
+    drawTimeNowLine() {
+        let xcoord = this.xScale(this.lastHistoricTimestamp);
+        xcoord += this.calculateOffset();
+        d3.select("#timeNowLine").attr("d", function () {
+            var d = "M" + xcoord + "," + SVG_HEIGHT;
+            d += " " + xcoord + "," + 0;
+            return d;
+        });
+        this.hideTimeNowLine();
+    }
+    showTimeNowLine() {
+        d3.select(".timeNowLine").classed("hidden", false);
+    }
+
+    hideTimeNowLine() {
+        d3.select(".timeNowLine").classed("hidden", true);
     }
 
 }
