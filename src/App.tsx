@@ -166,6 +166,18 @@ class App extends React.Component<{}, AppState> {
       console.log(error)
     })
 
+    this.getAggregatedLogData()
+  }
+
+  getAggregatedLogData = () => {
+    const dataService = new DataService(this.state.dataSource,
+      this.state.timespanAbsoluteTimestampLowerBound,
+      this.state.timespanAbsoluteTimestampUpperBound, 
+      this.state.selectedMeasure, 
+      this.state.aggregationType, 
+      this.state.solrBaseUrl, 
+      this.state.solrCore)
+
     dataService.getAggregatedLogData().then((data: any) => {
       const solrAdapter = new SolrAdapter
       let strTimeStamp = "timespan"
@@ -177,7 +189,7 @@ class App extends React.Component<{}, AppState> {
           })
         })
       })
-      this.setState<never>({ aggData: solrAdapter.timeSeries.get("timespan") });      
+      this.setState<never>({ aggregatedData: solrAdapter.timeSeries.get(strTimeStamp) });      
     })
   }
 
@@ -197,7 +209,9 @@ class App extends React.Component<{}, AppState> {
 
     let dataFor3DVisualization
     // Check if timespan or pointInTime mode is selected and select the data for 3D visualization accordingly
-    if (this.state.aggregatedData !== undefined) {
+    if (this.state.timeSelectionMode === "pointInTime") {
+      dataFor3DVisualization = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])
+    } else if (this.state.aggregatedData !== undefined && this.state.timeSelectionMode === "timespan") {
       dataFor3DVisualization = this.state.aggregatedData
     } else {
       dataFor3DVisualization = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])
@@ -251,7 +265,8 @@ class App extends React.Component<{}, AppState> {
                       isLoading={this.state.isLoading}
                       timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
                       timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
-                      currentAvg={this.state.currentAvgValue}
+                      aggregationType={this.state.aggregationType}
+                      updateAggregationType={this.updateAggregationType}
                     >
                       {TimeseriesNavigationChartComponent}
                     </CubesVisualization>
@@ -322,6 +337,12 @@ class App extends React.Component<{}, AppState> {
 
   accessChild = (stateElement, value) => {
     this.setState<never>({ [stateElement]: value })
+  }
+
+  updateAggregationType = (aggregationType: AggregationType) => {
+    this.setState({ aggregationType: aggregationType }, () => {
+      this.getAggregatedLogData()
+    })
   }
 
   updateTimespanData = (newTimespanData: object) => {

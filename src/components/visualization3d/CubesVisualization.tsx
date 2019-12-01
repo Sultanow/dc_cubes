@@ -1,6 +1,6 @@
 import React from 'react'
 import * as THREE from 'three'
-/* import { Container } from 'react-bootstrap' */
+import { Form } from 'react-bootstrap'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls'
 import DCState from '../../model/DCState'
 import Datacenter from '../../model/Datacenter'
@@ -9,12 +9,13 @@ import Instance from '../../model/Instance'
 /* import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider' */
 import './CubesVisualization.css'
-/* import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+/* import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
 import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 import { Button } from "react-bootstrap"; */
 import LoadingOverlay from "react-loading-overlay"
 import BarLoader from 'react-spinners/BarLoader'
+import AggregationType from '../../model/AggregationType'
 /* import Filter from "../Filter" */
 
 interface CubesVisProps {
@@ -34,7 +35,8 @@ interface CubesVisProps {
     isLoading: boolean
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    currentAvg: number
+    aggregationType: AggregationType
+    updateAggregationType: any
 }
 
 interface Bar {
@@ -94,21 +96,30 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             timestamp = '';
         }
 
+        const aggregationTypes = {"avg": "Mittelwert", "sum": "Summe", "min": "Minimum", "max": "Maximum"}
+
         return (
             <div className="cubes-visualization col-md-9">
                 {/* <Filter /> */}
                 <header className="content-header">
                     <div className="param-info-container">
-                        <span style={{ marginRight: "40px", marginLeft: "10px", fontWeight: "bold" }}>CPU-Auslastung:&nbsp;
+                        <Form.Control size="sm" className="selectAggregation" as="select" name="aggregationType" value={this.props.aggregationType} onChange={this.handleChange}>
+                            {
+                                Object.keys(aggregationTypes).map((aggregationType, index) => (
+                                    <option key={index} value={aggregationType}>{aggregationTypes[aggregationType]}</option>
+                                ))
+                            }
+                        </Form.Control>
+                        {/* <span style={{ marginRight: "40px", marginLeft: "10px", fontWeight: "bold" }}>CPU-Auslastung:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
                                 {this.props.valueOfSlider}
                             </span>
                         </span>
                         <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;
                             <span style={{ fontWeight: "normal" }}>
-                                {this.props.currentAvg}
+                                {this.props.aggregationType}
                             </span>
-                        </span>
+                        </span> */}
                     </div>
                     {/* <div>
                         <Button className="btn-util">
@@ -504,7 +515,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         this.frameId = window.requestAnimationFrame(this.loopVis);
     };
 
-    resizeCanvasToDisplaySize() {
+    resizeCanvasToDisplaySize = () => {
         const canvas = this.renderer.domElement
         const width = canvas.parentElement.parentElement.clientWidth
         const height = canvas.parentElement.parentElement.clientHeight
@@ -517,6 +528,12 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             // set render target sizes here
         }
     } 
+
+    handleChange = (e) => {
+        /* const stateElement = e.target.name
+        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value */
+        this.props.updateAggregationType(e.target.value)
+    }
 }
 
 export default CubesVisualization;
