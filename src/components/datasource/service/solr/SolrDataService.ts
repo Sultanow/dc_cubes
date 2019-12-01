@@ -19,10 +19,16 @@ export default class SolrDataService implements DataSourceService {
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
     getLogData = (from: string, to: string): any => {
-        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']' + '&sort=timestamp+asc' + '&rows=' + this.resultLimit
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc&rows=' + this.resultLimit
         const url = this.solrBaseUrl + this.solrCore + query
-        return httpClient.get(url);
-    };
+        return httpClient.get(url)
+    }
+
+    getAllLogData = () => {
+        const query = '/query?q=*:*&sort=timestamp+asc&rows=' + this.resultLimit
+        const url = this.solrBaseUrl + this.solrCore + query
+        return httpClient.get(url)
+    }
         
     getAggregatedLogData = (from: string, to: string, selectedMeasure: string, aggregationType: AggregationType) => {
         const query = {

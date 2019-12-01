@@ -9,8 +9,8 @@ import Instance from '../../model/Instance'
 /* import PointInTimeSlider from '../slider/PointInTimeSlider'
 import TimeSpanSlider from '../slider/TimespanSlider' */
 import './CubesVisualization.css'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 /* import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
 import { Button } from "react-bootstrap"; */
 import LoadingOverlay from "react-loading-overlay"
@@ -96,7 +96,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             timestamp = '';
         }
 
-        const aggregationTypes = {"avg": "Mittelwert", "sum": "Summe", "min": "Minimum", "max": "Maximum"}
+        const aggregationTypes = {"avg": "Mittelwert", "sum": "Summe", "max": "Maximum", "min": "Minimum"}
 
         return (
             <div className="cubes-visualization col-md-9">
@@ -178,7 +178,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     }
     componentDidUpdate() {
         console.log("Component Did update")
-        var t0 = performance.now();
+        // let t0 = performance.now();
 
         // console.log(this.renderer.info)
 
@@ -187,7 +187,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             this.createCubeData();
         }
         this.renderVis();
-        var t1 = performance.now();
+        // let t1 = performance.now();
         // console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
     }
 

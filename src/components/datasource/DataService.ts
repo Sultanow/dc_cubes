@@ -30,13 +30,13 @@ export default class DataService {
 
     getLogData = () => {
         return this.dataSourceService.getLogData(this.from, this.to)
-    };
+    }
+
+    getAllLogData = () => {
+        return this.dataSourceService.getAllLogData()
+    }
         
     getAggregatedLogData = () => {
         return this.dataSourceService.getAggregatedLogData(this.from, this.to, this.selectedMeasure, this.aggregationType)
-    };
-
-    getAllSolrCores = () => {
-
-    };
+    }
 }

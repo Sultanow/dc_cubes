@@ -14,9 +14,6 @@ import DCState from './model/DCState'
 import TimeUnit from './model/TimeUnit'
 import DataSource from './model/DataSource'
 import AggregationType from './model/AggregationType'
-import Datacenter from './model/Datacenter'
-import Instance from './model/Instance'
-import Cluster from './model/Cluster'
 
 interface AppState {
   logData: []
@@ -138,13 +135,13 @@ class App extends React.Component<{}, AppState> {
                                         this.state.aggregationType, 
                                         this.state.solrBaseUrl, 
                                         this.state.solrCore)
-    dataService.getLogData().then((data: any) => {
+    // Initially get all data because the placeholder visualization needs the full temporalAxis
+    dataService.getAllLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
       solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure)
 
       this.setState({
-        // there is a bug, the last element is allways undefined
         temporalAxis: solrAdapter.temporalAxis,
         timeSeries: solrAdapter.timeSeries,
         clusterColors: solrAdapter.clusterColors,
@@ -179,7 +176,7 @@ class App extends React.Component<{}, AppState> {
       this.state.solrCore)
 
     dataService.getAggregatedLogData().then((data: any) => {
-      const solrAdapter = new SolrAdapter
+      const solrAdapter = new SolrAdapter()
       let strTimeStamp = "timespan"
 
       data.data.facets.datacenters.buckets.forEach(strDataCenter => {
@@ -189,7 +186,10 @@ class App extends React.Component<{}, AppState> {
           })
         })
       })
-      this.setState<never>({ aggregatedData: solrAdapter.timeSeries.get(strTimeStamp) });      
+      this.setState<never>({ aggregatedData: solrAdapter.timeSeries.get(strTimeStamp)})     
+    }).catch((error: any) => {
+      this.setState({ dataSourceError: true })
+      console.log(error)
     })
   }
 
@@ -341,7 +341,7 @@ class App extends React.Component<{}, AppState> {
 
   updateAggregationType = (aggregationType: AggregationType) => {
     this.setState({ aggregationType: aggregationType }, () => {
-      this.getAggregatedLogData()
+      this.getLogData()
     })
   }
 
@@ -354,7 +354,8 @@ class App extends React.Component<{}, AppState> {
 
   updateSliderAndDates = (DateToReset: string) => {
     this.setState({ timeSelectionMode: "pointInTime", pointInTimeTimestamp: DateToReset, sliderMode: "pointInTime" });
-    this.calculateAndSetPositionOfPointInTimeSlider();
+    this.calculateAndSetPositionOfPointInTimeSlider()
+    this.getLogData()
   }
 
   calculateAndSetPositionOfPointInTimeSlider = () => {

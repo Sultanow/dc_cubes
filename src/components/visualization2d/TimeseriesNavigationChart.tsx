@@ -255,7 +255,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let newDate: Date = this.xScale.invert(xCoord - offset);
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);
-        return this.dataAvg.find(x => x.timestamp == newDateString);
+        return this.dataAvg.find(x => x.timestamp === newDateString);
     }
 
     roundDateToNearest15Min(date: Date): Date {
@@ -448,8 +448,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     handlePredictionDeactivated() {
-        this.hideTimeNowLine();
-
+        this.hideTimeNowLine()
     }
 
     drawTimeNowLine() {
@@ -462,6 +461,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         });
         this.hideTimeNowLine();
     }
+
     showTimeNowLine() {
         d3.select(".timeNowLine").classed("hidden", false);
     }
