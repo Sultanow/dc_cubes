@@ -20,10 +20,11 @@ interface TimeseriesNavigationChartState {
     combinedAverage: string,
     combinedMin: string,
 
+    flatForecastData: [{ timestamp: string, count: number }]
     // these are used if prediction is shown
     historicAvg: string,
     historicMax: string,
-    historicMin: string
+    historicMin: string,
 }
 
 interface timeseriesData {
@@ -54,6 +55,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         historicAvg: null,
         historicMin: null,
         historicMax: null,
+
+        flatForecastData: null
     }
 
     private margin = { top: 0, right: 0, bottom: 5, left: 0 };
@@ -77,21 +80,22 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     private uniqueTimestamps: string[];
     private combinedUniqueTimestamps: string[];
-    private dataAvg: timeseriesData[];
     private currentAvgValue: number;
 
+    private currentAvgData: timeseriesData[];
+    private currentXScale: d3.ScaleTime<Number, Number>;
+
     private lastHistoricTimestamp: Date;
-    combinedData: timeseriesData[];
-    isDataCombined: boolean;
-    forecastPreparationDone: boolean;
-    preparedAvgData: timeseriesData[];
-    timeNowLineIsDrawn: boolean;
-    preparedMinData: timeseriesData[];
-    preparedMaxData: timeseriesData[];
+    private combinedData: timeseriesData[];
+    private forecastPreparationDone: boolean;
+    private preparedAvgData: timeseriesData[];
+    private timeNowLineIsDrawn: boolean;
+    private preparedMinData: timeseriesData[];
+    private preparedMaxData: timeseriesData[];
+    private preparedCombinedAvgData: timeseriesData[];
 
     constructor(props: any) {
         super(props);
-        this.isDataCombined = false;
         this.forecastPreparationDone = false;
         this.timeNowLineIsDrawn = false;
         this.xAxisRef = React.createRef();
@@ -115,9 +119,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         const maxCount = [0, d3.max(timeseriesData, d => {
             return d.count + 100;
         })];
-        if (this.props.forecastData) {
-            this.isDataCombined = true;
-        }
 
         this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
@@ -144,7 +145,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
         this.areaGenerator.y0(this.yScale(0))
         this.areaGenerator.y1(d => { return this.yScale(d.count); });
-        this.preparedMinData = this.prepareDateForMinLine(this.uniqueTimestamps, this.props.timeseriesData);
+        this.preparedMinData = this.prepareDataForMinLine(this.uniqueTimestamps, this.props.timeseriesData);
         const min = this.areaGenerator(this.preparedMinData);
         this.setState({ min })
 
@@ -157,14 +158,27 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         // todo: use this?
     }
 
+    // TODO: Remove once the docs in solr aren't in an array anymore
+    flattenForecastData() {
+        if (this.props.forecastData) {
+            this.state.flatForecastData = this.props.forecastData.map(data => {
+                data.count = data.count[0]
+                data.timestamp = data.timestamp[0]
+                return data
+            })
+        }
+    }
+
     componentDidUpdate() {
         if (!this.forecastPreparationDone && this.props.forecastReceived) {
+            this.flattenForecastData();
+
             let minHistoricTs = this.xScale.domain()[0];
             let maxHistoricTs = this.xScale.domain()[1];
 
             // array is sorted already
-            let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
-            let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
+            let minPredictionTs = this.parseDate(this.state.flatForecastData[0].timestamp);
+            let maxPredictionTs = this.parseDate(this.state.flatForecastData[this.props.forecastData.length - 1].timestamp);
             const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
 
             if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
@@ -172,7 +186,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             }
 
             let maxOfHistoric = this.yScale.domain()[1];
-            let maxOfPrediction = Math.max.apply(Math, this.props.forecastData.map(function (d) { return d.count; }));
+            let maxOfPrediction = Math.max.apply(Math, this.state.flatForecastData.map(function (d) { return d.count; }));
             let combinedMaxCount = [0, (maxOfHistoric > maxOfPrediction ? maxOfHistoric : maxOfPrediction)];
 
             this.combinedXScale.domain(combinedTimeDomain);
@@ -186,10 +200,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
 
             if (this.combinedUniqueTimestamps == null) {
-                this.combinedUniqueTimestamps = this.filterUniqueTimestamps(this.props.forecastData);
+                this.combinedUniqueTimestamps = this.filterUniqueTimestamps(this.state.flatForecastData);
             }
             if (!this.state.combinedAverage) {
-                const combinedAverage = this.combinedLineGenerator(this.prepareDataForAvgLine(this.combinedUniqueTimestamps, this.props.forecastData));
+                this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.combinedUniqueTimestamps, this.state.flatForecastData);
+                const combinedAverage = this.combinedLineGenerator(this.preparedCombinedAvgData);
                 this.setState({ combinedAverage });
                 const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
                 this.setState({ historicAvg })
@@ -303,7 +318,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     brushEnd() {
-        let selectedArea = d3.event.selection || this.xScale.range(); // if selection is null, selectedArea = [0,880]
+        let selectedArea = d3.event.selection || this.currentXScale.range(); // if selection is null, selectedArea = [0,880]
         let brushMinimum = selectedArea[0];
         let brushMaximum = selectedArea[1];
 
@@ -345,10 +360,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     getValidDatapointFromMousePosition(xCoord) {
         let offset: number = this.calculateOffset();
-        let newDate: Date = this.xScale.invert(xCoord - offset);
+        debugger;
+        let newDate: Date = this.currentXScale.invert(xCoord - offset);
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);
-        return this.dataAvg.find(x => x.timestamp == newDateString);
+        return this.currentAvgData.find(x => x.timestamp == newDateString);
     }
 
     roundDateToNearest15Min(date: Date): Date {
@@ -536,14 +552,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     filterUniqueTimestamps(timeseriesData: timeseriesData[]): string[] {
         var uniqueTimestamps: string[] = []
         for (var i = 0; i < timeseriesData.length; i++) {
+            if (Array.isArray(timeseriesData[i].timestamp)) {
+                // in the forecast core, the timestamps are in an array of length 1 at position[0]
+                timeseriesData[i].timestamp = timeseriesData[i].timestamp[0];
+            }
             if (uniqueTimestamps.indexOf(timeseriesData[i].timestamp) === -1) {
                 if (timeseriesData[i].timestamp !== undefined)
                     uniqueTimestamps.push(timeseriesData[i].timestamp);
             }
         }
-        uniqueTimestamps.sort((x, y) => {
-            return Date.parse(x) - Date.parse(y);
-        })
         return uniqueTimestamps;
     }
     prepareDataForMaxLine(timestamps: string[], timeseries: timeseriesData[]) {
@@ -561,7 +578,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         return valuesOnTimestamp;
     }
 
-    prepareDateForMinLine(timestamps: string[], timeseries: timeseriesData[]) {
+    prepareDataForMinLine(timestamps: string[], timeseries: timeseriesData[]) {
         const valuesOnTimestamp: timeseriesData[] = [];
         timestamps.forEach(timestamp => {
             const values = []
@@ -595,17 +612,20 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             valuesOnTimestamp.push({ timestamp: timestamp, count: avg })
         });
         // todo combinedAvg for tooltip/mouseevents
-        this.dataAvg = valuesOnTimestamp;
+        this.currentAvgData = valuesOnTimestamp;
         return valuesOnTimestamp;
     }
 
     handlePredictionActivated() {
         this.showTimeNowLine()
+        this.currentAvgData = this.preparedCombinedAvgData;
+        this.currentXScale = this.combinedXScale;
     }
 
     handlePredictionDeactivated() {
         this.hideTimeNowLine();
-
+        this.currentAvgData = this.preparedAvgData;
+        this.currentXScale = this.xScale;
     }
 
     drawTimeNowLine() {
