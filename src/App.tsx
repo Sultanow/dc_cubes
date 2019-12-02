@@ -201,6 +201,7 @@ class App extends React.Component<{}, AppState> {
         resetSliderAndDates={this.updateSliderAndDates}
         accessChild={this.accessChild}
         showPrediction={this.state.predictionActivated}
+        selectedMeasure={this.state.selectedMeasure}
       />
     }
     else {
@@ -267,6 +268,8 @@ class App extends React.Component<{}, AppState> {
                       timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
                       aggregationType={this.state.aggregationType}
                       updateAggregationType={this.updateAggregationType}
+                      selectedMeasure={this.state.selectedMeasure}
+                      updateSelectedMeasure={this.updateSelectedMeasure}
                     >
                       {TimeseriesNavigationChartComponent}
                     </CubesVisualization>
@@ -341,6 +344,12 @@ class App extends React.Component<{}, AppState> {
 
   updateAggregationType = (aggregationType: AggregationType) => {
     this.setState({ aggregationType: aggregationType }, () => {
+      this.getLogData()
+    })
+  }
+
+  updateSelectedMeasure = (selectedMeasure: string) => {
+    this.setState({ selectedMeasure: selectedMeasure }, () => {
       this.getLogData()
     })
   }

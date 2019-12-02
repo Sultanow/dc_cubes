@@ -36,7 +36,9 @@ interface CubesVisProps {
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
     aggregationType: AggregationType
+    selectedMeasure: string
     updateAggregationType: any
+    updateSelectedMeasure: any
 }
 
 interface Bar {
@@ -47,6 +49,14 @@ interface Bar {
 }
 
 class CubesVisualization extends React.Component<CubesVisProps> {
+
+    measures = {
+        "count": "Auslastung",
+        "minv": "minv",
+        "maxv": "maxv",
+        "dev_low": "dev_low",
+        "dev_upp": "dev_upp"
+    }
 
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -103,23 +113,22 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                 {/* <Filter /> */}
                 <header className="content-header">
                     <div className="param-info-container">
-                        <Form.Control size="sm" className="selectAggregation" as="select" name="aggregationType" value={this.props.aggregationType} onChange={this.handleChange}>
-                            {
-                                Object.keys(aggregationTypes).map((aggregationType, index) => (
-                                    <option key={index} value={aggregationType}>{aggregationTypes[aggregationType]}</option>
-                                ))
-                            }
-                        </Form.Control>
-                        {/* <span style={{ marginRight: "40px", marginLeft: "10px", fontWeight: "bold" }}>CPU-Auslastung:&nbsp;
-                            <span style={{ fontWeight: "normal" }}>
-                                {this.props.valueOfSlider}
-                            </span>
-                        </span>
-                        <span style={{ fontWeight: "bold" }}>Mittelwert:&nbsp;
-                            <span style={{ fontWeight: "normal" }}>
-                                {this.props.aggregationType}
-                            </span>
-                        </span> */}
+                        <Form inline>
+                        <   Form.Control  size="sm" className="selectAggregation" as="select" name="aggregationType" value={this.props.aggregationType} onChange={this.handleChange}>
+                                {
+                                    Object.keys(aggregationTypes).map((aggregationType, index) => (
+                                        <option key={index} value={aggregationType}>{aggregationTypes[aggregationType]}</option>
+                                    ))
+                                }
+                            </Form.Control>
+                            <Form.Control size="sm" className="selectMeasure" as="select" name="selectedMeasure" value={this.props.selectedMeasure} onChange={this.handleChange}>
+                                {
+                                    Object.keys(this.measures).map((measure, index) => (
+                                        <option key={index} value={measure}>{this.measures[measure]}</option>
+                                    ))
+                                }
+                            </Form.Control>
+                        </Form>
                     </div>
                     {/* <div>
                         <Button className="btn-util">
@@ -530,9 +539,13 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     } 
 
     handleChange = (e) => {
-        /* const stateElement = e.target.name
-        const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value */
-        this.props.updateAggregationType(e.target.value)
+        const stateElement = e.target.name
+
+        if (stateElement === 'selectedMeasure') {
+            this.props.updateSelectedMeasure(e.target.value)
+        } else {
+            this.props.updateAggregationType(e.target.value)
+        }
     }
 }
 
