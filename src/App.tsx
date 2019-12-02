@@ -40,8 +40,14 @@ interface AppState {
   pointInTimeTimestamp: string
 
   sliderMode: 'pointInTime' | 'timespan' | 'hidden'
+  // the current temporal axis
   temporalAxis: string[]
+  // tempAxis including the historic Data
+  historicTemporalAxis: string[]
+  // tempAxis including the histroic+prediction Data
+  combinedTemporalAxis: string[]
   timeSeries: Map<string, DCState>
+  combinedTimeSeries: Map<string, DCState>
   clusterColors: object
   grid: Map<string, Array<number>>
   maxH: number
@@ -61,6 +67,7 @@ interface AppState {
   forecastDataReceived: boolean
   rawForecastData: any,
   isRawForecastDataLoaded: boolean
+  // tempAxis including the forecast Data
   forecastTemporalAxis: string[]
   forecastTimeSeries: Map<string, DCState>
   forecastGrid: Map<string, Array<number>>
@@ -99,7 +106,10 @@ class App extends React.Component<{}, AppState> {
       pointInTimeTimestamp: "",
       sliderMode: 'pointInTime',
       temporalAxis: [],
+      historicTemporalAxis: [],
+      combinedTemporalAxis: [],
       timeSeries: new Map(),
+      combinedTimeSeries: new Map(),
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
@@ -148,10 +158,12 @@ class App extends React.Component<{}, AppState> {
     dataService.getLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
+
       solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure)
 
       this.setState({
         // there is a bug, the last element is allways undefined
+        historicTemporalAxis: solrAdapter.temporalAxis,
         temporalAxis: solrAdapter.temporalAxis,
         timeSeries: solrAdapter.timeSeries,
         clusterColors: solrAdapter.clusterColors,
@@ -181,7 +193,9 @@ class App extends React.Component<{}, AppState> {
       this.setState({
         // there is a bug, the last element is allways undefined
         forecastTemporalAxis: solrAdapter.temporalAxis,
+        combinedTemporalAxis: this.state.temporalAxis.concat(solrAdapter.temporalAxis),
         forecastTimeSeries: solrAdapter.timeSeries,
+        combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(solrAdapter.timeSeries.entries())]),
         forecastGrid: solrAdapter.grid,
         forecastMaxH: solrAdapter.maxh,
         dataSourceError: false,
@@ -212,6 +226,14 @@ class App extends React.Component<{}, AppState> {
     else {
       TimeseriesNavigationChartComponent = null;
     }
+    console.log("App render. Last element in temporalAxis: ", this.state.temporalAxis[this.state.temporalAxis.length - 1])
+    let cubesVisData = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
+    if (this.state.predictionActivated) {
+      if (this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]) !== null) {
+        cubesVisData = this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
+      }
+    }
+    console.log("App cubesVisData", cubesVisData);
     return (
       <BrowserRouter>
         <div className="App">
@@ -245,7 +267,7 @@ class App extends React.Component<{}, AppState> {
                 <React.Fragment>
                   <div className="content-row" >
                     <CubesVisualization {...props}
-                      data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                      data={cubesVisData} //{this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
                       clusterColors={this.state.clusterColors}
                       grid={this.state.grid}
                       maxH={this.state.maxH}
@@ -317,11 +339,12 @@ class App extends React.Component<{}, AppState> {
   handlePredictionActivated = () => {
     console.log("App.tsx, prediction activated");
     this.setState({ predictionActivated: true });
-
+    this.setState({ temporalAxis: this.state.combinedTemporalAxis });
   }
 
   handlePredictionDeactivated = () => {
     this.setState({ predictionActivated: false });
+    this.setState({ temporalAxis: this.state.historicTemporalAxis })
   }
 
   clearIntervalOfDataRefresh = () => {

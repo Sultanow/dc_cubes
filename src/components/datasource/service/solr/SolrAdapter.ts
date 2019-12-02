@@ -28,8 +28,11 @@ export default class SolrAdapter {
 
         datajson.forEach(element => {
             // TODO: make stringutilization dynamic to vis diffrent metrics
-            const { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure } = customMapping(element, selectedMeasure)
-
+            let { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure } = customMapping(element, selectedMeasure)
+            // in the forecast core, the timestamps are in an array of length 1 at position[0]
+            if (Array.isArray(strTimeStamp)) {
+                strTimeStamp = strTimeStamp[0];
+            }
             if (this.maxh <= Number(strSelectedMeasure)) {
                 this.maxh = Number(strSelectedMeasure);
             }

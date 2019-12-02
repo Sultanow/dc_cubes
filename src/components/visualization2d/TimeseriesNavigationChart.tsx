@@ -455,8 +455,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         }
 
-        console.log("+++++++++++++++", historicMaxLine == null, historicMaxLine == null);
-
         return (
             <div className="container2d d-flex justify-content-center">
                 <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT} transform={translation}>

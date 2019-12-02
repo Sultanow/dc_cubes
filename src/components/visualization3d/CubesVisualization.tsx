@@ -93,7 +93,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         } else {
             timestamp = '';
         }
-
+        console.log("CubesVis render: timestamp, selectedPointInTimeTimestamp: ", timestamp, this.props.selectedPointInTimeTimestamp)
         return (
             <div className="cubes-visualization col-md-9">
                 {/* <Filter /> */}
@@ -119,23 +119,23 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                         </Button>
                     </div> */}
                 </header>
-                <div style={{height:"63vh"}} className="content-container d-flex justify-content-center">
+                <div style={{ height: "63vh" }} className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
                         spinner={<BarLoader
                             color={"#f7b613"}
                             css={"background-color: #1b76ef"}
                         />}
-                        text='Loading Data...' 
+                        text='Loading Data...'
                     >
-                        <div style={{ height:"100%", width:"100%"}}>
-                            <div id="cubes-visualization" style={{ height:"100%", width:"100%"}} />
+                        <div style={{ height: "100%", width: "100%" }}>
+                            <div id="cubes-visualization" style={{ height: "100%", width: "100%" }} />
                         </div>
                     </LoadingOverlay>
                 </div>
                 <header className="content-header" style={{ marginTop: "10px" }}>
                     <div className="param-info-container">
-                        <div style={{ marginLeft: "10px"}}>{timestamp}</div>
+                        <div style={{ marginLeft: "10px" }}>{timestamp}</div>
                     </div>
                     {/* <div>
                         <Button className="btn-util">
@@ -155,9 +155,9 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     };
 
     componentDidMount() {
-        console.log("Component Did mount")
+        console.log("CubesVis-Component Did mount");
+        console.log("CubesVis-Component props.data: ", this.props.data);
         this.initVis();
-
         // necessary for react-router
         if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
@@ -263,7 +263,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     }
 
     createBar(x: number, z: number, h: number, textLabel: string, color: number,
-             datacenter: string, cluster: string, instanceId: string) {
+        datacenter: string, cluster: string, instanceId: string) {
         // Cube init
         var geometry = new THREE.BoxBufferGeometry(40, h, 40);
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, h / 2, 0));
@@ -444,7 +444,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                 let geom = new THREE.Geometry();
                 let allBarsOfThisCluster = this.bars.filter(bar => bar.cluster === cluster);
                 let gset = [];
-                
+
                 allBarsOfThisCluster.forEach(bar => {
                     let cube = bar.cube;
                     let boxGeom = new THREE.Geometry().fromBufferGeometry(cube.geometry);
@@ -455,16 +455,16 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                 let bufGeometry = new THREE.BufferGeometry().fromGeometry(geom);
                 bufGeometry.computeBoundingBox();
                 let bbox = bufGeometry.boundingBox.clone();
-        
+
                 // remove old helper box 
                 if (this.currentHelperBox != null) this.scene.remove(this.currentHelperBox);
-                
+
                 // set new helper box as the current one
                 let helper = new THREE.Box3Helper(bbox, new THREE.Color(0xff0000));
                 this.currentHelperBox = helper;
                 // add the class property instead of the variable to ensure only one is shown at all times
                 this.scene.add(this.currentHelperBox);
-        
+
                 this.renderVis();
             }
         }
@@ -508,15 +508,15 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         const canvas = this.renderer.domElement
         const width = canvas.parentElement.parentElement.clientWidth
         const height = canvas.parentElement.parentElement.clientHeight
-        if (canvas.width !== width ||canvas.height !== height) {
+        if (canvas.width !== width || canvas.height !== height) {
             // you must pass false here or three.js sadly fights the browser
             this.renderer.setSize(width, height, false);
             this.camera.aspect = width / height;
             this.camera.updateProjectionMatrix();
-      
+
             // set render target sizes here
         }
-    } 
+    }
 }
 
 export default CubesVisualization;
