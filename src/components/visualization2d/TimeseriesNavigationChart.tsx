@@ -79,6 +79,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private brushRef: React.RefObject<SVGGElement>;
 
     private uniqueTimestamps: string[];
+    private forecastUniqueTimestamps: string[];
     private combinedUniqueTimestamps: string[];
     private currentAvgValue: number;
 
@@ -199,11 +200,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.combinedAreaGenerator.y0(this.combinedYScale(0))
             this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
 
-            if (this.combinedUniqueTimestamps == null) {
-                this.combinedUniqueTimestamps = this.filterUniqueTimestamps(this.state.flatForecastData);
+            if (this.forecastUniqueTimestamps == null) {
+                this.forecastUniqueTimestamps = this.filterUniqueTimestamps(this.state.flatForecastData);
+                this.combinedUniqueTimestamps = this.uniqueTimestamps.concat(this.forecastUniqueTimestamps);
             }
             if (!this.state.combinedAverage) {
-                this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.combinedUniqueTimestamps, this.state.flatForecastData);
+                this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.state.flatForecastData);
                 const combinedAverage = this.combinedLineGenerator(this.preparedCombinedAvgData);
                 this.setState({ combinedAverage });
                 const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
@@ -364,7 +366,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let newDate: Date = this.currentXScale.invert(xCoord - offset);
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);
-        return this.currentAvgData.find(x => x.timestamp == newDateString);
+        let found1 = this.preparedAvgData.find(x => x.timestamp == newDateString);
+        let found2 = this.preparedCombinedAvgData.find(x => x.timestamp == newDateString);
+
+        if (found1) {
+            return found1
+        }
+        return found2
     }
 
     roundDateToNearest15Min(date: Date): Date {
@@ -447,7 +455,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         var historicMaxLine = null;
         if (this.props.showPrediction) {
             if (this.state.combinedAverage != null) {
-                forecastLine = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" transform={translation} />
+                forecastLine = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" />
             }
 
             if (this.state.historicAvg != null) {
