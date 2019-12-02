@@ -320,7 +320,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     brushEnd() {
-        let selectedArea = d3.event.selection || this.currentXScale.range(); // if selection is null, selectedArea = [0,880]
+        let selectedArea = d3.event.selection || this.currentXScale.range(); // if selection is null, selectedArea = rannge
         let brushMinimum = selectedArea[0];
         let brushMaximum = selectedArea[1];
 
@@ -343,6 +343,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.props.updateCurrentAvg(this.currentAvgValue);
             return;
         }
+
         let startDate = this.getValidDatapointFromMousePosition(brushMinimum).timestamp;
         let endDate = this.getValidDatapointFromMousePosition(brushMaximum).timestamp;
 
@@ -355,14 +356,14 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             timespanTypeLowerBound: 'absolute',
             sliderMode: 'timespan'
         }
-
+        console.log(startDate, endDate);
         this.props.updateTimespanData(newTimespanData);
         this.props.updateCurrentAvg(this.currentAvgValue);
     }
 
     getValidDatapointFromMousePosition(xCoord) {
         let offset: number = this.calculateOffset();
-        debugger;
+
         let newDate: Date = this.currentXScale.invert(xCoord - offset);
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);

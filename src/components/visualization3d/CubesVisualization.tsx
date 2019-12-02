@@ -93,7 +93,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         } else {
             timestamp = '';
         }
-        console.log("CubesVis render: timestamp, selectedPointInTimeTimestamp: ", timestamp, this.props.selectedPointInTimeTimestamp)
+
         return (
             <div className="cubes-visualization col-md-9">
                 {/* <Filter /> */}
@@ -155,8 +155,6 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     };
 
     componentDidMount() {
-        console.log("CubesVis-Component Did mount");
-        console.log("CubesVis-Component props.data: ", this.props.data);
         this.initVis();
         // necessary for react-router
         if (this.props.dataSourceError === false) {
@@ -166,18 +164,12 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         this.renderVis()
     }
     componentDidUpdate() {
-        console.log("Component Did update")
-        var t0 = performance.now();
-
-        // console.log(this.renderer.info)
 
         if (this.props.dataSourceError === false) {
             this.setBarPlaceholders();
             this.createCubeData();
         }
         this.renderVis();
-        var t1 = performance.now();
-        // console.log("Der Aufruf von didUpdate dauerte " + (t1 - t0) + " Millisekunden.");
     }
 
     componentWillUnmount() {

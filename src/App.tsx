@@ -384,6 +384,7 @@ class App extends React.Component<{}, AppState> {
 
   calculateAndSetBoundariesOfTimespanSlider = () => {
     this.setState({ timespanError: false })
+    console.log("predictoinActivatedState", this.state.predictionActivated);
     const typeLowerBound = this.state.timespanTypeLowerBound
     const typeUpperBound = this.state.timespanTypeUpperBound
     let lowerBoundDatetime = this.state.timespanAbsoluteTimestampLowerBound
@@ -443,15 +444,14 @@ class App extends React.Component<{}, AppState> {
   getSliderPositions = (lowerBoundDatetime: string, upperBoundDatetime: string) => {
     // Check if lower bound datetime is earlier than upper bound datetime
     if (Date.parse(lowerBoundDatetime) < Date.parse(upperBoundDatetime)) {
-      let dates = Array.from(this.state.timeSeries.keys()).sort()
       // TODO: remove fix bug -2 in solrAdapter
-      let upperBoundSliderPosition = dates[dates.length - 2]
-      let lowerBoundSliderPosition = dates[0]
+      let upperBoundSliderPosition = this.state.temporalAxis[this.state.temporalAxis.length - 1]
+      let lowerBoundSliderPosition = this.state.temporalAxis[0]
 
       // Check if selected dates lies within the range of the log data set
       if (Date.parse(lowerBoundDatetime) <= Date.parse(upperBoundSliderPosition) && Date.parse(upperBoundDatetime) >= Date.parse(lowerBoundSliderPosition)) {
         let i = 0
-        dates.forEach(date => {
+        this.state.temporalAxis.forEach(date => {
           if (Date.parse(date) <= Date.parse(upperBoundDatetime)) {
             upperBoundSliderPosition = date
           }
