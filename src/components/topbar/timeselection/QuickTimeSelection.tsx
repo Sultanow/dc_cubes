@@ -214,7 +214,21 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
     }
 
     getPointInTimeOfDatetimeString = (datetimeString: string) => {
-        return this.props.temporalAxis.indexOf(datetimeString)
+        let roundedDate = this.roundDateToNearest15Min(datetimeString);
+        this.setState({ pointInTimeTimestamp: roundedDate });
+        return this.props.temporalAxis.indexOf(roundedDate);
+    }
+
+    roundDateToNearest15Min(dateTimeString: string): string {
+        let date = new Date(dateTimeString);
+        let minutes = 15;
+        let ms = 1000 * 60 * minutes;
+        let roundedDate: Date = new Date(Math.round(date.getTime() / ms) * ms);
+        return this.convertDateObjectToString(roundedDate);
+    }
+
+    convertDateObjectToString(str: Date) {
+        return str.toISOString().split('.')[0] + "Z";
     }
 
     updatePointInTime = (e) => {
