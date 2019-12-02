@@ -226,14 +226,14 @@ class App extends React.Component<{}, AppState> {
     else {
       TimeseriesNavigationChartComponent = null;
     }
-    console.log("App render. Last element in temporalAxis: ", this.state.temporalAxis[this.state.temporalAxis.length - 1])
     let cubesVisData = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
+    let topbarTimeSeries = this.state.timeSeries
     if (this.state.predictionActivated) {
       if (this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]) !== null) {
         cubesVisData = this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
       }
+      topbarTimeSeries = this.state.combinedTimeSeries;
     }
-    console.log("App cubesVisData", cubesVisData);
     return (
       <BrowserRouter>
         <div className="App">
@@ -244,7 +244,7 @@ class App extends React.Component<{}, AppState> {
               accessChild={this.accessChild}
               sliderMode={this.state.sliderMode}
               temporalAxis={this.state.temporalAxis}
-              timeSeries={this.state.timeSeries}
+              timeSeries={topbarTimeSeries}
               timeSelectionMode={this.state.timeSelectionMode}
               timespanTypeLowerBound={this.state.timespanTypeLowerBound}
               timespanTypeUpperBound={this.state.timespanTypeUpperBound}
@@ -267,7 +267,7 @@ class App extends React.Component<{}, AppState> {
                 <React.Fragment>
                   <div className="content-row" >
                     <CubesVisualization {...props}
-                      data={cubesVisData} //{this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
+                      data={cubesVisData}
                       clusterColors={this.state.clusterColors}
                       grid={this.state.grid}
                       maxH={this.state.maxH}
@@ -337,7 +337,6 @@ class App extends React.Component<{}, AppState> {
   }
 
   handlePredictionActivated = () => {
-    console.log("App.tsx, prediction activated");
     this.setState({ predictionActivated: true });
     this.setState({ temporalAxis: this.state.combinedTemporalAxis });
   }
@@ -354,7 +353,6 @@ class App extends React.Component<{}, AppState> {
 
   accessChild = (stateElement, value) => {
     this.setState<never>({ [stateElement]: value }, () => {
-      // console.log(this.state.customMapping.toString())
     })
   }
 

@@ -257,9 +257,9 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
 
         let selectedPointInTime
         if (this.state.pointInTimeType === 'now') {
-            selectedPointInTime = this.props.temporalAxis.length - 1
+            selectedPointInTime = this.props.temporalAxis.length - 1;
         } else {
-            selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.pointInTimeTimestamp)
+            selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.pointInTimeTimestamp);
         }
 
         if (selectedPointInTime !== -1) {
