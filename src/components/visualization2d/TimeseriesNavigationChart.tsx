@@ -19,8 +19,6 @@ interface TimeseriesNavigationChartState {
     combinedMax: string,
     combinedAverage: string,
     combinedMin: string,
-
-    flatForecastData: [{ timestamp: string, count: number }]
     // these are used if prediction is shown
     historicAvg: string,
     historicMax: string,
@@ -55,8 +53,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         historicAvg: null,
         historicMin: null,
         historicMax: null,
-
-        flatForecastData: null
     }
 
     private margin = { top: 0, right: 0, bottom: 5, left: 0 };
@@ -159,27 +155,15 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         // todo: use this?
     }
 
-    // TODO: Remove once the docs in solr aren't in an array anymore
-    flattenForecastData() {
-        if (this.props.forecastData) {
-            this.state.flatForecastData = this.props.forecastData.map(data => {
-                data.count = data.count[0]
-                data.timestamp = data.timestamp[0]
-                return data
-            })
-        }
-    }
-
     componentDidUpdate() {
         if (!this.forecastPreparationDone && this.props.forecastReceived) {
-            this.flattenForecastData();
 
             let minHistoricTs = this.xScale.domain()[0];
             let maxHistoricTs = this.xScale.domain()[1];
 
             // array is sorted already
-            let minPredictionTs = this.parseDate(this.state.flatForecastData[0].timestamp);
-            let maxPredictionTs = this.parseDate(this.state.flatForecastData[this.props.forecastData.length - 1].timestamp);
+            let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
+            let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
             const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
 
             if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
@@ -187,7 +171,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             }
 
             let maxOfHistoric = this.yScale.domain()[1];
-            let maxOfPrediction = Math.max.apply(Math, this.state.flatForecastData.map(function (d) { return d.count; }));
+            let maxOfPrediction = Math.max.apply(Math, this.props.forecastData.map(function (d) { return d.count; }));
             let combinedMaxCount = [0, (maxOfHistoric > maxOfPrediction ? maxOfHistoric : maxOfPrediction)];
 
             this.combinedXScale.domain(combinedTimeDomain);
@@ -201,11 +185,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
 
             if (this.forecastUniqueTimestamps == null) {
-                this.forecastUniqueTimestamps = this.filterUniqueTimestamps(this.state.flatForecastData);
+                this.forecastUniqueTimestamps = this.filterUniqueTimestamps(this.props.forecastData);
                 this.combinedUniqueTimestamps = this.uniqueTimestamps.concat(this.forecastUniqueTimestamps);
             }
             if (!this.state.combinedAverage) {
-                this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.state.flatForecastData);
+                this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.props.forecastData);
                 const combinedAverage = this.combinedLineGenerator(this.preparedCombinedAvgData);
                 this.setState({ combinedAverage });
                 const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
