@@ -225,7 +225,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         }
         this.textSprites.length = 0;
         this.renderer.renderLists.dispose();
-
+        if (this.props.data == null) return;
         this.props.data.datacenters.forEach((datacenter: Datacenter, keyDC: string) => {
             //set up view data
             let clusters = datacenter.clusters;
