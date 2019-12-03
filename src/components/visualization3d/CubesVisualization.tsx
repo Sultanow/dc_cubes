@@ -35,6 +35,7 @@ interface CubesVisProps {
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
     currentAvg: number
+    lastHistoricDate: Date
 }
 
 interface Bar {
@@ -85,14 +86,24 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         let timestamp;
         let isLoading = this.props.isLoading;
-
+        let predictionWarning = null;
         if (sliderMode === 'pointInTime') {
             timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</div>;
+            if (this.dateIsPrediction(new Date(this.props.selectedPointInTimeTimestamp))) {
+                predictionWarning = <div className="predictionWarning"> Achtung: Vorhersage!</div>
+            }
         } else if (sliderMode === 'timespan') {
-            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampLowerBound).getDay()]} {this.props.selectedTimespanTimestamps[0]} - {daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampUpperBound).getDay()]} {this.props.selectedTimespanTimestamps[1]}</div>;
+            let dateLower: Date = new Date(this.props.timespanAbsoluteTimestampLowerBound);
+            let dateUpper: Date = new Date(this.props.timespanAbsoluteTimestampUpperBound);
+            timestamp = <div className="date">{daysOfTheWeek[dateLower.getDay()]} {this.props.selectedTimespanTimestamps[0]} - {daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampUpperBound).getDay()]} {this.props.selectedTimespanTimestamps[1]}</div>;
+            if (this.dateIsPrediction(dateLower) || this.dateIsPrediction(dateUpper)) {
+                predictionWarning = <div className="predictionWarning"> Achtung: Vorhersage!</div>
+            }
         } else {
             timestamp = '';
         }
+
+
 
         return (
             <div className="cubes-visualization col-md-9">
@@ -137,6 +148,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                     <div className="param-info-container">
                         <div style={{ marginLeft: "10px" }}>{timestamp}</div>
                     </div>
+                    <div>{predictionWarning}</div>
                     {/* <div>
                         <Button className="btn-util">
                             <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
@@ -482,6 +494,14 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             this.INTERSECTED = null;
         }
     };
+
+    dateIsPrediction(date: Date) {
+        if (date == null || this.props.lastHistoricDate == null) {
+            return false;
+        }
+
+        return date.getTime() > this.props.lastHistoricDate.getTime();
+    }
 
     // draw Scene
     renderVis() {

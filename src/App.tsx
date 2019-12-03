@@ -284,6 +284,7 @@ class App extends React.Component<{}, AppState> {
                       timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
                       timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
                       currentAvg={this.state.currentAvgValue}
+                      lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
                     >
                       {TimeseriesNavigationChartComponent}
                     </CubesVisualization>
