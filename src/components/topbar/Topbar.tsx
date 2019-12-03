@@ -32,6 +32,7 @@ interface TopbarProps {
     clearIntervalOfDataRefresh: any
     handlePredictionActivated: any
     handlePredictionDeactivated: any
+    prognosisActivated: boolean
 }
 
 interface TopbarState {
@@ -106,6 +107,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                         automaticRefresh={this.state.automaticRefresh}
                                         accessTopbar={this.accessTopbar}
                                         updateTimespanData={this.props.updateTimespanData}
+                                        prognosisActivated={this.props.prognosisActivated}
                                         handlePredictionActivated={this.props.handlePredictionActivated}
                                         handlePredictionDeactivated={this.props.handlePredictionDeactivated}
                                     />

@@ -18,6 +18,7 @@ interface QuickTimeSelectionProps {
     refreshTimeUnit: string
     accessTopbar: any
     updateTimespanData: any
+    prognosisActivated: boolean
     handlePredictionActivated: any
     handlePredictionDeactivated: any
 }
@@ -58,7 +59,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                             type="checkbox"
                             id="togglePrognosis"
                             name="togglePrognosis"
-                            checked={this.props.timespanTypeUpperBound === 'next' ? true : false}
+                            checked={this.props.prognosisActivated}
                             onChange={this.togglePrognosis}
                         />
                     </Col>

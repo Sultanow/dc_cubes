@@ -258,6 +258,7 @@ class App extends React.Component<{}, AppState> {
               updateTimespanData={this.updateTimespanData}
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
               changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh}
+              prognosisActivated={this.state.predictionActivated}
               handlePredictionActivated={this.handlePredictionActivated.bind(this)}
               handlePredictionDeactivated={this.handlePredictionDeactivated.bind(this)}
             />
