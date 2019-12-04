@@ -153,7 +153,7 @@ class App extends React.Component<{}, AppState> {
 
   getLogData = () => {
     // TODO: implement other data sources
-    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore, this.state.solrForecastCore)
+    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore, this.state.solrForecastCore, this.state.selectedMeasure)
 
     dataService.getLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
@@ -209,6 +209,12 @@ class App extends React.Component<{}, AppState> {
       this.setState({ dataSourceError: true })
       console.log(error)
     });
+
+    dataService.getMaxValueOfTimeseries().then((maxValue: number) => {
+      this.setState({ maxH: maxValue })
+    }).catch((error: any) => {
+      console.log(error)
+    });
   }
 
   render() {
@@ -221,6 +227,7 @@ class App extends React.Component<{}, AppState> {
         updateCurrentAvg={this.updateCurrentAvg}
         showPrediction={this.state.predictionActivated}
         forecastReceived={this.state.forecastDataReceived}
+        maxH={this.state.maxH}
       />
     }
     else {

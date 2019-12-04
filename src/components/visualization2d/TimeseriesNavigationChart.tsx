@@ -10,6 +10,7 @@ interface TimeseriesNavigationChartProps {
     updateCurrentAvg: any
     showPrediction: boolean
     forecastReceived: boolean
+    maxH: number
 }
 
 interface TimeseriesNavigationChartState {
@@ -113,9 +114,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let minHistoricTs = this.parseDate(this.props.timeseriesData[0].timestamp);
         let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1].timestamp);
         const timeDomain = [minHistoricTs, maxHistoricTs];
-        const maxCount = [0, d3.max(timeseriesData, d => {
-            return d.count + 100;
-        })];
+        const maxCount = [0, this.props.maxH + 100];
 
         this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
@@ -156,6 +155,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidUpdate() {
+        if (this.yScale.domain()[1] !== this.props.maxH + 100) {
+            this.componentDidMount()
+        }
         if (!this.forecastPreparationDone && this.props.forecastReceived) {
 
             let minHistoricTs = this.xScale.domain()[0];
