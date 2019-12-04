@@ -8,9 +8,48 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Dropout
 
+counter = 0
+model_file_path = "model.pkl"
+core_name = "dc_cubes_forecast"
+
+if __name__ == "__main__":
+    print("MLSkript.py ausgeführt")
+
+    # check if forecast core exists
+     
+    # if forecast core exists delete old data/predictions
+
+    # if forecast core doesn't exist create an new one 
+
+        # init schema 
+    
+    # get data from historic solr core 
+
+    # transform the data to fit as model input 
+
+    # load the trained models 
+
+    # forecast 
+
+    # transform the forecast 
+
+    # push the data to the forecast core
+
+
+    # ----------------------------------------
+    # load Model
+    # with open(filePath, "rb") as pklfile:
+    #     model = pickle.load(pklfile)
+    # xinput = "...." 
+    # model.predict(xinput, verbose=0)
+    # deleteSolrCore(core_name)
+    # createSolrCore(core_name)
+    # initSchema(core_name)
+
+    #df = pd.read_csv(filePath, sep=",", encoding="latin1")
+    #df.apply(pushData, axis=1)
+
 def pushData(row):
-    global counter
-    global coreName
     # defining the api-endpoint
     url = "http://localhost:8983/solr/pyTest/update/json?wt=json"
 
@@ -49,26 +88,26 @@ def pushData(row):
     counter += 1
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
-        requests.post("http://localhost:8983/solr/"+coreName+"/update?commit=true")
+        requests.post("http://localhost:8983/solr/"+core_name+"/update?commit=true")
 
-def createSolrCore(coreName):
-    url = "http://localhost:8983/solr/admin/cores?action=CREATE&name="+coreName+"&configSet=_default"
+def createSolrCore(core_name):
+    url = "http://localhost:8983/solr/admin/cores?action=CREATE&name="+core_name+"&configSet=_default"
     requests.post(url = url)
-    print(coreName, " created")
+    print(core_name, " created")
 
 """
 if deleteEverything = True all files associated with the core are deleted aswell.
 See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UNLOAD
 """
-def deleteSolrCore(coreName, deleteEverything = False):
-    url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+coreName
+def deleteSolrCore(core_name, deleteEverything = False):
+    url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
-    print(coreName, " deleted")
+    print(core_name, " deleted")
 
-def initSchema(coreName):
-    url = "http://localhost:8983/solr/"+coreName+"/schema"
+def initSchema(core_name):
+    url = "http://localhost:8983/solr/"+core_name+"/schema"
     headers = {'Content-type': 'application/json'}
     rowsDict =  {
         "timestamp": "pdate", "host": "string", "cluster": "pint", "dc": "pint", "perm": "pint", "instanz": "string", "verfahren": "string",
@@ -81,23 +120,5 @@ def initSchema(coreName):
             "add-field":{"stored": "true","docValues": "true","indexed": "false", "multiValued": "false", "name":name,"type":rowsDict[name]}
         }
         requests.post(url=url, data=json.dumps(data), headers=headers)
-    print(coreName, " schema inited")
+    print(core_name, " schema inited")
     
-
-if __name__ == "__main__":
-    print("MLSkript.py ausgeführt")
-    counter = 0;
-    filePath = "model.pkl"
-    coreName = "dc_cubes_forecast"
-
-    # load Model
-    with open(filePath, "rb") as pklfile:
-        model = pickle.load(pklfile)
-    xinput = "...." 
-    model.predict(xinput, verbose=0)
-    # deleteSolrCore(coreName)
-    # createSolrCore(coreName)
-    # initSchema(coreName)
-
-    #df = pd.read_csv(filePath, sep=",", encoding="latin1")
-    #df.apply(pushData, axis=1)
