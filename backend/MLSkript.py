@@ -3,6 +3,10 @@ import pandas as pd
 import json
 import csv
 import pickle
+import numpy as np
+import keras
+from keras.models import Sequential
+from keras.layers import Dense, Activation, Dropout
 
 def pushData(row):
     global counter
@@ -83,9 +87,14 @@ def initSchema(coreName):
 if __name__ == "__main__":
     print("MLSkript.py ausgeführt")
     counter = 0;
-    filePath = "C:/Users/Sebastian/Desktop/Uni/_Bachelorarbeit/data/PresentationPrediction.csv"
+    filePath = "model.pkl"
     coreName = "dc_cubes_forecast"
 
+    # load Model
+    with open(filePath, "rb") as pklfile:
+        model = pickle.load(pklfile)
+    xinput = "...." 
+    model.predict(xinput, verbose=0)
     # deleteSolrCore(coreName)
     # createSolrCore(coreName)
     # initSchema(coreName)
