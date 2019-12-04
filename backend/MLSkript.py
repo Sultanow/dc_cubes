@@ -10,37 +10,47 @@ from keras.layers import Dense, Activation, Dropout
 
 counter = 0
 model_file_path = "model.pkl"
-core_name = "dc_cubes_forecast"
+core_name = "dc_cubes_forecaste"
 
 if __name__ == "__main__":
-    print("MLSkript.py ausgeführt")
+    print("MLSkript.py wird ausgeführt")
 
-    # check if forecast core exists
-     
-    # if forecast core exists delete old data/predictions
+    # get existing solr cores
+    url = "http://localhost:8983/solr/admin/cores?action=STATUS"
+    response = requests.get(url).json()
+    activeCores = response['status'].keys()
 
-    # if forecast core doesn't exist create an new one 
+    # if forecast core exists
+    if core_name in activeCores:
+        print(core_name + " already exists")
 
-        # init schema 
-    
-    # get data from historic solr core 
+        # delete old data/predictions
 
-    # transform the data to fit as model input 
+    # else forecast core doesn't exist
+    else:
+        print(core_name + " doesn't exist")
 
-    # load the trained models 
+        # create an new forecast solr core
 
-    # forecast 
+        # init schema
 
-    # transform the forecast 
+    # get data from historic solr core
+
+    # transform the data to fit as model input
+
+    # load the trained models
+
+    # forecast
+
+    # transform the forecast
 
     # push the data to the forecast core
-
 
     # ----------------------------------------
     # load Model
     # with open(filePath, "rb") as pklfile:
     #     model = pickle.load(pklfile)
-    # xinput = "...." 
+    # xinput = "...."
     # model.predict(xinput, verbose=0)
     # deleteSolrCore(core_name)
     # createSolrCore(core_name)
@@ -48,6 +58,7 @@ if __name__ == "__main__":
 
     #df = pd.read_csv(filePath, sep=",", encoding="latin1")
     #df.apply(pushData, axis=1)
+
 
 def pushData(row):
     # defining the api-endpoint
@@ -88,28 +99,35 @@ def pushData(row):
     counter += 1
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
-        requests.post("http://localhost:8983/solr/"+core_name+"/update?commit=true")
+        requests.post("http://localhost:8983/solr/" +
+                      core_name+"/update?commit=true")
+
 
 def createSolrCore(core_name):
-    url = "http://localhost:8983/solr/admin/cores?action=CREATE&name="+core_name+"&configSet=_default"
-    requests.post(url = url)
+    url = "http://localhost:8983/solr/admin/cores?action=CREATE&name=" + \
+        core_name+"&configSet=_default"
+    requests.post(url=url)
     print(core_name, " created")
+
 
 """
 if deleteEverything = True all files associated with the core are deleted aswell.
 See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UNLOAD
 """
-def deleteSolrCore(core_name, deleteEverything = False):
+
+
+def deleteSolrCore(core_name, deleteEverything=False):
     url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
     print(core_name, " deleted")
 
+
 def initSchema(core_name):
     url = "http://localhost:8983/solr/"+core_name+"/schema"
     headers = {'Content-type': 'application/json'}
-    rowsDict =  {
+    rowsDict = {
         "timestamp": "pdate", "host": "string", "cluster": "pint", "dc": "pint", "perm": "pint", "instanz": "string", "verfahren": "string",
         "service": "string", "response": "pint", "count": "pint", "minv": "pint", "maxv": "pint", "avg": "pfloat", "var": "pfloat",
         "dev_upp": "pfloat", "dev_low": "pfloat", "perc90": "pfloat", "perc95": "pfloat", "perc99": "pfloat", "sum": "pint",
@@ -117,8 +135,7 @@ def initSchema(core_name):
 
     for name in rowsDict:
         data = {
-            "add-field":{"stored": "true","docValues": "true","indexed": "false", "multiValued": "false", "name":name,"type":rowsDict[name]}
+            "add-field": {"stored": "true", "docValues": "true", "indexed": "false", "multiValued": "false", "name": name, "type": rowsDict[name]}
         }
         requests.post(url=url, data=json.dumps(data), headers=headers)
     print(core_name, " schema inited")
-    
