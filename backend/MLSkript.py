@@ -1,3 +1,6 @@
+#!/usr/bin/python
+#-*- coding:utf-8 -*-
+
 import requests
 import pandas as pd
 import json
@@ -86,6 +89,7 @@ def initSchema(coreName):
 
 if __name__ == "__main__":
     print("MLSkript.py ausgeführt")
+<<<<<<< Updated upstream
     counter = 0;
     filePath = "model.pkl"
     coreName = "dc_cubes_forecast"
@@ -101,3 +105,9 @@ if __name__ == "__main__":
 
     #df = pd.read_csv(filePath, sep=",", encoding="latin1")
     #df.apply(pushData, axis=1)
+=======
+    filePath = "/home/burak/Schreibtisch/dc_cubes/src/scripts/PresentationPrediction.csv"
+    df = pd.read_csv(filePath, sep=",", encoding="latin1")
+    df.apply(pushData, axis=1)
+    print("Data was pushed to Solr/dc_cubes_forecast.")
+>>>>>>> Stashed changes
