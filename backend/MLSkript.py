@@ -69,16 +69,21 @@ if deleteEverything = True all files associated with the core are deleted aswell
 See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UNLOAD
 """
 
-# löscht immer den ganzen core
 
-
-def deleteSolrCore(core_name, deleteEverything):
+def deleteSolrCore(core_name, deleteEverything):  # löscht immer den ganzen coreF
     url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
     print(deleteEverything)
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
-    print(core_name, "old documents deleted")F
+    print(core_name, "old documents deleted")
+
+
+def deleteCoreDocuments(core_name):
+    url = "http://localhost:8983/solr/"+core_name + \
+        "/update?stream.body=<delete><query>*:*</query></delete>&commit=true"
+    requests.get(url)
+    print("old documents deleted from "+core_name+" core")
 
 
 def initSchema(core_name):
@@ -194,6 +199,7 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         pred_df['server'] = server_name
 
         prediction_frames.append(pred_df)
+    print("made predictions")
     return pd.concat(prediction_frames, ignore_index=True)
 
 
@@ -210,7 +216,7 @@ if __name__ == "__main__":
         print(core_name + " already exists")
 
         # delete old data/predictions
-        deleteSolrCore(core_name, False)
+        deleteCoreDocuments(core_name)
 
     # else forecast core doesn't exist
     else:
@@ -230,7 +236,6 @@ if __name__ == "__main__":
 
     # split cubes in own frames
     cubes_frames = splitInCubesFrames(df)
-    # print(last_timestamp)
 
     # load the trained model
     model = load_model('dc_lstm_ml_model.h5')
@@ -238,8 +243,6 @@ if __name__ == "__main__":
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
     print(prediction_df)
-
-    # transform the forecast
 
     # push the data to the forecast core
 
