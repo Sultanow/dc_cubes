@@ -78,7 +78,7 @@ def deleteSolrCore(core_name, deleteEverything):
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
-    print(core_name, "old documents deleted")
+    print(core_name, "old documents deleted")F
 
 
 def initSchema(core_name):
@@ -110,9 +110,91 @@ def splitInCubesFrames(df):
     unique_server_names = df.server.unique()
     splitted_frames = []
     for name in unique_server_names:
-        new_df = df[df['server'] == name][-382:].copy()
+        new_df = df[df['server'] == name][-384:].copy()
         splitted_frames.append(new_df)
     return splitted_frames
+
+
+def makePredictionFrame(model, cubes_frames, last_timestamp):
+    prediction_frames = []
+    for cube in cubes_frames:
+        # transform pre prediction input
+
+        # extracting information from the current server
+        last_timestamp = cube.index[-1]
+        server_name = cube['server'].iloc[0]
+        cluster = cube['cluster'].iloc[0]
+        dc = cube['dc'].iloc[0]
+        perm = cube['perm'].iloc[0]
+        instanz = cube['instanz'].iloc[0]
+        verfahren = cube['verfahren'].iloc[0]
+        service = cube['service'].iloc[0]
+
+        cube.drop(cube.columns.difference(['count']), 1, inplace=True)
+
+        # Converting the index as date
+        cube.index = pd.to_datetime(cube.index).sort_values()
+
+        # feature engineering
+        minutes = cube.index.minute
+        hours = cube.index.hour
+        day = cube.index.dayofweek
+        cube['minute'] = minutes
+        cube['hour'] = hours
+        cube['day'] = day
+        cube["weekend"] = (cube["day"] > 5).astype(int)
+
+        # Standardise
+        import numpy as np
+        from sklearn.preprocessing import MinMaxScaler
+
+        dataset = cube.values
+
+        # standardise
+        scaler = MinMaxScaler()
+        scaler.fit(dataset)
+        dataset = scaler.transform(dataset)
+
+        # predict
+        pred_input = dataset
+        pred_input.shape
+        pred_input = pred_input.reshape(
+            (1, pred_input.shape[0], pred_input.shape[1]))
+        prediction = model.predict(pred_input)
+
+        # transform pre solr
+        prediction = prediction.reshape((192, 1))
+        prediction = np.hstack((prediction, np.zeros(
+            (prediction.shape[0], 4), dtype=prediction.dtype)))
+        prediction = prediction = scaler.inverse_transform(prediction)
+        prediction = prediction[:, [0]]
+        int_prediction = prediction.astype(int, copy=True)
+        prediction = int_prediction
+        prediction *= (prediction > 0)
+
+        # make the dataframe
+        next_timestamps = pd.date_range(
+            start=last_timestamp, periods=192+1, freq='15min',  closed='right')
+        # create the prediction dataframe for the current server
+        d = {'timestamp': next_timestamps, 'cluster': cluster, 'dc': dc,
+             'perm': perm, 'instanz': instanz, 'service': service, 'response': 200}
+        pred_df = pd.DataFrame(data=d)
+        pred_df['count'] = prediction
+        pred_df['minv'] = 0
+        pred_df['maxv'] = 0
+        pred_df['avg'] = 0
+        pred_df['var'] = 0
+        pred_df['dev_upp'] = 0
+        pred_df['dev_low'] = 0
+        pred_df['perc90'] = 0
+        pred_df['perc95'] = 0
+        pred_df['perc99.9'] = 0
+        pred_df['sum'] = 0
+        pred_df['sum_of_squeres'] = 0
+        pred_df['server'] = server_name
+
+        prediction_frames.append(pred_df)
+    return pd.concat(prediction_frames, ignore_index=True)
 
 
 if __name__ == "__main__":
@@ -145,7 +227,6 @@ if __name__ == "__main__":
     df = df.set_index('timestamp')
     last_timestamp = df.index[0]
     df.index = pd.to_datetime(df.index).sort_values()
-    print(last_timestamp)
 
     # split cubes in own frames
     cubes_frames = splitInCubesFrames(df)
@@ -155,6 +236,8 @@ if __name__ == "__main__":
     model = load_model('dc_lstm_ml_model.h5')
 
     # forecast
+    prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
+    print(prediction_df)
 
     # transform the forecast
 
