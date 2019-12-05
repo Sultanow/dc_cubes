@@ -11,7 +11,7 @@ from keras.layers import Dense, Activation, Dropout
 counter = 0
 model_file_path = "model.pkl"
 core_name = "test"
-history_steps = 298 
+history_steps = 384
 
 
 def pushData(row):
@@ -69,13 +69,14 @@ if deleteEverything = True all files associated with the core are deleted aswell
 See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UNLOAD
 """
 
-
-def deleteSolrCore(core_name, deleteEverything=False):
+# löscht immer den ganzen core
+def deleteSolrCore(core_name, deleteEverything):
     url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
+    print(deleteEverything)
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
-    print(core_name, " deleted")
+    print(core_name, "old documents deleted")
 
 
 def initSchema(core_name):
@@ -94,7 +95,24 @@ def initSchema(core_name):
         requests.post(url=url, data=json.dumps(data), headers=headers)
     print(core_name, " schema inited")
 
-    
+
+def getHistoricData():
+    url = 'http://localhost:8983/solr/dc_cubes/select?q=*:*&sort=timestamp%20desc&rows=15000'
+    response = requests.get(url).json()['response']
+    response
+    return response['docs']
+
+
+# splits the data of each cube from the whole df in its own dataframe
+def splitInCubesFrames(df):
+    unique_server_names = df.server.unique()
+    splitted_frames = []
+    for name in unique_server_names:
+        new_df = df[df['server'] == name][-382:].copy()
+        splitted_frames.append(new_df)
+    return splitted_frames
+
+
 if __name__ == "__main__":
     print("MLSkript.py wird ausgeführt")
 
@@ -108,7 +126,7 @@ if __name__ == "__main__":
         print(core_name + " already exists")
 
         # delete old data/predictions
-        deleteSolrCore(core_name, deleteEverything=False)
+        deleteSolrCore(core_name, False)
 
     # else forecast core doesn't exist
     else:
@@ -121,10 +139,13 @@ if __name__ == "__main__":
         initSchema(core_name)
 
     # get data from historic solr core
+    df = pd.DataFrame.from_dict(getHistoricData())
 
-    # transform the data to fit as model input
+    # split cubes in own frames
+    cubes_frames = splitInCubesFrames(df)
+    print(cubes_frames)
 
-    # load the trained models
+    # load the trained model
 
     # forecast
 
