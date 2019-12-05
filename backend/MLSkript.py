@@ -10,54 +10,8 @@ from keras.layers import Dense, Activation, Dropout
 
 counter = 0
 model_file_path = "model.pkl"
-core_name = "dc_cubes_forecaste"
-
-if __name__ == "__main__":
-    print("MLSkript.py wird ausgeführt")
-
-    # get existing solr cores
-    url = "http://localhost:8983/solr/admin/cores?action=STATUS"
-    response = requests.get(url).json()
-    activeCores = response['status'].keys()
-
-    # if forecast core exists
-    if core_name in activeCores:
-        print(core_name + " already exists")
-
-        # delete old data/predictions
-
-    # else forecast core doesn't exist
-    else:
-        print(core_name + " doesn't exist")
-
-        # create an new forecast solr core
-
-        # init schema
-
-    # get data from historic solr core
-
-    # transform the data to fit as model input
-
-    # load the trained models
-
-    # forecast
-
-    # transform the forecast
-
-    # push the data to the forecast core
-
-    # ----------------------------------------
-    # load Model
-    # with open(filePath, "rb") as pklfile:
-    #     model = pickle.load(pklfile)
-    # xinput = "...."
-    # model.predict(xinput, verbose=0)
-    # deleteSolrCore(core_name)
-    # createSolrCore(core_name)
-    # initSchema(core_name)
-
-    #df = pd.read_csv(filePath, sep=",", encoding="latin1")
-    #df.apply(pushData, axis=1)
+core_name = "test"
+history_steps = 298 
 
 
 def pushData(row):
@@ -139,3 +93,54 @@ def initSchema(core_name):
         }
         requests.post(url=url, data=json.dumps(data), headers=headers)
     print(core_name, " schema inited")
+
+    
+if __name__ == "__main__":
+    print("MLSkript.py wird ausgeführt")
+
+    # get existing solr cores
+    url = "http://localhost:8983/solr/admin/cores?action=STATUS"
+    response = requests.get(url).json()
+    activeCores = response['status'].keys()
+
+    # if forecast core exists
+    if core_name in activeCores:
+        print(core_name + " already exists")
+
+        # delete old data/predictions
+        deleteSolrCore(core_name, deleteEverything=False)
+
+    # else forecast core doesn't exist
+    else:
+        print(core_name + " doesn't exist")
+
+        # create an new forecast solr core
+        createSolrCore(core_name)
+
+        # init schema
+        initSchema(core_name)
+
+    # get data from historic solr core
+
+    # transform the data to fit as model input
+
+    # load the trained models
+
+    # forecast
+
+    # transform the forecast
+
+    # push the data to the forecast core
+
+    # ----------------------------------------
+    # load Model
+    # with open(filePath, "rb") as pklfile:
+    #     model = pickle.load(pklfile)
+    # xinput = "...."
+    # model.predict(xinput, verbose=0)
+    # deleteSolrCore(core_name)
+    # createSolrCore(core_name)
+    # initSchema(core_name)
+
+    #df = pd.read_csv(filePath, sep=",", encoding="latin1")
+    #df.apply(pushData, axis=1)
