@@ -7,6 +7,7 @@ export default class SolrDataService implements DataSourceService {
     solrBaseUrl: string;
     solrCore: string;
     solrForecastCore: string;
+    resultLimit = 2147483647 // Maximum of integer type
 
     constructor(solrBaseUrl: string, solrCore: string, solrForecastCore: string) {
         this.solrBaseUrl = solrBaseUrl;
@@ -20,17 +21,47 @@ export default class SolrDataService implements DataSourceService {
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
     getLogData = (from: string, to: string): any => {
-        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']' + '&sort=timestamp+asc' + '&rows=2147483647';
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc' + '&rows=' + this.resultLimit;
         const url = this.solrBaseUrl + this.solrCore + query;
         return httpClient.get(url);
     };
 
     getForecast = (from: string, to: string): any => {
-        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']' + '&sort=timestamp+asc' + '&rows=2147483647';
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc' + '&rows=' + this.resultLimit;
         const url = this.solrBaseUrl + this.solrForecastCore + query;
         return httpClient.get(url);
     };
 
+    getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
+        const query = {
+            "query": "*:*",
+            "filter": "timestamp:[" + from + " TO " + to + "]",
+            "limit": this.resultLimit,
+            "facet": {
+                "maxValue": "max(" + selectedMeasure + ")",
+            }
+        }
+        const url = this.solrBaseUrl + this.solrCore + "/query";
+        const urlForecast = this.solrBaseUrl + this.solrForecastCore + "/query";
+        
+        let maxValue
+        return new Promise((resolve, reject) => {
+            httpClient.post(url, query).then((data: any) => {
+                maxValue = data.data.facets.maxValue          
+                httpClient.post(urlForecast, query).then((forecastData: any) => {
+                    const forecastMax: number = forecastData.data.facets.maxValue
+                    if (forecastMax !== undefined && maxValue < forecastMax) {
+                        maxValue = forecastMax
+                    }
+                    return resolve(maxValue)
+                }).catch((error: any) => {
+                    return resolve(maxValue)
+                });
+            }).catch((error: any) => {
+                return reject(error)
+            });
+        })
+    } 
 
     getAggregatedLogDataFromSolr = (startDate: string, endDate: string, aggregationType: AggregationType) => {
         // TODO: implement aggregation queries
