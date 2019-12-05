@@ -48,7 +48,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
         this.state = {
             refreshInterval: 10,
             refreshTimeUnit: 'minutes',
-            automaticRefresh: true,
+            automaticRefresh: false,
         }
     }
 
