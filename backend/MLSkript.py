@@ -16,14 +16,13 @@ history_steps = 384
 
 def pushData(row):
     # defining the api-endpoint
-    url = "http://localhost:8983/solr/pyTest/update/json?wt=json"
-
+    url = "http://localhost:8983/solr/"+core_name+"/update/json/docs"
+    global counter
     # data to be sent to api
     data = {
         "add": {
             "doc": {
                 "timestamp": row["timestamp"],
-                "host": row["host"],
                 "cluster": row["cluster"],
                 "dc": row["dc"],
                 "perm": row["perm"],
@@ -49,12 +48,13 @@ def pushData(row):
     }
     headers = {'Content-type': 'application/json'}
     # sending post request
-    requests.post(url=url, data=json.dumps(data), headers=headers)
+    requests.post(url=url, data=data, headers=headers)
     counter += 1
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
         requests.post("http://localhost:8983/solr/" +
                       core_name+"/update?commit=true")
+    # needs last commit? for all data index > last 1k
 
 
 def createSolrCore(core_name):
@@ -76,14 +76,14 @@ def deleteSolrCore(core_name, deleteEverything):  # löscht immer den ganzen cor
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
-    print(core_name, "old documents deleted")
+    print(core_name, " core deleted")
 
 
 def deleteCoreDocuments(core_name):
     url = "http://localhost:8983/solr/"+core_name + \
         "/update?stream.body=<delete><query>*:*</query></delete>&commit=true"
     requests.get(url)
-    print("old documents deleted from "+core_name+" core")
+    print("deleted old documents from "+core_name+" core")
 
 
 def initSchema(core_name):
@@ -182,7 +182,7 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
             start=last_timestamp, periods=192+1, freq='15min',  closed='right')
         # create the prediction dataframe for the current server
         d = {'timestamp': next_timestamps, 'cluster': cluster, 'dc': dc,
-             'perm': perm, 'instanz': instanz, 'service': service, 'response': 200}
+             'perm': perm, 'instanz': instanz,  'verfahren': verfahren, 'service': service, 'response': 200}
         pred_df = pd.DataFrame(data=d)
         pred_df['count'] = prediction
         pred_df['minv'] = 0
@@ -195,9 +195,11 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         pred_df['perc95'] = 0
         pred_df['perc99.9'] = 0
         pred_df['sum'] = 0
-        pred_df['sum_of_squeres'] = 0
+        pred_df['sum_of_squares'] = 0
         pred_df['server'] = server_name
 
+        pred_df['timestamp'] = pred_df['timestamp'].dt.strftime(
+            '%Y-%m-%d:%H:%M:00Z')
         prediction_frames.append(pred_df)
     print("made predictions")
     return pd.concat(prediction_frames, ignore_index=True)
@@ -245,6 +247,8 @@ if __name__ == "__main__":
     print(prediction_df)
 
     # push the data to the forecast core
+    for index, row in prediction_df.iterrows():
+        pushData(row)
 
     # ----------------------------------------
     # load Model
