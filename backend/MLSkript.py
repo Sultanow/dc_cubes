@@ -5,7 +5,7 @@ import csv
 import pickle
 import numpy as np
 import keras
-from keras.models import Sequential
+from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout
 
 counter = 0
@@ -70,6 +70,8 @@ See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UN
 """
 
 # löscht immer den ganzen core
+
+
 def deleteSolrCore(core_name, deleteEverything):
     url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
     print(deleteEverything)
@@ -140,12 +142,17 @@ if __name__ == "__main__":
 
     # get data from historic solr core
     df = pd.DataFrame.from_dict(getHistoricData())
+    df = df.set_index('timestamp')
+    last_timestamp = df.index[0]
+    df.index = pd.to_datetime(df.index).sort_values()
+    print(last_timestamp)
 
     # split cubes in own frames
     cubes_frames = splitInCubesFrames(df)
-    print(cubes_frames)
+    # print(last_timestamp)
 
     # load the trained model
+    model = load_model('dc_lstm_ml_model.h5')
 
     # forecast
 
