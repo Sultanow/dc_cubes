@@ -143,12 +143,6 @@ class App extends React.Component<{}, AppState> {
   componentDidMount() {
     // Get initial log data based on default values
     this.getLogData();
-
-    // Set the initial data refresh interval, default interval is 10 minutes
-    let intervalId = setInterval(() => {
-      this.getLogData();
-    }, 600000);
-    this.setState<never>({ intervalId: intervalId });
   }
 
   getLogData = () => {
