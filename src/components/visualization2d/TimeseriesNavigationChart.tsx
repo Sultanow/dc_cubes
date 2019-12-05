@@ -156,7 +156,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     componentDidUpdate() {
         if (this.yScale.domain()[1] !== this.props.maxH + 100) {
-            this.componentDidMount()
+            this.componentDidMount();
         }
         if (!this.forecastPreparationDone && this.props.forecastReceived) {
 
@@ -172,9 +172,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 console.error("Prediction Timestamps are incorrect. They shoudl be after the historic dates.")
             }
 
-            let maxOfHistoric = this.yScale.domain()[1];
-            let maxOfPrediction = Math.max.apply(Math, this.props.forecastData.map(function (d) { return d.count; }));
-            let combinedMaxCount = [0, (maxOfHistoric > maxOfPrediction ? maxOfHistoric : maxOfPrediction)];
+            let combinedMaxCount = [0, this.props.maxH];
 
             this.combinedXScale.domain(combinedTimeDomain);
             this.combinedYScale.domain(combinedMaxCount);
