@@ -12,8 +12,7 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout
 
 counter = 0
-model_file_path = "model.pkl"
-core_name = "neuerCore"
+core_name = "dc_cubes_forecast"
 history_steps = 384
 
 
@@ -53,8 +52,6 @@ def pushData(row):
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
         requests.get("http://localhost:8983/solr/"+core_name+"/update?commit=true")
-    # needs last commit? for all data index > last 1k
-
 
 def createSolrCore(core_name):
     url = "http://localhost:8983/solr/admin/cores?action=CREATE&name=" + \
