@@ -244,7 +244,7 @@ if __name__ == "__main__":
     model = load_model('dc_lstm_ml_model.h5')
 
     # forecast
-    prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)s
+    prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
     prediction_df.apply(pushData, axis=1)
     requests.post("http://localhost:8983/solr/" +core_name+"/update?commit=true")
 
