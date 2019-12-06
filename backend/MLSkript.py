@@ -244,23 +244,7 @@ if __name__ == "__main__":
     model = load_model('dc_lstm_ml_model.h5')
 
     # forecast
-    prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
-    #filePath = "C:/Users/Sebastian/Desktop/Uni/_Bachelorarbeit/dc_cubes/src/scripts/PresentationPrediction.csv"
-    #df = pd.read_csv(filePath, sep=",", encoding="latin1")
-    # push the data to the forecast core
-    # for index, row in prediction_df.iterrows():
-    #     pushData(row)
+    prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)s
     prediction_df.apply(pushData, axis=1)
     requests.post("http://localhost:8983/solr/" +core_name+"/update?commit=true")
 
-    # ----------------------------------------
-    # load Model
-    # with open(filePath, "rb") as pklfile:
-    #     model = pickle.load(pklfile)
-    # xinput = "...."
-    # model.predict(xinput, verbose=0)
-    # deleteSolrCore(core_name)
-    # createSolrCore(core_name)
-    # initSchema(core_name)
-
-    df = pd.read_csv(filePath, sep=",", encoding="latin1")
