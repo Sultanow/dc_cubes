@@ -130,7 +130,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                         </Button>
                     </div> */}
                 </header>
-                <div style={{ height: "63vh" }} className="content-container d-flex justify-content-center">
+                <div style={{ height: "53vh" }} className="content-container d-flex justify-content-center">
                     <LoadingOverlay
                         active={isLoading}
                         spinner={<BarLoader
