@@ -48,11 +48,11 @@ def pushData(row):
             }
     headers = {'Content-type': 'application/json'}
     # sending post request
-    requests.post(url=url, data=json.dumps(data), headers=headers)
+    req = requests.post(url=url, data=json.dumps(data), headers=headers)
     counter += 1
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
-        requests.post("http://localhost:8983/solr/"+core_name+"/update?commit=true")
+        requests.get("http://localhost:8983/solr/"+core_name+"/update?commit=true")
     # needs last commit? for all data index > last 1k
 
 
@@ -71,7 +71,7 @@ See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UN
 
 def deleteSolrCore(core_name, deleteEverything):  # löscht immer den ganzen coreF
     url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
-    print(deleteEverything)
+    
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
@@ -116,7 +116,7 @@ def splitInCubesFrames(df):
     unique_server_names = df.server.unique()
     splitted_frames = []
     for name in unique_server_names:
-        new_df = df[df['server'] == name][-384:].copy()
+        new_df = df[df['server'] == name][-history_steps:].copy()
         splitted_frames.append(new_df)
     return splitted_frames
 
@@ -200,7 +200,7 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         pred_df['server'] = server_name
 
         pred_df['timestamp'] = pred_df['timestamp'].dt.strftime(
-            '%Y-%m-%d:%H:%M:00Z')
+            '%Y-%m-%dT%H:%M:00Z')
         prediction_frames.append(pred_df)
     print("made predictions")
     return pd.concat(prediction_frames, ignore_index=True)
@@ -217,17 +217,13 @@ if __name__ == "__main__":
     # if forecast core exists
     if core_name in activeCores:
         print(core_name + " already exists")
-
         # delete old data/predictions
         deleteCoreDocuments(core_name)
-
     # else forecast core doesn't exist
     else:
         print(core_name + " doesn't exist")
-
         # create an new forecast solr core
         createSolrCore(core_name)
-
         # init schema
         initSchema(core_name)
 
@@ -245,6 +241,8 @@ if __name__ == "__main__":
 
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
+    print("\n\n" , prediction_df.head(10))
     prediction_df.apply(pushData, axis=1)
-    requests.post("http://localhost:8983/solr/" +core_name+"/update?commit=true")
+    print("Last Commit...")
+    requests.get("http://localhost:8983/solr/"+core_name+"/update?commit=true")
 
