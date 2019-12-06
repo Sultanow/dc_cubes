@@ -15,9 +15,10 @@ history_steps = 384
 
 
 def pushData(row):
+    global core_name
+    global counter
     # defining the api-endpoint
     url = "http://localhost:8983/solr/"+core_name+"/update/json/docs"
-    global counter
     # data to be sent to api
     data = {
         "add": {
@@ -48,12 +49,11 @@ def pushData(row):
     }
     headers = {'Content-type': 'application/json'}
     # sending post request
-    requests.post(url=url, data=data, headers=headers)
+    requests.post(url=url, data=json.dumps(data), headers=headers)
     counter += 1
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
-        requests.post("http://localhost:8983/solr/" +
-                      core_name+"/update?commit=true")
+        requests.post("http://localhost:8983/solr/"+core_name+"/update?commit=true")
     # needs last commit? for all data index > last 1k
 
 
@@ -81,8 +81,10 @@ def deleteSolrCore(core_name, deleteEverything):  # löscht immer den ganzen cor
 
 def deleteCoreDocuments(core_name):
     url = "http://localhost:8983/solr/"+core_name + \
-        "/update?stream.body=<delete><query>*:*</query></delete>&commit=true"
-    requests.get(url)
+        "/update?commitWithin=1000&overwrite=true&wt=json"
+    headers = {'Content-type': 'application/json'}
+    data = {'delete': {'query': '*:*'}}
+    requests.post(url=url, data=json.dumps(data), headers=headers)
     print("deleted old documents from "+core_name+" core")
 
 
@@ -244,11 +246,12 @@ if __name__ == "__main__":
 
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
-    print(prediction_df)
 
     # push the data to the forecast core
-    for index, row in prediction_df.iterrows():
-        pushData(row)
+    # for index, row in prediction_df.iterrows():
+    #     pushData(row)
+    prediction_df.apply(pushData, axis=1)
+    requests.post("http://localhost:8983/solr/" +core_name+"/update?commit=true")
 
     # ----------------------------------------
     # load Model
@@ -261,4 +264,3 @@ if __name__ == "__main__":
     # initSchema(core_name)
 
     #df = pd.read_csv(filePath, sep=",", encoding="latin1")
-    #df.apply(pushData, axis=1)
