@@ -181,7 +181,7 @@ a:hover{
 }
 
 #section-right-accordion .card-body{
-    height: calc(100vh - 210px);
+    height: calc(100vh - 279px);
     margin-bottom: 0;
     margin-top: 0;
     overflow: scroll;
