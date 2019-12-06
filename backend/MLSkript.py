@@ -231,7 +231,7 @@ if __name__ == "__main__":
         # init schema
         initSchema(core_name)
 
-    get data from historic solr core
+    # get data from historic solr core
     df = pd.DataFrame.from_dict(getHistoricData())
     df = df.set_index('timestamp')
     last_timestamp = df.index[0]
