@@ -13,7 +13,7 @@ from keras.layers import Dense, Activation, Dropout
 
 counter = 0
 model_file_path = "model.pkl"
-core_name = "test"
+core_name = "neuerCore"
 history_steps = 384
 
 
@@ -24,8 +24,6 @@ def pushData(row):
     url = "http://localhost:8983/solr/"+core_name+"/update/json/docs"
     # data to be sent to api
     data = {
-        "add": {
-            "doc": {
                 "timestamp": row["timestamp"],
                 "cluster": row["cluster"],
                 "dc": row["dc"],
@@ -48,8 +46,6 @@ def pushData(row):
                 "sum_of_squares": row["sum_of_squares"],
                 "server": row["server"]
             }
-        }
-    }
     headers = {'Content-type': 'application/json'}
     # sending post request
     requests.post(url=url, data=json.dumps(data), headers=headers)
@@ -235,7 +231,7 @@ if __name__ == "__main__":
         # init schema
         initSchema(core_name)
 
-    # get data from historic solr core
+    get data from historic solr core
     df = pd.DataFrame.from_dict(getHistoricData())
     df = df.set_index('timestamp')
     last_timestamp = df.index[0]
@@ -249,7 +245,8 @@ if __name__ == "__main__":
 
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
-
+    #filePath = "C:/Users/Sebastian/Desktop/Uni/_Bachelorarbeit/dc_cubes/src/scripts/PresentationPrediction.csv"
+    #df = pd.read_csv(filePath, sep=",", encoding="latin1")
     # push the data to the forecast core
     # for index, row in prediction_df.iterrows():
     #     pushData(row)
@@ -266,4 +263,4 @@ if __name__ == "__main__":
     # createSolrCore(core_name)
     # initSchema(core_name)
 
-    #df = pd.read_csv(filePath, sep=",", encoding="latin1")
+    df = pd.read_csv(filePath, sep=",", encoding="latin1")
