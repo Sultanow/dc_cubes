@@ -12,7 +12,9 @@ from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout
 
 counter = 0
+historic_core_name = "dc_cubes"
 core_name = "dc_cubes_forecast"
+merged_core_name = "dc_cubes_merged"
 history_steps = 384
 
 
@@ -107,6 +109,12 @@ def getHistoricData():
     response
     return response['docs']
 
+def mergeTwoCores(merged_core_name, core1, core2):
+    url = "http://localhost:8983/solr/admin/cores?action=mergeindexes&core=" + merged_core_name + "&srcCore=" + core1 + "&srcCore=" + core2
+    requests.get(url=url)
+    # Commit to materialize changes
+    requests.get("http://localhost:8983/solr/"+merged_core_name+"/update?commit=true")
+    print(core1 + " and " +  core2 + " have been merged to " + merged_core_name)
 
 # splits the data of each cube from the whole df in its own dataframe
 def splitInCubesFrames(df):
@@ -243,3 +251,18 @@ if __name__ == "__main__":
     print("Last Commit...")
     requests.get("http://localhost:8983/solr/"+core_name+"/update?commit=true")
 
+    # if merged core exists
+    if merged_core_name in activeCores:
+        print(merged_core_name + " already exists")
+        # delete old data/predictions
+        deleteCoreDocuments(merged_core_name)
+    # else forecast core doesn't exist
+    else:
+        print(merged_core_name + " doesn't exist")
+        # create an new forecast solr core
+        createSolrCore(merged_core_name)
+        # init schema
+        initSchema(merged_core_name)
+
+    # merged historic and forecast core
+    mergeTwoCores(merged_core_name, historic_core_name, core_name)
