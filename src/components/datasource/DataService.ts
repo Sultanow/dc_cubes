@@ -38,6 +38,10 @@ export default class DataService {
         return this.dataSourceService.getMaxValueOfTwoCores(this.from, this.to, this.selectedMeasure)
     }
 
+    getDistinctTimestamps = (core: string) => {
+        return this.dataSourceService.getDistinctTimestamps(core)
+    }
+
     getAggregatedLogDataFromSolr = (startDate: string, endDate: string, aggregationType: AggregationType) => {
         // TODO: implement aggregation queries
     };

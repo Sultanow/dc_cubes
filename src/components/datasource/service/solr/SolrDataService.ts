@@ -21,16 +21,28 @@ export default class SolrDataService implements DataSourceService {
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
     getLogData = (from: string, to: string): any => {
-        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc' + '&rows=' + this.resultLimit;
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc&rows=' + this.resultLimit;
         const url = this.solrBaseUrl + this.solrCore + query;
         return httpClient.get(url);
     };
 
     getForecast = (from: string, to: string): any => {
-        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc' + '&rows=' + this.resultLimit;
+        const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc&rows=' + this.resultLimit;
         const url = this.solrBaseUrl + this.solrForecastCore + query;
         return httpClient.get(url);
     };
+
+    getDistinctTimestamps = (core: string): any => {
+        const query = '/query?q=*:*&stats=true&stats.field=timestamp&rows=0&indent=true&stats.calcdistinct=true';
+        const url = this.solrBaseUrl + core + query;
+        return new Promise((resolve, reject) => {
+            httpClient.get(url).then((data: any) => {
+                return resolve(data.data.stats.stats_fields.timestamp.distinctValues)
+            }).catch((error: any) => {
+                return reject(error)
+            });
+        })
+    }
 
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
         const query = {
@@ -44,7 +56,7 @@ export default class SolrDataService implements DataSourceService {
         const url = this.solrBaseUrl + this.solrCore + "/query";
         const urlForecast = this.solrBaseUrl + this.solrForecastCore + "/query";
         
-        let maxValue
+        let maxValue;
         return new Promise((resolve, reject) => {
             httpClient.post(url, query).then((data: any) => {
                 maxValue = data.data.facets.maxValue          

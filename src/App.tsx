@@ -23,6 +23,7 @@ interface AppState {
   solrBaseUrl: string
   solrCore: string
   solrForecastCore: string
+  solrMergedCore: string
   solrQuery: string
   dataSourceError: boolean
   selectedPointInTime: number
@@ -90,6 +91,7 @@ class App extends React.Component<{}, AppState> {
       solrBaseUrl: 'http://localhost:8983/solr/',
       solrCore: 'dc_cubes',
       solrForecastCore: 'dc_cubes_forecast',
+      solrMergedCore: 'dc_cubes_merged',
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceError: true,
       selectedPointInTime: 0,
@@ -221,6 +223,8 @@ class App extends React.Component<{}, AppState> {
         updateCurrentAvg={this.updateCurrentAvg}
         showPrediction={this.state.predictionActivated}
         forecastReceived={this.state.forecastDataReceived}
+        forecastTemporalAxis={this.state.forecastTemporalAxis}
+        temporalAxis={this.state.temporalAxis}
         maxH={this.state.maxH}
       />
     }

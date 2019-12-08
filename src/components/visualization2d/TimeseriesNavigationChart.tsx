@@ -10,6 +10,8 @@ interface TimeseriesNavigationChartProps {
     updateCurrentAvg: any
     showPrediction: boolean
     forecastReceived: boolean
+    forecastTemporalAxis: string[]
+    temporalAxis: string[]
     maxH: number
 }
 
@@ -106,7 +108,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     componentDidMount() {
 
-        const { timeseriesData } = this.props;
+        const { timeseriesData, maxH } = this.props;
         if (!timeseriesData) return;
 
         this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1].timestamp);
@@ -114,12 +116,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let minHistoricTs = this.parseDate(this.props.timeseriesData[0].timestamp);
         let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1].timestamp);
         const timeDomain = [minHistoricTs, maxHistoricTs];
-        const maxCount = [0, this.props.maxH + 100];
+        const maxCount = [0, maxH + 100];
 
         this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
 
-        this.uniqueTimestamps = this.filterUniqueTimestamps(timeseriesData);
+        this.uniqueTimestamps = this.props.temporalAxis;
 
         // generate the max area
         this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
@@ -155,6 +157,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidUpdate() {
+        // Check if maxH has been updated
         if (this.yScale.domain()[1] !== this.props.maxH + 100) {
             this.componentDidMount();
         }
@@ -185,8 +188,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
 
             if (this.forecastUniqueTimestamps == null) {
-                this.forecastUniqueTimestamps = this.filterUniqueTimestamps(this.props.forecastData);
-                this.combinedUniqueTimestamps = this.uniqueTimestamps.concat(this.forecastUniqueTimestamps);
+                this.forecastUniqueTimestamps = this.props.forecastTemporalAxis;
+                this.combinedUniqueTimestamps = this.props.forecastTemporalAxis;
             }
             if (!this.state.combinedAverage) {
                 this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.props.forecastData);
@@ -351,8 +354,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let newDate: Date = this.currentXScale.invert(xCoord - offset);
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);
-        let found1 = this.preparedAvgData.find(x => x.timestamp == newDateString);
-        let found2 = this.preparedCombinedAvgData.find(x => x.timestamp == newDateString);
+        let found1 = this.preparedAvgData.find(x => x.timestamp === newDateString);
+        let found2 = this.preparedCombinedAvgData.find(x => x.timestamp === newDateString);
 
         if (found1) {
             return found1
@@ -542,6 +545,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         return str.toISOString().split('.')[0] + "Z";
     }
 
+    // TODO: Remove because data is already available in temporalAxis or via dataSource Service
     filterUniqueTimestamps(timeseriesData: timeseriesData[]): string[] {
         var uniqueTimestamps: string[] = []
         for (var i = 0; i < timeseriesData.length; i++) {
