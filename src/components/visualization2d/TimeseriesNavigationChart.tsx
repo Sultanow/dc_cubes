@@ -97,7 +97,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private timeNowLineIsDrawn: boolean;
     private preparedMinData: timeseriesData[];
     private preparedMaxData: timeseriesData[];
-    private preparedCombinedAvgData: timeseriesData[];
+    private preparedForecastAvgData: timeseriesData[];
 
     constructor(props: any) {
         super(props);
@@ -162,62 +162,62 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidUpdate() {
-            // Check if maxH has been updated
-            if (this.yScale.domain()[1] !== this.props.maxH + 100) {
-                this.componentDidMount();
+        // Check if maxH has been updated
+        if (this.yScale.domain()[1] !== this.props.maxH + 100) {
+            this.componentDidMount();
+        }
+        if (!this.forecastPreparationDone && this.props.forecastReceived) {
+
+            let minHistoricTs = this.xScale.domain()[0];
+            let maxHistoricTs = this.xScale.domain()[1];
+
+            // array is sorted already
+            let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
+            let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
+            const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
+
+            if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
+                console.error("Prediction Timestamps are incorrect. They should be after the historic dates.")
             }
-            if (!this.forecastPreparationDone && this.props.forecastReceived) {
-                
-                let minHistoricTs = this.xScale.domain()[0];
-                let maxHistoricTs = this.xScale.domain()[1];
-    
-                // array is sorted already
-                let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
-                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
-                const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
-    
-                if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
-                    console.error("Prediction Timestamps are incorrect. They shoudl be after the historic dates.")
-                }
-    
-                let combinedMaxCount = [0, this.props.maxH];
-    
-                this.combinedXScale.domain(combinedTimeDomain);
-                this.combinedYScale.domain(combinedMaxCount);
-                // generate the average line 
-                this.combinedLineGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); });
-                this.combinedLineGenerator.y(d => { return this.combinedYScale(d.count); });
-                //area generator
-                this.combinedAreaGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); })
-                this.combinedAreaGenerator.y0(this.combinedYScale(0))
-                this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
-    
-                if (this.forecastUniqueTimestamps == null) {
-                    this.forecastUniqueTimestamps = this.props.forecastTemporalAxis;
-                    this.combinedUniqueTimestamps = this.props.forecastTemporalAxis;
-                }
-                if (!this.state.combinedAverage) {
-                    this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.props.forecastData);
-                    const combinedAverage = this.combinedLineGenerator(this.preparedCombinedAvgData);
-                    this.setState({ combinedAverage });
-                    const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
-                    this.setState({ historicAvg })
-                    const historicMin = this.combinedAreaGenerator(this.preparedMinData);
-                    this.setState({ historicMin })
-                    const historicMax = this.combinedAreaGenerator(this.preparedMaxData);
-                    this.setState({ historicMax })
-    
-                    this.forecastPreparationDone = true;
-                }
-                if (!this.timeNowLineIsDrawn) {
-                    this.drawTimeNowLine()
-                    this.timeNowLineIsDrawn = true;
-                }
+
+            let combinedMaxCount = [0, this.props.maxH];
+
+            this.combinedXScale.domain(combinedTimeDomain);
+            this.combinedYScale.domain(combinedMaxCount);
+            // generate the average line 
+            this.combinedLineGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); });
+            this.combinedLineGenerator.y(d => { return this.combinedYScale(d.count); });
+            //area generator
+            this.combinedAreaGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); })
+            this.combinedAreaGenerator.y0(this.combinedYScale(0))
+            this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
+
+            if (this.forecastUniqueTimestamps == null) {
+                this.forecastUniqueTimestamps = this.props.forecastTemporalAxis;
+                this.combinedUniqueTimestamps = this.props.forecastTemporalAxis;
             }
-            else {
-                d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
-                d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale));//.tickValues([]).tickSize(0));
+            if (!this.state.combinedAverage) {
+                this.preparedForecastAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.props.forecastData);
+                const combinedAverage = this.combinedLineGenerator(this.preparedForecastAvgData);
+                this.setState({ combinedAverage });
+                const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
+                this.setState({ historicAvg })
+                const historicMin = this.combinedAreaGenerator(this.preparedMinData);
+                this.setState({ historicMin })
+                const historicMax = this.combinedAreaGenerator(this.preparedMaxData);
+                this.setState({ historicMax })
+
+                this.forecastPreparationDone = true;
             }
+            if (!this.timeNowLineIsDrawn) {
+                this.drawTimeNowLine()
+                this.timeNowLineIsDrawn = true;
+            }
+        }
+        else {
+            d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
+            d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale));//.tickValues([]).tickSize(0));
+        }
         this.setupTooltip();
         this.setupBrush();
     }
@@ -360,7 +360,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);
         let found1 = this.preparedAvgData.find(x => x.timestamp === newDateString);
-        let found2 = this.preparedCombinedAvgData.find(x => x.timestamp === newDateString);
+        let found2 = this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
 
         if (found1) {
             return found1
@@ -390,40 +390,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         else selection.attr("display", "none");
     }
 
-    removeChart() {
-        d3.select("#" + SVG_ID).remove();
-    }
-
-    drawChart() {
-
-        const translation = "translate(" + TRANSLATION_X + ",0)";
-        let svg = d3.select(".container2d").append("svg")
-            .attr("id", SVG_ID)
-            .attr("width", SVG_WIDTH)
-            .attr("heigt", SVG_HEIGHT)
-            .attr("transform", translation);
-
-
-        svg.append("g")
-            .attr("classed", "x-axis")
-            .attr("transform", 'translate(' + TRANSLATION_X + "," + this.height + ')')
-            .call(d3.axisBottom(this.combinedXScale));
-
-        svg.append("g")
-            .attr("classed", "y-axis")
-            .attr("transform", translation)
-            .call(d3.axisLeft(this.combinedYScale));
-
-        svg.append("path")
-            .attr("class", "line-avg")
-            .attr("d", this.state.average)
-            .attr("transform", translation)
-
-        svg.append("path")
-            .attr("class", "line-avg prediction")
-            .attr("d", this.state.combinedAverage)
-            .attr("transform", translation)
-    }
 
     render() {
         const translation = "translate(" + TRANSLATION_X + ",0)";
@@ -448,7 +414,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         var historicMaxLine = null;
         if (this.props.showPrediction) {
             if (this.state.combinedAverage != null) {
-                forecastLine = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" />
+                forecastLine = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" transform={translation} />
             }
 
             if (this.state.historicAvg != null) {
@@ -620,7 +586,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     handlePredictionActivated() {
         this.showTimeNowLine()
-        this.currentAvgData = this.preparedCombinedAvgData;
+        this.currentAvgData = this.preparedForecastAvgData;
         this.currentXScale = this.combinedXScale;
     }
 
