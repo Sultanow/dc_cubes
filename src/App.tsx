@@ -16,6 +16,11 @@ import TimeUnit from './model/TimeUnit'
 import DataSource from './model/DataSource'
 import AggregationType from './model/AggregationType'
 
+interface timeseriesData {
+  timestamp: string,
+  count: number
+}
+
 interface AppState {
   logData: []
   backendUrl: string
@@ -74,6 +79,10 @@ interface AppState {
   forecastTimeSeries: Map<string, DCState>
   forecastGrid: Map<string, Array<number>>
   forecastMaxH: number
+  preparedAvgData: timeseriesData[]
+  preparedMinData: timeseriesData[]
+  preparedMaxData: timeseriesData[]
+  preparedCombinedAvgData: timeseriesData[]
 }
 
 class App extends React.Component<{}, AppState> {
@@ -124,7 +133,7 @@ class App extends React.Component<{}, AppState> {
       isLoading: true,
       currentAvgValue: 0,
       selectedMeasure: "count",
-      aggregationType: "average",
+      aggregationType: "avg",
       customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element["timestamp"];
         const strCluster: string = element["cluster"];
@@ -140,6 +149,10 @@ class App extends React.Component<{}, AppState> {
       forecastTimeSeries: new Map(),
       forecastGrid: new Map(),
       forecastMaxH: 0,
+      preparedAvgData: [],
+      preparedMinData: [],
+      preparedMaxData: [],
+      preparedCombinedAvgData: [],
     };
   }
 
@@ -150,7 +163,7 @@ class App extends React.Component<{}, AppState> {
 
   getLogData = () => {
     // TODO: implement other data sources
-    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore, this.state.solrForecastCore, this.state.selectedMeasure)
+    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore, this.state.solrForecastCore, this.state.selectedMeasure, this.state.aggregationType)
 
     dataService.getLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
@@ -159,7 +172,6 @@ class App extends React.Component<{}, AppState> {
       solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure)
 
       this.setState({
-        // there is a bug, the last element is allways undefined
         historicTemporalAxis: solrAdapter.temporalAxis,
         temporalAxis: solrAdapter.temporalAxis,
         timeSeries: solrAdapter.timeSeries,
@@ -188,7 +200,6 @@ class App extends React.Component<{}, AppState> {
       solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure);
 
       this.setState({
-        // there is a bug, the last element is allways undefined
         forecastTemporalAxis: solrAdapter.temporalAxis,
         combinedTemporalAxis: this.state.temporalAxis.concat(solrAdapter.temporalAxis),
         forecastTimeSeries: solrAdapter.timeSeries,
@@ -209,6 +220,30 @@ class App extends React.Component<{}, AppState> {
 
     dataService.getMaxValueOfTimeseries().then((maxValue: number) => {
       this.setState({ maxH: maxValue })
+    }).catch((error: any) => {
+      console.log(error)
+    });
+
+    dataService.getAggregatedValueForEachTimestamp("avg", this.state.solrCore).then((data: timeseriesData[]) => {
+      this.setState({ preparedAvgData: data })
+    }).catch((error: any) => {
+      console.log(error)
+    });
+
+    dataService.getAggregatedValueForEachTimestamp("min", this.state.solrCore).then((data: timeseriesData[]) => {
+      this.setState({ preparedMinData: data })
+    }).catch((error: any) => {
+      console.log(error)
+    });
+
+    dataService.getAggregatedValueForEachTimestamp("max", this.state.solrCore).then((data: timeseriesData[]) => {
+      this.setState({ preparedMaxData: data })
+    }).catch((error: any) => {
+      console.log(error)
+    });
+
+    dataService.getAggregatedValueForEachTimestamp("avg", this.state.solrMergedCore).then((data: timeseriesData[]) => {
+      this.setState({ preparedCombinedAvgData: data })
     }).catch((error: any) => {
       console.log(error)
     });
@@ -233,7 +268,12 @@ class App extends React.Component<{}, AppState> {
         forecastReceived={this.state.forecastDataReceived}
         forecastTemporalAxis={this.state.forecastTemporalAxis}
         temporalAxis={this.state.temporalAxis}
+        combinedTemporalAxis={this.state.combinedTemporalAxis}
         maxH={this.state.maxH}
+        preparedAvgData={this.state.preparedAvgData}
+        preparedMinData={this.state.preparedMinData}
+        preparedMaxData={this.state.preparedMaxData}
+        preparedCombinedAvgData={this.state.preparedCombinedAvgData}
       />
     }
     else {

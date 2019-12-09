@@ -1,3 +1,3 @@
-type AggregationType = 'average' | 'min' | 'max' | 'sum'
+type AggregationType = 'avg' | 'min' | 'max' | 'sum'
 
 export default AggregationType

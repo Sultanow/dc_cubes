@@ -12,7 +12,12 @@ interface TimeseriesNavigationChartProps {
     forecastReceived: boolean
     forecastTemporalAxis: string[]
     temporalAxis: string[]
+    combinedTemporalAxis: string[]
     maxH: number
+    preparedAvgData: timeseriesData[]
+    preparedMinData: timeseriesData[]
+    preparedMaxData: timeseriesData[]
+    preparedCombinedAvgData: timeseriesData[]
 }
 
 interface TimeseriesNavigationChartState {
@@ -157,62 +162,62 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidUpdate() {
-        // Check if maxH has been updated
-        if (this.yScale.domain()[1] !== this.props.maxH + 100) {
-            this.componentDidMount();
-        }
-        if (!this.forecastPreparationDone && this.props.forecastReceived) {
-
-            let minHistoricTs = this.xScale.domain()[0];
-            let maxHistoricTs = this.xScale.domain()[1];
-
-            // array is sorted already
-            let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
-            let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
-            const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
-
-            if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
-                console.error("Prediction Timestamps are incorrect. They shoudl be after the historic dates.")
+            // Check if maxH has been updated
+            if (this.yScale.domain()[1] !== this.props.maxH + 100) {
+                this.componentDidMount();
             }
-
-            let combinedMaxCount = [0, this.props.maxH];
-
-            this.combinedXScale.domain(combinedTimeDomain);
-            this.combinedYScale.domain(combinedMaxCount);
-            // generate the average line 
-            this.combinedLineGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); });
-            this.combinedLineGenerator.y(d => { return this.combinedYScale(d.count); });
-            //area generator
-            this.combinedAreaGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); })
-            this.combinedAreaGenerator.y0(this.combinedYScale(0))
-            this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
-
-            if (this.forecastUniqueTimestamps == null) {
-                this.forecastUniqueTimestamps = this.props.forecastTemporalAxis;
-                this.combinedUniqueTimestamps = this.props.forecastTemporalAxis;
+            if (!this.forecastPreparationDone && this.props.forecastReceived) {
+                
+                let minHistoricTs = this.xScale.domain()[0];
+                let maxHistoricTs = this.xScale.domain()[1];
+    
+                // array is sorted already
+                let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
+                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
+                const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
+    
+                if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
+                    console.error("Prediction Timestamps are incorrect. They shoudl be after the historic dates.")
+                }
+    
+                let combinedMaxCount = [0, this.props.maxH];
+    
+                this.combinedXScale.domain(combinedTimeDomain);
+                this.combinedYScale.domain(combinedMaxCount);
+                // generate the average line 
+                this.combinedLineGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); });
+                this.combinedLineGenerator.y(d => { return this.combinedYScale(d.count); });
+                //area generator
+                this.combinedAreaGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); })
+                this.combinedAreaGenerator.y0(this.combinedYScale(0))
+                this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
+    
+                if (this.forecastUniqueTimestamps == null) {
+                    this.forecastUniqueTimestamps = this.props.forecastTemporalAxis;
+                    this.combinedUniqueTimestamps = this.props.forecastTemporalAxis;
+                }
+                if (!this.state.combinedAverage) {
+                    this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.props.forecastData);
+                    const combinedAverage = this.combinedLineGenerator(this.preparedCombinedAvgData);
+                    this.setState({ combinedAverage });
+                    const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
+                    this.setState({ historicAvg })
+                    const historicMin = this.combinedAreaGenerator(this.preparedMinData);
+                    this.setState({ historicMin })
+                    const historicMax = this.combinedAreaGenerator(this.preparedMaxData);
+                    this.setState({ historicMax })
+    
+                    this.forecastPreparationDone = true;
+                }
+                if (!this.timeNowLineIsDrawn) {
+                    this.drawTimeNowLine()
+                    this.timeNowLineIsDrawn = true;
+                }
             }
-            if (!this.state.combinedAverage) {
-                this.preparedCombinedAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.props.forecastData);
-                const combinedAverage = this.combinedLineGenerator(this.preparedCombinedAvgData);
-                this.setState({ combinedAverage });
-                const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
-                this.setState({ historicAvg })
-                const historicMin = this.combinedAreaGenerator(this.preparedMinData);
-                this.setState({ historicMin })
-                const historicMax = this.combinedAreaGenerator(this.preparedMaxData);
-                this.setState({ historicMax })
-
-                this.forecastPreparationDone = true;
+            else {
+                d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
+                d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale));//.tickValues([]).tickSize(0));
             }
-            if (!this.timeNowLineIsDrawn) {
-                this.drawTimeNowLine()
-                this.timeNowLineIsDrawn = true;
-            }
-        }
-        else {
-            d3.select(this.yAxisRef.current).call(d3.axisLeft(this.yScale).ticks(5));
-            d3.select(this.xAxisRef.current).call(d3.axisBottom(this.xScale));//.tickValues([]).tickSize(0));
-        }
         this.setupTooltip();
         this.setupBrush();
     }

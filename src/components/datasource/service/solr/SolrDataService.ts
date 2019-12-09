@@ -44,6 +44,39 @@ export default class SolrDataService implements DataSourceService {
         })
     }
 
+    getAggregatedValueForEachTimestamp = (selectedMeasure: string, aggregationType: AggregationType, solrCore: string): any => {
+        const query = {
+            "query": "*:*",
+            "limit": this.resultLimit,
+            "facet": {
+                "timestamps": {
+                    "type": "terms",
+                    "field": "timestamp",
+                    "sort": "index",
+                    "limit": this.resultLimit,
+                    "facet": {
+                        "value": aggregationType + "(" + selectedMeasure + ")",
+                    }
+                }
+            }
+        }
+        const url = this.solrBaseUrl + solrCore + "/query";
+
+        return new Promise((resolve, reject) => {
+            httpClient.post(url, query).then((data: any) => {
+                let timestamps = data.data.facets.timestamps.buckets
+                let newObj = []
+                timestamps.map(el => {
+                    newObj.push({"timestamp": el.val, "count": el.value})
+                })
+                return resolve(newObj)
+            }).catch((error: any) => {
+                return reject(error)
+            });
+        })
+    }
+
+
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
         const query = {
             "query": "*:*",
@@ -82,4 +115,13 @@ export default class SolrDataService implements DataSourceService {
     getAllSolrCores = () => {
 
     };
+
+    renameProp = (
+        oldProp,
+        newProp,
+    { [oldProp]: old, ...others }
+    ) => ({
+        [newProp]: old,
+        ...others
+    })
 }

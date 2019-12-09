@@ -9,11 +9,13 @@ export default class DataService {
     private from: string
     private to: string
     private selectedMeasure: string
+    private aggregationType: AggregationType
 
-    constructor(dataSource: DataSource, from: string, to: string, solrBaseUrl: string, solrCore: string, solrForecastCore: string, selectedMeasure: string) {
+    constructor(dataSource: DataSource, from: string, to: string, solrBaseUrl: string, solrCore: string, solrForecastCore: string, selectedMeasure: string, aggregationType: AggregationType) {
         this.from = from
         this.to = to
         this.selectedMeasure = selectedMeasure
+        this.aggregationType = aggregationType
 
         if (dataSource === 'solr') {
             this.dataSourceService = new SolrDataService(solrBaseUrl, solrCore, solrForecastCore)
@@ -36,6 +38,10 @@ export default class DataService {
 
     getMaxValueOfTimeseries = () => {
         return this.dataSourceService.getMaxValueOfTwoCores(this.from, this.to, this.selectedMeasure)
+    }
+
+    getAggregatedValueForEachTimestamp = (aggregationType: AggregationType, core: string) => {
+        return this.dataSourceService.getAggregatedValueForEachTimestamp(this.selectedMeasure, aggregationType, core)
     }
 
     getDistinctTimestamps = (core: string) => {
