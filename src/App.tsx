@@ -2,6 +2,7 @@ import React from 'react'
 import { BrowserRouter, Route } from "react-router-dom"
 import { Alert, Container } from 'react-bootstrap'
 import './App.css'
+import httpClient from 'axios';
 import SidebarNew from './components/SidebarNew'
 import CubesVisualization from './components/visualization3d/CubesVisualization'
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart'
@@ -213,6 +214,13 @@ class App extends React.Component<{}, AppState> {
     });
   }
 
+  updatePredictions = () => {
+    console.log("update predicitons called")
+    httpClient.get("http://localhost:8080/startscript").then((data: any) => {
+      console.log("Update Predictions answer: " + data.data);
+    })
+  }
+
   render() {
     let TimeseriesNavigationChartComponent;
     if (this.state.isRawTimeseriesDataLoaded) {
@@ -266,6 +274,7 @@ class App extends React.Component<{}, AppState> {
               prognosisActivated={this.state.predictionActivated}
               handlePredictionActivated={this.handlePredictionActivated.bind(this)}
               handlePredictionDeactivated={this.handlePredictionDeactivated.bind(this)}
+              updatePredictions={this.updatePredictions}
             />
 
             <Route exact path="/" render={
