@@ -190,29 +190,29 @@ class App extends React.Component<{}, AppState> {
         this.calculateAndSetBoundariesOfTimespanSlider()
       });
 
-    }).catch((error: any) => {
-      this.setState({ dataSourceError: true })
-      console.log(error)
-    });
-
-    dataService.getForecast().then((data: any) => {
-      const solrAdapter = new SolrAdapter();
-      solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure);
-
-      this.setState({
-        forecastTemporalAxis: solrAdapter.temporalAxis,
-        combinedTemporalAxis: this.state.temporalAxis.concat(solrAdapter.temporalAxis),
-        forecastTimeSeries: solrAdapter.timeSeries,
-        combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(solrAdapter.timeSeries.entries())]),
-        forecastGrid: solrAdapter.grid,
-        forecastMaxH: solrAdapter.maxh,
-        dataSourceError: false,
-        isLoading: false,
-        // raw timesereis Data for 2d graph 
-        rawForecastData: data.data.response.docs,
-        isRawForecastDataLoaded: true,
-        forecastDataReceived: true
+      dataService.getForecast().then((data: any) => {
+        const solrAdapter = new SolrAdapter();
+        solrAdapter.receivedData(data.data, this.state.customMapping, this.state.selectedMeasure);
+  
+        this.setState({
+          forecastTemporalAxis: solrAdapter.temporalAxis,
+          combinedTemporalAxis: this.state.temporalAxis.concat(solrAdapter.temporalAxis),
+          forecastTimeSeries: solrAdapter.timeSeries,
+          combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(solrAdapter.timeSeries.entries())]),
+          forecastGrid: solrAdapter.grid,
+          forecastMaxH: solrAdapter.maxh,
+          dataSourceError: false,
+          isLoading: false,
+          // raw timesereis Data for 2d graph 
+          rawForecastData: data.data.response.docs,
+          isRawForecastDataLoaded: true,
+          forecastDataReceived: true
+        });
+      }).catch((error: any) => {
+        this.setState({ dataSourceError: true })
+        console.log(error)
       });
+
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
@@ -220,30 +220,6 @@ class App extends React.Component<{}, AppState> {
 
     dataService.getMaxValueOfTimeseries().then((maxValue: number) => {
       this.setState({ maxH: maxValue })
-    }).catch((error: any) => {
-      console.log(error)
-    });
-
-    dataService.getAggregatedValueForEachTimestamp("avg", this.state.solrCore).then((data: timeseriesData[]) => {
-      this.setState({ preparedAvgData: data })
-    }).catch((error: any) => {
-      console.log(error)
-    });
-
-    dataService.getAggregatedValueForEachTimestamp("min", this.state.solrCore).then((data: timeseriesData[]) => {
-      this.setState({ preparedMinData: data })
-    }).catch((error: any) => {
-      console.log(error)
-    });
-
-    dataService.getAggregatedValueForEachTimestamp("max", this.state.solrCore).then((data: timeseriesData[]) => {
-      this.setState({ preparedMaxData: data })
-    }).catch((error: any) => {
-      console.log(error)
-    });
-
-    dataService.getAggregatedValueForEachTimestamp("avg", this.state.solrMergedCore).then((data: timeseriesData[]) => {
-      this.setState({ preparedCombinedAvgData: data })
     }).catch((error: any) => {
       console.log(error)
     });
