@@ -1,5 +1,5 @@
-.data-time-select{
-    width: 100%;
+.data-time-select {
+    width      : 100%;
     margin-left: 4rem;
 }
 
@@ -9,38 +9,39 @@
 
 .gap-topbar {
     margin-right: 0.5rem;
-    margin-left: 0.5rem;
+    margin-left : 0.5rem;
 }
 
 .topbar {
-    width: 100%;
-    height: 65px;
+    width           : 100%;
+    height          : 65px;
     background-color: #ffffff;
-    justify-content: space-between;
-    display: flex;
-    align-items: center;
-    padding-left: 10px;
-    padding-right: 10px;
+    justify-content : space-between;
+    display         : flex;
+    align-items     : center;
+    padding-left    : 10px;
+    padding-right   : 10px;
 }
 
-.topbar > a{
+.topbar>a {
     text-decoration: none;
-    font-size: 16px;
-    font-weight: bolder;
-    text-transform: uppercase;
-    color: #1b76f0;
+    font-size      : 16px;
+    font-weight    : bolder;
+    text-transform : uppercase;
+    color          : #1b76f0;
 }
 
-.topbar > a:hover{
+.topbar>a:hover {
     color: #116ed3
 }
 
-.topbar-button{
-    color: #212529;
+.topbar-button {
+    width           : max-content;
+    color           : #212529;
     background-color: #ffffff;
 }
 
-#icon-container{
+#icon-container {
     height: 40px;
-    width: 40px;
+    width : 40px;
 }

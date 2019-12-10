@@ -10,6 +10,11 @@ const port = config.port;
 const historical = config.historicalDataCore;
 const forecast = config.forecastDataCore;
 
+const { spawn } = require("child_process");
+    const pythonProcess = spawn("python", ["MLSkript.py"]);
+    pythonProcess.stdout.on('data', function(data) {
+        console.log(data.toString());
+    });
 app.get("/", function (req, res) {
     res.send("node is online");
 });

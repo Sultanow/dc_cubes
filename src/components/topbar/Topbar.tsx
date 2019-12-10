@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { Link } from "react-router-dom";
 import { Dropdown, Form, Row, Button } from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faFilter, faSearchPlus, faClock, faRedoAlt } from '@fortawesome/free-solid-svg-icons'
+import { faFilter, faSearchPlus, faClock, faRedoAlt, faAngleDoubleDown } from '@fortawesome/free-solid-svg-icons'
 import './Topbar.css'
 import QuickTimeSelection from './timeselection/QuickTimeSelection';
 import DCState from '../../model/DCState'
@@ -32,6 +32,8 @@ interface TopbarProps {
     clearIntervalOfDataRefresh: any
     handlePredictionActivated: any
     handlePredictionDeactivated: any
+    prognosisActivated: boolean
+    updatePredictions: any
 }
 
 interface TopbarState {
@@ -47,7 +49,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
         this.state = {
             refreshInterval: 10,
             refreshTimeUnit: 'minutes',
-            automaticRefresh: true,
+            automaticRefresh: false,
         }
     }
 
@@ -106,6 +108,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                         automaticRefresh={this.state.automaticRefresh}
                                         accessTopbar={this.accessTopbar}
                                         updateTimespanData={this.props.updateTimespanData}
+                                        prognosisActivated={this.props.prognosisActivated}
                                         handlePredictionActivated={this.props.handlePredictionActivated}
                                         handlePredictionDeactivated={this.props.handlePredictionDeactivated}
                                     />
@@ -126,6 +129,11 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                 updateTimespanData={this.props.updateTimespanData} />
                         </Row>
                     </div>
+                </Form>
+                <Form>
+                    <Button className="topbar-button" variant="light" onClick={this.manualPredictions}>
+                        <FontAwesomeIcon icon={faAngleDoubleDown} /> <span>Neue Vorhersagen erstellen</span>
+                    </Button>
                 </Form>
                 <Form>
                     <Button className="topbar-button" variant="light" onClick={this.manualRefresh}>
@@ -152,5 +160,9 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
 
     manualRefresh = () => {
         this.props.getLogData(this.props.dataSourceUrl)
+    }
+
+    manualPredictions = () => {
+        this.props.updatePredictions();
     }
 }

@@ -18,6 +18,7 @@ interface QuickTimeSelectionProps {
     refreshTimeUnit: string
     accessTopbar: any
     updateTimespanData: any
+    prognosisActivated: boolean
     handlePredictionActivated: any
     handlePredictionDeactivated: any
 }
@@ -58,7 +59,7 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
                             type="checkbox"
                             id="togglePrognosis"
                             name="togglePrognosis"
-                            checked={this.props.timespanTypeUpperBound === 'next' ? true : false}
+                            checked={this.props.prognosisActivated}
                             onChange={this.togglePrognosis}
                         />
                     </Col>
@@ -214,7 +215,21 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
     }
 
     getPointInTimeOfDatetimeString = (datetimeString: string) => {
-        return this.props.temporalAxis.indexOf(datetimeString)
+        let roundedDate = this.roundDateToNearest15Min(datetimeString);
+        this.setState({ pointInTimeTimestamp: roundedDate });
+        return this.props.temporalAxis.indexOf(roundedDate);
+    }
+
+    roundDateToNearest15Min(dateTimeString: string): string {
+        let date = new Date(dateTimeString);
+        let minutes = 15;
+        let ms = 1000 * 60 * minutes;
+        let roundedDate: Date = new Date(Math.round(date.getTime() / ms) * ms);
+        return this.convertDateObjectToString(roundedDate);
+    }
+
+    convertDateObjectToString(str: Date) {
+        return str.toISOString().split('.')[0] + "Z";
     }
 
     updatePointInTime = (e) => {
@@ -243,9 +258,9 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
 
         let selectedPointInTime
         if (this.state.pointInTimeType === 'now') {
-            selectedPointInTime = this.props.temporalAxis.length - 1
+            selectedPointInTime = this.props.temporalAxis.length - 1;
         } else {
-            selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.pointInTimeTimestamp)
+            selectedPointInTime = this.getPointInTimeOfDatetimeString(this.state.pointInTimeTimestamp);
         }
 
         if (selectedPointInTime !== -1) {
