@@ -15,9 +15,6 @@ import DCState from './model/DCState'
 import TimeUnit from './model/TimeUnit'
 import DataSource from './model/DataSource'
 import AggregationType from './model/AggregationType'
-import Datacenter from './model/Datacenter'
-import Instance from './model/Instance'
-import Cluster from './model/Cluster'
 
 interface timeseriesData {
   timestamp: string,
@@ -72,6 +69,7 @@ interface AppState {
   selectedMeasure: string
   customMapping: any
   aggregationType: AggregationType
+  aggregatedData: DCState
   
   predictionActivated: boolean
   forecastDataReceived: boolean
@@ -137,6 +135,7 @@ class App extends React.Component<{}, AppState> {
       currentAvgValue: 0,
       selectedMeasure: "count",
       aggregationType: "avg",
+      aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element["timestamp"];
         const strCluster: string = element["cluster"];
@@ -165,10 +164,16 @@ class App extends React.Component<{}, AppState> {
   }
 
   getLogData = () => {
-    // TODO: implement other data sources
-    const dataService = new DataService(this.state.dataSource, this.state.timespanAbsoluteTimestampLowerBound, this.state.timespanAbsoluteTimestampUpperBound, this.state.solrBaseUrl, this.state.solrCore, this.state.solrForecastCore, this.state.selectedMeasure, this.state.aggregationType)
-
-    dataService.getLogData().then((data: any) => {
+    const dataService = new DataService(this.state.dataSource,
+                                        this.state.timespanAbsoluteTimestampLowerBound,
+                                        this.state.timespanAbsoluteTimestampUpperBound, 
+                                        this.state.solrBaseUrl, 
+                                        this.state.solrCore,
+                                        this.state.solrForecastCore,
+                                        this.state.selectedMeasure, 
+                                        this.state.aggregationType)
+    // Initially get all data because the placeholder visualization needs the full temporalAxis
+    dataService.getAllLogData().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
 
@@ -226,7 +231,38 @@ class App extends React.Component<{}, AppState> {
     }).catch((error: any) => {
       console.log(error)
     });
+
+    this.getAggregatedLogData()
   }
+
+  getAggregatedLogData = () => {
+    const dataService = new DataService(this.state.dataSource,
+      this.state.timespanAbsoluteTimestampLowerBound,
+      this.state.timespanAbsoluteTimestampUpperBound,
+      this.state.solrBaseUrl, 
+      this.state.solrCore,
+      this.state.solrForecastCore,
+      this.state.selectedMeasure, 
+      this.state.aggregationType) 
+      
+    dataService.getAggregatedLogData().then((data: any) => {
+      const solrAdapter = new SolrAdapter()
+      let strTimeStamp = "timespan"
+
+      data.data.facets.datacenters.buckets.forEach(strDataCenter => {
+        strDataCenter.clusters.buckets.forEach(strCluster => {
+          strCluster.instances.buckets.forEach(strInstance => {
+            solrAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue))) 
+          })
+        })
+      })
+      this.setState<never>({ aggregatedData: solrAdapter.timeSeries.get(strTimeStamp)})     
+    }).catch((error: any) => {
+      this.setState({ dataSourceError: true })
+      console.log(error)
+    })
+  }
+  
 
   updatePredictions = () => {
     console.log("update predicitons called")
@@ -253,19 +289,27 @@ class App extends React.Component<{}, AppState> {
         preparedMinData={this.state.preparedMinData}
         preparedMaxData={this.state.preparedMaxData}
         preparedCombinedAvgData={this.state.preparedCombinedAvgData}
+        selectedMeasure={this.state.selectedMeasure}
       />
     }
     else {
       TimeseriesNavigationChartComponent = null;
     }
+
     let cubesVisData = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
-    let topbarTimeSeries = this.state.timeSeries
+    // Check if timespan or pointInTime mode is selected and select the data for 3D visualization accordingly
+    if (this.state.aggregatedData !== undefined && this.state.timeSelectionMode === "timespan") {
+      cubesVisData = this.state.aggregatedData
+    } else {
+      cubesVisData = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])
+
+    /* let topbarTimeSeries = this.state.timeSeries
     if (this.state.predictionActivated) {
       if (this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]) !== null) {
         cubesVisData = this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
       }
       topbarTimeSeries = this.state.combinedTimeSeries;
-    }
+    } */
     return (
       <BrowserRouter>
         <div className="App">
@@ -318,6 +362,10 @@ class App extends React.Component<{}, AppState> {
                       timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
                       currentAvg={this.state.currentAvgValue}
                       lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
+                      aggregationType={this.state.aggregationType}
+                      updateAggregationType={this.updateAggregationType}
+                      selectedMeasure={this.state.selectedMeasure}
+                      updateSelectedMeasure={this.updateSelectedMeasure}
                     >
                       {TimeseriesNavigationChartComponent}
                     </CubesVisualization>
@@ -391,6 +439,18 @@ class App extends React.Component<{}, AppState> {
     })
   }
 
+  updateAggregationType = (aggregationType: AggregationType) => {
+    this.setState({ aggregationType: aggregationType }, () => {
+      this.getLogData()
+    })
+  }
+
+  updateSelectedMeasure = (selectedMeasure: string) => {
+    this.setState({ selectedMeasure: selectedMeasure }, () => {
+      this.getLogData()
+    })
+  }
+
   updateTimespanData = (newTimespanData: object) => {
     this.setState<never>(newTimespanData, () => {
       this.calculateAndSetBoundariesOfTimespanSlider()
@@ -400,7 +460,8 @@ class App extends React.Component<{}, AppState> {
 
   updateSliderAndDates = (DateToReset: string) => {
     this.setState({ timeSelectionMode: "pointInTime", pointInTimeTimestamp: DateToReset, sliderMode: "pointInTime" });
-    this.calculateAndSetPositionOfPointInTimeSlider();
+    this.calculateAndSetPositionOfPointInTimeSlider()
+    this.getLogData()
   }
 
   calculateAndSetPositionOfPointInTimeSlider = () => {

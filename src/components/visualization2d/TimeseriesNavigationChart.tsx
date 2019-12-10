@@ -18,6 +18,7 @@ interface TimeseriesNavigationChartProps {
     preparedMinData: timeseriesData[]
     preparedMaxData: timeseriesData[]
     preparedCombinedAvgData: timeseriesData[]
+    selectedMeasure: string
 }
 
 interface TimeseriesNavigationChartState {
@@ -35,12 +36,12 @@ interface TimeseriesNavigationChartState {
 
 interface timeseriesData {
     timestamp: string,
-    count: number
+    selectedMeasure?: number
 }
 
 interface timestampData {
     timestamp: number,
-    count: number
+    selectedMeasure: number
 }
 
 const TRANSLATION_X = 40;
@@ -99,6 +100,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private preparedMaxData: timeseriesData[];
     private preparedForecastAvgData: timeseriesData[];
 
+    private selectedMeasure: string
+
     constructor(props: any) {
         super(props);
         this.forecastPreparationDone = false;
@@ -112,8 +115,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidMount() {
+        // Save selectedMeasure to check on updates if change to it happened
+        this.selectedMeasure = this.props.selectedMeasure
 
-        const { timeseriesData, maxH } = this.props;
+        const { timeseriesData, maxH, selectedMeasure} = this.props;
         if (!timeseriesData) return;
 
         this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1].timestamp);
@@ -131,7 +136,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         // generate the max area
         this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
         this.areaGenerator.y0(this.yScale(0))
-        this.areaGenerator.y1(d => { return this.yScale(d.count); });
+        this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
 
         this.preparedMaxData = this.prepareDataForMaxLine(this.uniqueTimestamps, this.props.timeseriesData);
         const max = this.areaGenerator(this.preparedMaxData);
@@ -139,7 +144,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         // generate the average line 
         this.lineGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); });
-        this.lineGenerator.y(d => { return this.yScale(d.count); })
+        this.lineGenerator.y(d => { return this.yScale(d[selectedMeasure]); })
         this.preparedAvgData = this.prepareDataForAvgLine(this.uniqueTimestamps, this.props.timeseriesData);
         const average = this.lineGenerator(this.preparedAvgData);
         this.setState({ average })
@@ -147,7 +152,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         // generate the min area
         this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
         this.areaGenerator.y0(this.yScale(0))
-        this.areaGenerator.y1(d => { return this.yScale(d.count); });
+        this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
         this.preparedMinData = this.prepareDataForMinLine(this.uniqueTimestamps, this.props.timeseriesData);
         const min = this.areaGenerator(this.preparedMinData);
         this.setState({ min })
@@ -162,6 +167,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     componentDidUpdate() {
+        // Check if selectedMeasure changed, if yes rerender visualization with new data
+        if (this.props.selectedMeasure !== this.selectedMeasure) {
+            this.componentDidMount()
+        }
         // Check if maxH has been updated
         if (this.yScale.domain()[1] !== this.props.maxH + 100) {
             this.componentDidMount();
@@ -186,11 +195,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.combinedYScale.domain(combinedMaxCount);
             // generate the average line 
             this.combinedLineGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); });
-            this.combinedLineGenerator.y(d => { return this.combinedYScale(d.count); });
+            this.combinedLineGenerator.y(d => { return this.combinedYScale(d[this.props.selectedMeasure]); });
             //area generator
             this.combinedAreaGenerator.x(d => { return this.combinedXScale(this.parseDate(d.timestamp)); })
             this.combinedAreaGenerator.y0(this.combinedYScale(0))
-            this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d.count); });
+            this.combinedAreaGenerator.y1(d => { return this.combinedYScale(d[this.props.selectedMeasure]); });
 
             if (this.forecastUniqueTimestamps == null) {
                 this.forecastUniqueTimestamps = this.props.forecastTemporalAxis;
@@ -304,8 +313,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let offsetY = 90;
 
         d3.select("#tooltipDate").html(dp.timestamp);
-        d3.select("#tooltipAvg").html(Math.floor(dp.count).toString());
-        this.currentAvgValue = Math.floor(dp.count);
+        d3.select("#tooltipAvg").html(Math.floor(dp[this.props.selectedMeasure]).toString());
+        this.currentAvgValue = Math.floor(dp[this.props.selectedMeasure]);
 
         d3.select("#tooltip").style("top", ycoord - offsetY + "px")
             .style("left", xcoord + offsetX + "px")
@@ -537,10 +546,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             const values = []
             timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
-                    values.push(element.count);
+                    values.push(element[this.props.selectedMeasure]);
                 }
             });
-            valuesOnTimestamp.push({ timestamp: timestamp, count: Math.max.apply(Math, values) })
+
+            const obj = { timestamp: timestamp }
+            obj[this.props.selectedMeasure] = Math.max.apply(Math, values)
+            valuesOnTimestamp.push(obj)
         });
 
         return valuesOnTimestamp;
@@ -552,10 +564,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             const values = []
             timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
-                    values.push(element.count);
+                    values.push(element[this.props.selectedMeasure]);
                 }
             });
-            valuesOnTimestamp.push({ timestamp: timestamp, count: Math.min.apply(Math, values) })
+
+            const obj = { timestamp: timestamp }
+            obj[this.props.selectedMeasure] = Math.min.apply(Math, values)
+            valuesOnTimestamp.push(obj)
         });
 
         return valuesOnTimestamp;
@@ -569,7 +584,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
                     counter++;
-                    sum += element.count
+                    sum += element[this.props.selectedMeasure]
                 }
             });
 
@@ -577,7 +592,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             if (counter !== 0) {
                 avg = sum / counter;
             }
-            valuesOnTimestamp.push({ timestamp: timestamp, count: avg })
+
+            const obj = { timestamp: timestamp }
+            obj[this.props.selectedMeasure] = avg
+            valuesOnTimestamp.push(obj)
         });
         // todo combinedAvg for tooltip/mouseevents
         this.currentAvgData = valuesOnTimestamp;
@@ -606,6 +624,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         });
         this.hideTimeNowLine();
     }
+
     showTimeNowLine() {
         d3.select(".timeNowLine").classed("hidden", false);
     }

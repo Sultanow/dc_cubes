@@ -32,6 +32,46 @@ export default class SolrDataService implements DataSourceService {
         return httpClient.get(url);
     };
 
+    getAllLogData = () => {
+        const query = '/query?q=*:*&sort=timestamp+asc&rows=' + this.resultLimit
+        const url = this.solrBaseUrl + this.solrCore + query
+        return httpClient.get(url)
+    }
+        
+    getAggregatedLogData = (from: string, to: string, selectedMeasure: string, aggregationType: AggregationType) => {
+        const query = {
+            "query": "*:*",
+            "filter": "timestamp:[" + from + " TO " + to + "]",
+            "limit": this.resultLimit,
+            "facet": {
+                "datacenters": {
+                    "type": "terms",
+                    "field": "dc",
+                    "limit": this.resultLimit,
+                    "facet": {
+                        "clusters": {
+                            "type": "terms",
+                            "field": "cluster",
+                            "limit": this.resultLimit,
+                            "facet": {
+                                "instances": {
+                                    "type": "terms",
+                                    "field": "instanz",
+                                    "limit": this.resultLimit,
+                                    "facet" : {
+                                        "aggregatedValue" : aggregationType + "(" + selectedMeasure + ")",
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        const url = this.solrBaseUrl + this.solrCore + "/query"
+        return httpClient.post(url, query);
+    }
+
     getDistinctTimestamps = (core: string): any => {
         const query = '/query?q=*:*&stats=true&stats.field=timestamp&rows=0&indent=true&stats.calcdistinct=true';
         const url = this.solrBaseUrl + core + query;
@@ -106,22 +146,5 @@ export default class SolrDataService implements DataSourceService {
                 return reject(error)
             });
         })
-    } 
-
-    getAggregatedLogDataFromSolr = (startDate: string, endDate: string, aggregationType: AggregationType) => {
-        // TODO: implement aggregation queries
-    };
-
-    getAllSolrCores = () => {
-
-    };
-
-    renameProp = (
-        oldProp,
-        newProp,
-    { [oldProp]: old, ...others }
-    ) => ({
-        [newProp]: old,
-        ...others
-    })
+    }
 }
