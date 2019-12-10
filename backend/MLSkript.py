@@ -207,12 +207,12 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         pred_df['timestamp'] = pred_df['timestamp'].dt.strftime(
             '%Y-%m-%dT%H:%M:00Z')
         prediction_frames.append(pred_df)
-    print("made predictions")
+    print("Made predictions")
     return pd.concat(prediction_frames, ignore_index=True)
 
 
 if __name__ == "__main__":
-    print("MLSkript.py wird ausgeführt")
+    print("Started MLSkript.py ...")
 
     # get existing solr cores
     url = "http://localhost:8983/solr/admin/cores?action=STATUS"
@@ -246,7 +246,6 @@ if __name__ == "__main__":
 
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
-    print("\n\n" , prediction_df.head(10))
     prediction_df.apply(pushData, axis=1)
     print("Last Commit...")
     requests.get("http://localhost:8983/solr/"+core_name+"/update?commit=true")
