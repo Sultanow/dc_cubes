@@ -6,7 +6,7 @@
     font-family: "Source Sans Pro";
 }
 
-html, body {margin: 0; height: 100%; overflow: hidden}
+html, body {margin: 0; height: 100%; overflow: scroll}
 
 .App-link {
     color: #61dafb;
