@@ -11,10 +11,10 @@ const historical = config.historicalDataCore;
 const forecast = config.forecastDataCore;
 
 const { spawn } = require("child_process");
-    const pythonProcess = spawn("python", ["MLSkript.py"]);
-    pythonProcess.stdout.on('data', function(data) {
-        console.log(data.toString());
-    });
+const pythonProcess = spawn("python", ["MLSkript.py"]);
+pythonProcess.stdout.on('data', function (data) {
+    console.log(data.toString());
+});
 app.get("/", function (req, res) {
     res.send("node is online");
 });
@@ -48,7 +48,7 @@ app.get("/forecast/:from/:to", function (req, res) {
 
 app.get("/startScript", function (req, res) {
     const { spawn } = require("child_process");
-    const pythonProcess = spawn("python", ["proofOfConcept.py"]);
+    const pythonProcess = spawn("python", ["MLSkript.py"]);
     let dataChunks = [];
     let pythonOutput = null;
     pythonProcess.stdout.on("data", function (chunk) {
