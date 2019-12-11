@@ -252,7 +252,7 @@ if __name__ == "__main__":
     cubes_frames = splitInCubesFrames(df)
 
     # load the trained model
-    model = load_model('dc_lstm_model.h5')
+    model = load_model('dc_lstm_model_retrained.h5')
 
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
