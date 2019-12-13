@@ -2,6 +2,9 @@
 #-*- coding:utf-8 -*-
 
 import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+
 import pandas as pd
 import json
 import csv
@@ -15,7 +18,8 @@ counter = 0
 historic_core_name = "dc_cubes"
 core_name = "dc_cubes_forecast"
 merged_core_name = "dc_cubes_merged"
-history_steps = 384
+history_steps = 672
+forecast_steps = 672
 
 
 def pushData(row):
@@ -47,9 +51,16 @@ def pushData(row):
                 "sum_of_squares": row["sum_of_squares"],
                 "server": row["server"]
             }
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+
+    session.get(url)
     headers = {'Content-type': 'application/json'}
     # sending post request
-    req = requests.post(url=url, data=json.dumps(data), headers=headers)
+    session.post(url=url, data=json.dumps(data), headers=headers)
     counter += 1
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
@@ -68,7 +79,7 @@ See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UN
 """
 
 
-def deleteSolrCore(core_name, deleteEverything):  # löscht immer den ganzen coreF
+def deleteSolrCore(core_name, deleteEverything):  # löscht immer den ganzen core
     url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
     
     if (deleteEverything):
@@ -104,7 +115,7 @@ def initSchema(core_name):
 
 
 def getHistoricData():
-    url = 'http://localhost:8983/solr/dc_cubes/select?q=*:*&sort=timestamp%20desc&rows=15000'
+    url = 'http://localhost:8983/solr/dc_cubes/select?q=*:*&sort=timestamp%20desc&rows=25000'
     response = requests.get(url).json()['response']
     response
     return response['docs']
@@ -153,7 +164,6 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         cube['minute'] = minutes
         cube['hour'] = hours
         cube['day'] = day
-        cube["weekend"] = (cube["day"] > 5).astype(int)
 
         # Standardise
         import numpy as np
@@ -174,9 +184,9 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         prediction = model.predict(pred_input)
 
         # transform pre solr
-        prediction = prediction.reshape((192, 1))
+        prediction = prediction.reshape((forecast_steps, 1))
         prediction = np.hstack((prediction, np.zeros(
-            (prediction.shape[0], 4), dtype=prediction.dtype)))
+            (prediction.shape[0], 3), dtype=prediction.dtype)))
         prediction = prediction = scaler.inverse_transform(prediction)
         prediction = prediction[:, [0]]
         int_prediction = prediction.astype(int, copy=True)
@@ -185,7 +195,7 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
 
         # make the dataframe
         next_timestamps = pd.date_range(
-            start=last_timestamp, periods=192+1, freq='15min',  closed='right')
+            start=last_timestamp, periods=forecast_steps+1, freq='15min',  closed='right')
         # create the prediction dataframe for the current server
         d = {'timestamp': next_timestamps, 'cluster': cluster, 'dc': dc,
              'perm': perm, 'instanz': instanz,  'verfahren': verfahren, 'service': service, 'response': 200}
@@ -242,7 +252,7 @@ if __name__ == "__main__":
     cubes_frames = splitInCubesFrames(df)
 
     # load the trained model
-    model = load_model('dc_lstm_ml_model.h5')
+    model = load_model('dc_lstm_model_retrained.h5')
 
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)

@@ -11,9 +11,9 @@ const historical = config.historicalDataCore;
 const forecast = config.forecastDataCore;
 
 const { spawn } = require("child_process");
-    const pythonProcess = spawn("python", ["MLSkript.py"]);
+    const pythonProcess = spawn("python", ["prophet.py"]);
     pythonProcess.stdout.on('data', function(data) {
-        console.log(data.toString());
+        process.stdout.write(data);
     });
 app.get("/", function (req, res) {
     res.send("node is online");
