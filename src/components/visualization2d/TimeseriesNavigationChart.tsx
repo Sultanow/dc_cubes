@@ -341,7 +341,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             let date = this.getValidDatapointFromMousePosition(clickedXCoord);
             if (date == null) return;
             this.props.resetSliderAndDates(date.timestamp);
-            this.props.accessChild("currentAvgValue", this.currentAvgValue);
             return;
         }
 
@@ -359,7 +358,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
         console.log(startDate, endDate);
         this.props.updateTimespanData(newTimespanData);
-        this.props.accessChild("currentAvgValue", this.currentAvgValue);
     }
 
     getValidDatapointFromMousePosition(xCoord) {

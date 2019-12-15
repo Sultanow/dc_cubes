@@ -11,13 +11,13 @@ export default class DataService {
     private selectedMeasure: string
     private aggregationType: AggregationType
 
-    constructor(dataSource: DataSource, from: string, to: string, solrBaseUrl: string, solrCore: string, solrForecastCore: string, selectedMeasure: string, aggregationType: AggregationType) {
+    constructor(dataSource: DataSource, from: string, to: string, solrBaseUrl: string, solrCore: string, solrForecastCore: string, solrMergedCore: string, selectedMeasure: string, aggregationType: AggregationType) {
         this.from = from
         this.to = to
         this.selectedMeasure = selectedMeasure
         this.aggregationType = aggregationType
         if (dataSource === 'solr') {
-            this.dataSourceService = new SolrDataService(solrBaseUrl, solrCore, solrForecastCore)
+            this.dataSourceService = new SolrDataService(solrBaseUrl, solrCore, solrForecastCore, solrMergedCore)
         } else if (dataSource === 'elasticsearch') {
 
         } else if (dataSource === 'prometheus') {

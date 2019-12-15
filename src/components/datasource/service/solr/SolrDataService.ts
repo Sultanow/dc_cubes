@@ -7,12 +7,14 @@ export default class SolrDataService implements DataSourceService {
     solrBaseUrl: string;
     solrCore: string;
     solrForecastCore: string;
+    solrMergedCore: string;
     resultLimit = 2147483647 // Maximum of integer type
 
-    constructor(solrBaseUrl: string, solrCore: string, solrForecastCore: string) {
+    constructor(solrBaseUrl: string, solrCore: string, solrForecastCore: string, solrMergedCore: string) {
         this.solrBaseUrl = solrBaseUrl;
         this.solrCore = solrCore;
         this.solrForecastCore = solrForecastCore;
+        this.solrMergedCore = solrMergedCore;
     }
 
     /**
@@ -68,7 +70,7 @@ export default class SolrDataService implements DataSourceService {
                 }
             }
         }
-        const url = this.solrBaseUrl + this.solrCore + "/query"
+        const url = this.solrBaseUrl + this.solrMergedCore + "/query"
         return httpClient.post(url, query);
     }
 

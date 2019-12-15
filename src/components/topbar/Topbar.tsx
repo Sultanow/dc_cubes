@@ -159,7 +159,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
     }
 
     manualRefresh = () => {
-        this.props.getLogData(this.props.dataSourceUrl)
+        this.props.getLogData()
     }
 
     manualPredictions = () => {

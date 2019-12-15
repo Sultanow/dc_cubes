@@ -35,12 +35,13 @@ interface CubesVisProps {
     isLoading: boolean
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    currentAvg: number
     lastHistoricDate: Date
     aggregationType: AggregationType
     selectedMeasure: string
     updateAggregationType: any
     updateSelectedMeasure: any
+    aggregationTypes: object
+    listOfAllMeasures: object
 }
 
 interface Bar {
@@ -51,14 +52,6 @@ interface Bar {
 }
 
 class CubesVisualization extends React.Component<CubesVisProps> {
-
-    measures = {
-        "count": "Auslastung",
-        "minv": "minv",
-        "maxv": "maxv",
-        "dev_low": "dev_low",
-        "dev_upp": "dev_upp"
-    }
 
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
@@ -94,20 +87,19 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     }
 
     render() {
-        const sliderMode = this.props.sliderMode;
+        let {sliderMode, isLoading, listOfAllMeasures, aggregationTypes, aggregationType, selectedMeasure, selectedPointInTimeTimestamp, timespanAbsoluteTimestampLowerBound, timespanAbsoluteTimestampUpperBound} = this.props;
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         let timestamp;
-        let isLoading = this.props.isLoading;
         let predictionWarning = null;
         if (sliderMode === 'pointInTime') {
-            timestamp = <div className="date">{daysOfTheWeek[new Date(this.props.selectedPointInTimeTimestamp).getDay()]} {this.props.selectedPointInTimeTimestamp}</div>;
-            if (this.dateIsPrediction(new Date(this.props.selectedPointInTimeTimestamp))) {
+            timestamp = <div className="date">{daysOfTheWeek[new Date(selectedPointInTimeTimestamp).getDay()]} {selectedPointInTimeTimestamp}</div>;
+            if (this.dateIsPrediction(new Date(selectedPointInTimeTimestamp))) {
                 predictionWarning = <div className="predictionWarning"> Achtung: Vorhersage!</div>
             }
         } else if (sliderMode === 'timespan') {
-            let dateLower: Date = new Date(this.props.timespanAbsoluteTimestampLowerBound);
-            let dateUpper: Date = new Date(this.props.timespanAbsoluteTimestampUpperBound);
+            let dateLower: Date = new Date(timespanAbsoluteTimestampLowerBound);
+            let dateUpper: Date = new Date(timespanAbsoluteTimestampUpperBound);
             timestamp = <div className="date">{daysOfTheWeek[dateLower.getDay()]} {this.props.selectedTimespanTimestamps[0]} - {daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampUpperBound).getDay()]} {this.props.selectedTimespanTimestamps[1]}</div>;
             if (this.dateIsPrediction(dateLower) || this.dateIsPrediction(dateUpper)) {
                 predictionWarning = <div className="predictionWarning"> Achtung: Vorhersage!</div>
@@ -116,25 +108,23 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             timestamp = '';
         }
 
-        const aggregationTypes = {"avg": "Mittelwert", "sum": "Summe", "max": "Maximum", "min": "Minimum"}
-
         return (
             <div className="cubes-visualization col-md-9">
                 {/* <Filter /> */}
                 <header className="content-header">
                     <div className="param-info-container">
                         <Form inline>
-                        <   Form.Control  size="sm" className="selectAggregation" as="select" name="aggregationType" value={this.props.aggregationType} onChange={this.handleChange}>
+                            <Form.Control size="sm" className="selectAggregation" as="select" name="aggregationType" value={aggregationType} onChange={this.handleChange}>
                                 {
                                     Object.keys(aggregationTypes).map((aggregationType, index) => (
                                         <option key={index} value={aggregationType}>{aggregationTypes[aggregationType]}</option>
                                     ))
                                 }
                             </Form.Control>
-                            <Form.Control size="sm" className="selectMeasure" as="select" name="selectedMeasure" value={this.props.selectedMeasure} onChange={this.handleChange}>
+                            <Form.Control size="sm" className="selectMeasure" as="select" name="selectedMeasure" value={selectedMeasure} onChange={this.handleChange}>
                                 {
-                                    Object.keys(this.measures).map((measure, index) => (
-                                        <option key={index} value={measure}>{this.measures[measure]}</option>
+                                    Object.keys(listOfAllMeasures).map((measure, index) => (
+                                        <option key={index} value={measure}>{listOfAllMeasures[measure]}</option>
                                     ))
                                 }
                             </Form.Control>
