@@ -1,0 +1,7 @@
+{
+    "port": 8080,
+    "solrConfig" : {
+        "historicalDataCore": "dc_cubes",
+        "forecastDataCore": "dc_cubes_forecast"
+    } 
+}

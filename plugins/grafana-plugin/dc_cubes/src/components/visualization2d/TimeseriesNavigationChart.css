@@ -1,0 +1,85 @@
+.area-min {
+  fill: #1b76ef;
+  stroke: #1b76ef;
+  stroke-width: 0.75px;
+}
+
+.line-avg {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0);
+  stroke-width: 0.75px;
+}
+
+.area-max {
+  fill: #79e2f2;
+  stroke: #79e2f2;
+  stroke-width: 0.75px;
+}
+
+.container2d {
+  width: auto;
+  display: inline-flex;
+  /* flex-direction: column; */
+  height: 100%;
+}
+
+.checkboxContainer {
+  float: right;
+}
+
+.timeseriesCheckbox {
+  margin: 5px;
+}
+
+.custom-control-input:checked ~ .custom-control-label::before {
+  border-color: #f7b614;
+  background-color: #f7b614;
+}
+
+#tooltip {
+  visibility: hidden;
+  font-weight: bold;
+  z-index: 3;
+  padding: 5px;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 4px;
+  font-size: small;
+  width: 180px;
+  position: absolute;
+  pointer-events: none;
+  background-color: #404040;
+  color: #cdcccc;
+}
+
+#tooltipDate,
+#tooltipAvg {
+  font-weight: normal;
+  color: white;
+}
+
+.mouseLine {
+  stroke-width: 1px;
+  opacity: 1;
+  stroke: black;
+  pointer-events: none;
+}
+
+.mouseClick {
+  stroke: #da9214;
+  stroke-width: 2px;
+}
+
+.mouseMove {
+  stroke: black;
+}
+
+.mouseLine.hidden {
+  opacity: 0;
+}
+
+/*Color for the brush */
+.brush rect.selection {
+  fill: #1b76ef;
+  fill-opacity: 0.25;
+  pointer-events: none;
+}
