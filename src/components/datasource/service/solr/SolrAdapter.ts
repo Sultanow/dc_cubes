@@ -23,7 +23,6 @@ export default class SolrAdapter {
     //generate data from socket json format
     receivedData(json: [], customMapping, selectedMeasure: string) {
         let datajson = json
-        this.timeSeries = new Map<string, DCState>();
         this.temporalAxis = [];
 
         datajson.forEach(element => {
@@ -39,6 +38,10 @@ export default class SolrAdapter {
             }
         });
 
+        this.buildGrid()
+    }
+
+    buildGrid() {
         /*_______________________*/
         //Do this separately, since it only happeans upon document upload 
         //Todo outsourcec --> write once
@@ -102,12 +105,6 @@ export default class SolrAdapter {
             dc++;
             z += this.maxZ;
         });
-
-
-
-        this.temporalAxis.sort();
-        this.pointInTime = this.temporalAxis.length - 1;
-        this.pointInTimeCount = this.temporalAxis.length;
     }
 
     // Build main structure from the data
