@@ -170,6 +170,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     };
 
     componentDidMount() {
+        window.addEventListener('resize', this.resizeCanvasToDisplaySize);
         this.initVis();
         // necessary for react-router
         if (this.props.dataSourceError === false) {
