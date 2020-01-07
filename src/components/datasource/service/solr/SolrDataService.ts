@@ -22,7 +22,7 @@ export default class SolrDataService implements DataSourceService {
     * The Solr instance needs to send the appropriate CORS headers. 
     * More information: https://opensourceconnections.com/blog/2015/03/26/going-cross-origin-with-solr/
     */
-    getLogData = (from: string, to: string): any => {
+    getHistorical = (from: string, to: string): any => {
         const query = '/query?q=*:*&fq=timestamp:[' + from + ' TO ' + to + ']&sort=timestamp+asc&rows=' + this.resultLimit;
         const url = this.solrBaseUrl + this.solrCore + query;
         return httpClient.get(url);
@@ -34,7 +34,7 @@ export default class SolrDataService implements DataSourceService {
         return httpClient.get(url);
     };
 
-    getAllLogData = () => {
+    getAllHistorical = () => {
         const query = '/query?q=*:*&sort=timestamp+asc&rows=' + this.resultLimit
         const url = this.solrBaseUrl + this.solrCore + query
         return httpClient.get(url)

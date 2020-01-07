@@ -14,25 +14,18 @@ interface TopbarProps {
     dataSourceUrl: string
     getLogData: any
     accessChild: any
-    sliderMode: 'pointInTime' | 'timespan' | 'hidden'
     temporalAxis: string[]
     timeSeries: Map<string, DCState>
     timeSelectionMode: 'pointInTime' | 'timespan'
-    timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
-    timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
     timespanAbsoluteTimestampLowerBound: string
     timespanAbsoluteTimestampUpperBound: string
-    timespanTimeUnitLowerBound: TimeUnit
-    timespanAmountLowerBound: number
-    timespanTimeUnitUpperBound: TimeUnit
-    timespanAmountUpperBound: number
     pointInTimeTimestamp: string
-    updateTimespanData: any
+    updateBoundariesForDataRetrieval: any
     changeIntervalOfDataRefresh: any
     clearIntervalOfDataRefresh: any
     handlePredictionActivated: any
     handlePredictionDeactivated: any
-    prognosisActivated: boolean
+    predictionActivated: boolean
     updatePredictions: any
 }
 
@@ -40,6 +33,14 @@ interface TopbarState {
     automaticRefresh: boolean
     refreshInterval: any
     refreshTimeUnit: string
+
+    timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
+    timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
+    timespanTimeUnitLowerBound: TimeUnit
+    timespanAmountLowerBound: number
+    timespanTimeUnitUpperBound: TimeUnit
+    timespanAmountUpperBound: number
+    timespanError: boolean
 }
 
 export default class Topbar extends Component<TopbarProps, TopbarState>
@@ -50,6 +51,14 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
             refreshInterval: 10,
             refreshTimeUnit: 'minutes',
             automaticRefresh: false,
+
+            timespanTypeLowerBound: 'last',
+            timespanTypeUpperBound: 'now',
+            timespanTimeUnitLowerBound: 'days',
+            timespanAmountLowerBound: 1000,
+            timespanTimeUnitUpperBound: 'minutes',
+            timespanAmountUpperBound: 10,
+            timespanError: false
         }
     }
 
@@ -97,36 +106,37 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
                                 </Dropdown.Toggle>
 
                                 <Dropdown.Menu className="dropdown-width">
-                                    <QuickTimeSelection accessChild={this.props.accessChild}
-                                        sliderMode={this.props.sliderMode}
+                                    <QuickTimeSelection 
+                                        accessChild={this.props.accessChild}
                                         temporalAxis={this.props.temporalAxis}
-                                        timespanTypeLowerBound={this.props.timespanTypeLowerBound}
-                                        timespanTypeUpperBound={this.props.timespanTypeUpperBound}
+                                        timespanTypeLowerBound={this.state.timespanTypeLowerBound}
+                                        timespanTypeUpperBound={this.state.timespanTypeUpperBound}
                                         timeSeries={this.props.timeSeries}
                                         refreshInterval={this.state.refreshInterval}
                                         refreshTimeUnit={this.state.refreshTimeUnit}
                                         automaticRefresh={this.state.automaticRefresh}
                                         accessTopbar={this.accessTopbar}
-                                        updateTimespanData={this.props.updateTimespanData}
-                                        prognosisActivated={this.props.prognosisActivated}
+                                        updateTimespanData={this.updateTimespanData}
+                                        predictionActivated={this.props.predictionActivated}
                                         handlePredictionActivated={this.props.handlePredictionActivated}
                                         handlePredictionDeactivated={this.props.handlePredictionDeactivated}
                                     />
                                 </Dropdown.Menu>
                             </Dropdown>
-                            <DetailTimeSelection timespanTypeLowerBound={this.props.timespanTypeLowerBound}
-                                timespanTypeUpperBound={this.props.timespanTypeUpperBound}
+                            <DetailTimeSelection 
+                                timespanTypeLowerBound={this.state.timespanTypeLowerBound}
+                                timespanTypeUpperBound={this.state.timespanTypeUpperBound}
                                 timespanAbsoluteTimestampLowerBound={this.props.timespanAbsoluteTimestampLowerBound}
                                 timespanAbsoluteTimestampUpperBound={this.props.timespanAbsoluteTimestampUpperBound}
-                                timespanTimeUnitLowerBound={this.props.timespanTimeUnitLowerBound}
-                                timespanAmountLowerBound={this.props.timespanAmountLowerBound}
-                                timespanTimeUnitUpperBound={this.props.timespanTimeUnitUpperBound}
-                                timespanAmountUpperBound={this.props.timespanAmountUpperBound}
+                                timespanTimeUnitLowerBound={this.state.timespanTimeUnitLowerBound}
+                                timespanAmountLowerBound={this.state.timespanAmountLowerBound}
+                                timespanTimeUnitUpperBound={this.state.timespanTimeUnitUpperBound}
+                                timespanAmountUpperBound={this.state.timespanAmountUpperBound}
                                 refreshInterval={this.state.refreshInterval}
                                 refreshTimeUnit={this.state.refreshTimeUnit}
                                 automaticRefresh={this.state.automaticRefresh}
                                 accessTopbar={this.accessTopbar}
-                                updateTimespanData={this.props.updateTimespanData} />
+                                updateTimespanData={this.updateTimespanData} />
                         </Row>
                     </div>
                 </Form>
@@ -165,4 +175,125 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
     manualPredictions = () => {
         this.props.updatePredictions();
     }
+
+    updateTimespanData = (newTimespanData: object) => {
+      console.log(newTimespanData)
+      this.setState<never>(newTimespanData, () => {
+        this.calculateAndSetBoundariesOfTimespanSlider()
+      })
+    }
+
+    calculateAndSetBoundariesOfTimespanSlider = () => {
+        this.setState({ timespanError: false })
+
+        const typeLowerBound = this.state.timespanTypeLowerBound
+        const typeUpperBound = this.state.timespanTypeUpperBound
+        let lowerBoundDatetime = this.props.timespanAbsoluteTimestampLowerBound
+        let upperBoundDatetime = this.props.timespanAbsoluteTimestampUpperBound
+    
+        if (typeLowerBound === 'absolute' && typeUpperBound === 'absolute') {
+          this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
+    
+        } else if (typeLowerBound === 'absolute' && typeUpperBound === 'last') {
+          upperBoundDatetime = this.calculateRelativeDatetime('last', 'upper')
+          this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
+    
+        } else if (typeLowerBound === 'absolute' && typeUpperBound === 'next') {
+          this.setState({ timespanError: true })
+    
+        } else if (typeLowerBound === 'absolute' && typeUpperBound === 'now') {
+          upperBoundDatetime = new Date().toISOString().split('.')[0] + "Z"
+          this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
+    
+        } else if (typeLowerBound === 'last' && typeUpperBound === 'absolute') {
+          lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower')
+          this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
+    
+        } else if (typeLowerBound === 'last' && typeUpperBound === 'last') {
+          lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower')
+          upperBoundDatetime = this.calculateRelativeDatetime('last', 'upper')
+          this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
+    
+        } else if (typeLowerBound === 'last' && typeUpperBound === 'next') {
+          this.setState({ timespanError: true })
+    
+        } else if (typeLowerBound === 'last' && typeUpperBound === 'now') {
+          upperBoundDatetime = new Date().toISOString().split('.')[0] + "Z"
+          lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower')
+          this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
+    
+        } else if (typeLowerBound === 'next' && typeUpperBound === 'absolute') {
+          this.setState({ timespanError: true })
+    
+        } else if (typeLowerBound === 'next' && typeUpperBound === 'next') {
+          this.setState({ timespanError: true })
+    
+        } else if (typeLowerBound === 'now' && typeUpperBound === 'absolute') {
+          this.setState({ timespanError: true })
+    
+        } else if (typeLowerBound === 'now' && typeUpperBound === 'next') {
+          this.setState({ timespanError: true })
+    
+        } else {
+          this.setState({ timespanError: true })
+        }
+      } 
+    
+      getSliderPositions = (lowerBoundDatetime: string, upperBoundDatetime: string) => {
+        // Check if lower bound datetime is earlier than upper bound datetime
+        if (Date.parse(lowerBoundDatetime) < Date.parse(upperBoundDatetime)) {
+          this.props.updateBoundariesForDataRetrieval({ timespanAbsoluteTimestampLowerBound: lowerBoundDatetime, timespanAbsoluteTimestampUpperBound: upperBoundDatetime})
+        } else {
+          this.setState({ timespanError: true })
+        }
+      } 
+    
+      calculateRelativeDatetime = (timespanType, bound: 'lower' | 'upper') => {
+        let timespanAmount = bound === 'upper' ? this.state.timespanAmountUpperBound : this.state.timespanAmountLowerBound
+        let timespanTimeUnit = bound === 'upper' ? this.state.timespanTimeUnitUpperBound : this.state.timespanTimeUnitLowerBound
+        let now = new Date()
+    
+        if (timespanType === 'last') {
+          if (timespanTimeUnit === 'seconds') {
+            now.setSeconds(now.getSeconds() - timespanAmount)
+            now.setUTCMilliseconds(0)
+          } else if (timespanTimeUnit === 'minutes') {
+            now.setMinutes(now.getMinutes() - timespanAmount)
+            now.setUTCSeconds(0, 0)
+          } else if (timespanTimeUnit === 'hours') {
+            now.setHours(now.getHours() - timespanAmount)
+            now.setUTCMinutes(0, 0, 0)
+          } else if (timespanTimeUnit === 'days') {
+            now.setDate(now.getDate() - timespanAmount)
+            now.setUTCHours(0, 0, 0, 0)
+          } else {
+            this.setState({ timespanError: true })
+            return undefined
+          }
+          return now.toISOString().split('.')[0] + "Z"
+    
+        } else if (timespanType === 'next') {
+          if (timespanTimeUnit === 'seconds') {
+            now.setSeconds(now.getSeconds() + timespanAmount)
+            now.setUTCMilliseconds(0)
+          } else if (timespanTimeUnit === 'minutes') {
+            now.setMinutes(now.getMinutes() + timespanAmount)
+            now.setUTCSeconds(0, 0)
+          } else if (timespanTimeUnit === 'hours') {
+            now.setHours(now.getHours() + timespanAmount)
+            now.setUTCMinutes(0, 0, 0)
+          } else if (timespanTimeUnit === 'days') {
+            now.setDate(now.getDate() + timespanAmount)
+            now.setUTCHours(0, 0, 0, 0)
+          } else {
+            this.setState({ timespanError: true })
+            return undefined
+          }
+          return now.toISOString().split('.')[0] + "Z"
+    
+        } else {
+          this.setState({ timespanError: true })
+          return undefined
+        }
+      }
 }

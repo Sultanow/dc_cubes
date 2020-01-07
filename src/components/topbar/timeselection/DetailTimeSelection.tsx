@@ -122,7 +122,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     <br/>
                                     <Row>
                                         <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
-                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                handleRefreshChange={this.handleRefreshIntervalChange}
                                                                 refreshInterval={this.props.refreshInterval} 
                                                                 refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
@@ -150,7 +150,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     <br/>
                                     <Row>
                                         <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
-                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                handleRefreshChange={this.handleRefreshIntervalChange}
                                                                 refreshInterval={this.props.refreshInterval} 
                                                                 refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
@@ -219,7 +219,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     <br/>
                                     <Row>
                                         <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
-                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                handleRefreshChange={this.handleRefreshIntervalChange}
                                                                 refreshInterval={this.props.refreshInterval} 
                                                                 refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
@@ -247,7 +247,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                                     <br/>
                                     <Row>
                                         <SelectRefreshInterval  automaticRefresh={this.props.automaticRefresh}
-                                                                handleRefreshChange={this.handleRefreshChange}
+                                                                handleRefreshChange={this.handleRefreshIntervalChange}
                                                                 refreshInterval={this.props.refreshInterval} 
                                                                 refreshTimeUnit={this.props.refreshTimeUnit} />
                                     </Row>
@@ -261,7 +261,7 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
         )
     }
 
-    handleRefreshChange = (e) => {
+    handleRefreshIntervalChange = (e) => {
         const stateElement = e.target.name
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value
 
@@ -276,7 +276,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
             [stateElement]: value,
             timeSelectionMode: 'timespan',
             timespanTypeLowerBound: this.state.timespanTypeLowerBound,
-            sliderMode: 'timespan'
         }
         this.props.updateTimespanData(newTimespanData)
     }
@@ -289,7 +288,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
             const newTimespanData = {
                 timeSelectionMode: 'timespan',
                 timespanTypeLowerBound: this.state.timespanTypeLowerBound,
-                sliderMode: 'timespan'
             }
             this.props.updateTimespanData(newTimespanData)
         })
@@ -301,7 +299,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                 timespanAbsoluteTimestampLowerBound: e[0].toISOString().split('.')[0]+"Z",
                 timeSelectionMode: 'timespan',
                 timespanTypeLowerBound: 'absolute',
-                sliderMode: 'timespan'
             }
             this.props.updateTimespanData(newTimespanData)
         }
@@ -311,7 +308,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
         const newTimespanData = {
             timeSelectionMode: 'timespan',
             timespanTypeLowerBound: 'now',
-            sliderMode: 'timespan'
         }
         this.props.updateTimespanData(newTimespanData)
     }
@@ -324,7 +320,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
             [stateElement]: value,
             timeSelectionMode: 'timespan',
             timespanTypeUpperBound: this.state.timespanTypeUpperBound,
-            sliderMode: 'timespan'
         }
         this.props.updateTimespanData(newTimespanData)
     }
@@ -337,7 +332,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
             const newTimespanData = {
                 timeSelectionMode: 'timespan',
                 timespanTypeUpperBound: this.state.timespanTypeUpperBound,
-                sliderMode: 'timespan'
             }
             this.props.updateTimespanData(newTimespanData)
         })
@@ -349,7 +343,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
                 timespanAbsoluteTimestampUpperBound: e[0].toISOString().split('.')[0]+"Z",
                 timeSelectionMode: 'timespan',
                 timespanTypeUpperBound: 'absolute',
-                sliderMode: 'timespan'
             }
             this.props.updateTimespanData(newTimespanData)
         }
@@ -359,7 +352,6 @@ export default class DetailTimeSelection extends React.Component<DetailTimeSelec
         const newTimespanData = {
             timeSelectionMode: 'timespan',
             timespanTypeUpperBound: 'now',
-            sliderMode: 'timespan'
         }
         this.props.updateTimespanData(newTimespanData)
     }    
