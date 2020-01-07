@@ -6,7 +6,7 @@ import 'flatpickr/dist/themes/light.css'
 import SelectRefreshInterval from './SelectRefreshInterval'
 
 interface QuickTimeSelectionProps {
-    accessChild: any
+    accessApp: any
     temporalAxis: string[]
     timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
     timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
@@ -112,11 +112,11 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
             if (value === 'last') {
                 stateElement = 'timespanTypeLowerBound'
                 this.props.accessTopbar('timespanTypeUpperBound', 'now')
-                this.props.accessChild('predictionActivated', false)
+                this.props.accessApp('predictionActivated', false)
             } else if (value === 'next') {
                 stateElement = 'timespanTypeUpperBound'
                 this.props.accessTopbar('timespanTypeLowerBound', 'now')
-                this.props.accessChild('predictionActivated', true)
+                this.props.accessApp('predictionActivated', true)
             }
         }
         this.props.accessTopbar(stateElement, value)
@@ -163,12 +163,12 @@ export default class QuickTimeSelection extends React.Component<QuickTimeSelecti
 
     togglePrediction = (e) => {
         if (e.target.checked) {
-            this.props.accessChild('timespanTypeLowerBound', 'now')
-            this.props.accessChild('timespanTypeUpperBound', 'next')
+            this.props.accessApp('timespanTypeLowerBound', 'now')
+            this.props.accessApp('timespanTypeUpperBound', 'next')
             this.props.handlePredictionActivated()
         } else {
-            this.props.accessChild('timespanTypeLowerBound', 'last')
-            this.props.accessChild('timespanTypeUpperBound', 'now')
+            this.props.accessApp('timespanTypeLowerBound', 'last')
+            this.props.accessApp('timespanTypeUpperBound', 'now')
             this.props.handlePredictionDeactivated()
         }
     }

@@ -19,7 +19,7 @@ interface CubesVisProps {
     clusterColors: {}
     maxH: number
     timeSelectionMode: 'pointInTime' | 'timespan'
-    accessChild: any
+    accessApp: any
     temporalAxis: string[]
     dataSourceError: boolean
     children?: React.ReactNode

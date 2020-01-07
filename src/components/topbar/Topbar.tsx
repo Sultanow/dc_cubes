@@ -13,7 +13,7 @@ import TimeUnit from '../../model/TimeUnit'
 interface TopbarProps {
     dataSourceUrl: string
     getLogData: any
-    accessChild: any
+    accessApp: any
     temporalAxis: string[]
     timeSeries: Map<string, DCState>
     timeSelectionMode: 'pointInTime' | 'timespan'
@@ -107,7 +107,7 @@ export default class Topbar extends Component<TopbarProps, TopbarState>
 
                                 <Dropdown.Menu className="dropdown-width">
                                     <QuickTimeSelection 
-                                        accessChild={this.props.accessChild}
+                                        accessApp={this.props.accessApp}
                                         temporalAxis={this.props.temporalAxis}
                                         timespanTypeLowerBound={this.state.timespanTypeLowerBound}
                                         timespanTypeUpperBound={this.state.timespanTypeUpperBound}

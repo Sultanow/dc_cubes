@@ -316,7 +316,7 @@ class App extends React.Component<{}, AppState> {
           <SidebarNew dataSource={this.state.dataSource}>
             <Topbar dataSourceUrl={this.state.dataSourceUrl}
               getLogData={this.getLogData}
-              accessChild={this.accessChild}
+              accessApp={this.accessApp}
               temporalAxis={this.state.temporalAxis}
               timeSeries={topbarTimeSeries}
               timeSelectionMode={this.state.timeSelectionMode}
@@ -343,7 +343,7 @@ class App extends React.Component<{}, AppState> {
                       grid={this.state.grid}
                       maxH={this.state.maxH}
                       timeSelectionMode={this.state.timeSelectionMode}
-                      accessChild={this.accessChild}
+                      accessApp={this.accessApp}
                       temporalAxis={this.state.temporalAxis}
                       dataSourceError={this.state.dataSourceError}
                       isLoading={this.state.isLoading}
@@ -377,7 +377,7 @@ class App extends React.Component<{}, AppState> {
                 solrCore={this.state.solrCore}
                 solrQuery={this.state.solrQuery}
                 customMapping={this.state.customMapping}
-                accessChild={this.accessChild} />} />
+                accessApp={this.accessApp} />} />
               <br />
               {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
               {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
@@ -427,7 +427,7 @@ class App extends React.Component<{}, AppState> {
     clearInterval(this.state.intervalId);
   }
 
-  accessChild = (stateElement, value) => {
+  accessApp = (stateElement, value) => {
     this.setState<never>({ [stateElement]: value }, () => {
     })
   }

@@ -11,7 +11,7 @@ interface SolrSettingsProps {
   solrCore: string
   solrQuery: string
   customMapping: any
-  accessChild: any
+  accessApp: any
 }
 
 /* interface SolrSettingsState {
@@ -156,7 +156,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
     }
 
     if (name === "mappingField") {
-      this.props.accessChild("customMapping", eval(value))
+      this.props.accessApp("customMapping", eval(value))
     }
 
     this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore, this.state.solrQuery)
@@ -173,10 +173,10 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
         });
 
         this.setState({items: dataItems})
-        this.props.accessChild('dataSourceError', false)
+        this.props.accessApp('dataSourceError', false)
     })
     .catch((error) => {
-      this.props.accessChild('dataSourceError', true)
+      this.props.accessApp('dataSourceError', true)
       console.log(error)
     }); 
   }
@@ -188,7 +188,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
     .then((data) => {
         const previewData = data.data.response.docs || null
         this.setState({previewData: previewData.length >= 1 ? previewData.slice(0, 5) : null})
-        this.props.accessChild('dataSourceError', false)
+        this.props.accessApp('dataSourceError', false)
     })
     .catch((error) => {
         console.log(error)
