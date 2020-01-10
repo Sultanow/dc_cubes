@@ -1,6 +1,6 @@
-#Research
+# Research
 
-##Content (TBD)
+## Content (TBD)
 
 - ML-Modellvergleich mit Screenshouts
 - Literaturquellen/Paper/Arbeiten
