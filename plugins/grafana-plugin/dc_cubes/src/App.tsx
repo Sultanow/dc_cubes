@@ -1,37 +1,49 @@
-import React from 'react';
-import './App.css';
-// import Sidebar from './components/Sidebar'
-import CubesVisualization from './components/visualization3d/CubesVisualization';
-import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
-import SolrDataService from './components/datasource/service/solr/SolrDataService';
-import SolrAdapter from './components/datasource/service/solr/SolrAdapter';
-import DCState from './model/DCState';
+import React, { PureComponent } from 'react';
+import { Alert } from 'react-bootstrap';
+//import './App.css';
+import httpClient from 'axios';
+import CubesVisualization from '../../../../src/components/visualization3d/CubesVisualization';
+import TimeseriesNavigationChart from '../../../../src/components/visualization2d/TimeseriesNavigationChart';
+import DataService from '../../../../src/components/datasource/DataService';
+import StandardAdapter from '../../../../src/components/datasource/service/StandardAdapter';
+import DCState from '../../../../src/model/DCState';
+import DataSource from '../../../../src/model/DataSource';
+import AggregationType from '../../../../src/model/AggregationType';
+import { PanelProps } from '@grafana/data';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
+interface TimeseriesData {
+  timestamp: string;
+  count: number;
+}
 
 interface AppState {
   logData: [];
-  dataSource: string;
+  backendUrl: string;
+  dataSource: DataSource;
   dataSourceUrl: string;
   solrBaseUrl: string;
-  solrCore: any;
+  solrCore: string;
+  solrForecastCore: string;
+  solrMergedCore: string;
   solrQuery: string;
   dataSourceError: boolean;
-  selectedPointInTime: number;
-  selectedTimespan: [number, number];
 
   timeSelectionMode: 'pointInTime' | 'timespan';
-  timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now';
-  timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now';
   timespanAbsoluteTimestampLowerBound: string;
   timespanAbsoluteTimestampUpperBound: string;
-  timespanTimeUnitLowerBound: 'seconds' | 'minutes' | 'hours' | 'days';
-  timespanAmountLowerBound: number;
-  timespanTimeUnitUpperBound: 'seconds' | 'minutes' | 'hours' | 'days';
-  timespanAmountUpperBound: number;
+  timespanTimestampLowerBound: string;
+  timespanTimestampUpperBound: string;
   pointInTimeTimestamp: string;
 
-  sliderMode: 'pointInTime' | 'timespan' | 'hidden';
+  // the current temporal axis
   temporalAxis: string[];
+  // tempAxis including the historic Data
+  historicTemporalAxis: string[];
+  // tempAxis including the histroic+prediction Data
+  combinedTemporalAxis: string[];
   timeSeries: Map<string, DCState>;
+  combinedTimeSeries: Map<string, DCState>;
   clusterColors: object;
   grid: Map<string, number[]>;
   maxH: number;
@@ -42,103 +54,245 @@ interface AppState {
   timespanError: boolean;
   isLoading: boolean;
 
-  currentAvgValue: number;
+  selectedMeasure: string;
   customMapping: any;
+  aggregationType: AggregationType;
+  aggregatedData: DCState | null;
+
+  predictionActivated: boolean;
+  forecastDataReceived: boolean;
+  rawForecastData: any;
+  isRawForecastDataLoaded: boolean;
+  // tempAxis including the forecast Data
+  forecastTemporalAxis: string[];
+  forecastTimeSeries: Map<string, DCState>;
+  forecastGrid: Map<string, number[]>;
+  forecastMaxH: number;
+  preparedAvgData: TimeseriesData[];
+  preparedMinData: TimeseriesData[];
+  preparedMaxData: TimeseriesData[];
+  preparedCombinedAvgData: TimeseriesData[];
 }
 
-export default class App extends React.Component<{}, AppState> {
-  constructor(props: object) {
+export class App extends PureComponent<PanelProps, AppState> {
+  private aggregationTypes = { avg: 'Mittelwert', sum: 'Summe', max: 'Maximum', min: 'Minimum' };
+  private listOfAllMeasures = {
+    count: 'Auslastung',
+    minv: 'minv',
+    maxv: 'maxv',
+    dev_low: 'dev_low',
+    dev_upp: 'dev_upp',
+  };
+
+  constructor(props: PanelProps) {
     super(props);
+    // Set initial lower bound of timespan by subtracting days
+    const lowerBoundDate = new Date();
+    lowerBoundDate.setDate(lowerBoundDate.getDate() - 1000);
+
     this.state = {
       logData: [],
+      backendUrl: 'http://localhost:8080',
       dataSource: 'solr',
       dataSourceUrl: 'http://localhost:8983/solr/dc_cubes/query?q=*:*&start=0&rows=30000',
       solrBaseUrl: 'http://localhost:8983/solr/',
       solrCore: 'dc_cubes',
+      solrForecastCore: 'dc_cubes_forecast',
+      solrMergedCore: 'dc_cubes_merged',
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceError: true,
-      selectedPointInTime: 0,
-      selectedTimespan: [0, 0],
       timeSelectionMode: 'pointInTime',
-      timespanTypeLowerBound: 'now',
-      timespanTypeUpperBound: 'now',
-      timespanAbsoluteTimestampLowerBound: new Date().toISOString().split('.')[0] + 'Z',
+      timespanAbsoluteTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + 'Z',
       timespanAbsoluteTimestampUpperBound: new Date().toISOString().split('.')[0] + 'Z',
-      timespanTimeUnitLowerBound: 'minutes',
-      timespanAmountLowerBound: 10,
-      timespanTimeUnitUpperBound: 'minutes',
-      timespanAmountUpperBound: 10,
-      pointInTimeTimestamp: undefined,
-      sliderMode: 'pointInTime',
+      timespanTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + 'Z',
+      timespanTimestampUpperBound: new Date().toISOString().split('.')[0] + 'Z',
+      pointInTimeTimestamp: '',
       temporalAxis: [],
+      historicTemporalAxis: [],
+      combinedTemporalAxis: [],
       timeSeries: new Map(),
+      combinedTimeSeries: new Map(),
       clusterColors: {},
       grid: new Map(),
       maxH: 0,
       rawTimeseriesData: null,
+      rawForecastData: null,
       isRawTimeseriesDataLoaded: false,
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      currentAvgValue: 0,
-      customMapping: (element: object) => {
+      selectedMeasure: 'count',
+      aggregationType: 'avg',
+      aggregatedData: null,
+      customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element['timestamp'];
         const strCluster: string = element['cluster'];
         const strDataCenter: string = element['dc'];
         const strInstance: string = element['instanz'];
-        const strUtilization: string = element['count'];
-        return { strTimeStamp, strCluster, strDataCenter, strInstance, strUtilization };
+        const strSelectedMeasure: string = element[selectedMeasure];
+        return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure };
       },
+      predictionActivated: false,
+      forecastDataReceived: false,
+      isRawForecastDataLoaded: false,
+      forecastTemporalAxis: [],
+      forecastTimeSeries: new Map(),
+      forecastGrid: new Map(),
+      forecastMaxH: 0,
+      preparedAvgData: [],
+      preparedMinData: [],
+      preparedMaxData: [],
+      preparedCombinedAvgData: [],
     };
   }
 
   componentDidMount() {
+    // Get config from server if available
+    this.init();
     // Get initial log data based on default values
-    this.getLogData(this.state.dataSourceUrl);
-
-    // Set the initial data refresh interval, default interval is 10 minutes
-    const intervalId = setInterval(() => {
-      this.getLogData(this.state.dataSourceUrl);
-    }, 600000);
-    this.setState<never>({ intervalId: intervalId });
+    this.getLogData();
   }
 
-  getLogData = (dataSourceUrl: string) => {
-    // TODO: implement other data sources
-    const dataService = new SolrDataService();
+  init = () => {};
+
+  getLogData = () => {
+    const dataService = new DataService(
+      this.state.dataSource,
+      this.state.timespanAbsoluteTimestampLowerBound,
+      this.state.timespanAbsoluteTimestampUpperBound,
+      this.state.solrBaseUrl,
+      this.state.solrCore,
+      this.state.solrForecastCore,
+      this.state.solrMergedCore,
+      this.state.selectedMeasure,
+      this.state.aggregationType
+    );
+    // Initially get all data because the placeholder visualization needs the full temporalAxis
     dataService
-      .getLogDataFromSolr(dataSourceUrl)
+      .getHistorical()
       .then((data: any) => {
         // TODO: call dataparser from util folder in order to parse the log data
-        const solrAdapter = new SolrAdapter();
-        solrAdapter.receivedData(data.data, this.state.customMapping);
+        const standardAdapter = new StandardAdapter();
+
+        standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
+
+        if (data.data.response.docs.length < 2) {
+          this.setState({ dataSourceError: true });
+          throw new Error('Data not available');
+        }
 
         this.setState(
           {
-            // there is a bug, the last element is allways undefined
-            temporalAxis: solrAdapter.temporalAxis,
-            timeSeries: solrAdapter.timeSeries,
-            clusterColors: solrAdapter.clusterColors,
-            grid: solrAdapter.grid,
-            maxH: solrAdapter.maxh,
+            historicTemporalAxis: standardAdapter.temporalAxis,
+            temporalAxis: standardAdapter.temporalAxis,
+            timeSeries: standardAdapter.timeSeries,
+            clusterColors: standardAdapter.clusterColors,
+            grid: standardAdapter.grid,
+            maxH: standardAdapter.maxh,
             dataSourceError: false,
-            isLoading: false,
+            isLoading: true, // still need to load forecast data
             // raw timesereis Data for 2d graph
-            rawTimeseriesData: data.data.response.docs,
+            rawTimeseriesData: standardAdapter.rawTimeSeriesData,
             isRawTimeseriesDataLoaded: true,
-            selectedPointInTime: solrAdapter.temporalAxis.length - 1,
           },
           () => {
             // Recalculate the slider positions
-            this.calculateAndSetPositionOfPointInTimeSlider();
-            this.calculateAndSetBoundariesOfTimespanSlider();
           }
         );
+
+        dataService
+          .getForecast()
+          .then((data: any) => {
+            const standardAdapter = new StandardAdapter();
+            standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
+
+            if (data.data.response.docs.length < 2) {
+              this.setState({ dataSourceError: true });
+              throw new Error('Data not available');
+            }
+
+            this.setState({
+              forecastTemporalAxis: standardAdapter.temporalAxis,
+              combinedTemporalAxis: this.state.temporalAxis.concat(standardAdapter.temporalAxis),
+              forecastTimeSeries: standardAdapter.timeSeries,
+              combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(standardAdapter.timeSeries.entries())]),
+              forecastGrid: standardAdapter.grid,
+              forecastMaxH: standardAdapter.maxh,
+              dataSourceError: false,
+              isLoading: false,
+              // raw timesereis Data for 2d graph
+              rawForecastData: standardAdapter.rawTimeSeriesData,
+              isRawForecastDataLoaded: true,
+              forecastDataReceived: true,
+            });
+          })
+          .catch((error: any) => {
+            this.setState({ dataSourceError: true });
+            console.log(error);
+          });
       })
       .catch((error: any) => {
         this.setState({ dataSourceError: true });
         console.log(error);
       });
+
+    dataService
+      .getMaxValueOfTimeseries()
+      .then((maxValue: number) => {
+        this.setState({ maxH: maxValue });
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
+
+    this.getAggregatedLogData();
+  };
+
+  getAggregatedLogData = () => {
+    const dataService = new DataService(
+      this.state.dataSource,
+      this.state.timespanTimestampLowerBound,
+      this.state.timespanTimestampUpperBound,
+      this.state.solrBaseUrl,
+      this.state.solrCore,
+      this.state.solrForecastCore,
+      this.state.solrMergedCore,
+      this.state.selectedMeasure,
+      this.state.aggregationType
+    );
+
+    dataService
+      .getAggregatedLogData()
+      .then((data: any) => {
+        const standardAdapter = new StandardAdapter();
+        const strTimeStamp = 'timespan';
+
+        data.data.facets.datacenters.buckets.forEach(strDataCenter => {
+          strDataCenter.clusters.buckets.forEach(strCluster => {
+            strCluster.instances.buckets.forEach(strInstance => {
+              standardAdapter.buildTimeSeries(
+                strTimeStamp,
+                strCluster.val,
+                strDataCenter.val,
+                strInstance.val,
+                String(Math.round(strInstance.aggregatedValue))
+              );
+            });
+          });
+        });
+        this.setState<never>({ aggregatedData: standardAdapter.timeSeries.get(strTimeStamp), isLoading: false });
+      })
+      .catch((error: any) => {
+        this.setState({ dataSourceError: true });
+        console.log(error);
+      });
+  };
+
+  updatePredictions = () => {
+    console.log('update predicitons called');
+    httpClient.get('http://localhost:8080/startscript').then((data: any) => {
+      console.log('Update Predictions answer: ' + data.data);
+    });
   };
 
   render() {
@@ -147,40 +301,70 @@ export default class App extends React.Component<{}, AppState> {
       TimeseriesNavigationChartComponent = (
         <TimeseriesNavigationChart
           timeseriesData={this.state.rawTimeseriesData}
-          updateTimespanData={this.updateTimespanData}
-          resetSliderAndDates={this.updateSliderAndDates}
-          updateCurrentAvg={this.updateCurrentAvg}
+          forecastData={this.state.rawForecastData}
+          updateTimespanTimestamps={this.updateTimespanTimestamps}
+          updatePointInTimeTimestamp={this.updatePointInTimeTimestamp}
+          showPrediction={this.state.predictionActivated}
+          forecastReceived={this.state.forecastDataReceived}
+          forecastTemporalAxis={this.state.forecastTemporalAxis}
+          temporalAxis={this.state.temporalAxis}
+          combinedTemporalAxis={this.state.combinedTemporalAxis}
+          maxH={this.state.maxH}
+          preparedAvgData={this.state.preparedAvgData}
+          preparedMinData={this.state.preparedMinData}
+          preparedMaxData={this.state.preparedMaxData}
+          preparedCombinedAvgData={this.state.preparedCombinedAvgData}
+          selectedMeasure={this.state.selectedMeasure}
+          dataSourceError={this.state.dataSourceError}
         />
       );
-    } else {
-      TimeseriesNavigationChartComponent = null;
+    }
+
+    let cubesVisData = this.state.timeSeries.get(this.state.pointInTimeTimestamp)!;
+    //let topbarTimeSeries = this.state.timeSeries;
+
+    if (this.state.predictionActivated) {
+      if (this.state.combinedTimeSeries.get(this.state.pointInTimeTimestamp) !== null) {
+        cubesVisData = this.state.combinedTimeSeries.get(this.state.pointInTimeTimestamp)!;
+      }
+      //topbarTimeSeries = this.state.combinedTimeSeries;
+    }
+
+    // Check if timespan or pointInTime mode is selected and select the data for 3D visualization accordingly
+    if (this.state.aggregatedData !== undefined && this.state.timeSelectionMode === 'timespan') {
+      cubesVisData = this.state.aggregatedData!;
     }
     return (
       <div className="App">
-        <CubesVisualization
-          data={this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime])}
-          clusterColors={this.state.clusterColors}
-          grid={this.state.grid}
-          maxH={this.state.maxH}
-          sliderMode={this.state.sliderMode}
-          maxRangeSlider={this.state.temporalAxis.length - 2 > 0 ? this.state.temporalAxis.length - 2 : 1}
-          // Ensure that max of slider is larger than min
-          timespanValuesOfSlider={this.state.selectedTimespan}
-          valueOfSlider={this.state.selectedPointInTime}
-          accessChild={this.accessChild}
-          selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-          selectedTimespanTimestamps={[
-            this.state.temporalAxis[this.state.selectedTimespan[0]],
-            this.state.temporalAxis[this.state.selectedTimespan[1]],
-          ]}
-          dataSourceError={this.state.dataSourceError}
-          isLoading={this.state.isLoading}
-          timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
-          timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
-          currentAvg={this.state.currentAvgValue}
-        >
-          {TimeseriesNavigationChartComponent}
-        </CubesVisualization>
+        <React.Fragment>
+          <CubesVisualization
+            data={cubesVisData}
+            aggregatedData={this.state.aggregatedData}
+            clusterColors={this.state.clusterColors}
+            grid={this.state.grid}
+            maxH={this.state.maxH}
+            timeSelectionMode={this.state.timeSelectionMode}
+            accessApp={this.accessApp}
+            temporalAxis={this.state.temporalAxis}
+            dataSourceError={this.state.dataSourceError}
+            isLoading={this.state.isLoading}
+            pointInTimeTimestamp={this.state.pointInTimeTimestamp}
+            timespanTimestampLowerBound={this.state.timespanTimestampLowerBound}
+            timespanTimestampUpperBound={this.state.timespanTimestampUpperBound}
+            lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
+            aggregationType={this.state.aggregationType}
+            updateAggregationType={this.updateAggregationType}
+            selectedMeasure={this.state.selectedMeasure}
+            updateSelectedMeasure={this.updateSelectedMeasure}
+            aggregationTypes={this.aggregationTypes}
+            listOfAllMeasures={this.listOfAllMeasures}
+          >
+            {TimeseriesNavigationChartComponent}
+          </CubesVisualization>
+        </React.Fragment>
+
+        {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
+        {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
       </div>
     );
   }
@@ -202,9 +386,21 @@ export default class App extends React.Component<{}, AppState> {
 
     // Set new data refresh interval
     const intervalId = setInterval(() => {
-      this.getLogData(this.state.dataSourceUrl);
+      this.getLogData();
     }, refreshInterval);
     this.setState<never>({ intervalId: intervalId });
+  };
+
+  handlePredictionActivated = () => {
+    this.setState({ predictionActivated: true, isRawForecastDataLoaded: false, isRawTimeseriesDataLoaded: false }, () => {
+      this.getLogData();
+    });
+    this.setState({ temporalAxis: this.state.combinedTemporalAxis });
+  };
+
+  handlePredictionDeactivated = () => {
+    this.setState({ predictionActivated: false });
+    this.setState({ temporalAxis: this.state.historicTemporalAxis });
   };
 
   clearIntervalOfDataRefresh = () => {
@@ -212,164 +408,37 @@ export default class App extends React.Component<{}, AppState> {
     clearInterval(this.state.intervalId);
   };
 
-  accessChild = (stateElement, value) => {
-    this.setState<never>({ [stateElement]: value }, () => {
-      console.log(this.state.customMapping.toString());
+  accessApp = (stateElement, value) => {
+    this.setState<never>({ [stateElement]: value }, () => {});
+  };
+
+  updateAggregationType = (aggregationType: AggregationType) => {
+    this.setState({ aggregationType: aggregationType }, () => {
+      this.getAggregatedLogData();
     });
   };
 
-  updateTimespanData = (newTimespanData: object) => {
+  updateSelectedMeasure = (selectedMeasure: string) => {
+    this.setState({ selectedMeasure: selectedMeasure, isLoading: true }, () => {
+      this.getLogData();
+    });
+  };
+
+  updateTimespanTimestamps = (newTimespanData: object) => {
     this.setState<never>(newTimespanData, () => {
-      this.calculateAndSetBoundariesOfTimespanSlider();
+      this.getAggregatedLogData();
+      //this.getLogData()
     });
   };
 
-  updateCurrentAvg = (avg: number) => {
-    this.setState<never>({ currentAvgValue: avg });
+  updateBoundariesForDataRetrieval = (newTimespanData: object) => {
+    this.setState<never>(newTimespanData, () => {
+      this.getLogData();
+    });
   };
 
-  updateSliderAndDates = (DateToReset: string) => {
-    this.setState({ timeSelectionMode: 'pointInTime', pointInTimeTimestamp: DateToReset, sliderMode: 'pointInTime' });
-    this.calculateAndSetPositionOfPointInTimeSlider();
-  };
-
-  calculateAndSetPositionOfPointInTimeSlider = () => {
-    if (this.state.pointInTimeTimestamp) {
-      const newPosition = this.state.temporalAxis.indexOf(this.state.pointInTimeTimestamp);
-      if (newPosition !== -1) {
-        this.setState({ selectedPointInTime: newPosition });
-      } else {
-        this.setState({ selectedPointInTime: this.state.temporalAxis.length - 2 });
-      }
-    }
-  };
-
-  calculateAndSetBoundariesOfTimespanSlider = () => {
-    this.setState({ timespanError: false });
-    const typeLowerBound = this.state.timespanTypeLowerBound;
-    const typeUpperBound = this.state.timespanTypeUpperBound;
-    let lowerBoundDatetime = this.state.timespanAbsoluteTimestampLowerBound;
-    let upperBoundDatetime = this.state.timespanAbsoluteTimestampUpperBound;
-
-    if (typeLowerBound === 'absolute' && typeUpperBound === 'absolute') {
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime);
-    } else if (typeLowerBound === 'absolute' && typeUpperBound === 'last') {
-      upperBoundDatetime = this.calculateRelativeDatetime('last', 'upper');
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime);
-    } else if (typeLowerBound === 'absolute' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true });
-    } else if (typeLowerBound === 'absolute' && typeUpperBound === 'now') {
-      upperBoundDatetime = new Date().toISOString().split('.')[0] + 'Z';
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime);
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'absolute') {
-      lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower');
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime);
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'last') {
-      lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower');
-      upperBoundDatetime = this.calculateRelativeDatetime('last', 'upper');
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime);
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true });
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'now') {
-      upperBoundDatetime = new Date().toISOString().split('.')[0] + 'Z';
-      lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower');
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime);
-    } else if (typeLowerBound === 'next' && typeUpperBound === 'absolute') {
-      this.setState({ timespanError: true });
-    } else if (typeLowerBound === 'next' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true });
-    } else if (typeLowerBound === 'now' && typeUpperBound === 'absolute') {
-      this.setState({ timespanError: true });
-    } else if (typeLowerBound === 'now' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true });
-    } else if (typeLowerBound === 'now' && typeUpperBound === 'now') {
-      this.setState({ selectedTimespan: [this.state.temporalAxis.length - 2, this.state.temporalAxis.length - 2] });
-    } else {
-      this.setState({ timespanError: true });
-    }
-  };
-
-  getSliderPositions = (lowerBoundDatetime: string, upperBoundDatetime: string) => {
-    // Check if lower bound datetime is earlier than upper bound datetime
-    if (Date.parse(lowerBoundDatetime) < Date.parse(upperBoundDatetime)) {
-      const dates = Array.from(this.state.timeSeries.keys()).sort();
-      // TODO: remove fix bug -2 in solrAdapter
-      let upperBoundSliderPosition = dates[dates.length - 2];
-      let lowerBoundSliderPosition = dates[0];
-
-      // Check if selected dates lies within the range of the log data set
-      if (
-        Date.parse(lowerBoundDatetime) <= Date.parse(upperBoundSliderPosition) &&
-        Date.parse(upperBoundDatetime) >= Date.parse(lowerBoundSliderPosition)
-      ) {
-        let i = 0;
-        dates.forEach(date => {
-          if (Date.parse(date) <= Date.parse(upperBoundDatetime)) {
-            upperBoundSliderPosition = date;
-          }
-          if (Date.parse(date) >= Date.parse(lowerBoundDatetime)) {
-            if (i < 1) {
-              i++;
-              lowerBoundSliderPosition = date;
-            }
-          }
-        });
-        const lowerBound = this.state.temporalAxis.indexOf(lowerBoundSliderPosition);
-        const upperBound = this.state.temporalAxis.indexOf(upperBoundSliderPosition);
-        this.setState({ selectedTimespan: [lowerBound, upperBound] });
-      } else {
-        this.setState({ timespanError: true });
-      }
-    } else {
-      this.setState({ timespanError: true });
-    }
-  };
-
-  calculateRelativeDatetime = (timespanType, bound: 'lower' | 'upper') => {
-    const timespanAmount = bound === 'upper' ? this.state.timespanAmountUpperBound : this.state.timespanAmountLowerBound;
-    const timespanTimeUnit = bound === 'upper' ? this.state.timespanTimeUnitUpperBound : this.state.timespanTimeUnitLowerBound;
-    const now = new Date();
-
-    if (timespanType === 'last') {
-      if (timespanTimeUnit === 'seconds') {
-        now.setSeconds(now.getSeconds() - timespanAmount);
-        now.setUTCMilliseconds(0);
-      } else if (timespanTimeUnit === 'minutes') {
-        now.setMinutes(now.getMinutes() - timespanAmount);
-        now.setUTCSeconds(0, 0);
-      } else if (timespanTimeUnit === 'hours') {
-        now.setHours(now.getHours() - timespanAmount);
-        now.setUTCMinutes(0, 0, 0);
-      } else if (timespanTimeUnit === 'days') {
-        now.setDate(now.getDate() - timespanAmount);
-        now.setUTCHours(0, 0, 0, 0);
-      } else {
-        this.setState({ timespanError: true });
-        return undefined;
-      }
-      return now.toISOString().split('.')[0] + 'Z';
-    } else if (timespanType === 'next') {
-      if (timespanTimeUnit === 'seconds') {
-        now.setSeconds(now.getSeconds() + timespanAmount);
-        now.setUTCMilliseconds(0);
-      } else if (timespanTimeUnit === 'minutes') {
-        now.setMinutes(now.getMinutes() + timespanAmount);
-        now.setUTCSeconds(0, 0);
-      } else if (timespanTimeUnit === 'hours') {
-        now.setHours(now.getHours() + timespanAmount);
-        now.setUTCMinutes(0, 0, 0);
-      } else if (timespanTimeUnit === 'days') {
-        now.setDate(now.getDate() + timespanAmount);
-        now.setUTCHours(0, 0, 0, 0);
-      } else {
-        this.setState({ timespanError: true });
-        return undefined;
-      }
-      return now.toISOString().split('.')[0] + 'Z';
-    } else {
-      this.setState({ timespanError: true });
-      return undefined;
-    }
+  updatePointInTimeTimestamp = (newTimestamp: string) => {
+    this.setState({ timeSelectionMode: 'pointInTime', pointInTimeTimestamp: newTimestamp });
   };
 
   setDataSource = (dataSource: any) => {
@@ -377,8 +446,9 @@ export default class App extends React.Component<{}, AppState> {
   };
 
   setDataSourceUrl = (dataSourceUrl: string) => {
-    this.getLogData(dataSourceUrl);
-    this.setState({ dataSourceUrl: dataSourceUrl });
+    this.setState({ dataSourceUrl: dataSourceUrl }, () => {
+      this.getLogData();
+    });
   };
 
   setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
@@ -388,7 +458,7 @@ export default class App extends React.Component<{}, AppState> {
       },
       () => {
         const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery);
-        this.getLogData(dataSourceUrl);
+        this.setDataSourceUrl(dataSourceUrl);
       }
     );
   };
