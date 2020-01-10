@@ -44,7 +44,7 @@ interface Bar {
 }
 
 class CubesVisualization extends React.Component<CubesVisProps> {
-
+    
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     mouse: THREE.Vector2;
@@ -58,7 +58,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     currentHelperBox: THREE.Box3Helper;
     frameId: number;
 
-    maxHeightOfbar = 800;
+    maxHeightOfBar: number = 800;
 
     constructor(props: CubesVisProps) {
         super(props);
@@ -85,7 +85,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         let timestamp = <div></div>;
-        let predictionWarning = null;
+        let predictionWarning: JSX.Element = <div></div>;
         if (timeSelectionMode === 'pointInTime') {
             timestamp = <div className="date">{daysOfTheWeek[new Date(selectedPointInTimeTimestamp).getDay()]} {selectedPointInTimeTimestamp}</div>;
             if (this.dateIsPrediction(new Date(selectedPointInTimeTimestamp))) {
@@ -190,13 +190,14 @@ class CubesVisualization extends React.Component<CubesVisProps> {
 
     componentWillUnmount() {
         window.cancelAnimationFrame(this.frameId);
+        window.removeEventListener('resize', this.resizeCanvasToDisplaySize);
         const visFromDom = document.getElementById("cubes-visualization");
         if (visFromDom) {
             visFromDom.removeChild(this.renderer.domElement);
         }
     };
 
-    initVis() {
+    initVis = () => {
         this.scene.background = new THREE.Color(0xffffff);
 
         const visFromDom = document.getElementById("cubes-visualization");
@@ -219,7 +220,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     };
 
     // TODO: Rename function because confusing 
-    createCubeData() {
+    createCubeData = () => {
 
         // removes bars of the last selected timestamp
         for (let index = 0; index < this.bars.length; index++) {
@@ -229,7 +230,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             this.bars[index].cube.material.dispose();
             this.bars[index].cube.material = null;
             // this.bars[index].dispose();
-            this.bars[index] = null;
+            this.bars[index] = undefined;
         }
         this.bars.length = 0;
 
@@ -252,7 +253,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
                     let gridKey: string = keyDC + "_" + keyCluster + "_" + keyInstance;
                     let clusterKey = keyDC + "_" + keyCluster;
 
-                    let gridValue: Array<number> = this.props.grid.get(gridKey);
+                    let gridValue: Array<number> = this.props.grid.get(gridKey)!;
 
                     var x = gridValue[0];
                     var z = gridValue[1];
@@ -266,12 +267,12 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         })
     };
 
-    generateRandomColor(): string {
+    generateRandomColor = (): string => {
         return "#000000".replace(/0/g, () => { return (~~(Math.random() * 16)).toString(16); });
     }
 
-    createBar(x: number, z: number, h: number, textLabel: string, color: number,
-        datacenter: string, cluster: string, instanceId: string) {
+    createBar = (x: number, z: number, h: number, textLabel: string, color: number,
+        datacenter: string, cluster: string, instanceId: string) => {
         // Cube init
         var geometry = new THREE.BoxBufferGeometry(40, h, 40);
         geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0, h / 2, 0));
@@ -320,11 +321,11 @@ class CubesVisualization extends React.Component<CubesVisProps> {
 
     };
 
-    createTextSprite(message) {
+    createTextSprite = (message) => {
         var fontface = 'Helvetica';
         var fontsize = 80;
-        var canvas = document.createElement('canvas');
-        var context = canvas.getContext('2d');
+        var canvas = document.createElement('canvas')!;
+        var context = canvas.getContext('2d')!;
         context.font = "bold " + fontsize + "px " + fontface;
 
         // text color
@@ -346,7 +347,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         return sprite;
     }
 
-    createBarPlaceholder(xPosition: number, zPosition: number) {
+    createBarPlaceholder = (xPosition: number, zPosition: number) => {
         var geometry = new THREE.PlaneBufferGeometry(40, 40);
         var material = new THREE.MeshLambertMaterial({ color: 0xffffff, side: THREE.DoubleSide });
         var plane = new THREE.Mesh(geometry, material);
@@ -368,7 +369,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
         this.renderer.renderLists.dispose();
     }
 
-    setBarPlaceholders() {
+    setBarPlaceholders = () => {
 
         // removes bar placeholdes of the last selected timestamp
         for (let index = 0; index < this.barPlaceholders.length; index++) {
@@ -385,19 +386,19 @@ class CubesVisualization extends React.Component<CubesVisProps> {
 
     }
 
-    scaleLog = function (hvalue, hmax) {
+    scaleLog = (hvalue, hmax) => {
         let maxh = Math.log(hmax);
-        this.adjustfactor = (this.maxHeightOfbar / maxh).toFixed(4)
+        let adjustfactor = +((this.maxHeightOfBar / maxh).toFixed(4))
 
         //log zwischen +0.1 - +1 problem (negativ bzw 0)
         if (hvalue <= 1 && hvalue >= 0.1) {
-            return (Math.log(2 - (1 - hvalue)) * this.adjustfactor) / 2
+            return (Math.log(2 - (1 - hvalue)) * adjustfactor) / 2
         }
-        return Math.log(hvalue) * this.adjustfactor
+        return Math.log(hvalue) * adjustfactor
 
     }
 
-    createLight() {
+    createLight = () => {
         var ambient = new THREE.AmbientLight(0x999999);
         var spot = new THREE.SpotLight(0xffffff, 0.3);
 
@@ -521,9 +522,9 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     };
 
     resizeCanvasToDisplaySize = () => {
-        const canvas = this.renderer.domElement
-        const width = canvas.parentElement.parentElement.clientWidth
-        const height = canvas.parentElement.parentElement.clientHeight
+        const canvas = this.renderer.domElement;
+        const width = canvas ? canvas.parentElement.parentElement.clientWidth : null;
+        const height = canvas ? canvas.parentElement.parentElement.clientHeight : null;
         if (canvas.width !== width || canvas.height !== height) {
             // you must pass false here or three.js sadly fights the browser
             this.renderer.setSize(width, height, false);
