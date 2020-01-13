@@ -15,10 +15,11 @@ Crucial to the outlook for expectable infrastructure data, five different approa
 - [AutoRegressive Integrated Moving Average](#autoregressive-integrated-moving-average)
 
 In the following chart, all forecasts of the respective models are visualized with the specific parameter set:
-| Parameter | Value |
-| --- | --- |
-| prediction horizon | 30 |
-| n history | 33 |
+| Parameter  | Value |
+| ------------- | ------------- |
+| prediction horizon  | 30  |
+| n history  | 33  |
+
 <br />
 <img src="img/ml-compare.png" width="560" alt="ml-compare" />
 <br />
