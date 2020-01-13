@@ -3,7 +3,7 @@
 ## Scientific Work
 In the following you will find a list of the scientific work, produced within the DC Cube project:
 - [Paper: Visualization and Machine Learning for Data Center Management](https://dl.gi.de/handle/20.500.12116/25052)
-- [Thesis: Max Muster](docs/thesis_muster_max_topic_year.pdf)
+- [Thesis: Nicolas Walk](docs/bachelorthesis_walk_nicolas.pdf)
 
 ## Proving Machine Learning Models
 
@@ -21,9 +21,7 @@ In the following chart, all forecasts of the respective models are visualized wi
 | prediction horizon  | 30  |
 | n history  | 33  |
 
-<br />
 <img src="img/ml-compare.png" width="560" alt="ml-compare" />
-<br />
 The individual results are considered in detail below.
 
 ### FBProphet
