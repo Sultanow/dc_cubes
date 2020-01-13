@@ -27,12 +27,14 @@ export default class DataService {
         }
     }
 
-    getLogData = () => {
-        return this.dataSourceService.getLogData(this.from, this.to);
+    // Get log data for specific time interval
+    getHistorical = () => {
+        return this.dataSourceService.getHistorical(this.from, this.to);
     }
 
+    // Get all available log data
     getAllLogData = () => {
-        return this.dataSourceService.getAllLogData()
+        return this.dataSourceService.getAllHistorical()
     }
         
     getAggregatedLogData = () => {

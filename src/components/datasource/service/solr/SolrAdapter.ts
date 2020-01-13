@@ -6,6 +6,7 @@ import Instance from '../../../../model/Instance'
 export default class SolrAdapter {
 
     public timeSeries = new Map<string, DCState>();
+    public rawTimeSeriesData = null;
     public temporalAxis = new Array<string>();
     public maxh: number = 0;
     public maxZ: number = 3;
@@ -21,8 +22,9 @@ export default class SolrAdapter {
 
 
     //generate data from socket json format
-    receivedData(json: [], customMapping, selectedMeasure: string) {
-        let datajson = json
+    receivedData(data, customMapping, selectedMeasure: string) {
+        let datajson = data.data.response.docs
+        this.rawTimeSeriesData = datajson
         this.temporalAxis = [];
 
         datajson.forEach(element => {

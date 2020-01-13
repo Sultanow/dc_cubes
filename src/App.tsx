@@ -12,7 +12,6 @@ import DataSources from './components/datasource/config/DataSources'
 import DataService from './components/datasource/DataService'
 import SolrAdapter from './components/datasource/service/solr/SolrAdapter'
 import DCState from './model/DCState'
-import TimeUnit from './model/TimeUnit'
 import DataSource from './model/DataSource'
 import AggregationType from './model/AggregationType'
 
@@ -32,21 +31,14 @@ interface AppState {
   solrMergedCore: string
   solrQuery: string
   dataSourceError: boolean
-  selectedPointInTime: number
-  selectedTimespan: [number, number]
 
   timeSelectionMode: 'pointInTime' | 'timespan'
-  timespanTypeLowerBound: 'absolute' | 'last' | 'next' | 'now'
-  timespanTypeUpperBound: 'absolute' | 'last' | 'next' | 'now'
   timespanAbsoluteTimestampLowerBound: string
   timespanAbsoluteTimestampUpperBound: string
-  timespanTimeUnitLowerBound: TimeUnit
-  timespanAmountLowerBound: number
-  timespanTimeUnitUpperBound: TimeUnit
-  timespanAmountUpperBound: number
+  timespanTimestampLowerBound: string
+  timespanTimestampUpperBound: string
   pointInTimeTimestamp: string
 
-  sliderMode: 'pointInTime' | 'timespan' | 'hidden'
   // the current temporal axis
   temporalAxis: string[]
   // tempAxis including the historic Data
@@ -65,7 +57,6 @@ interface AppState {
   timespanError: boolean
   isLoading: boolean
 
-  currentAvgValue: number
   selectedMeasure: string
   customMapping: any
   aggregationType: AggregationType
@@ -100,8 +91,8 @@ class App extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props)
     // Set initial lower bound of timespan by subtracting days
-    const currentDate = new Date()
-    currentDate.setDate(currentDate.getDate() - 1000)
+    const lowerBoundDate = new Date()
+    lowerBoundDate.setDate(lowerBoundDate.getDate() - 1000)
 
     this.state = {
       logData: [],
@@ -114,19 +105,12 @@ class App extends React.Component<{}, AppState> {
       solrMergedCore: 'dc_cubes_merged',
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceError: true,
-      selectedPointInTime: 0,
-      selectedTimespan: [0, 0],
       timeSelectionMode: 'pointInTime',
-      timespanTypeLowerBound: 'now',
-      timespanTypeUpperBound: 'now',
-      timespanAbsoluteTimestampLowerBound: currentDate.toISOString().split('.')[0] + "Z",
+      timespanAbsoluteTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + "Z",
       timespanAbsoluteTimestampUpperBound: new Date().toISOString().split('.')[0] + "Z",
-      timespanTimeUnitLowerBound: 'minutes',
-      timespanAmountLowerBound: 10,
-      timespanTimeUnitUpperBound: 'minutes',
-      timespanAmountUpperBound: 10,
+      timespanTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + "Z",
+      timespanTimestampUpperBound: new Date().toISOString().split('.')[0] + "Z",
       pointInTimeTimestamp: "",
-      sliderMode: 'pointInTime',
       temporalAxis: [],
       historicTemporalAxis: [],
       combinedTemporalAxis: [],
@@ -141,7 +125,6 @@ class App extends React.Component<{}, AppState> {
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      currentAvgValue: 0,
       selectedMeasure: "count",
       aggregationType: "avg",
       aggregatedData: null,
@@ -183,11 +166,16 @@ class App extends React.Component<{}, AppState> {
                                         this.state.selectedMeasure, 
                                         this.state.aggregationType)
     // Initially get all data because the placeholder visualization needs the full temporalAxis
-    dataService.getAllLogData().then((data: any) => {
+    dataService.getHistorical().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const solrAdapter = new SolrAdapter();
 
-      solrAdapter.receivedData(data.data.response.docs, this.state.customMapping, this.state.selectedMeasure)
+      solrAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure)
+
+      if( data.data.response.docs.length < 2) {
+        this.setState({dataSourceError: true});
+        throw new Error("Data not available");
+      }
 
       this.setState({
         historicTemporalAxis: solrAdapter.temporalAxis,
@@ -199,18 +187,20 @@ class App extends React.Component<{}, AppState> {
         dataSourceError: false,
         isLoading: true, // still need to load forecast data
         // raw timesereis Data for 2d graph 
-        rawTimeseriesData: data.data.response.docs,
+        rawTimeseriesData: solrAdapter.rawTimeSeriesData,
         isRawTimeseriesDataLoaded: true,
-        selectedPointInTime: solrAdapter.temporalAxis.length - 1
       }, () => {
         // Recalculate the slider positions
-        this.calculateAndSetPositionOfPointInTimeSlider()
-        this.calculateAndSetBoundariesOfTimespanSlider()
       });
 
       dataService.getForecast().then((data: any) => {
         const solrAdapter = new SolrAdapter();
-        solrAdapter.receivedData(data.data.response.docs, this.state.customMapping, this.state.selectedMeasure);
+        solrAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
+
+        if( data.data.response.docs.length < 2) {
+          this.setState({dataSourceError: true});
+          throw new Error("Data not available");
+        }
   
         this.setState({
           forecastTemporalAxis: solrAdapter.temporalAxis,
@@ -222,7 +212,7 @@ class App extends React.Component<{}, AppState> {
           dataSourceError: false,
           isLoading: false,
           // raw timesereis Data for 2d graph 
-          rawForecastData: data.data.response.docs,
+          rawForecastData: solrAdapter.rawTimeSeriesData,
           isRawForecastDataLoaded: true,
           forecastDataReceived: true
         });
@@ -247,8 +237,8 @@ class App extends React.Component<{}, AppState> {
 
   getAggregatedLogData = () => {
     const dataService = new DataService(this.state.dataSource,
-      this.state.timespanAbsoluteTimestampLowerBound,
-      this.state.timespanAbsoluteTimestampUpperBound,
+      this.state.timespanTimestampLowerBound,
+      this.state.timespanTimestampUpperBound,
       this.state.solrBaseUrl, 
       this.state.solrCore,
       this.state.solrForecastCore,
@@ -267,7 +257,7 @@ class App extends React.Component<{}, AppState> {
           })
         })
       })
-      this.setState<never>({ aggregatedData: solrAdapter.timeSeries.get(strTimeStamp)})     
+      this.setState<never>({ aggregatedData: solrAdapter.timeSeries.get(strTimeStamp), isLoading: false})     
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
@@ -285,11 +275,11 @@ class App extends React.Component<{}, AppState> {
   render() {
     let TimeseriesNavigationChartComponent = null;
     if (this.state.isRawTimeseriesDataLoaded) {
-      TimeseriesNavigationChartComponent = <TimeseriesNavigationChart timeseriesData={this.state.rawTimeseriesData}
+      TimeseriesNavigationChartComponent = <TimeseriesNavigationChart 
+        timeseriesData={this.state.rawTimeseriesData}
         forecastData={this.state.rawForecastData}
-        updateTimespanData={this.updateTimespanData}
-        resetSliderAndDates={this.updateSliderAndDates}
-        accessChild={this.accessChild}
+        updateTimespanTimestamps={this.updateTimespanTimestamps}
+        updatePointInTimeTimestamp={this.updatePointInTimeTimestamp}
         showPrediction={this.state.predictionActivated}
         forecastReceived={this.state.forecastDataReceived}
         forecastTemporalAxis={this.state.forecastTemporalAxis}
@@ -301,15 +291,16 @@ class App extends React.Component<{}, AppState> {
         preparedMaxData={this.state.preparedMaxData}
         preparedCombinedAvgData={this.state.preparedCombinedAvgData}
         selectedMeasure={this.state.selectedMeasure}
+        dataSourceError={this.state.dataSourceError}
       />
     }
 
-    let cubesVisData = this.state.timeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
+    let cubesVisData = this.state.timeSeries.get(this.state.pointInTimeTimestamp);
     let topbarTimeSeries = this.state.timeSeries
 
     if (this.state.predictionActivated) {
-      if (this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]) !== null) {
-        cubesVisData = this.state.combinedTimeSeries.get(this.state.temporalAxis[this.state.selectedPointInTime]);
+      if (this.state.combinedTimeSeries.get(this.state.pointInTimeTimestamp) !== null) {
+        cubesVisData = this.state.combinedTimeSeries.get(this.state.pointInTimeTimestamp);
       }
       topbarTimeSeries = this.state.combinedTimeSeries;
     }
@@ -325,26 +316,19 @@ class App extends React.Component<{}, AppState> {
           <SidebarNew dataSource={this.state.dataSource}>
             <Topbar dataSourceUrl={this.state.dataSourceUrl}
               getLogData={this.getLogData}
-              accessChild={this.accessChild}
-              sliderMode={this.state.sliderMode}
+              accessApp={this.accessApp}
               temporalAxis={this.state.temporalAxis}
               timeSeries={topbarTimeSeries}
               timeSelectionMode={this.state.timeSelectionMode}
-              timespanTypeLowerBound={this.state.timespanTypeLowerBound}
-              timespanTypeUpperBound={this.state.timespanTypeUpperBound}
               timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
               timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
-              timespanTimeUnitLowerBound={this.state.timespanTimeUnitLowerBound}
-              timespanAmountLowerBound={this.state.timespanAmountLowerBound}
-              timespanTimeUnitUpperBound={this.state.timespanTimeUnitUpperBound}
-              timespanAmountUpperBound={this.state.timespanAmountUpperBound}
               pointInTimeTimestamp={this.state.pointInTimeTimestamp}
-              updateTimespanData={this.updateTimespanData}
+              updateBoundariesForDataRetrieval={this.updateBoundariesForDataRetrieval}
               clearIntervalOfDataRefresh={this.clearIntervalOfDataRefresh}
               changeIntervalOfDataRefresh={this.changeIntervalOfDataRefresh}
-              prognosisActivated={this.state.predictionActivated}
-              handlePredictionActivated={this.handlePredictionActivated.bind(this)}
-              handlePredictionDeactivated={this.handlePredictionDeactivated.bind(this)}
+              predictionActivated={this.state.predictionActivated}
+              handlePredictionActivated={this.handlePredictionActivated}
+              handlePredictionDeactivated={this.handlePredictionDeactivated}
               updatePredictions={this.updatePredictions}
             />
 
@@ -354,20 +338,18 @@ class App extends React.Component<{}, AppState> {
                   <div className="content-row" >
                     <CubesVisualization {...props}
                       data={cubesVisData}
+                      aggregatedData={this.state.aggregatedData}
                       clusterColors={this.state.clusterColors}
                       grid={this.state.grid}
                       maxH={this.state.maxH}
-                      sliderMode={this.state.sliderMode}
-                      maxRangeSlider={((this.state.temporalAxis.length - 1) > 0) ? (this.state.temporalAxis.length - 1) : 1} // Ensure that max of slider is larger than min
-                      timespanValuesOfSlider={this.state.selectedTimespan}
-                      valueOfSlider={this.state.selectedPointInTime}
-                      accessChild={this.accessChild}
-                      selectedPointInTimeTimestamp={this.state.temporalAxis[this.state.selectedPointInTime]}
-                      selectedTimespanTimestamps={[this.state.temporalAxis[this.state.selectedTimespan[0]], this.state.temporalAxis[this.state.selectedTimespan[1]]]}
+                      timeSelectionMode={this.state.timeSelectionMode}
+                      accessApp={this.accessApp}
+                      temporalAxis={this.state.temporalAxis}
                       dataSourceError={this.state.dataSourceError}
                       isLoading={this.state.isLoading}
-                      timespanAbsoluteTimestampLowerBound={this.state.timespanAbsoluteTimestampLowerBound}
-                      timespanAbsoluteTimestampUpperBound={this.state.timespanAbsoluteTimestampUpperBound}
+                      pointInTimeTimestamp={this.state.pointInTimeTimestamp}
+                      timespanTimestampLowerBound={this.state.timespanTimestampLowerBound}
+                      timespanTimestampUpperBound={this.state.timespanTimestampUpperBound}
                       lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
                       aggregationType={this.state.aggregationType}
                       updateAggregationType={this.updateAggregationType}
@@ -395,7 +377,7 @@ class App extends React.Component<{}, AppState> {
                 solrCore={this.state.solrCore}
                 solrQuery={this.state.solrQuery}
                 customMapping={this.state.customMapping}
-                accessChild={this.accessChild} />} />
+                accessApp={this.accessApp} />} />
               <br />
               {this.state.dataSourceError && <Alert variant="danger">Datenquelle nicht erreichbar</Alert>}
               {this.state.timespanError && <Alert variant="danger">Zeitspanne nicht verfügbar</Alert>}
@@ -445,7 +427,7 @@ class App extends React.Component<{}, AppState> {
     clearInterval(this.state.intervalId);
   }
 
-  accessChild = (stateElement, value) => {
+  accessApp = (stateElement, value) => {
     this.setState<never>({ [stateElement]: value }, () => {
     })
   }
@@ -462,169 +444,22 @@ class App extends React.Component<{}, AppState> {
     })
   }
 
-  updateTimespanData = (newTimespanData: object) => {
+  updateTimespanTimestamps = (newTimespanData: object) => {
     this.setState<never>(newTimespanData, () => {
-      this.calculateAndSetBoundariesOfTimespanSlider()
       this.getAggregatedLogData()
       //this.getLogData()
     })
   }
 
-  updateSliderAndDates = (DateToReset: string) => {
-    this.setState({ timeSelectionMode: "pointInTime", pointInTimeTimestamp: DateToReset, sliderMode: "pointInTime" });
-    this.calculateAndSetPositionOfPointInTimeSlider()
-    //this.getLogData()
+  updateBoundariesForDataRetrieval = (newTimespanData: object) =>{
+    this.setState<never>(newTimespanData, () => {
+      this.getLogData()
+
+    })
   }
 
-  calculateAndSetPositionOfPointInTimeSlider = () => {
-    if (this.state.pointInTimeTimestamp) {
-      const newPosition = this.state.temporalAxis.indexOf(this.state.pointInTimeTimestamp)
-      if (newPosition !== -1) {
-        this.setState({ selectedPointInTime: newPosition })
-      } else {
-        this.setState({ selectedPointInTime: this.state.temporalAxis.length - 1 })
-      }
-    }
-  }
-
-  calculateAndSetBoundariesOfTimespanSlider = () => {
-    this.setState({ timespanError: false })
-    console.log("predictoinActivatedState", this.state.predictionActivated);
-    const typeLowerBound = this.state.timespanTypeLowerBound
-    const typeUpperBound = this.state.timespanTypeUpperBound
-    let lowerBoundDatetime = this.state.timespanAbsoluteTimestampLowerBound
-    let upperBoundDatetime = this.state.timespanAbsoluteTimestampUpperBound
-
-    if (typeLowerBound === 'absolute' && typeUpperBound === 'absolute') {
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
-
-    } else if (typeLowerBound === 'absolute' && typeUpperBound === 'last') {
-      upperBoundDatetime = this.calculateRelativeDatetime('last', 'upper')
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
-
-    } else if (typeLowerBound === 'absolute' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true })
-
-    } else if (typeLowerBound === 'absolute' && typeUpperBound === 'now') {
-      upperBoundDatetime = new Date().toISOString().split('.')[0] + "Z"
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
-
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'absolute') {
-      lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower')
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
-
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'last') {
-      lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower')
-      upperBoundDatetime = this.calculateRelativeDatetime('last', 'upper')
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
-
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true })
-
-    } else if (typeLowerBound === 'last' && typeUpperBound === 'now') {
-      upperBoundDatetime = new Date().toISOString().split('.')[0] + "Z"
-      lowerBoundDatetime = this.calculateRelativeDatetime('last', 'lower')
-      this.getSliderPositions(lowerBoundDatetime, upperBoundDatetime)
-
-    } else if (typeLowerBound === 'next' && typeUpperBound === 'absolute') {
-      this.setState({ timespanError: true })
-
-    } else if (typeLowerBound === 'next' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true })
-
-    } else if (typeLowerBound === 'now' && typeUpperBound === 'absolute') {
-      this.setState({ timespanError: true })
-
-    } else if (typeLowerBound === 'now' && typeUpperBound === 'next') {
-      this.setState({ timespanError: true })
-
-    } else if (typeLowerBound === 'now' && typeUpperBound === 'now') {
-      this.setState({ selectedTimespan: [this.state.temporalAxis.length - 1, this.state.temporalAxis.length - 1] })
-
-    } else {
-      this.setState({ timespanError: true })
-    }
-  }
-
-  getSliderPositions = (lowerBoundDatetime: string, upperBoundDatetime: string) => {
-    // Check if lower bound datetime is earlier than upper bound datetime
-    if (Date.parse(lowerBoundDatetime) < Date.parse(upperBoundDatetime)) {
-      // TODO: remove fix bug -2 in solrAdapter
-      let upperBoundSliderPosition = this.state.temporalAxis[this.state.temporalAxis.length - 1]
-      let lowerBoundSliderPosition = this.state.temporalAxis[0]
-
-      // Check if selected dates lies within the range of the log data set
-      if (Date.parse(lowerBoundDatetime) <= Date.parse(upperBoundSliderPosition) && Date.parse(upperBoundDatetime) >= Date.parse(lowerBoundSliderPosition)) {
-        let i = 0
-        this.state.temporalAxis.forEach(date => {
-          if (Date.parse(date) <= Date.parse(upperBoundDatetime)) {
-            upperBoundSliderPosition = date
-          }
-          if (Date.parse(date) >= Date.parse(lowerBoundDatetime)) {
-            if (i < 1) {
-              i++
-              lowerBoundSliderPosition = date
-            }
-          }
-        });
-        const lowerBound = this.state.temporalAxis.indexOf(lowerBoundSliderPosition)
-        const upperBound = this.state.temporalAxis.indexOf(upperBoundSliderPosition)
-        this.setState({ selectedTimespan: [lowerBound, upperBound] })
-      } else {
-        this.setState({ timespanError: true })
-      }
-    } else {
-      this.setState({ timespanError: true })
-    }
-  }
-
-  calculateRelativeDatetime = (timespanType, bound: 'lower' | 'upper') => {
-    let timespanAmount = bound === 'upper' ? this.state.timespanAmountUpperBound : this.state.timespanAmountLowerBound
-    let timespanTimeUnit = bound === 'upper' ? this.state.timespanTimeUnitUpperBound : this.state.timespanTimeUnitLowerBound
-    let now = new Date()
-
-    if (timespanType === 'last') {
-      if (timespanTimeUnit === 'seconds') {
-        now.setSeconds(now.getSeconds() - timespanAmount)
-        now.setUTCMilliseconds(0)
-      } else if (timespanTimeUnit === 'minutes') {
-        now.setMinutes(now.getMinutes() - timespanAmount)
-        now.setUTCSeconds(0, 0)
-      } else if (timespanTimeUnit === 'hours') {
-        now.setHours(now.getHours() - timespanAmount)
-        now.setUTCMinutes(0, 0, 0)
-      } else if (timespanTimeUnit === 'days') {
-        now.setDate(now.getDate() - timespanAmount)
-        now.setUTCHours(0, 0, 0, 0)
-      } else {
-        this.setState({ timespanError: true })
-        return undefined
-      }
-      return now.toISOString().split('.')[0] + "Z"
-
-    } else if (timespanType === 'next') {
-      if (timespanTimeUnit === 'seconds') {
-        now.setSeconds(now.getSeconds() + timespanAmount)
-        now.setUTCMilliseconds(0)
-      } else if (timespanTimeUnit === 'minutes') {
-        now.setMinutes(now.getMinutes() + timespanAmount)
-        now.setUTCSeconds(0, 0)
-      } else if (timespanTimeUnit === 'hours') {
-        now.setHours(now.getHours() + timespanAmount)
-        now.setUTCMinutes(0, 0, 0)
-      } else if (timespanTimeUnit === 'days') {
-        now.setDate(now.getDate() + timespanAmount)
-        now.setUTCHours(0, 0, 0, 0)
-      } else {
-        this.setState({ timespanError: true })
-        return undefined
-      }
-      return now.toISOString().split('.')[0] + "Z"
-
-    } else {
-      this.setState({ timespanError: true })
-      return undefined
-    }
+  updatePointInTimeTimestamp = (newTimestamp: string) => {
+    this.setState({ timeSelectionMode: "pointInTime", pointInTimeTimestamp: newTimestamp });
   }
 
   setDataSource = (dataSource: any) => {
@@ -646,6 +481,5 @@ class App extends React.Component<{}, AppState> {
     })
   }
 }
-
 
 export default App;

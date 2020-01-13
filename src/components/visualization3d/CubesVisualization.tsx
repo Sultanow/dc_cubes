@@ -6,13 +6,7 @@ import DCState from '../../model/DCState'
 import Datacenter from '../../model/Datacenter'
 import Cluster from '../../model/Cluster'
 import Instance from '../../model/Instance'
-/* import PointInTimeSlider from '../slider/PointInTimeSlider'
-import TimeSpanSlider from '../slider/TimespanSlider' */
 import './CubesVisualization.css'
-/* import TimeseriesNavigationChart from '../visualization2d/TimeseriesNavigationChart'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faExpand, faCogs } from '@fortawesome/free-solid-svg-icons'
-import { Button } from "react-bootstrap"; */
 import LoadingOverlay from "react-loading-overlay"
 import BarLoader from 'react-spinners/BarLoader'
 import AggregationType from '../../model/AggregationType'
@@ -20,21 +14,19 @@ import AggregationType from '../../model/AggregationType'
 
 interface CubesVisProps {
     data: DCState
+    aggregatedData: any
     grid: Map<string, Array<number>>
     clusterColors: {}
     maxH: number
-    sliderMode: 'pointInTime' | 'timespan' | 'hidden'
-    maxRangeSlider: number
-    valueOfSlider: number
-    timespanValuesOfSlider: [number, number]
-    selectedPointInTimeTimestamp: string
-    selectedTimespanTimestamps: string[]
-    accessChild: any
+    timeSelectionMode: 'pointInTime' | 'timespan'
+    accessApp: any
+    temporalAxis: string[]
     dataSourceError: boolean
     children?: React.ReactNode
     isLoading: boolean
-    timespanAbsoluteTimestampLowerBound: string
-    timespanAbsoluteTimestampUpperBound: string
+    pointInTimeTimestamp: string
+    timespanTimestampLowerBound: string
+    timespanTimestampUpperBound: string
     lastHistoricDate: Date
     aggregationType: AggregationType
     selectedMeasure: string
@@ -87,25 +79,27 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     }
 
     render() {
-        let {sliderMode, isLoading, listOfAllMeasures, aggregationTypes, aggregationType, selectedMeasure, selectedPointInTimeTimestamp, timespanAbsoluteTimestampLowerBound, timespanAbsoluteTimestampUpperBound} = this.props;
+        const selectedPointInTimeTimestamp: string = this.props.pointInTimeTimestamp;
+
+        let {timeSelectionMode, isLoading, listOfAllMeasures, aggregationTypes, aggregationType, selectedMeasure} = this.props;
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        let timestamp;
+        let timestamp = <div></div>;
         let predictionWarning = null;
-        if (sliderMode === 'pointInTime') {
+        if (timeSelectionMode === 'pointInTime') {
             timestamp = <div className="date">{daysOfTheWeek[new Date(selectedPointInTimeTimestamp).getDay()]} {selectedPointInTimeTimestamp}</div>;
             if (this.dateIsPrediction(new Date(selectedPointInTimeTimestamp))) {
                 predictionWarning = <div className="predictionWarning"> Achtung: Vorhersage!</div>
             }
-        } else if (sliderMode === 'timespan') {
-            let dateLower: Date = new Date(timespanAbsoluteTimestampLowerBound);
-            let dateUpper: Date = new Date(timespanAbsoluteTimestampUpperBound);
-            timestamp = <div className="date">{daysOfTheWeek[dateLower.getDay()]} {this.props.selectedTimespanTimestamps[0]} - {daysOfTheWeek[new Date(this.props.timespanAbsoluteTimestampUpperBound).getDay()]} {this.props.selectedTimespanTimestamps[1]}</div>;
-            if (this.dateIsPrediction(dateLower) || this.dateIsPrediction(dateUpper)) {
+        } else {
+            let dateLowerBoundStr: string = this.props.timespanTimestampLowerBound;
+            let dateLowerBound: Date = new Date(dateLowerBoundStr);
+            let dateUpperBoundStr: string = this.props.timespanTimestampUpperBound;
+            let dateUpperBound: Date = new Date(dateUpperBoundStr);
+            timestamp = <div className="date">{daysOfTheWeek[dateLowerBound.getDay()]} {dateLowerBoundStr} - {daysOfTheWeek[dateUpperBound.getDay()]} {dateUpperBoundStr}</div>;
+            if (this.dateIsPrediction(dateLowerBound) || this.dateIsPrediction(dateUpperBound)) {
                 predictionWarning = <div className="predictionWarning"> Achtung: Vorhersage!</div>
             }
-        } else {
-            timestamp = '';
         }
 
         return (
@@ -176,6 +170,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     };
 
     componentDidMount() {
+        window.addEventListener('resize', this.resizeCanvasToDisplaySize);
         this.initVis();
         // necessary for react-router
         if (this.props.dataSourceError === false) {
