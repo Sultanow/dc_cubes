@@ -22,11 +22,6 @@ html, body {margin: 0; height: 100%; overflow: scroll}
     float: left;
 }
 
-.slidercontainer {
-    width: 920px;
-    padding-left: 38px;
-    padding-top: 10px;
-}
 
 .main-canvas {
     width: 100%;

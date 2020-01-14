@@ -1,20 +1,21 @@
 import http from 'http'
 import express from 'express'
 import cors from 'cors'
-import config from './nodeConfig.json'
+import config from './dc_cubes_config.json'
 
 const app = express();
 app.use(cors());
 
-const port = config.port;
-const historical = config.historicalDataCore;
-const forecast = config.forecastDataCore;
+const port = config.backendPort;
+const historical = config.solrSettings.historicalDataCore;
+const forecast = config.solrSettings.forecastDataCore;
 
 const { spawn } = require("child_process");
     const pythonProcess = spawn("python", ["prophet.py"]);
     pythonProcess.stdout.on('data', function(data) {
         process.stdout.write(data);
     });
+
 app.get("/", function (req, res) {
     res.send("node is online");
 });

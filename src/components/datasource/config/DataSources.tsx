@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route, Link } from "react-router-dom";
 import SolrSettings from './solr/SolrSettings'
-import CsvSettings from './csv/CsvSettings'
+import CSVSettings from './csv/CSVSettings'
 import PrometheusSettings from './prometheus/PrometheusSettings'
 import ElasticsearchSettings from './elasticsearch/ElasticsearchSettings'
 import { Row, Col, Form, Button } from 'react-bootstrap';
@@ -87,7 +87,7 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                         </Col>
                         <Col lg={8} className="content-container" style={{display: "block"}}>
                             
-                            <Route path="/data-sources/csv" render={(props) => <CsvSettings {...props}  />}/>
+                            <Route path="/data-sources/csv" render={(props) => <CSVSettings {...props}  />}/>
                             <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props} 
                                 setDataSourceUrl={this.props.setDataSourceUrl}
                                 dataSourceError={this.props.dataSourceError}

@@ -10,7 +10,7 @@ import DCState from '../../../../src/model/DCState';
 import DataSource from '../../../../src/model/DataSource';
 import AggregationType from '../../../../src/model/AggregationType';
 import { PanelProps } from '@grafana/data';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import './bootstrap.min.css';
 
 interface TimeseriesData {
   timestamp: string;
@@ -102,8 +102,10 @@ export class App extends PureComponent<PanelProps, AppState> {
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceError: true,
       timeSelectionMode: 'pointInTime',
-      timespanAbsoluteTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + 'Z',
-      timespanAbsoluteTimestampUpperBound: new Date().toISOString().split('.')[0] + 'Z',
+      // Time boundaries for server data
+      timespanAbsoluteTimestampLowerBound: this.props.timeRange.from.toISOString().split('.')[0] + 'Z',
+      timespanAbsoluteTimestampUpperBound: this.props.timeRange.from.toISOString().split('.')[0] + 'Z',
+      // Time boundaries for local data selection with 2d visualization
       timespanTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + 'Z',
       timespanTimestampUpperBound: new Date().toISOString().split('.')[0] + 'Z',
       pointInTimeTimestamp: '',
@@ -147,13 +149,22 @@ export class App extends PureComponent<PanelProps, AppState> {
   }
 
   componentDidMount() {
-    // Get config from server if available
     this.init();
     // Get initial log data based on default values
     this.getLogData();
   }
 
-  init = () => {};
+  componentDidUpdate = () => {
+    console.log(this.state.timespanAbsoluteTimestampLowerBound);
+  };
+
+  /**
+   * Checks if REST interface is available, if that's the case the configuration file is loaded and the corresponding
+   * state variables are initialised with their respective values.
+   */
+  init = () => {
+
+  };
 
   getLogData = () => {
     const dataService = new DataService(
@@ -236,7 +247,9 @@ export class App extends PureComponent<PanelProps, AppState> {
         console.log(error);
       });
 
-    dataService
+    dataService/* if (refreshTimeUnit === 'se, da sie nur als JavaScript-Datumsobjekte vorlagen
+    return;
+  } */
       .getMaxValueOfTimeseries()
       .then((maxValue: number) => {
         this.setState({ maxH: maxValue });

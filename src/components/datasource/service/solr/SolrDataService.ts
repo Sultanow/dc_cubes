@@ -106,8 +106,8 @@ export default class SolrDataService implements DataSourceService {
 
         return new Promise((resolve, reject) => {
             httpClient.post(url, query).then((data: any) => {
-                let timestamps = data.data.facets.timestamps.buckets
-                let newObj = []
+                let timestamps: any[] = data.data.facets.timestamps.buckets
+                let newObj: object[] = []
                 timestamps.map(el => {
                     newObj.push({"timestamp": el.val, "count": el.value})
                 })
@@ -131,7 +131,7 @@ export default class SolrDataService implements DataSourceService {
         const url = this.solrBaseUrl + this.solrCore + "/query";
         const urlForecast = this.solrBaseUrl + this.solrForecastCore + "/query";
         
-        let maxValue;
+        let maxValue: number;
         return new Promise((resolve, reject) => {
             httpClient.post(url, query).then((data: any) => {
                 maxValue = data.data.facets.maxValue          
