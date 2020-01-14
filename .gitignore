@@ -5,7 +5,7 @@
 /backend/node_modules
 /plugins/grafana-plugin/dc_cubes/node_modules
 /plugins/grafana-plugin/dc_cubes/dist/*
-/plugins/grafana-plugin/dc_cubes/dist/
+/plugins/grafana-plugin/dc_cubes/dist
 /.pnp
 .pnp.js
 
