@@ -10,8 +10,8 @@
     },
     "keywords": ["Simple"],
     "logos": {
-      "small": "img/logo.svg",
-      "large": "img/logo.svg"
+      "small": "img/cubes_blor.svg",
+      "large": "img/cubes_blor.svg"
     },
     "links": [
       {"name": "Website", "url": "https://github.com/grafana/simple-react-panel"},
