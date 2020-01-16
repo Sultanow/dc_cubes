@@ -2,19 +2,23 @@ import React, { PureComponent } from 'react';
 import { Alert } from 'react-bootstrap';
 //import './App.css';
 import httpClient from 'axios';
-import CubesVisualization from '../../../../src/components/visualization3d/CubesVisualization';
-import TimeseriesNavigationChart from '../../../../src/components/visualization2d/TimeseriesNavigationChart';
+import CubesVisualization from './components/visualization3d/CubesVisualization';
+import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import DataService from '../../../../src/components/datasource/DataService';
 import StandardAdapter from '../../../../src/components/datasource/service/StandardAdapter';
 import DCState from '../../../../src/model/DCState';
 import DataSource from '../../../../src/model/DataSource';
 import AggregationType from '../../../../src/model/AggregationType';
 import { PanelProps } from '@grafana/data';
-import './bootstrap.min.css';
 
 interface TimeseriesData {
   timestamp: string;
   count: number;
+}
+
+export interface EditorPanelOptions {
+  selectedMeasure: string;
+  aggregationType: AggregationType;
 }
 
 interface AppState {
@@ -74,7 +78,7 @@ interface AppState {
   preparedCombinedAvgData: TimeseriesData[];
 }
 
-export class App extends PureComponent<PanelProps, AppState> {
+export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState> {
   private aggregationTypes = { avg: 'Mittelwert', sum: 'Summe', max: 'Maximum', min: 'Minimum' };
   private listOfAllMeasures = {
     count: 'Auslastung',
@@ -123,8 +127,8 @@ export class App extends PureComponent<PanelProps, AppState> {
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      selectedMeasure: 'count',
-      aggregationType: 'avg',
+      selectedMeasure: this.props.options.selectedMeasure,
+      aggregationType: this.props.options.aggregationType,
       aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element['timestamp'];
@@ -155,16 +159,16 @@ export class App extends PureComponent<PanelProps, AppState> {
   }
 
   componentDidUpdate = () => {
+    this.updateSelectedMeasure()
     console.log(this.state.timespanAbsoluteTimestampLowerBound);
+    console.log(this.props);
   };
 
   /**
    * Checks if REST interface is available, if that's the case the configuration file is loaded and the corresponding
    * state variables are initialised with their respective values.
    */
-  init = () => {
-
-  };
+  init = () => {};
 
   getLogData = () => {
     const dataService = new DataService(
@@ -175,7 +179,7 @@ export class App extends PureComponent<PanelProps, AppState> {
       this.state.solrCore,
       this.state.solrForecastCore,
       this.state.solrMergedCore,
-      this.state.selectedMeasure,
+      this.props.options.selectedMeasure,
       this.state.aggregationType
     );
     // Initially get all data because the placeholder visualization needs the full temporalAxis
@@ -185,7 +189,7 @@ export class App extends PureComponent<PanelProps, AppState> {
         // TODO: call dataparser from util folder in order to parse the log data
         const standardAdapter = new StandardAdapter();
 
-        standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
+        standardAdapter.receivedData(data, this.state.customMapping, this.props.options.selectedMeasure);
 
         if (data.data.response.docs.length < 2) {
           this.setState({ dataSourceError: true });
@@ -215,7 +219,7 @@ export class App extends PureComponent<PanelProps, AppState> {
           .getForecast()
           .then((data: any) => {
             const standardAdapter = new StandardAdapter();
-            standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
+            standardAdapter.receivedData(data, this.state.customMapping, this.props.options.selectedMeasure);
 
             if (data.data.response.docs.length < 2) {
               this.setState({ dataSourceError: true });
@@ -247,7 +251,7 @@ export class App extends PureComponent<PanelProps, AppState> {
         console.log(error);
       });
 
-    dataService/* if (refreshTimeUnit === 'se, da sie nur als JavaScript-Datumsobjekte vorlagen
+    dataService /* if (refreshTimeUnit === 'se, da sie nur als JavaScript-Datumsobjekte vorlagen
     return;
   } */
       .getMaxValueOfTimeseries()
@@ -270,7 +274,7 @@ export class App extends PureComponent<PanelProps, AppState> {
       this.state.solrCore,
       this.state.solrForecastCore,
       this.state.solrMergedCore,
-      this.state.selectedMeasure,
+      this.props.options.selectedMeasure,
       this.state.aggregationType
     );
 
@@ -327,7 +331,7 @@ export class App extends PureComponent<PanelProps, AppState> {
           preparedMinData={this.state.preparedMinData}
           preparedMaxData={this.state.preparedMaxData}
           preparedCombinedAvgData={this.state.preparedCombinedAvgData}
-          selectedMeasure={this.state.selectedMeasure}
+          selectedMeasure={this.props.options.selectedMeasure}
           dataSourceError={this.state.dataSourceError}
         />
       );
@@ -367,7 +371,7 @@ export class App extends PureComponent<PanelProps, AppState> {
             lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
             aggregationType={this.state.aggregationType}
             updateAggregationType={this.updateAggregationType}
-            selectedMeasure={this.state.selectedMeasure}
+            selectedMeasure={this.props.options.selectedMeasure}
             updateSelectedMeasure={this.updateSelectedMeasure}
             aggregationTypes={this.aggregationTypes}
             listOfAllMeasures={this.listOfAllMeasures}
@@ -431,8 +435,8 @@ export class App extends PureComponent<PanelProps, AppState> {
     });
   };
 
-  updateSelectedMeasure = (selectedMeasure: string) => {
-    this.setState({ selectedMeasure: selectedMeasure, isLoading: true }, () => {
+  updateSelectedMeasure = () => {
+    this.setState({ isLoading: true }, () => {
       this.getLogData();
     });
   };
