@@ -13,6 +13,7 @@ A python environment (e.g. https://www.anaconda.com/distribution) with the follo
 ### Inputs
 You have to set the required file paths for data in train_plot.py / train_plot.ipynb.<br />
 (The file ISTATX_transformed.csv was created by data procesing from ISTATX_istatx1.csv.)
+
 | Path  | Lines |
 | ------------- | ------------- |
 | /backend/ML-Models/ISTATX_transformed.csv  |  312, 327 |
