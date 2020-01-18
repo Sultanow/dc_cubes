@@ -30,6 +30,7 @@ The Python framework FBProphet was used for prototyping with the following param
 | ------------- | ------------- |
 | changepoints  | default  |
 | seasonality_mode  | additive  |
+
 <img src="img/ml-fbprophet.png" width="560" alt="ml-fpprophet" /><br />
  Further information: [FBProphet](https://facebook.github.io/prophet/), [Prophet: forecasting at scale](https://research.fb.com/blog/2017/02/prophet-forecasting-at-scale/)
 
@@ -42,6 +43,7 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | solver/optimizer  | adam  |
 | loss  | mse  |
 | metrics  | accuracy  |
+
 <img src="img/ml-mlp.png" width="560" alt="ml-mlp" /><br />
 Further information: [Multilayer Perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron), [Keras](https://keras.io/)
 
@@ -54,6 +56,7 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | solver/optimizer  | adam  |
 | loss  | mse  |
 | metrics  | accuracy  |
+
 <img src="img/ml-lstm.png" width="560" alt="ml-lstm" /><br />
 Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Keras](https://keras.io/)
 
@@ -66,6 +69,7 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | solver/optimizer  | adam  |
 | loss  | mse  |
 | metrics  | accuracy  |
+
 <img src="img/ml-cnn.png" width="560" alt="ml-cnn" /><br />
 Further information: [Convolutional Neural Network](https://en.wikipedia.org/wiki/Convolutional_neural_network), [Keras](https://keras.io/)
 
