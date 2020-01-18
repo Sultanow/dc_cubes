@@ -25,6 +25,7 @@ The individual results are considered in detail below and also available as [plo
 
 ### FBProphet
 The Python framework FBProphet was used for prototyping with the following parameters:
+
 | Parameter  | Value |
 | ------------- | ------------- |
 | changepoints  | default  |
@@ -34,6 +35,7 @@ The Python framework FBProphet was used for prototyping with the following param
 
 ### Multilayer Perceptron
 The Python frameworks Keras/Scikit-Learn were used for prototyping with the following parameters:
+
 | Parameter  | Value |
 | ------------- | ------------- |
 | activation  | relu  |
@@ -45,6 +47,7 @@ Further information: [Multilayer Perceptron](https://en.wikipedia.org/wiki/Multi
 
 ### Long Short-Term Memory
 The Python frameworks Keras/Scikit-Learn were used for prototyping with the following parameters:
+
 | Parameter  | Value |
 | ------------- | ------------- |
 | activation  | relu  |
@@ -56,6 +59,7 @@ Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long
 
 ### Convolutional Neural Network
 The Python frameworks Keras/Scikit-Learn were used for prototyping with the following parameters:
+
 | Parameter  | Value |
 | ------------- | ------------- |
 | activation  | relu  |
