@@ -31,7 +31,10 @@ Get your hands on with our easy to use Docker start sript:
 - [Anleitung: DC Cubes und Solr lokal aufsetzen (DE)](docs/de/cubes_solr_lokal_aufsetzen.md)
 
 ## Grafana Plugin in development
+<img src="docs/img/grafana-plugin.png" width="560" alt="dc_cubes_grafana" />
 <img src="docs/img/dc_cubes_grafana.png" width="560" alt="dc_cubes_grafana" />
+
+
 
 
 
