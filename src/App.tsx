@@ -191,40 +191,42 @@ class App extends React.Component<{}, AppState> {
         grid: standardAdapter.grid,
         maxH: standardAdapter.maxh,
         dataSourceError: false,
-        isLoading: true, // still need to load forecast data
+        isLoading: false, // still need to load forecast data
         // raw timesereis Data for 2d graph 
         rawTimeseriesData: standardAdapter.rawTimeSeriesData,
         isRawTimeseriesDataLoaded: true,
       });
 
-      dataService.getForecast().then((data: any) => {
-        const standardAdapter = new StandardAdapter();
-        standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
-
-        if( data.data.response.docs.length < 2) {
-          this.setState({dataSourceError: true});
-          throw new Error("Data not available");
-        }
+      // Load prediction data on demand
+      if(this.state.predictionActivated) {
+        dataService.getForecast().then((data: any) => {
+          const standardAdapter = new StandardAdapter();
+          standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
   
-        this.setState({
-          forecastTemporalAxis: standardAdapter.temporalAxis,
-          combinedTemporalAxis: this.state.temporalAxis.concat(standardAdapter.temporalAxis),
-          forecastTimeSeries: standardAdapter.timeSeries,
-          combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(standardAdapter.timeSeries.entries())]),
-          forecastGrid: standardAdapter.grid,
-          forecastMaxH: standardAdapter.maxh,
-          dataSourceError: false,
-          isLoading: false,
-          // raw timesereis Data for 2d graph 
-          rawForecastData: standardAdapter.rawTimeSeriesData,
-          isRawForecastDataLoaded: true,
-          forecastDataReceived: true
+          if( data.data.response.docs.length < 2) {
+            this.setState({dataSourceError: true});
+            throw new Error("Data not available");
+          }
+    
+          this.setState({
+            forecastTemporalAxis: standardAdapter.temporalAxis,
+            combinedTemporalAxis: this.state.temporalAxis.concat(standardAdapter.temporalAxis),
+            forecastTimeSeries: standardAdapter.timeSeries,
+            combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(standardAdapter.timeSeries.entries())]),
+            forecastGrid: standardAdapter.grid,
+            forecastMaxH: standardAdapter.maxh,
+            dataSourceError: false,
+            isLoading: false,
+            // raw timesereis Data for 2d graph 
+            rawForecastData: standardAdapter.rawTimeSeriesData,
+            isRawForecastDataLoaded: true,
+            forecastDataReceived: true
+          });
+        }).catch((error: any) => {
+          this.setState({ dataSourceError: true })
+          console.log(error)
         });
-      }).catch((error: any) => {
-        this.setState({ dataSourceError: true })
-        console.log(error)
-      });
-
+      }
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
