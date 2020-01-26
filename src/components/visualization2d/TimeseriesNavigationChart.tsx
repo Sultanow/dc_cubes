@@ -369,7 +369,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);
         let found1 = this.preparedAvgData.find(x => x.timestamp === newDateString);
-        let found2 = this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
+        let found2;
+        if (this.props.showPrediction) {
+            this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
+        }
 
         if (found1) {
             return found1
