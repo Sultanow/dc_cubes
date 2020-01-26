@@ -14,15 +14,17 @@ interface SolrSettingsProps {
   accessApp: any
 }
 
-/* interface SolrSettingsState {
-  selectedSolrCore: string
+interface SolrSettingsState {
+  //selectedSolrCore: string
+  solrCore: string
   solrBaseUrl: string
   solrQuery: string
   solrInstanceStatus: boolean
   items: string[]
-} */
+  previewData: any
+}
 
-export default class SolrSettings extends Component<SolrSettingsProps, any> {
+export default class SolrSettings extends Component<SolrSettingsProps, SolrSettingsState> {
 
   constructor(props) {
     super(props);
@@ -33,7 +35,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       solrInstanceStatus: false, // false -> offline, true -> online
       items: [],
-      previewData: null
+      previewData: []
     }
   }
 
@@ -124,14 +126,14 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
     this.getPreviewData(this.state.solrBaseUrl, this.state.solrCore, this.state.solrQuery)
   }
 
-  handleChange = (e) => {
+  handleChange = (e: any) => {
     const target = e.target;
-    const value = target.value;
-    const name = target.name;
+    const value: any = target.value;
+    const name: any = target.name;
 
     if (name === "solrBaseUrl") {
       this.setState({
-        [name]: value,
+        solrBaseUrl: value,
         items: [],
         solrInstanceStatus: false
       })
@@ -143,14 +145,14 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
 
     if (name === "solrQuery") {
       this.setState({
-        [name]: value
+        solrQuery: value
       })
       this.props.setSolrUrlPart("solrQuery", value)
     }
 
     if (name === "solrCore") {
       this.setState({
-        [name]: value
+        solrCore: value
       })
       this.props.setSolrUrlPart("solrCore", value)
     }
@@ -165,7 +167,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
   getAllSolrCores = (url: string) => {
     httpClient.get(url)
     .then((data) => {
-        const dataItems = [];
+        const dataItems: any = [];
         let strCores : string[] = Object.keys(data.data.status || {})
 
         strCores.forEach((strCore, index) => {
@@ -181,7 +183,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, any> {
     }); 
   }
 
-  getPreviewData = (solrBaseUrl: string, solrCore: string, solrQuery) => {
+  getPreviewData = (solrBaseUrl: string, solrCore: string, solrQuery: string) => {
     const url = solrBaseUrl + solrCore + solrQuery
 
     httpClient.get(url)
