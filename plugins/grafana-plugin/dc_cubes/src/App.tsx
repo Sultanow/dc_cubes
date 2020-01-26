@@ -1,7 +1,5 @@
 import React, { PureComponent } from 'react';
 import { Alert } from 'react-bootstrap';
-//import './App.css';
-import httpClient from 'axios';
 import CubesVisualization from './components/visualization3d/CubesVisualization';
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart';
 import DataService from '../../../../src/components/datasource/DataService';
@@ -19,12 +17,13 @@ interface TimeseriesData {
 export interface EditorPanelOptions {
   selectedMeasure: string;
   aggregationType: AggregationType;
+  dataSource: DataSource;
+  predictionActivated: boolean;
 }
 
 interface AppState {
   logData: [];
   backendUrl: string;
-  dataSource: DataSource;
   dataSourceUrl: string;
   solrBaseUrl: string;
   solrCore: string;
@@ -63,7 +62,6 @@ interface AppState {
   aggregationType: AggregationType;
   aggregatedData: DCState | null;
 
-  predictionActivated: boolean;
   forecastDataReceived: boolean;
   rawForecastData: any;
   isRawForecastDataLoaded: boolean;
@@ -88,6 +86,8 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
     dev_upp: 'dev_upp',
   };
 
+  requestID: string;
+
   constructor(props: PanelProps) {
     super(props);
     // Set initial lower bound of timespan by subtracting days
@@ -97,7 +97,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
     this.state = {
       logData: [],
       backendUrl: 'http://localhost:8080',
-      dataSource: 'solr',
       dataSourceUrl: 'http://localhost:8983/solr/dc_cubes/query?q=*:*&start=0&rows=30000',
       solrBaseUrl: 'http://localhost:8983/solr/',
       solrCore: 'dc_cubes',
@@ -108,7 +107,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
       timeSelectionMode: 'pointInTime',
       // Time boundaries for server data
       timespanAbsoluteTimestampLowerBound: this.props.timeRange.from.toISOString().split('.')[0] + 'Z',
-      timespanAbsoluteTimestampUpperBound: this.props.timeRange.from.toISOString().split('.')[0] + 'Z',
+      timespanAbsoluteTimestampUpperBound: this.props.timeRange.to.toISOString().split('.')[0] + 'Z',
       // Time boundaries for local data selection with 2d visualization
       timespanTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + 'Z',
       timespanTimestampUpperBound: new Date().toISOString().split('.')[0] + 'Z',
@@ -138,7 +137,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
         const strSelectedMeasure: string = element[selectedMeasure];
         return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure };
       },
-      predictionActivated: false,
       forecastDataReceived: false,
       isRawForecastDataLoaded: false,
       forecastTemporalAxis: [],
@@ -158,8 +156,32 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
     this.getLogData();
   }
 
-  componentDidUpdate = () => {
-    this.updateSelectedMeasure()
+  componentDidUpdate = nextProps => {
+    const { selectedMeasure, aggregationType, predictionActivated } = this.props.options;
+    if (nextProps.options.selectedMeasure !== selectedMeasure) {
+      if (selectedMeasure) {
+        this.updateSelectedMeasure();
+      }
+    }
+    if (nextProps.options.aggregationType !== aggregationType) {
+      if (aggregationType) {
+        this.updateAggregationType(aggregationType);
+      }
+    }
+    if (nextProps.options.predictionActivated !== predictionActivated) {
+      if (predictionActivated) {
+        if (predictionActivated === true) {
+          this.handlePredictionActivated();
+        } else {
+          this.handlePredictionDeactivated();
+        }
+      }
+    }
+
+    if (this.requestID !== this.props.data.request.requestId) {
+      this.getLogData();
+    }
+    this.requestID = this.props.data.request.requestId;
     console.log(this.state.timespanAbsoluteTimestampLowerBound);
     console.log(this.props);
   };
@@ -172,9 +194,9 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
 
   getLogData = () => {
     const dataService = new DataService(
-      this.state.dataSource,
-      this.state.timespanAbsoluteTimestampLowerBound,
-      this.state.timespanAbsoluteTimestampUpperBound,
+      this.props.options.dataSource,
+      this.props.timeRange.from.toISOString().split('.')[0] + 'Z',
+      this.props.timeRange.to.toISOString().split('.')[0] + 'Z',
       this.state.solrBaseUrl,
       this.state.solrCore,
       this.state.solrForecastCore,
@@ -205,7 +227,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
             grid: standardAdapter.grid,
             maxH: standardAdapter.maxh,
             dataSourceError: false,
-            isLoading: true, // still need to load forecast data
+            isLoading: false, // still need to load forecast data
             // raw timesereis Data for 2d graph
             rawTimeseriesData: standardAdapter.rawTimeSeriesData,
             isRawTimeseriesDataLoaded: true,
@@ -215,36 +237,38 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
           }
         );
 
-        dataService
-          .getForecast()
-          .then((data: any) => {
-            const standardAdapter = new StandardAdapter();
-            standardAdapter.receivedData(data, this.state.customMapping, this.props.options.selectedMeasure);
+        if (this.props.options.predictionActivated) {
+          dataService
+            .getForecast()
+            .then((data: any) => {
+              const standardAdapter = new StandardAdapter();
+              standardAdapter.receivedData(data, this.state.customMapping, this.props.options.selectedMeasure);
 
-            if (data.data.response.docs.length < 2) {
+              if (data.data.response.docs.length < 2) {
+                this.setState({ dataSourceError: true });
+                throw new Error('Data not available');
+              }
+
+              this.setState({
+                forecastTemporalAxis: standardAdapter.temporalAxis,
+                combinedTemporalAxis: this.state.temporalAxis.concat(standardAdapter.temporalAxis),
+                forecastTimeSeries: standardAdapter.timeSeries,
+                combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(standardAdapter.timeSeries.entries())]),
+                forecastGrid: standardAdapter.grid,
+                forecastMaxH: standardAdapter.maxh,
+                dataSourceError: false,
+                isLoading: false,
+                // raw timesereis Data for 2d graph
+                rawForecastData: standardAdapter.rawTimeSeriesData,
+                isRawForecastDataLoaded: true,
+                forecastDataReceived: true,
+              });
+            })
+            .catch((error: any) => {
               this.setState({ dataSourceError: true });
-              throw new Error('Data not available');
-            }
-
-            this.setState({
-              forecastTemporalAxis: standardAdapter.temporalAxis,
-              combinedTemporalAxis: this.state.temporalAxis.concat(standardAdapter.temporalAxis),
-              forecastTimeSeries: standardAdapter.timeSeries,
-              combinedTimeSeries: new Map([...Array.from(this.state.timeSeries.entries()), ...Array.from(standardAdapter.timeSeries.entries())]),
-              forecastGrid: standardAdapter.grid,
-              forecastMaxH: standardAdapter.maxh,
-              dataSourceError: false,
-              isLoading: false,
-              // raw timesereis Data for 2d graph
-              rawForecastData: standardAdapter.rawTimeSeriesData,
-              isRawForecastDataLoaded: true,
-              forecastDataReceived: true,
+              console.log(error);
             });
-          })
-          .catch((error: any) => {
-            this.setState({ dataSourceError: true });
-            console.log(error);
-          });
+        }
       })
       .catch((error: any) => {
         this.setState({ dataSourceError: true });
@@ -267,7 +291,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
 
   getAggregatedLogData = () => {
     const dataService = new DataService(
-      this.state.dataSource,
+      this.props.options.dataSource,
       this.state.timespanTimestampLowerBound,
       this.state.timespanTimestampUpperBound,
       this.state.solrBaseUrl,
@@ -305,13 +329,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
       });
   };
 
-  updatePredictions = () => {
-    console.log('update predicitons called');
-    httpClient.get('http://localhost:8080/startscript').then((data: any) => {
-      console.log('Update Predictions answer: ' + data.data);
-    });
-  };
-
   render() {
     let TimeseriesNavigationChartComponent;
     if (this.state.isRawTimeseriesDataLoaded) {
@@ -321,7 +338,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
           forecastData={this.state.rawForecastData}
           updateTimespanTimestamps={this.updateTimespanTimestamps}
           updatePointInTimeTimestamp={this.updatePointInTimeTimestamp}
-          showPrediction={this.state.predictionActivated}
+          showPrediction={this.props.options.predictionActivated}
           forecastReceived={this.state.forecastDataReceived}
           forecastTemporalAxis={this.state.forecastTemporalAxis}
           temporalAxis={this.state.temporalAxis}
@@ -340,7 +357,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
     let cubesVisData = this.state.timeSeries.get(this.state.pointInTimeTimestamp)!;
     //let topbarTimeSeries = this.state.timeSeries;
 
-    if (this.state.predictionActivated) {
+    if (this.props.options.predictionActivated) {
       if (this.state.combinedTimeSeries.get(this.state.pointInTimeTimestamp) !== null) {
         cubesVisData = this.state.combinedTimeSeries.get(this.state.pointInTimeTimestamp)!;
       }
@@ -409,14 +426,13 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
   };
 
   handlePredictionActivated = () => {
-    this.setState({ predictionActivated: true, isRawForecastDataLoaded: false, isRawTimeseriesDataLoaded: false }, () => {
+    this.setState({ isRawForecastDataLoaded: false, isRawTimeseriesDataLoaded: false }, () => {
       this.getLogData();
     });
     this.setState({ temporalAxis: this.state.combinedTemporalAxis });
   };
 
   handlePredictionDeactivated = () => {
-    this.setState({ predictionActivated: false });
     this.setState({ temporalAxis: this.state.historicTemporalAxis });
   };
 
@@ -430,7 +446,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
   };
 
   updateAggregationType = (aggregationType: AggregationType) => {
-    this.setState({ aggregationType: aggregationType }, () => {
+    this.setState({ aggregationType: aggregationType, isLoading: true }, () => {
       this.getAggregatedLogData();
     });
   };
@@ -456,10 +472,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
 
   updatePointInTimeTimestamp = (newTimestamp: string) => {
     this.setState({ timeSelectionMode: 'pointInTime', pointInTimeTimestamp: newTimestamp });
-  };
-
-  setDataSource = (dataSource: any) => {
-    this.setState({ dataSource: dataSource.target.value });
   };
 
   setDataSourceUrl = (dataSourceUrl: string) => {
