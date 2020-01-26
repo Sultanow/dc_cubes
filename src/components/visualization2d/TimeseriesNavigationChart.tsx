@@ -1,4 +1,3 @@
-// @ts-nocheck
 import React, { Component } from 'react'
 import * as d3 from 'd3';
 import './TimeseriesNavigationChart.css';
@@ -40,9 +39,14 @@ interface timeseriesData {
     selectedMeasure?: number
 }
 
-let TRANSLATION_X = 40
-let SVG_WIDTH = window.innerWidth / 1.7;
-let SVG_HEIGHT = 100; 
+interface timestampData {
+    timestamp: number,
+    selectedMeasure: number
+}
+
+const TRANSLATION_X = 40;
+const SVG_WIDTH = window.innerWidth / 1.7;
+const SVG_HEIGHT = 100;
 const SVG_ID = "TimeSeriesNavigationChart"
 
 export default class TimeseriesNavigationChart extends Component<TimeseriesNavigationChartProps, TimeseriesNavigationChartState>{
@@ -81,13 +85,14 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
     private uniqueTimestamps: string[];
     private forecastUniqueTimestamps: string[];
-    //private combinedUniqueTimestamps: string[];
+    private combinedUniqueTimestamps: string[];
     private currentAvgValue: number;
 
+    private currentAvgData: timeseriesData[];
     private currentXScale: d3.ScaleTime<Number, Number>;
 
     private lastHistoricTimestamp: Date;
-    //private combinedData: timeseriesData[];
+    private combinedData: timeseriesData[];
     private forecastPreparationDone: boolean;
     private preparedAvgData: timeseriesData[];
     private timeNowLineIsDrawn: boolean;
@@ -96,7 +101,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private preparedForecastAvgData: timeseriesData[];
 
     private selectedMeasure: string
-    private tc: any
 
     constructor(props: any) {
         super(props);
@@ -108,28 +112,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         this.handlePredictionActivated.bind(this);
         this.handlePredictionDeactivated.bind(this);
-        this.tc = React.createRef()
     }
 
     componentDidMount() {
         if (this.props.dataSourceError !== true) {
             // Save selectedMeasure to check on updates if change to it happened
         this.selectedMeasure = this.props.selectedMeasure
-
-       /*  console.log("hallo")
-        console.log(this.tc.current.offsetWidth)
-        SVG_WIDTH = this.tc.current.offsetWidth
-        SVG_HEIGHT = 100
-        //TRANSLATION_X = SVG_WIDTH * 0.04;
-
-        this.width = SVG_WIDTH - 100//(SVG_WIDTH *0.1)^2;
-this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
-    this.parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
-
-    this.xScale = d3.scaleTime().range([0, this.width]);
-    this.yScale = d3.scaleLinear().range([this.height, 0]);
-    this.combinedXScale = d3.scaleTime().range([0, this.width]);
-    this.combinedYScale = d3.scaleLinear().range([this.height, 0]); */
 
         const { timeseriesData, maxH, selectedMeasure} = this.props;
         if (!timeseriesData) return;
@@ -141,7 +129,7 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
         const timeDomain = [minHistoricTs, maxHistoricTs];
         const maxCount = [0, maxH + 100];
 
-        this.xScale.domain(timeDomain)//.style("fill", "#ffffff");;
+        this.xScale.domain(timeDomain);
         this.yScale.domain(maxCount);
 
         this.uniqueTimestamps = this.props.temporalAxis;
@@ -174,9 +162,9 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     }
 
 
-    componentWillReceiveProps() {
+    componentWillReceiveProps(newProps) {
         // this.removeChart();
-        //console.log("2d Component will receive Props");
+        console.log("2d Component will receive Props");
         // todo: use this?
     }
 
@@ -192,12 +180,12 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
             }
             if (!this.forecastPreparationDone && this.props.forecastReceived) {
 
-                let minHistoricTs = this.xScale.domain()[0]!;
-                let maxHistoricTs = this.xScale.domain()[1]!;
+                let minHistoricTs = this.xScale.domain()[0];
+                let maxHistoricTs = this.xScale.domain()[1];
 
                 // array is sorted already
-                let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp)!;
-                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp)!;
+                let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
+                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
                 const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
 
                 if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
@@ -360,8 +348,8 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
             return;
         }
 
-        let startDate = this.getValidDatapointFromMousePosition(brushMinimum).timestamp!;
-        let endDate = this.getValidDatapointFromMousePosition(brushMaximum).timestamp!;
+        let startDate = this.getValidDatapointFromMousePosition(brushMinimum).timestamp;
+        let endDate = this.getValidDatapointFromMousePosition(brushMaximum).timestamp;
 
         d3.select(".mouseClick").classed("hidden", true);
         const newTimespanData = {
@@ -381,10 +369,7 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
         newDate = this.roundDateToNearest15Min(newDate);
         let newDateString = this.convertDateObjectToString(newDate);
         let found1 = this.preparedAvgData.find(x => x.timestamp === newDateString);
-        let found2;
-        if (this.props.showPrediction) {
-            found2 = this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
-        }
+        let found2 = this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
 
         if (found1) {
             return found1
@@ -417,25 +402,25 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
 
     render() {
         const translation = "translate(" + TRANSLATION_X + ",0)";
-        var maxArea: any = null;
+        var maxArea = null;
         if (!this.props.showPrediction && this.state.max != null) {
             maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform={translation} />
         }
 
-        var avgline: any = null;
+        var avgline = null;
         if (!this.props.showPrediction && this.state.average != null) {
             avgline = <path className="line-avg" d={this.state.average} strokeLinecap="round" transform={translation} />
         }
-        var minArea: any = null;
+        var minArea = null;
         if (!this.props.showPrediction && this.state.min != null) {
             minArea = <path className="area-min" d={this.state.min} strokeLinecap="round" transform={translation} />
         }
 
 
-        var forecastLine: JSX.Element = <div></div>;
-        var histroicAvgLine: JSX.Element = <div></div>;
-        var historicMinLine: JSX.Element = <div></div>;
-        var historicMaxLine: JSX.Element = <div></div>;
+        var forecastLine = null;
+        var histroicAvgLine = null;
+        var historicMinLine = null;
+        var historicMaxLine = null;
         if (this.props.showPrediction) {
             if (this.state.combinedAverage != null) {
                 forecastLine = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" transform={translation} />
@@ -463,7 +448,7 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
         }
 
         return (
-            <div ref={this.tc} className="container2d d-flex justify-content-center">
+            <div className="container2d d-flex justify-content-center">
                 <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT} transform={translation}>
                     {maxArea}
                     {historicMaxLine}
@@ -558,7 +543,7 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     prepareDataForMaxLine(timestamps: string[], timeseries: timeseriesData[]) {
         const valuesOnTimestamp: timeseriesData[] = [];
         timestamps.forEach(timestamp => {
-            const values: any[] = []
+            const values = []
             timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
                     values.push(element[this.props.selectedMeasure]);
@@ -576,7 +561,7 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     prepareDataForMinLine(timestamps: string[], timeseries: timeseriesData[]) {
         const valuesOnTimestamp: timeseriesData[] = [];
         timestamps.forEach(timestamp => {
-            const values: any[] = []
+            const values = []
             timeseries.forEach(element => {
                 if (timestamp === element.timestamp) {
                     values.push(element[this.props.selectedMeasure]);
@@ -613,19 +598,19 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
             valuesOnTimestamp.push(obj)
         });
         // todo combinedAvg for tooltip/mouseevents
-        //this.currentAvgData = valuesOnTimestamp;
+        this.currentAvgData = valuesOnTimestamp;
         return valuesOnTimestamp;
     }
 
     handlePredictionActivated() {
         this.showTimeNowLine()
-        //this.currentAvgData = this.preparedForecastAvgData;
+        this.currentAvgData = this.preparedForecastAvgData;
         this.currentXScale = this.combinedXScale;
     }
 
     handlePredictionDeactivated() {
         this.hideTimeNowLine();
-        //this.currentAvgData = this.preparedAvgData;
+        this.currentAvgData = this.preparedAvgData;
         this.currentXScale = this.xScale;
     }
 
