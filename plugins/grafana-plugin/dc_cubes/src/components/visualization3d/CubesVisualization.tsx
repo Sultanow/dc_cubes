@@ -1,6 +1,5 @@
 import React from 'react';
 import * as THREE from 'three';
-import { Form } from 'react-bootstrap';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import DCState from '../../../../../../src/model/DCState';
 import Datacenter from '../../../../../../src/model/Datacenter';
@@ -80,7 +79,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
   render() {
     const selectedPointInTimeTimestamp: string = this.props.pointInTimeTimestamp;
 
-    const { timeSelectionMode, isLoading, listOfAllMeasures, aggregationTypes, aggregationType, selectedMeasure } = this.props;
+    const { timeSelectionMode, isLoading } = this.props;
     // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
     const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     let timestamp = <div></div>;
@@ -112,48 +111,6 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     return (
       <div className="cubes-visualization">
         {/* <Filter /> */}
-        <header className="content-header">
-          <div className="param-info-container">
-            <Form inline>
-              <Form.Control
-                size="sm"
-                className="selectAggregation"
-                as="select"
-                name="aggregationType"
-                value={aggregationType}
-                onChange={this.handleChange}
-              >
-                {Object.keys(aggregationTypes).map((aggregationType, index) => (
-                  <option key={index} value={aggregationType}>
-                    {aggregationTypes[aggregationType]}
-                  </option>
-                ))}
-              </Form.Control>
-              <Form.Control
-                size="sm"
-                className="selectMeasure"
-                as="select"
-                name="selectedMeasure"
-                value={selectedMeasure}
-                onChange={this.handleChange}
-              >
-                {Object.keys(listOfAllMeasures).map((measure, index) => (
-                  <option key={index} value={measure}>
-                    {listOfAllMeasures[measure]}
-                  </option>
-                ))}
-              </Form.Control>
-            </Form>
-          </div>
-          {/* <div>
-                        <Button className="btn-util">
-                            <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
-                        </Button>
-                        <Button className="btn-util">
-                            <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
-                        </Button>
-                    </div> */}
-        </header>
         <div style={{ height: '53vh' }} className="content-container d-flex justify-content-center">
           <LoadingOverlay active={isLoading} spinner={<BarLoader color={'#f7b613'} css={'background-color: #1b76ef'} />} text="Loading Data...">
             <div style={{ height: '100%', width: '100%' }}>
@@ -166,14 +123,6 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             <div style={{ marginLeft: '10px' }}>{timestamp}</div>
           </div>
           <div>{predictionWarning}</div>
-          {/* <div>
-                        <Button className="btn-util">
-                            <FontAwesomeIcon icon={faCogs} style={{ textAlign: "right", marginRight: "10px" }} />
-                        </Button>
-                        <Button className="btn-util">
-                            <FontAwesomeIcon icon={faExpand} style={{ textAlign: "right" }} />
-                        </Button>
-                    </div> */}
         </header>
         <div className="content-container">
           {/* The 2D Navigation chart is rendered in the line below */}
