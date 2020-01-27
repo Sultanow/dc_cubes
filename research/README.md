@@ -79,3 +79,7 @@ Further information: [Convolutional Neural Network](https://en.wikipedia.org/wik
 The Python frameworks Statsmodels/Scikit-Learn were used for prototyping.<br />
 <img src="img/stats-arima.png" width="560" alt="ml-arima" /><br />
 Further information: [AutoRegressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average), [Statsmodels](https://www.statsmodels.org/stable/tsa.html)
+
+## Optimization
+PCA (Principal Component Analysis): We use PCA (https://en.wikipedia.org/wiki/Principal_component_analysis) to reduce the dimension/feature-count of our data while retaining most of the information (e.g. > 95%). Therefore we can lessen the effect of the so called "curse of dimensionality" (https://en.wikipedia.org/wiki/Curse_of_dimensionality) and speed up the training of the ANN. PCA itself can be considered as an unsupervised machine learning algorithm. 
+
