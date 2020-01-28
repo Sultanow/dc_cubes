@@ -1,0 +1,33 @@
+.cubes-visualization {
+    padding: 0;
+    /* background-color: white; */
+    /* height: calc(100vh - 110px); */
+}
+
+.overlay {
+    position: absolute;
+    z-index: 5;
+    font-size: medium;
+    padding: 10px;
+    text-align: center;
+}
+
+.timestamp {
+    color: white !important;
+    margin-top: .5rem;
+    z-index: 5;
+    font-size: 14px;
+    font-family: Arial, Helvetica, sans-serif;
+    letter-spacing: 1px;
+    font-weight: bold;
+    letter-spacing: .1em;
+    -webkit-text-fill-color: black;
+    /* Will override color (regardless of order) */
+    -webkit-text-stroke-width: 0.5px;
+    -webkit-text-stroke-color: white;
+}
+
+._loading_overlay_wrapper {
+    height: 100%;
+    width: 100%;
+}

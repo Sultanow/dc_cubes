@@ -1,0 +1,32 @@
+.sidebar {
+    background-color: #f8f9fa;
+    text-align: center;
+    width: 120;
+    font-size: 14px;
+}
+
+.sidebar.active {
+    min-width: 80px;
+    max-width: 80px;
+    text-align: center;
+    flex-direction: column;
+}
+
+.sidebar-bottom {
+    margin-top: 13cm;
+}
+
+.sidebar-item-inactive {
+    color: black;
+    text-decoration: none;
+}
+
+.sidebar-item-active {
+    color: #f7b614;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.sidebar-icon-active{
+    color: #f7b614;
+}
