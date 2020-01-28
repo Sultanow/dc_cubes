@@ -371,7 +371,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let found1 = this.preparedAvgData.find(x => x.timestamp === newDateString);
         let found2;
         if (this.props.showPrediction) {
-            this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
+            found2 = this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
         }
 
         if (found1) {

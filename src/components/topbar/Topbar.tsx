@@ -11,7 +11,6 @@ import logo from '../../img/cubes_blor.svg';
 import TimeUnit from '../../model/TimeUnit'
 
 interface TopbarProps {
-    dataSourceUrl: string
     getLogData: any
     accessApp: any
     temporalAxis: string[]

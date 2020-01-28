@@ -3,9 +3,7 @@ import { Form, Tab, Tabs, Col, Row, Badge, Table } from 'react-bootstrap'
 import httpClient from 'axios'
 
 interface SolrSettingsProps {
-  dataSourceUrl: string
   dataSourceError: boolean
-  setDataSourceUrl: any
   setSolrUrlPart: any
   solrBaseUrl: string
   solrCore: string
@@ -54,8 +52,8 @@ export default class SolrSettings extends Component<SolrSettingsProps, SolrSetti
                           </Col>
                           <Col sm="10">
                             { 
-                              <a href={this.props.solrBaseUrl.concat(this.props.solrCore, this.props.solrQuery)}>
-                                {this.props.solrBaseUrl.concat(this.props.solrCore, this.props.solrQuery)}
+                              <a href={this.props.solrBaseUrl + this.props.solrCore + this.props.solrQuery}>
+                                {this.props.solrBaseUrl + this.props.solrCore + this.props.solrQuery}
                               </a>
                             }
                           </Col>
