@@ -1,0 +1,58 @@
+{
+  "name": "dc_cubes_plugin",
+  "version": "0.0.0",
+  "description": "DC Cubes uses 3D to visualize the infrastructure data and relies on a city visualization metaphor. A district in the city is a cluster, a house represents a server, the height of a house is the altitude of a metric of the server.",
+  "main": "index.js",
+  "kibana": {
+    "version": "7.4.2",
+    "templateVersion": "1.0.0"
+  },
+  "scripts": {
+    "preinstall": "node ../../preinstall_check",
+    "kbn": "node ../../scripts/kbn",
+    "es": "node ../../scripts/es",
+    "lint": "eslint .",
+    "start": "plugin-helpers start",
+    "test:server": "plugin-helpers test:server",
+    "test:browser": "plugin-helpers test:browser",
+    "build": "plugin-helpers build"
+  },
+  "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/free-solid-svg-icons": "^5.11.2",
+    "@fortawesome/react-fontawesome": "^0.1.7",
+    "@kbn/i18n": "link:../../packages/kbn-i18n",
+    "@material-ui/core": "^4.8.2",
+    "@material-ui/icons": "^4.5.1",
+    "@types/d3": "^5.7.2",
+    "@types/jest": "^24.0.23",
+    "@types/node": "^12.12.14",
+    "@types/react": "^16.9.17",
+    "@types/react-dom": "^16.8.5",
+    "d3": "^5.9.7",
+    "react-bootstrap": "^1.0.0-beta.16",
+    "react-compound-slider": "^2.4.0",
+    "react-flatpickr": "^3.9.1",
+    "react-loading-overlay": "^1.0.1",
+    "react-router-dom": "^5.1.2",
+    "react-spinners": "^0.6.1",
+    "three": "^0.111.0",
+    "typescript": "^3.7.2"
+  },
+  "devDependencies": {
+    "@elastic/eslint-config-kibana": "link:../../packages/eslint-config-kibana",
+    "@elastic/eslint-import-resolver-kibana": "link:../../packages/kbn-eslint-import-resolver-kibana",
+    "@kbn/expect": "link:../../packages/kbn-expect",
+    "@kbn/plugin-helpers": "link:../../packages/kbn-plugin-helpers",
+    "babel-eslint": "^10.0.1",
+    "eslint": "^5.16.0",
+    "eslint-plugin-babel": "^5.3.0",
+    "eslint-plugin-import": "^2.16.0",
+    "eslint-plugin-jest": "^22.4.1",
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-mocha": "^5.3.0",
+    "eslint-plugin-no-unsanitized": "^3.0.2",
+    "eslint-plugin-prefer-object-spread": "^1.2.1",
+    "eslint-plugin-react": "^7.12.4"
+  }
+}
