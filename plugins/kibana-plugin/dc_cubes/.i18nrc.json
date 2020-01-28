@@ -1,0 +1,8 @@
+{
+  "paths": {
+    "dcCubesPlugin": "./"
+  },
+  "translations": [
+    "translations/zh-CN.json"
+  ]
+}

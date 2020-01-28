@@ -1,0 +1,17 @@
+.gap {
+  margin-right: 0.5rem;
+  margin-left: 0.5rem;
+}
+
+.detail-time-selection .form-control.input {
+  display: none;
+}
+
+.dropdown-item:hover {
+  background-color: #e2e6ea;
+  border-color: #dae0e5;
+}
+
+input.form-control:read-only {
+  background-color: white;
+}
