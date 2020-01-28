@@ -4,11 +4,15 @@ DC Cubes uses 3D to visualize the infrastructure data and relies on a city visua
 
 ---
 
+<!-->
 <div style="display:inline-flex;margin-top:auto; margin-bottom:auto">
   <img src="./public/img/cubes_blor.svg" height="120px">
   <div style="font-size:50px;margin-top:auto;margin-bottom:auto;margin-right:20px">+</div>
   <img src="./public/img/kibanaT.png" height="100px" style="margin-top:auto;margin-bottom:auto">
 </div>
+</-->
+
+<img src="./public/img/readme_kibana_dc_cubes.png">
 
 ## Screenshot of Plugin
 ...
