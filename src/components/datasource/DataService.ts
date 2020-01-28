@@ -33,7 +33,7 @@ export default class DataService {
     }
 
     // Get all available log data
-    getAllLogData = () => {
+    getAllHistorical = () => {
         return this.dataSourceService.getAllHistorical()
     }
         

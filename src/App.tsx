@@ -24,7 +24,6 @@ interface AppState {
   logData: []
   backendUrl: string
   dataSource: DataSource
-  dataSourceUrl: string
   solrBaseUrl: string
   solrCore: string
   solrForecastCore: string
@@ -98,7 +97,6 @@ class App extends React.Component<{}, AppState> {
       logData: [],
       backendUrl: "http://localhost:8080",
       dataSource: 'solr',
-      dataSourceUrl: 'http://localhost:8983/solr/dc_cubes/query?q=*:*&start=0&rows=30000',
       solrBaseUrl: 'http://localhost:8983/solr/',
       solrCore: 'dc_cubes',
       solrForecastCore: 'dc_cubes_forecast',
@@ -320,8 +318,7 @@ class App extends React.Component<{}, AppState> {
         <div className="App">
           {/* <Sidebar dataSource={this.state.dataSource} /> */}
           <SidebarNew dataSource={this.state.dataSource}>
-            <Topbar dataSourceUrl={this.state.dataSourceUrl}
-              getLogData={this.getLogData}
+            <Topbar getLogData={this.getLogData}
               accessApp={this.accessApp}
               temporalAxis={this.state.temporalAxis}
               timeSeries={topbarTimeSeries}
@@ -376,9 +373,7 @@ class App extends React.Component<{}, AppState> {
                 dataSource={this.state.dataSource}
                 dataSourceError={this.state.dataSourceError}
                 setDataSource={this.setDataSource}
-                setDataSourceUrl={this.setDataSourceUrl}
                 setSolrUrlPart={this.setSolrUrlPart}
-                dataSourceUrl={this.state.dataSourceUrl}
                 solrBaseUrl={this.state.solrBaseUrl}
                 solrCore={this.state.solrCore}
                 solrQuery={this.state.solrQuery}
@@ -472,18 +467,11 @@ class App extends React.Component<{}, AppState> {
     this.setState({ dataSource: dataSource.target.value })
   }
 
-  setDataSourceUrl = (dataSourceUrl: string) => {
-    this.setState({ dataSourceUrl: dataSourceUrl }, () => {
-      this.getLogData()
-    })
-  }
-
   setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
     this.setState<never>({
       [solrUrlPartName]: solrUrlPart
     }, () => {
-      const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery)
-      this.setDataSourceUrl(dataSourceUrl)
+      this.getLogData()
     })
   }
 }

@@ -415,8 +415,9 @@ this.height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     newDate = this.roundDateToNearest15Min(newDate);
     const newDateString = this.convertDateObjectToString(newDate);
     const found1 = this.preparedAvgData.find(x => x.timestamp === newDateString);
+    let found2;
     if (this.props.showPrediction) {
-      this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
+      found2 = this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
     }
 
     if (found1) {
