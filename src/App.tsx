@@ -24,11 +24,11 @@ interface AppState {
   logData: []
   backendUrl: string
   dataSource: DataSource
-  solrBaseUrl: string
-  solrCore: string
-  solrForecastCore: string
-  solrMergedCore: string
-  solrQuery: string
+  esBaseUrl: string
+  esIndex: string
+  esForecastIndex: string
+  esMergedIndex: string
+  esQuery: string
   dataSourceError: boolean
 
   timeSelectionMode: 'pointInTime' | 'timespan'
@@ -96,12 +96,12 @@ class App extends React.Component<{}, AppState> {
     this.state = {
       logData: [],
       backendUrl: "http://localhost:8080",
-      dataSource: 'solr',
-      solrBaseUrl: 'http://localhost:8983/solr/',
-      solrCore: 'dc_cubes',
-      solrForecastCore: 'dc_cubes_forecast',
-      solrMergedCore: 'dc_cubes_merged',
-      solrQuery: '/query?q=*:*&start=0&rows=30000',
+      dataSource: 'elasticsearch',
+      esBaseUrl: 'http://localhost:9200',
+      esIndex: 'dc_cubes',
+      esForecastIndex: 'dc_cubes_forecast',
+      esMergedIndex: 'dc_cubes_merged',
+      esQuery: '/_search?pretty=true&q=*:*&size=10000',
       dataSourceError: true,
       timeSelectionMode: 'pointInTime',
       timespanAbsoluteTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + "Z",
@@ -163,10 +163,10 @@ class App extends React.Component<{}, AppState> {
     const dataService = new DataService(this.state.dataSource,
                                         this.state.timespanAbsoluteTimestampLowerBound,
                                         this.state.timespanAbsoluteTimestampUpperBound, 
-                                        this.state.solrBaseUrl, 
-                                        this.state.solrCore,
-                                        this.state.solrForecastCore,
-                                        this.state.solrMergedCore,
+                                        this.state.esBaseUrl, 
+                                        this.state.esIndex,
+                                        this.state.esForecastIndex,
+                                        this.state.esMergedIndex,
                                         this.state.selectedMeasure, 
                                         this.state.aggregationType)
     // Initially get all data because the placeholder visualization needs the full temporalAxis
@@ -243,10 +243,10 @@ class App extends React.Component<{}, AppState> {
     const dataService = new DataService(this.state.dataSource,
       this.state.timespanTimestampLowerBound,
       this.state.timespanTimestampUpperBound,
-      this.state.solrBaseUrl, 
-      this.state.solrCore,
-      this.state.solrForecastCore,
-      this.state.solrMergedCore,
+      this.state.esBaseUrl, 
+      this.state.esIndex,
+      this.state.esForecastIndex,
+      this.state.esMergedIndex,
       this.state.selectedMeasure, 
       this.state.aggregationType) 
       
@@ -373,10 +373,10 @@ class App extends React.Component<{}, AppState> {
                 dataSource={this.state.dataSource}
                 dataSourceError={this.state.dataSourceError}
                 setDataSource={this.setDataSource}
-                setSolrUrlPart={this.setSolrUrlPart}
-                solrBaseUrl={this.state.solrBaseUrl}
-                solrCore={this.state.solrCore}
-                solrQuery={this.state.solrQuery}
+                setEsUrlPart={this.setEsUrlPart}
+                esBaseUrl={this.state.esBaseUrl}
+                esIndex={this.state.esIndex}
+                esQuery={this.state.esQuery}
                 customMapping={this.state.customMapping}
                 accessApp={this.accessApp} />} />
               <br />
@@ -467,9 +467,9 @@ class App extends React.Component<{}, AppState> {
     this.setState({ dataSource: dataSource.target.value })
   }
 
-  setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
+  setEsUrlPart = (esUrlPartName: string, esUrlPart: string) => {
     this.setState<never>({
-      [solrUrlPartName]: solrUrlPart
+      [esUrlPartName]: esUrlPart
     }, () => {
       this.getLogData()
     })
