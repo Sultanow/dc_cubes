@@ -13,7 +13,6 @@ interface SolrSettingsProps {
 }
 
 interface SolrSettingsState {
-  //selectedSolrCore: string
   solrCore: string
   solrBaseUrl: string
   solrQuery: string
