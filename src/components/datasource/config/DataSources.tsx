@@ -10,9 +10,11 @@ import DataSource from '../../../model/DataSource'
 interface DataSourcesProps {
     dataSource: DataSource
     dataSourceError: boolean
+    dataSourceUrl: string
     solrBaseUrl: string
     solrCore: string
     solrQuery: string
+    setDataSourceUrl: any
     setDataSource: any
     setSolrUrlPart: any
     history: any
@@ -87,8 +89,10 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                             
                             <Route path="/data-sources/csv" render={(props) => <CSVSettings {...props}  />}/>
                             <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props} 
+                                setDataSourceUrl={this.props.setDataSourceUrl}
                                 dataSourceError={this.props.dataSourceError}
                                 setSolrUrlPart={this.props.setSolrUrlPart}
+                                dataSourceUrl={this.props.dataSourceUrl}
                                 solrBaseUrl={this.props.solrBaseUrl}
                                 solrCore={this.props.solrCore}
                                 solrQuery={this.props.solrQuery}
