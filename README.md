@@ -25,7 +25,7 @@ With DC Cubes it will not only be possible to get a compact overview of current 
 <img src="docs/img/dc_cubes_grafana.png" width="560" alt="dc_cubes_grafana" />
 
 ## Tool Stack Overview & Data Architecture
-<img src="./img/../docs/img/stack_overview.jpg" width="400px">
+<img src="./img/../docs/img/stack_overview.jpg" width="560px">
 
 ## Ready for a demo?
 Get your hands on with our easy to use Docker start sript:
