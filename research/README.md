@@ -32,7 +32,7 @@ The Python framework FBProphet was used for prototyping with the following param
 | seasonality_mode  | additive  |
 | weekly_seasonality  | True  |
 
-<img src="img/ml-fbprophet.png" width="560" alt="ml-fpprophet" /><br />
+<img src="img/Prophet-Real.jpg" width="560" alt="ml-fpprophet" /><br />
  Further information: [FBProphet](https://facebook.github.io/prophet/), [Prophet: forecasting at scale](https://research.fb.com/blog/2017/02/prophet-forecasting-at-scale/)
 
 ### Multilayer Perceptron
