@@ -32,7 +32,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, SolrSetti
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       solrInstanceStatus: false, // false -> offline, true -> online
       items: [],
-      previewData: []
+      previewData: null
     }
   }
 

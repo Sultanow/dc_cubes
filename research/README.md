@@ -17,12 +17,12 @@ In the following chart, all forecasts of the respective models are visualized wi
 
 | Parameter  | Value |
 | ------------- | ------------- |
-| prediction horizon  | 432 (3 days)  |
-| n history  | 36 (6 hours)  |
+| prediction horizon  | 480 (5 days)  |
+| n history  | 32 (8 hours)  |
 
-<img src="img/ml-all.png" width="560" alt="ml-compare" /><br />
+<img src="img/CompletePlot.jpg" width="560" alt="ml-compare" /><br />
 The individual results are considered in detail below and also available as [plotly html view](docs/plotly.zip).
-
+The measures of training runtime are based on: i5 CPU, 8Gb RAM, no GPU support
 ### FBProphet
 The Python framework FBProphet was used for prototyping with the following parameters:
 
@@ -30,8 +30,10 @@ The Python framework FBProphet was used for prototyping with the following param
 | ------------- | ------------- |
 | changepoints  | default  |
 | seasonality_mode  | additive  |
+| weekly_seasonality  | True  |
+| training runtime | 7-10 seconds|
 
-<img src="img/ml-fbprophet.png" width="560" alt="ml-fpprophet" /><br />
+<img src="img/Prophet-Real.jpg" width="560" alt="ml-fpprophet" /><br />
  Further information: [FBProphet](https://facebook.github.io/prophet/), [Prophet: forecasting at scale](https://research.fb.com/blog/2017/02/prophet-forecasting-at-scale/)
 
 ### Multilayer Perceptron
@@ -39,12 +41,13 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 
 | Parameter  | Value |
 | ------------- | ------------- |
-| activation  | relu  |
+| activation  | tanh  |
 | solver/optimizer  | adam  |
 | loss  | mse  |
-| metrics  | accuracy  |
+| Hidden Layer | 2 |
+| training runtime | 5m (EarlyStop after 50 epochs based on val_loss)|
 
-<img src="img/ml-mlp.png" width="560" alt="ml-mlp" /><br />
+<img src="img/MLP-Real.jpg" width="560" alt="ml-mlp" /><br />
 Further information: [Multilayer Perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron), [Keras](https://keras.io/)
 
 ### Long Short-Term Memory
@@ -52,15 +55,17 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 
 | Parameter  | Value |
 | ------------- | ------------- |
-| activation  | relu  |
+| activation  | tanh  |
 | solver/optimizer  | adam  |
 | loss  | mse  |
-| metrics  | accuracy  |
+| Hidden Layer | 2 (each with 75 LSTM cells) |
+| training runtime | 2m40s (EarlyStop after 50 epochs based on val_loss)|
 
-<img src="img/ml-lstm.png" width="560" alt="ml-lstm" /><br />
+<img src="img/LSTM-Real.jpg" width="560" alt="ml-lstm" /><br />
 Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Keras](https://keras.io/)
 
 ### Convolutional Neural Network
+(Work in progress)
 The Python frameworks Keras/Scikit-Learn were used for prototyping with the following parameters:
 
 | Parameter  | Value |
@@ -73,9 +78,13 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 <img src="img/ml-cnn.png" width="560" alt="ml-cnn" /><br />
 Further information: [Convolutional Neural Network](https://en.wikipedia.org/wiki/Convolutional_neural_network), [Keras](https://keras.io/)
 
+### Comparison of all forecasts
+<img src="img/ForecastComparison.jpg" width="560" alt="ml-compare" />
+
 ## Proving Stats Models
 
 ### AutoRegressive Integrated Moving Average
+(Work in progress)
 The Python frameworks Statsmodels/Scikit-Learn were used for prototyping.<br />
 <img src="img/stats-arima.png" width="560" alt="ml-arima" /><br />
 Further information: [AutoRegressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average), [Statsmodels](https://www.statsmodels.org/stable/tsa.html)
