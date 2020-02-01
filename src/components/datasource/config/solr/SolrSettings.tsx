@@ -21,7 +21,7 @@ interface SolrSettingsState {
   previewData: any
 }
 
-export default class SolrSettings extends Component<SolrSettingsProps, any> {
+export default class SolrSettings extends Component<SolrSettingsProps, SolrSettingsState> {
 
   constructor(props) {
     super(props);
