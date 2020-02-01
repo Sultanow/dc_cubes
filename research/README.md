@@ -22,7 +22,7 @@ In the following chart, all forecasts of the respective models are visualized wi
 
 <img src="img/CompletePlot.jpg" width="560" alt="ml-compare" /><br />
 The individual results are considered in detail below and also available as [plotly html view](docs/plotly.zip).
-
+The measures of training runtime are based on: i5 CPU, 8Gb RAM, no GPU support
 ### FBProphet
 The Python framework FBProphet was used for prototyping with the following parameters:
 
@@ -31,6 +31,7 @@ The Python framework FBProphet was used for prototyping with the following param
 | changepoints  | default  |
 | seasonality_mode  | additive  |
 | weekly_seasonality  | True  |
+| training runtime | 7-10 seconds|
 
 <img src="img/Prophet-Real.jpg" width="560" alt="ml-fpprophet" /><br />
  Further information: [FBProphet](https://facebook.github.io/prophet/), [Prophet: forecasting at scale](https://research.fb.com/blog/2017/02/prophet-forecasting-at-scale/)
@@ -43,6 +44,8 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | activation  | tanh  |
 | solver/optimizer  | adam  |
 | loss  | mse  |
+| Hidden Layer | 2 |
+| training runtime | 5m (EarlyStop after 50 epochs based on val_loss)|
 
 <img src="img/MLP-Real.jpg" width="560" alt="ml-mlp" /><br />
 Further information: [Multilayer Perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron), [Keras](https://keras.io/)
@@ -55,6 +58,8 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | activation  | tanh  |
 | solver/optimizer  | adam  |
 | loss  | mse  |
+| Hidden Layer | 2 (each with 75 LSTM cells) |
+| training runtime | 2m40s (EarlyStop after 50 epochs based on val_loss)|
 
 <img src="img/LSTM-Real.jpg" width="560" alt="ml-lstm" /><br />
 Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Keras](https://keras.io/)
