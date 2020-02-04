@@ -6,6 +6,7 @@ In the following you will find a list of the scientific work, produced within th
 - [Thesis: Nicolas Walk](docs/bachelorthesis_walk_nicolas.pdf)
 
 ## Proving Machine Learning Models
+The following methods rely on a dataset that was derived from one server of a large IT-infrastructure. We focus our prediction on the metric that measures the usage of the CPU. Where possible, we use the dataset as a multivariate input (LSTM, MLP, CNN), otherwise the input consists solely of the measures of the usage of CPU.  
 
 Crucial to the outlook for expectable infrastructure data, four different approaches have been tested so far:
 - [FBProphet](#fbprophet)
