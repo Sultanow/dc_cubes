@@ -85,10 +85,9 @@ Further information: [Convolutional Neural Network](https://en.wikipedia.org/wik
 
 ## Proving Stats Models
 
-### AutoRegressive Integrated Moving Average
-(Work in progress)
+### Seasonal AutoRegressive Integrated Moving Average (SARIMA)
 The Python frameworks Statsmodels/Scikit-Learn were used for prototyping.<br />
-<img src="img/stats-arima.png" width="560" alt="ml-arima" /><br />
+<img src="img/SARIMA130111n.jpg" width="560" alt="sarima" /><br />
 Further information: [AutoRegressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average), [Statsmodels](https://www.statsmodels.org/stable/tsa.html)
 
 ## Optimization
