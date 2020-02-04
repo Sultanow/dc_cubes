@@ -65,17 +65,18 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Keras](https://keras.io/)
 
 ### Convolutional Neural Network
-(Work in progress)
+CNNs which originated from the area of image processing can also be used to predict time series. 
 The Python frameworks Keras/Scikit-Learn were used for prototyping with the following parameters:
 
 | Parameter  | Value |
 | ------------- | ------------- |
-| activation  | relu  |
+| activation  | tanh  |
 | solver/optimizer  | adam  |
 | loss  | mse  |
-| metrics  | accuracy  |
+| layer| Conv1d, MaxPooling, Conv1d, MaxPooling, 2xLSTM, Dense |
+| training runtime | 1m50s (EarlyStop after 134 epochs based on val_loss) |
 
-<img src="img/ml-cnn.png" width="560" alt="ml-cnn" /><br />
+<img src="img/CNN-Real.jpg" width="560" alt="ml-cnn" /><br />
 Further information: [Convolutional Neural Network](https://en.wikipedia.org/wiki/Convolutional_neural_network), [Keras](https://keras.io/)
 
 ### Comparison of all forecasts
