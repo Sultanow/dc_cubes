@@ -13,6 +13,8 @@ Crucial to the outlook for expectable infrastructure data, four different approa
 - [Multilayer Perceptron](#multilayer-perceptron)
 - [Long Short-Term Memory](#long-short-term-memory)
 - [Convolutional Neural Network](#convolutional-neural-network)
+- [Gated Recurrent Unit](#gated-recurrent-unit)
+ - [SARIMA] (#Seasonal-AutoRegressive-Integrated-Moving-Average-SARIMA)
 
 In the following chart, all forecasts of the respective models are visualized with the specific parameter set:
 
@@ -79,6 +81,22 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 
 <img src="img/CNN-Real.jpg" width="560" alt="ml-cnn" /><br />
 Further information: [Convolutional Neural Network](https://en.wikipedia.org/wiki/Convolutional_neural_network), [Keras](https://keras.io/)
+
+### Gated Recurrent Unit
+Gated Recurrent Units are similiar to LSTM-Cells, but less complex. It can't be determined, which of those two generally performs better without evaluating it for the specific tasks, see: Junyoung Chung et al. „Empirical Evaluation of Gated Recurrent Neural Networks on Sequence Modeling“.
+The Python frameworks Keras/Scikit-Learn were used for prototyping with the following parameters:
+
+| Parameter  | Value |
+| ------------- | ------------- |
+| activation  | tanh  |
+| solver/optimizer  | adam  |
+| loss  | mse  |
+| Hidden Layer | 2 (each with 75 GRU cells) |
+| training runtime | 4m (EarlyStop after 58 epochs based on val_loss)|
+
+<img src="img/GRU-Real.jpg" width="560" alt="ml-lstm" /><br />
+Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Keras](https://keras.io/)
+
 
 ### Comparison of all forecasts
 <img src="img/ForecastComparison.jpg" width="560" alt="ml-compare" />
