@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[1]:
+# In[15]:
 
 
 import pandas as pd
@@ -16,25 +16,17 @@ from keras.models import load_model
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
-from keras.layers import LSTM
+from keras.layers import LSTM, GRU
 from keras.layers import RepeatVector
 from keras.layers import TimeDistributed
 from keras.layers import Bidirectional
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
 from sklearn.decomposition import PCA
-from keras.models import load_model
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers import LSTM
-from keras.layers import RepeatVector
 from keras.layers import TimeDistributed
 from keras.layers import Bidirectional
 from keras.layers import Conv1D
 from keras.layers import MaxPooling1D
-from keras.callbacks import EarlyStopping
-from keras.callbacks import ModelCheckpoint
 from fbprophet import Prophet
 from scipy.stats import boxcox
 from scipy.special import inv_boxcox
@@ -103,24 +95,6 @@ def plot_data(df, plotTitle):
 # In[5]:
 
 
-from IPython.core.debugger import set_trace
-def to_supervised(train, n_input, n_out):
-    data=train
-    X, y = list(), list()
-    in_start = 0
-    # step over the entire history one time step at a time
-    for _ in range(len(data)):
-        # define the end of the input sequence
-        in_end = in_start + n_input
-        out_end = in_end + n_out
-        # ensure we have enough data for this instance
-        if out_end <= len(data):
-            X.append(data[in_start:in_end, :])
-            y.append(data[in_end:out_end,[2]]) # 2 =  Host CPU Utilization (%)
-        # move along one time step
-        in_start += 1
-    return array(X), array(y)
-
 def generate_index_forecast(df, df_forecast, pred_horizon):
     minutesBetweenMeasures = 15
     temp = df.reset_index()[[timestamp]]
@@ -133,7 +107,7 @@ def generate_index_forecast(df, df_forecast, pred_horizon):
     return df_forecast    
 
 
-# In[6]:
+# In[13]:
 
 
 # split a multivariate sequence into samples
@@ -231,6 +205,86 @@ def forecast_lstm(df, n_history, pred_horizon):
     prediction = scalerY.inverse_transform(prediction)
     
     df_forecast = pd.DataFrame(prediction[:,[0]], columns=['LSTM Multistep Multivariate'])
+    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon)
+
+
+# In[11]:
+
+
+def gru_data_preprocessing(df, n_history, pred_horizon):
+    if not df.index.name == timestamp:
+        dataset = df.set_index(timestamp)
+    else:
+        dataset = df
+    
+    y = dataset[predictionColumn].copy()
+    x = dataset.drop(columns=predictionColumn)
+    
+    scalerX = StandardScaler()
+    scalerX.fit(x)
+    x = scalerX.transform(x)
+    scalerY = StandardScaler()
+   # .reshape(-1, 1) # needed for standardScaler
+    scalerY.fit(y.values.reshape(-1,1))
+    y = scalerY.transform(y.values.reshape(-1,1))
+    
+    pcaTransformer = PCA(0.95) # keep 95% variance
+    pcaTransformer.fit(x)
+    x = pcaTransformer.transform(x)
+    df_with_pca = pd.DataFrame().from_records(x)
+    df_with_pca[predictionColumn] = y
+    print(''' *** PCA Result***\n Started with %d features, reduced to %d features''' % (len(df.columns)-1, pcaTransformer.n_components_))
+    df_with_pca.reset_index(inplace=True)
+    x, y = split_sequences(df_with_pca.values, n_steps_in=n_history, n_steps_out=pred_horizon)
+    return x, y, scalerX, scalerY
+
+def gru_split_train_test(x, y, pred_horizon):
+    x_train = x[:-pred_horizon]
+    x_test = x[-pred_horizon:]
+    y_train = y[:-pred_horizon]
+    y_test = y[-pred_horizon:]
+    
+    return x_train, x_test, y_train, y_test
+
+def train_gru(df, n_history, pred_horizon):
+    # data split / preprocessing
+    x, y, scalerX, scalerY = gru_data_preprocessing(df, n_history=n_history, pred_horizon=pred_horizon)
+    print("SHAPES: ", x.shape, y.shape)
+    numberOfFeatures = x.shape[2]
+    x_train, x_test, y_train, y_test = gru_split_train_test(x, y, pred_horizon)
+    print("Shapes: xtr, xte, ytr, yte: ", x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+    preprocessingResult = [x_train, x_test, y_train, y_test, scalerX, scalerY]
+    with(open("gru_preprocessingResult.pkl", "wb")) as pkl:
+        pickle.dump(preprocessingResult, pkl)
+
+    # model definition
+    model = Sequential()
+    model.add(GRU(75, activation='tanh', return_sequences=True, input_shape=(n_history, numberOfFeatures)))
+    model.add(GRU(75, activation="tanh", return_sequences=True))
+    model.add(GRU(75, activation="tanh"))
+    model.add(Dense(pred_horizon))
+    model.compile(optimizer='adam', loss='mse', metrics=['mse'])
+    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
+    mc = ModelCheckpoint('gru_multistep_multivariate.h5', monitor='val_loss' , mode='min', verbose=1, save_best_only=True)
+    # model train
+    model.fit(x_train, y_train,  validation_split=0.1, epochs=200, callbacks=[es, mc])
+    print('''*** Model fitted ***''')
+    return None
+
+def forecast_gru(df, n_history, pred_horizon):
+    model = load_model('gru_multistep_multivariate.h5')
+    with(open("gru_preprocessingResult.pkl", "rb")) as pkl:
+        x_train, x_test, y_train, y_test, scalerX, scalerY = pickle.load(pkl)
+    numberOfFeatures = x_train.shape[2]
+    pred_input = x_train[-1]
+    pred_input = pred_input.reshape((1, pred_input.shape[0],pred_input.shape[1]))
+    
+    prediction = model.predict(pred_input)
+    prediction = prediction.reshape((pred_horizon,1))
+    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], numberOfFeatures-1), dtype=prediction.dtype)))
+    prediction = scalerY.inverse_transform(prediction)
+    
+    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['GRU Multistep Multivariate'])
     return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon)
 
 
@@ -422,7 +476,38 @@ def forecast_fbprophet_boxcox(pred_horizon, lam):
     return forecast_prophet_box_cox.tail(pred_horizon)     
 
 
-# In[6]:
+# In[13]:
+
+
+def train_sarima(df, n_history, pred_horizon, order, seasonal_order):
+    trainingData = pd.DataFrame(df[predictionColumn], columns=[predictionColumn])
+    print(trainingData.head())
+    model = SARIMAX(trainingData[predictionColumn],order=order, seasonal_order=seasonal_order, start_p = 1, start_q = 1)
+    fit = model.fit()
+    fit.save("sarima.pkl")
+
+    return None    
+
+def forecast_sarima(df, n_history, pred_horizon):
+
+    start = len(df[:-pred_horizon]) - 1
+    end = start + pred_horizon - 1
+    starttime = time.time()
+    
+    order = (1, 3, 0)
+    seasonal_order = (1, 1, 1, n_history) #last parameter should be 52 for weekly saisonality
+    train_sarima(df, n_history = n_history, pred_horizon=pred_horizon, order=order, seasonal_order=seasonal_order)
+    print("training sarima took ", time.time() - starttime)
+
+    model = SARIMAXResults.load('sarima.pkl')
+    
+    predictions = model.predict(start=start, end=end, dynamic=False).rename('SARIMAX Predictions' % n_history)
+    
+    df_forecast = pd.DataFrame(predictions.values, columns=['SARIMA Predictions (1, 3, 0)(1, 1, 1, n_history) ' % n_history])
+    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon) 
+
+
+# In[7]:
 
 
 # Declaration
@@ -438,13 +523,13 @@ with open("./4week_transformed_droppedErrors_filled.pkl", "rb") as pickleFile:
     df = pickle.load(pickleFile)
 
 
-# In[7]:
+# In[8]:
 
 
 df = df.reset_index()
 
 
-# In[8]:
+# In[9]:
 
 
 df[predictionColumn] = pd.to_numeric(df[predictionColumn])
@@ -485,35 +570,12 @@ train_cnn(df.copy().reset_index(), pred_horizon=pred_horizon, n_history=n_histor
 print("training cnn took ", time.time() - starttime)
 
 
-# In[13]:
+# In[16]:
 
 
-def train_sarima(df, n_history, pred_horizon, order, seasonal_order):
-    trainingData = pd.DataFrame(df[predictionColumn], columns=[predictionColumn])
-    print(trainingData.head())
-    model = SARIMAX(trainingData[predictionColumn],order=order, seasonal_order=seasonal_order, start_p = 1, start_q = 1)
-    fit = model.fit()
-    fit.save("sarima.pkl")
-
-    return None    
-
-def forecast_sarima(df, n_history, pred_horizon):
-
-    start = len(df[:-pred_horizon]) - 1
-    end = start + pred_horizon - 1
-    starttime = time.time()
-    
-    order = (1, 3, 0)
-    seasonal_order = (1, 1, 1, n_history) #last parameter should be 52 for weekly saisonality
-    train_sarima(df, n_history = n_history, pred_horizon=pred_horizon, order=order, seasonal_order=seasonal_order)
-    print("training sarima took ", time.time() - starttime)
-
-    model = SARIMAXResults.load('sarima.pkl')
-    
-    predictions = model.predict(start=start, end=end, dynamic=False).rename('SARIMAX Predictions' % n_history)
-    
-    df_forecast = pd.DataFrame(predictions.values, columns=['SARIMA Predictions (1, 3, 0)(1, 1, 1, n_history) ' % n_history])
-    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon) 
+starttime = time.time()
+train_gru(df.copy().reset_index(), pred_horizon=pred_horizon, n_history=n_history)
+print("training GRU took ", time.time() - starttime)
 
 
 # In[7]:
@@ -531,7 +593,7 @@ def forecast_sarima(df, n_history, pred_horizon):
 # m=52 for weekly seasonality https://alkaline-ml.com/pmdarima/tips_and_tricks.html#period
 
 
-# In[10]:
+# In[17]:
 
 
 # Real data
@@ -540,10 +602,10 @@ plot_frames.append(plot_real_data_train(df, n_history))
 plot_frames.append(plot_real_data_test(df, pred_horizon))
 
 
-# In[14]:
+# In[20]:
 
 
-plot_frames.append(forecast_sarima(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
+plot_frames.append(forecast_gru(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
 
 
 # In[21]:
@@ -554,9 +616,10 @@ plot_frames.append(forecast_fbprophet_boxcox(pred_horizon, fbprophet_boxcox_lam)
 plot_frames.append(forecast_lstm(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
 plot_frames.append(forecast_mlp(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
 plot_frames.append(forecast_cnn(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
+plot_frames.append(forecast_sarima(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
 
 
-# In[15]:
+# In[21]:
 
 
 # Plot
