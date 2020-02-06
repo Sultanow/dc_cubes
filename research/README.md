@@ -18,8 +18,8 @@ In the following chart, all forecasts of the respective models are visualized wi
 
 | Parameter  | Value |
 | ------------- | ------------- |
-| prediction horizon  | 480 (5 days)  |
-| n history  | 32 (8 hours)  |
+| prediction_horizon  | 480 (5 days)  |
+| n_history  | 32 (8 hours)  |
 
 <img src="img/CompletePlot.jpg" width="560" alt="ml-compare" /><br />
 The individual results are considered in detail below and also available as [plotly html view](docs/plotly.zip).
@@ -86,6 +86,7 @@ Further information: [Convolutional Neural Network](https://en.wikipedia.org/wik
 ## Proving Stats Models
 
 ### Seasonal AutoRegressive Integrated Moving Average (SARIMA)
+We used a SARIMA-Model with the parameters (1, 3, 0)(1, 1, 1, n_history) where n_history ist the timesteps in the past considered for the other models
 The Python frameworks Statsmodels/Scikit-Learn were used for prototyping.<br />
 <img src="img/SARIMA130111n.jpg" width="560" alt="sarima" /><br />
 Further information: [AutoRegressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average), [Statsmodels](https://www.statsmodels.org/stable/tsa.html)
