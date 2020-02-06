@@ -14,7 +14,7 @@ Crucial to the outlook for expectable infrastructure data, four different approa
 - [Long Short-Term Memory](#long-short-term-memory)
 - [Convolutional Neural Network](#convolutional-neural-network)
 - [Gated Recurrent Unit](#gated-recurrent-unit)
- - [SARIMA] (#Seasonal-AutoRegressive-Integrated-Moving-Average-SARIMA)
+ - [SARIMA](#seasonal-autoregressive-integrated-moving-average-sarima)
 
 In the following chart, all forecasts of the respective models are visualized with the specific parameter set:
 
@@ -95,7 +95,7 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | training runtime | 4m (EarlyStop after 58 epochs based on val_loss)|
 
 <img src="img/GRU-Real.jpg" width="560" alt="ml-lstm" /><br />
-Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Keras](https://keras.io/)
+Further information: [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit), [Keras](https://keras.io/)
 
 
 ### Comparison of all forecasts
@@ -103,7 +103,7 @@ Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long
 
 ## Proving Stats Models
 
-### Seasonal AutoRegressive Integrated Moving Average (SARIMA)
+### Seasonal AutoRegressive Integrated Moving Average SARIMA
 We used a SARIMA-Model with the parameters (1, 3, 0)(1, 1, 1, n_history) where n_history ist the timesteps in the past considered for the other models
 The Python frameworks Statsmodels/Scikit-Learn were used for prototyping.<br />
 <img src="img/SARIMA130111n.jpg" width="560" alt="sarima" /><br />
