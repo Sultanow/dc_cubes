@@ -16,9 +16,9 @@ export default class DataService {
         this.to = to
         this.selectedMeasure = selectedMeasure
         this.aggregationType = aggregationType
-        if (dataSource === 'elasticsearch') {
-            this.dataSourceService = new EsDataService(esBaseUrl, esIndex, esForecastIndex, esMergedIndex)
-        } else if (dataSource === 'solr') {
+        if (dataSource === 'solr') {
+            this.dataSourceService = new SolrDataService(solrBaseUrl, solrCore, solrForecastCore, solrMergedCore)
+        } else if (dataSource === 'elasticsearch') {
 
         } else if (dataSource === 'prometheus') {
 

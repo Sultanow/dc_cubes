@@ -3,19 +3,18 @@ import { Route, Link } from "react-router-dom";
 import SolrSettings from './solr/SolrSettings'
 import CSVSettings from './csv/CSVSettings'
 import PrometheusSettings from './prometheus/PrometheusSettings'
-import EsSettings from './elasticsearch/EsSettings'
+import ElasticsearchSettings from './elasticsearch/ElasticsearchSettings'
 import { Row, Col, Form, Button } from 'react-bootstrap';
 import DataSource from '../../../model/DataSource'
-
 
 interface DataSourcesProps {
     dataSource: DataSource
     dataSourceError: boolean
-    esBaseUrl: string
-    esIndex: string
-    esQuery: string
+    solrBaseUrl: string
+    solrCore: string
+    solrQuery: string
     setDataSource: any
-    setEsUrlPart: any
+    setSolrUrlPart: any
     history: any
     customMapping: any
     accessApp: any
@@ -87,23 +86,16 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                         <Col lg={8} className="content-container" style={{display: "block"}}>
                             
                             <Route path="/data-sources/csv" render={(props) => <CSVSettings {...props}  />}/>
-                            <Route path="/data-sources/elasticsearch" render={(props) => <EsSettings {...props} 
-                                dataSourceError={this.props.dataSourceError}
-                                setEsUrlPart={this.props.setEsUrlPart}
-                                esBaseUrl={this.props.esBaseUrl}
-                                esIndex={this.props.esIndex}
-                                esQuery={this.props.esQuery}
-                                customMapping={this.props.customMapping}
-                                accessApp={this.props.accessApp} />}/>
-                            <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
-                            {/*<Route path="/data-sources/solr" render={(props) => <SolrSettings {...props}  
+                            <Route path="/data-sources/solr" render={(props) => <SolrSettings {...props} 
                                 dataSourceError={this.props.dataSourceError}
                                 setSolrUrlPart={this.props.setSolrUrlPart}
                                 solrBaseUrl={this.props.solrBaseUrl}
                                 solrCore={this.props.solrCore}
                                 solrQuery={this.props.solrQuery}
                                 customMapping={this.props.customMapping}
-                            accessApp={this.props.accessApp} />}/>/>}/>*/}
+                                accessApp={this.props.accessApp} />}/>
+                            <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
+                            <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  />}/>
                         </Col>
             </div>
             
