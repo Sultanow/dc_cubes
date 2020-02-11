@@ -48,8 +48,8 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
             }, 
             //"size": 5 
         }
-        const response: ApiResponse = await client.search(searchParams)
-        return response
+        const {body}: ApiResponse = await client.search(searchParams)
+        return body
     }
 
     async getForecastE(from: string, to: string) {
@@ -70,8 +70,8 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
                 } 
             }
         }
-        const response: ApiResponse = await client.search(searchParams)
-        return response
+        const {body}: ApiResponse = await client.search(searchParams)
+        return body
     }
 
     async getAllHistoricalE() {
@@ -87,8 +87,8 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
                 }
             }
         }
-        const response: ApiResponse = await client.search(searchParams)
-        return response
+        const {body}: ApiResponse = await client.search(searchParams)
+        return body
     }
 
     async getAggregatedLogDataE(from: string, to: string, selectedMeasure: string, aggregationType: AggregationType){
@@ -111,8 +111,8 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
                 }
             }
         }
-        const response: ApiResponse = await client.search(searchParams)
-        return response
+        const {body}: ApiResponse = await client.search(searchParams)
+        return body
     }
 
     async getDistinctTimestampsE(index: string){
@@ -125,8 +125,8 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
                 }
             } 
         }
-        const response: ApiResponse = await client.search(searchParams)
-        return response
+        const {body}: ApiResponse = await client.search(searchParams)
+        return body
     }
 
     async getAggregatedValueForEachTimestamp(selectedMeasure: string, aggregationType: AggregationType, elasticsearchIndex: string){
@@ -139,25 +139,29 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
                 }
             }
         }
-        const response: ApiResponse = await client.search(searchParams)
-        return response
+        const {body}: ApiResponse = await client.search(searchParams)
+        return body
     }
 
     async getMaxValueOfTwoIndices(from: string, to: string, selectedMeasure: string){
         const searchParams: RequestParams.Search = 
         {
         "index": this.elasticsearchIndex, 
-            "body": { 
-                "query": { 
-                    "range": { 
-                        "@timestamp": { 
-                        "time_zone": "+02:00", 
-                        "gte": from, 
-                        "lte": to }, 
+            "body": {
+                "filter" : {
+                    "match_all" : { }
+                },
+                "sort": [{
+                    selectedMeasure: {
+                        "order": "desc"
                     }
-                }
-            }
+                }],
+                "size": 1
+              }
         }
+
+        const {body}: ApiResponse = await client.search(searchParams)
+        const maxValue = body.hits.hits;
 
         /*
         const query = {
