@@ -5,6 +5,10 @@ In the following you will find a list of the scientific work, produced within th
 - [Paper: Visualization and Machine Learning for Data Center Management](https://dl.gi.de/handle/20.500.12116/25052)
 - [Thesis: Nicolas Walk](docs/bachelorthesis_walk_nicolas.pdf)
 
+## Talks
+- [Architecture Gathering](https://www.the-architecture-gathering.de/), 17. Oct 2019, _Eine Data Science-Architektur für die Analyse und Visualisierung von Rechenzentrumsdaten der Bundesagentur für Arbeit_ ([slides, german](docs/Do12-Sultanow-Sessler.pdf))
+- [OOP software meets business](https://www.oop-konferenz.de/), 04. Feb 2020, _Visualize And Predict Product Information Processing at BSH In Real Time_ ([slides](docs/oop2020_BSH_predict_product_information_processing.pdf))
+
 ## Proving Machine Learning Models
 The following methods rely on a dataset that was derived from one server of a large IT-infrastructure. We focus our prediction on the metric that measures the usage of the CPU. Where possible, we use the dataset as a multivariate input (LSTM, MLP, CNN), otherwise the input consists solely of the measures of the usage of CPU.  
 
