@@ -163,12 +163,12 @@ class App extends React.Component<{}, AppState> {
     const dataService = new DataService(this.state.dataSource,
                                         this.state.timespanAbsoluteTimestampLowerBound,
                                         this.state.timespanAbsoluteTimestampUpperBound, 
-                                        this.state.solrBaseUrl, 
                                         this.state.solrCore,
                                         this.state.solrForecastCore,
                                         this.state.solrMergedCore,
                                         this.state.selectedMeasure, 
-                                        this.state.aggregationType)
+                                        this.state.aggregationType,
+                                        this.state.solrBaseUrl)
     // Initially get all data because the placeholder visualization needs the full temporalAxis
     dataService.getHistorical().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
@@ -243,12 +243,12 @@ class App extends React.Component<{}, AppState> {
     const dataService = new DataService(this.state.dataSource,
       this.state.timespanTimestampLowerBound,
       this.state.timespanTimestampUpperBound,
-      this.state.solrBaseUrl, 
       this.state.solrCore,
       this.state.solrForecastCore,
       this.state.solrMergedCore,
       this.state.selectedMeasure, 
-      this.state.aggregationType) 
+      this.state.aggregationType,
+      this.state.solrBaseUrl) 
       
     dataService.getAggregatedLogData().then((data: any) => {
       const standardAdapter = new StandardAdapter()

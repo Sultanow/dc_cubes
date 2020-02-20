@@ -1,4 +1,4 @@
-import httpClient from 'axios';
+//import httpClient from 'axios';
 import AggregationType from '../../../../model/AggregationType'
 import DataSourceService from '../../../../model/DataSourceService'
 
@@ -10,12 +10,15 @@ import {
     ApiResponse,
   } from '@elastic/elasticsearch'
 
-const client = new Client({ node: 'http://localhost:9200' })
+const client = new Client({ node: 'http://localhost:9200',
+                            maxRetries: 5,
+                            requestTimeout: 60000,
+                            sniffOnStart: true })
 
-export default class ElasticsearchDataService /* implements DataSourceService*/ {
+export default class ElasticsearchDataService implements DataSourceService {
 
    
-    resultLimit = 2147483647 // Maximum of integer type
+    //resultLimit = 2147483647 // Maximum of integer type
 
     elasticsearchIndex: string;
     elasticsearchForecastIndex: string;
@@ -29,7 +32,7 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
 
     /* Elasticsearch API */
 
-    async getHistoricalE(from: string, to: string) {
+    async getHistorical(from: string, to: string) {
         //const from = "2018-08-01T04:45:00"
         //const to = "2018-08-01T04:45:00"
 
@@ -52,7 +55,7 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
         return body
     }
 
-    async getForecastE(from: string, to: string) {
+    async getForecast(from: string, to: string) {
         //const from = "2018-08-01T04:45:00"
         //const to = "2018-08-01T04:45:00"
 
@@ -74,7 +77,7 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
         return body
     }
 
-    async getAllHistoricalE() {
+    async getAllHistorical() {
         //const from = "2018-08-01T04:45:00"
         //const to = "2018-08-01T04:45:00"
 
@@ -84,14 +87,19 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
             "body": { 
                 "query": {
                     "match_all": { }
-                }
+                },
+                "sort": [{
+                    "timestamp": {
+                        "order": "asc"
+                    }
+                }]
             }
         }
         const {body}: ApiResponse = await client.search(searchParams)
         return body
     }
 
-    async getAggregatedLogDataE(from: string, to: string, selectedMeasure: string, aggregationType: AggregationType){
+    async getAggregatedLogData(from: string, to: string, selectedMeasure: string, aggregationType: AggregationType){
         const searchParams: RequestParams.Search = 
         {
         "index": this.elasticsearchForecastIndex, 
@@ -115,7 +123,7 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
         return body
     }
 
-    async getDistinctTimestampsE(index: string){
+    async getDistinctTimestamps(index: string){
         const searchParams: RequestParams.Search = 
         {
         "index": this.elasticsearchIndex, 
@@ -143,13 +151,13 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
         return body
     }
 
-    async getMaxValueOfTwoIndices(from: string, to: string, selectedMeasure: string){
+    async getMaxValueOfTwoCores(from: string, to: string, selectedMeasure: string): Promise<number>{
         const searchParams: RequestParams.Search = 
         {
-        "index": this.elasticsearchIndex, 
+            "index": this.elasticsearchIndex, 
             "body": {
-                "filter" : {
-                    "match_all" : { }
+                "query": {
+                    "match_all": { }
                 },
                 "sort": [{
                     selectedMeasure: {
@@ -157,41 +165,35 @@ export default class ElasticsearchDataService /* implements DataSourceService*/ 
                     }
                 }],
                 "size": 1
-              }
-        }
-
-        const {body}: ApiResponse = await client.search(searchParams)
-        const maxValue = body.hits.hits;
-
-        /*
-        const query = {
-            "query": "*:*",
-            "filter": "timestamp:[" + from + " TO " + to + "]",
-            "limit": this.resultLimit,
-            "facet": {
-                "maxValue": "max(" + selectedMeasure + ")",
             }
         }
-        const url = this.solrBaseUrl + this.solrCore + "/query";
-        const urlForecast = this.solrBaseUrl + this.solrForecastCore + "/query";
-        
-        let maxValue: number;
-        return new Promise((resolve, reject) => {
-            httpClient.post(url, query).then((data: any) => {
-                maxValue = data.data.facets.maxValue          
-                httpClient.post(urlForecast, query).then((forecastData: any) => {
-                    const forecastMax: number = forecastData.data.facets.maxValue
-                    if (forecastMax !== undefined && maxValue < forecastMax) {
-                        maxValue = forecastMax
+        const searchParamsForecast: RequestParams.Search = 
+        {
+            "index": this.elasticsearchForecastIndex, 
+            "body": {
+                "query": {
+                    "match_all": { }
+                },
+                "sort": [{
+                    selectedMeasure: {
+                        "order": "desc"
                     }
-                    return resolve(maxValue)
-                }).catch((error: any) => {
-                    return resolve(maxValue)
-                });
-            }).catch((error: any) => {
-                return reject(error)
-            });
-        })
-        */
+                }],
+                "size": 1
+            }
+        }
+
+        var {body}: ApiResponse = await client.search(searchParams)
+        const maxValue: number = body.hits.hits[0].selectedMeasure;
+
+        //var {body} = await client.search(searchParams)
+        const maxForecast: number = body.hits.hits[0].selectedMeasure;
+
+        if(maxValue > maxForecast){
+            return maxValue
+        }
+        else{
+            return maxForecast
+        }
     }
 }

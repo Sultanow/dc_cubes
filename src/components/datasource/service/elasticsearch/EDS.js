@@ -72,8 +72,26 @@ var maxAvg = {
     }
 }
 
-const { body } = await client.search(maxAvg)
-console.log(body.hits.hits[0]._source.avg)
+var sortTime = {  
+    "index": index, 
+    "body": {
+        "query": {
+            "match_all": { }
+        },
+        "sort": [{
+            "timestamp": {
+                "order": "asc"
+            }
+        }],
+        "size": 1000
+    }
+}
+
+const { body } = await client.search(sortTime)
+console.log(body.hits.hits)
+
+//console.log(body.hits.hits[0]._source.avg)
+
 /*
   function getHistorical(from, to, index){ //"2018-08-01T04:45:00"
   }
