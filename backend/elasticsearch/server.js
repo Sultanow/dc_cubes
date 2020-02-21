@@ -63,6 +63,7 @@ router.get("/:index/:id", (req, res) => {
 */
 
 
+// GET all data by index
 router.get("/:index/", (req, res) => {
     client.search({
         index: req.params.index,
@@ -77,9 +78,36 @@ router.get("/:index/", (req, res) => {
         }
         else{
             res.status(200).send({
-                message: response
+                message: response.hits.hits
             })
-            console.log("elasticsearch response", resp);
+            console.log("elasticsearch response", response);
+        }
+    })
+})
+
+
+// GET all data by index and id
+router.get("/:index/:id", (req, res) => {
+    client.search({
+        index: req.params.index,
+        body: {
+            "query": {
+                "bool": { 
+                "filter": [ 
+                    { "term":  { "_id": req.params.id }}
+                ]
+                }
+            }       
+        }
+    }, function(err, response, status){
+        if(err){
+            console.log(err)
+        }
+        else{
+            res.status(200).send({
+                message: response.hits.hits
+            })
+            console.log("elasticsearch response", response);
         }
     })
 })
