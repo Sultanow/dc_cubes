@@ -1,350 +1,74 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[ ]:
+# In[15]:
 
 
 import pandas as pd
 import numpy as np
-
-
-# In[ ]:
-
-
-def plot_real_data_train(df, n_history):
-    data = df.reset_index()[['10MIN_TIMESTAMP','CPU Usage (per second)']][:-n_history]
-    data.columns = ['date','Real Train Data']
-    data.set_index('date', inplace=True)
-    return data
-
-def plot_real_data_test(df, n_history):
-    data = df.reset_index()[['10MIN_TIMESTAMP','CPU Usage (per second)']][-n_history:]
-    data.columns = ['date','Real Test Data']
-    data.set_index('date', inplace=True)
-    return data
-
-
-# In[ ]:
-
+import pickle
+import time
 
 from numpy import array
 from datetime import timedelta  
-
-def to_supervised(train, n_input, n_out):
-    data=train
-    X, y = list(), list()
-    in_start = 0
-    # step over the entire history one time step at a time
-    for _ in range(len(data)):
-        # define the end of the input sequence
-        in_end = in_start + n_input
-        out_end = in_end + n_out
-        # ensure we have enough data for this instance
-        if out_end <= len(data):
-            X.append(data[in_start:in_end, :])
-            y.append(data[in_end:out_end,[2]]) # 2 =  Host CPU Utilization (%)
-        # move along one time step
-        in_start += 1
-    return array(X), array(y)
-
-def generate_index_forecast(df, df_forecast, n_history):
-    lastTrainDataTimeStamp = df.reset_index()[['10MIN_TIMESTAMP']][:-n_history].tail(1)['10MIN_TIMESTAMP'].iloc[0]
-    nextTimeStamp = lastTrainDataTimeStamp
-    for i in df_forecast.index:
-        nextTimeStamp = nextTimeStamp + timedelta(minutes=10)
-        df_forecast.at[i, 'date'] = nextTimeStamp
-    df_forecast.set_index('date', inplace=True)
-    return df_forecast    
-
-
-# In[ ]:
-
-
 from sklearn.preprocessing import StandardScaler
 from keras.models import load_model
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.layers import Flatten
-from keras.layers import LSTM
+from keras.layers import LSTM, GRU
 from keras.layers import RepeatVector
 from keras.layers import TimeDistributed
 from keras.layers import Bidirectional
 from keras.callbacks import EarlyStopping
 from keras.callbacks import ModelCheckpoint
-
-def lstm_data_preprocessing(df, pred_horizon, n_history):
-    df.set_index('10MIN_TIMESTAMP')
-    features_considered=['CPU Usage (per second)','CPU Usage (per transaction)','Host CPU Utilization (%)','Average Instance CPU (%)','Database CPU Time (%)','Database Time (centiseconds per second)','Active Sessions Using CPU','Average Active Sessions','Active Sessions Waiting: I/O','Wait Time (%)','Enqueue Waits (per transaction)','Enqueue Waits (per second)','I/O Requests (per second)','Enqueue Requests (per second)','Enqueue Requests (per transaction)']
-    features = df[features_considered]
-    features.index = df['10MIN_TIMESTAMP']
-    dataset = features.values
-    # standardise
-    scaler = StandardScaler()
-    scaler.fit(dataset[:-pred_horizon])
-    dataset = scaler.transform(dataset)
-    train = dataset[:-pred_horizon]
-    test = dataset[-pred_horizon:,[0]] # Host CPU Utilization (%)
-    return train, test, scaler
-
-def train_lstm(df, pred_horizon, n_history):
-    # data split / preprocessing
-    train, test, scaler = lstm_data_preprocessing(df, pred_horizon, n_history)
-    X_train , y_train = to_supervised(train, n_history, pred_horizon)
-    y_train = y_train.reshape((y_train.shape[0], y_train.shape[1]))
-    # model definition
-    model = Sequential()
-    model.add(LSTM(100, activation='relu', input_shape=(n_history, 15)))
-    model.add(Dense(pred_horizon))
-    model.compile(optimizer='adam', loss='mse', metrics=['accuracy'])
-    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
-    mc = ModelCheckpoint('lstm_multistep_multivariate.h5', monitor='val_accuracy' , mode='max', verbose=1, save_best_only=True)
-    # model train
-    model.fit(X_train, y_train,  validation_split=0.1,epochs=100, callbacks=[es, mc])
-    return None
-
-def forecast_lstm(df, pred_horizon, n_history):
-    model = load_model('lstm_multistep_multivariate.h5')
-    train, test, scaler = lstm_data_preprocessing(df, pred_horizon, n_history)
-    pred_input = train[-n_history:]
-    pred_input.shape
-    pred_input = pred_input.reshape((1, pred_input.shape[0],15))
-    prediction = model.predict(pred_input)
-    prediction = prediction.reshape((pred_horizon,1))
-    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], 14), dtype=prediction.dtype)))
-    prediction = prediction = scaler.inverse_transform(prediction)
-    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['LSTM Multistep Multivariate'])
-    return generate_index_forecast(df, df_forecast, n_history)
-
-
-# In[ ]:
-
-
-from sklearn.preprocessing import StandardScaler
-from keras.models import load_model
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers import LSTM
-from keras.layers import RepeatVector
-from keras.layers import TimeDistributed
-from keras.callbacks import EarlyStopping
-from keras.callbacks import ModelCheckpoint
-
-def mlp_data_preprocessing(df, pred_horizon, n_history):
-    df.set_index('10MIN_TIMESTAMP')
-    features_considered=['CPU Usage (per second)','CPU Usage (per transaction)','Host CPU Utilization (%)','Average Instance CPU (%)','Database CPU Time (%)','Database Time (centiseconds per second)','Active Sessions Using CPU','Average Active Sessions','Active Sessions Waiting: I/O','Wait Time (%)','Enqueue Waits (per transaction)','Enqueue Waits (per second)','I/O Requests (per second)','Enqueue Requests (per second)','Enqueue Requests (per transaction)']
-    features = df[features_considered]
-    features.index = df['10MIN_TIMESTAMP']
-    dataset = features.values
-    scaler = StandardScaler()
-    scaler.fit(dataset[:-pred_horizon])
-    dataset = scaler.transform(dataset)
-    train = dataset[:-pred_horizon]
-    dataset = np.append(dataset, dataset[:,[2]], axis=1)
-    sequences = dataset[:-pred_horizon]
-    return sequences, scaler, train
-
-def mlp_split_sequences(sequences, n_steps_in, n_steps_out):
-    X, y = list(), list()
-    for i in range(len(sequences)):
-        # find the end of this pattern
-        end_ix = i + n_steps_in
-        out_end_ix = end_ix + n_steps_out-1
-        # check if we are beyond the dataset
-        if out_end_ix > len(sequences):
-            break
-        # gather input and output parts of the pattern
-        seq_x, seq_y = sequences[i:end_ix, :-1], sequences[end_ix-1:out_end_ix, -1]
-        X.append(seq_x)
-        y.append(seq_y)
-    return array(X), array(y) 
-
-def train_mlp(df, pred_horizon, n_history):
-    sequences, scaler, train = mlp_data_preprocessing(df, pred_horizon, n_history)
-    X, y = mlp_split_sequences(sequences, n_history, pred_horizon)
-    n_input = X.shape[1] * X.shape[2]
-    X = X.reshape((X.shape[0], n_input))
-    n_neurons = int((n_input + pred_horizon)/2)
-    model = Sequential()
-    model.add(Dense(n_neurons, activation='relu', input_dim=n_input))
-    model.add(Dense(pred_horizon))
-    model.compile(optimizer='adam', loss='mse', metrics= ['accuracy'])
-    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=1000)
-    mc = ModelCheckpoint('mlp_multistep_multivariate.h5', monitor='val_accuracy' , mode='max', verbose=1, save_best_only=True)    
-    model.fit(X, y, validation_split=0.1, epochs=10000, callbacks=[es, mc])
-    return None
-
-def forecast_mlp(df, pred_horizon, n_history):
-    model_mlp = load_model('mlp_multistep_multivariate.h5')
-    sequences, scaler, train = mlp_data_preprocessing(df, pred_horizon, n_history)
-    pred_input = train[-n_history:]
-    n_input = pred_input.shape[0] * pred_input.shape[1]
-    pred_input = pred_input.reshape((1,n_input))
-    prediction = model_mlp.predict(pred_input)
-    prediction = prediction.reshape((pred_horizon,1))
-    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], 14), dtype=prediction.dtype)))
-    prediction = prediction = scaler.inverse_transform(prediction)
-    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['MLP Multistep Multivariate'])
-    return generate_index_forecast(df, df_forecast, n_history)       
-
-
-# In[ ]:
-
-
-from keras.models import load_model
-from keras.models import Sequential
-from keras.layers import Dense
-from keras.layers import Flatten
-from keras.layers import LSTM
-from keras.layers import RepeatVector
+from sklearn.decomposition import PCA
 from keras.layers import TimeDistributed
 from keras.layers import Bidirectional
 from keras.layers import Conv1D
 from keras.layers import MaxPooling1D
-from keras.callbacks import EarlyStopping
-from keras.callbacks import ModelCheckpoint
-
-def data_preprocessing_cnn(df, pred_horizon, n_history):
-    df.set_index('10MIN_TIMESTAMP')
-    features_considered=['CPU Usage (per second)','CPU Usage (per transaction)','Host CPU Utilization (%)','Average Instance CPU (%)','Database CPU Time (%)','Database Time (centiseconds per second)','Active Sessions Using CPU','Average Active Sessions','Active Sessions Waiting: I/O','Wait Time (%)','Enqueue Waits (per transaction)','Enqueue Waits (per second)','I/O Requests (per second)','Enqueue Requests (per second)','Enqueue Requests (per transaction)']
-    features = df[features_considered]
-    features.index = df['10MIN_TIMESTAMP']
-    dataset = features.values
-    # standardise
-    scaler = StandardScaler()
-    scaler.fit(dataset[:-pred_horizon])
-    dataset = scaler.transform(dataset)
-    train = dataset[:-pred_horizon]
-    return len(features_considered), train, scaler
-
-def train_cnn(df, pred_horizon, n_history):
-    n_features, train, scaler = data_preprocessing_cnn(df, pred_horizon, n_history)
-    X_train, y_train = to_supervised(train, n_history, pred_horizon)
-    y_train = y_train.reshape((y_train.shape[0], y_train.shape[1]))
-    n_features = X_train.shape[2]
-    model = Sequential()
-    model.add(Conv1D(filters=75, kernel_size=3, activation='relu', input_shape=(n_history, n_features)))
-    model.add(MaxPooling1D(pool_size=2))
-    model.add(Conv1D(filters=38, kernel_size=3, activation='relu'))
-    model.add(MaxPooling1D(pool_size=2))
-    model.add(LSTM(100, activation='relu',return_sequences=True))
-    model.add(LSTM(50, activation='relu'))
-    model.add(Dense(pred_horizon))
-    model.compile(loss='mse', optimizer='adam',  metrics=['accuracy'])
-    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=100)
-    mc = ModelCheckpoint('cnn_multistep_multivariate.h5', monitor='val_accuracy' , mode='max', verbose=1, save_best_only=True) 
-    model.fit(X_train, y_train,  validation_split=0.1, epochs=1000, callbacks=[es, mc])   
-    return None
-
-def forecast_cnn(df, pred_horizon, n_history):
-    model = load_model('cnn_multistep_multivariate.h5')
-    n_features, train, scaler = data_preprocessing_cnn(df, pred_horizon, n_history)
-    pred_input = train[-n_history:] 
-    pred_input = pred_input.reshape((1, pred_input.shape[0],pred_input.shape[1]))
-    prediction = model.predict(pred_input)
-    prediction = prediction.reshape((pred_horizon,1))
-    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], n_features-1), dtype=prediction.dtype)))
-    prediction = prediction = scaler.inverse_transform(prediction)
-    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['CNN Multistep Multivariate'])
-    return generate_index_forecast(df, df_forecast, n_history)  
-
-
-# In[ ]:
-
-
-import pickle
 from fbprophet import Prophet
 from scipy.stats import boxcox
 from scipy.special import inv_boxcox
-
-def train_fbprophet_additiv(df, n_history):
-    train = df.reset_index()[['10MIN_TIMESTAMP','CPU Usage (per second)']][:-n_history]
-    train.columns = ["ds","y"]
-    m = Prophet()
-    m.fit(train)
-    with open('fbprophet_additiv.pckl', 'wb') as fout:
-        pickle.dump(m, fout)
-    return None
-
-def train_fbprophet_boxcox(df, n_history):
-    train = df.reset_index()[['10MIN_TIMESTAMP','CPU Usage (per second)']][:-n_history]
-    train.columns = ["ds","y"]
-    train['y'], lam = boxcox(train['y'])
-    m = Prophet()
-    m.fit(train)
-    with open('fbprophet_boxcox.pckl', 'wb') as fout:
-        pickle.dump(m, fout)
-    return lam
-
-def forecast_fbprophet_additiv(pred_horizon):
-    with open('fbprophet_additiv.pckl', 'rb') as fin:
-        m = pickle.load(fin)
-    future = m.make_future_dataframe(periods=pred_horizon,freq='10min')
-    m.make_future_dataframe
-    forecast_prophet = m.predict(future)[['ds', 'yhat']]
-    forecast_prophet.columns = ['date','FBProphet Additiv']
-    forecast_prophet.set_index('date', inplace=True)
-    return forecast_prophet.tail(pred_horizon) 
-
-def forecast_fbprophet_boxcox(pred_horizon, lam):
-    with open('fbprophet_boxcox.pckl', 'rb') as fin:
-        m = pickle.load(fin)
-    future = m.make_future_dataframe(periods=pred_horizon,freq='10min')
-    m.make_future_dataframe
-    forecast_prophet_box_cox = m.predict(future)[['ds', 'yhat']]
-    forecast_prophet_box_cox['yhat'] = forecast_prophet_box_cox['yhat'].apply(lambda x: inv_boxcox(x, lam))
-    forecast_prophet_box_cox.columns = ['date','FBProphet Box-Cox-Transform']
-    forecast_prophet_box_cox.set_index('date', inplace=True)
-    return forecast_prophet_box_cox.tail(pred_horizon)     
-
-
-# In[ ]:
-
-
 from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from statsmodels.tsa.arima_model import ARIMA, ARIMAResults
 from statsmodels.tsa.stattools import adfuller
-from statsmodels.tsa.statespace.sarimax import SARIMAX
+from statsmodels.tsa.statespace.sarimax import SARIMAX, SARIMAXResults
 from pmdarima import auto_arima
 from datetime import timedelta 
-
-def train_arima(pred_horizon):
-    df = pd.read_csv('ISTATX_istatx1.csv', index_col='COLLECTION_TIMESTAMP')
-    df.index = pd.to_datetime(df.index)
-    df['COLUMN_LABEL'].unique()
-    df = df.loc[df['COLUMN_LABEL'] == 'CPU Usage (per transaction)']
-    df['VALUE'] = [x.replace(',', '.') for x in df['VALUE']]
-    df['VALUE'] = pd.to_numeric(df['VALUE'])    
-    auto_arima(df['VALUE'],seasonal=False).summary()
-    train = df[:-pred_horizon].copy()
-    print(len(train))
-    model = ARIMA(train['VALUE'],order=(3,1,4))
-    fit = model.fit()
-    fit.save('arima.pkl')    
-    return None    
-
-def forecast_arima(df_transformed, pred_horizon, n_history):
-    df = pd.read_csv('ISTATX_istatx1.csv', index_col='COLLECTION_TIMESTAMP')
-    df.index = pd.to_datetime(df.index)
-    df['COLUMN_LABEL'].unique()
-    df = df.loc[df['COLUMN_LABEL'] == 'CPU Usage (per transaction)']
-    df['VALUE'] = [x.replace(',', '.') for x in df['VALUE']]
-    df['VALUE'] = pd.to_numeric(df['VALUE'])   
-    start = len(df[:-pred_horizon]) - 1
-    end = start + pred_horizon - 1
-    model = ARIMAResults.load('arima.pkl')
-    predictions = model.predict(start=start, end=end, dynamic=False).rename('SARIMAX(1,1,2)(2,0,0,7) Predictions')
-    df_forecast = pd.DataFrame(predictions.values, columns=['ARIMA'])
-    return generate_index_forecast(df_transformed, df_forecast, n_history)
-
-
-# In[ ]:
-
 
 import plotly
 import chart_studio.plotly as py
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode
+
+
+# In[2]:
+
+
+timestamp = "timestamp"
+predictionColumn = "cpuusage_ps"
+
+
+# In[3]:
+
+
+def plot_real_data_train(df, n_history):
+    data = df.reset_index()[[timestamp, predictionColumn]][:-n_history]
+    data.columns = ['date','Train Data']
+    data.set_index('date', inplace=True)
+    return data
+
+def plot_real_data_test(df, pred_horizon):
+    data = df.reset_index()[[timestamp, predictionColumn]]
+    data = data.tail(pred_horizon)
+    data.columns = ['date','Test Data']
+    data.set_index('date', inplace=True)
+    return data
+
+
+# In[4]:
+
+
 plotly.offline.init_notebook_mode(connected=True)
 
 def plot_data(df, plotTitle):
@@ -368,42 +92,542 @@ def plot_data(df, plotTitle):
     return None 
 
 
-# In[ ]:
+# In[5]:
+
+
+def generate_index_forecast(df, df_forecast, pred_horizon):
+    minutesBetweenMeasures = 15
+    temp = df.reset_index()[[timestamp]]
+    lastTrainDataTimeStamp = temp.tail(pred_horizon)[timestamp].iloc[0]
+    nextTimeStamp = lastTrainDataTimeStamp
+    for i in df_forecast.index:
+        nextTimeStamp = nextTimeStamp + timedelta(minutes=minutesBetweenMeasures)
+        df_forecast.at[i, 'date'] = nextTimeStamp
+    df_forecast.set_index('date', inplace=True)
+    return df_forecast    
+
+
+# In[13]:
+
+
+# split a multivariate sequence into samples
+# https://machinelearningmastery.com/how-to-develop-lstm-models-for-time-series-forecasting/
+def split_sequences(sequences, n_steps_in, n_steps_out):
+    X, y = list(), list()
+    for i in range(len(sequences)):
+        # find the end of this pattern
+        end_ix = i + n_steps_in
+        out_end_ix = end_ix + n_steps_out-1
+        # check if we are beyond the dataset
+        if out_end_ix > len(sequences):
+            break
+        # gather input and output parts of the pattern
+        seq_x, seq_y = sequences[i:end_ix, :-1], sequences[end_ix-1:out_end_ix, -1]
+        X.append(seq_x)
+        y.append(seq_y)
+    return array(X), array(y)
+
+
+# In[7]:
+
+
+def lstm_data_preprocessing(df, n_history, pred_horizon):
+    if not df.index.name == timestamp:
+        dataset = df.set_index(timestamp)
+    else:
+        dataset = df
+    
+    y = dataset[predictionColumn].copy()
+    x = dataset.drop(columns=predictionColumn)
+    
+    scalerX = StandardScaler()
+    scalerX.fit(x)
+    x = scalerX.transform(x)
+    scalerY = StandardScaler()
+   # .reshape(-1, 1) # needed for standardScaler
+    scalerY.fit(y.values.reshape(-1,1))
+    y = scalerY.transform(y.values.reshape(-1,1))
+    
+    pcaTransformer = PCA(0.95) # keep 95% variance
+    pcaTransformer.fit(x)
+    x = pcaTransformer.transform(x)
+    df_with_pca = pd.DataFrame().from_records(x)
+    df_with_pca[predictionColumn] = y
+    print(''' *** PCA Result***\n Started with %d features, reduced to %d features''' % (len(df.columns)-1, pcaTransformer.n_components_))
+    df_with_pca.reset_index(inplace=True)
+    x, y = split_sequences(df_with_pca.values, n_steps_in=n_history, n_steps_out=pred_horizon)
+    return x, y, scalerX, scalerY
+
+def lstm_split_train_test(x, y, pred_horizon):
+    x_train = x[:-pred_horizon]
+    x_test = x[-pred_horizon:]
+    y_train = y[:-pred_horizon]
+    y_test = y[-pred_horizon:]
+    
+    return x_train, x_test, y_train, y_test
+
+def train_lstm(df, n_history, pred_horizon):
+    # data split / preprocessing
+    x, y, scalerX, scalerY = lstm_data_preprocessing(df, n_history=n_history, pred_horizon=pred_horizon)
+    print("SHAPES: ", x.shape, y.shape)
+    numberOfFeatures = x.shape[2]
+    x_train, x_test, y_train, y_test = lstm_split_train_test(x, y, pred_horizon)
+    print("Shapes: xtr, xte, ytr, yte: ", x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+    preprocessingResult = [x_train, x_test, y_train, y_test, scalerX, scalerY]
+    with(open("lstm_preprocessingResult.pkl", "wb")) as pkl:
+        pickle.dump(preprocessingResult, pkl)
+
+    # model definition
+    model = Sequential()
+    model.add(LSTM(75, activation='tanh', return_sequences=True, input_shape=(n_history, numberOfFeatures)))
+    model.add(LSTM(75, activation="tanh", return_sequences=True))
+    model.add(LSTM(75, activation="tanh"))
+    model.add(Dense(pred_horizon))
+    model.compile(optimizer='adam', loss='mse', metrics=['mse'])
+    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
+    mc = ModelCheckpoint('lstm_multistep_multivariate.h5', monitor='val_loss' , mode='min', verbose=1, save_best_only=True)
+    # model train
+    model.fit(x_train, y_train,  validation_split=0.1, epochs=200, callbacks=[es, mc])
+    print('''*** Model fitted ***''')
+    return None
+
+def forecast_lstm(df, n_history, pred_horizon):
+    model = load_model('lstm_multistep_multivariate.h5')
+    with(open("lstm_preprocessingResult.pkl", "rb")) as pkl:
+        x_train, x_test, y_train, y_test, scalerX, scalerY = pickle.load(pkl)
+    numberOfFeatures = x_train.shape[2]
+    pred_input = x_train[-1]
+    pred_input = pred_input.reshape((1, pred_input.shape[0],pred_input.shape[1]))
+    
+    prediction = model.predict(pred_input)
+    prediction = prediction.reshape((pred_horizon,1))
+    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], numberOfFeatures-1), dtype=prediction.dtype)))
+    prediction = scalerY.inverse_transform(prediction)
+    
+    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['LSTM Multistep Multivariate'])
+    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon)
+
+
+# In[11]:
+
+
+def gru_data_preprocessing(df, n_history, pred_horizon):
+    if not df.index.name == timestamp:
+        dataset = df.set_index(timestamp)
+    else:
+        dataset = df
+    
+    y = dataset[predictionColumn].copy()
+    x = dataset.drop(columns=predictionColumn)
+    
+    scalerX = StandardScaler()
+    scalerX.fit(x)
+    x = scalerX.transform(x)
+    scalerY = StandardScaler()
+   # .reshape(-1, 1) # needed for standardScaler
+    scalerY.fit(y.values.reshape(-1,1))
+    y = scalerY.transform(y.values.reshape(-1,1))
+    
+    pcaTransformer = PCA(0.95) # keep 95% variance
+    pcaTransformer.fit(x)
+    x = pcaTransformer.transform(x)
+    df_with_pca = pd.DataFrame().from_records(x)
+    df_with_pca[predictionColumn] = y
+    print(''' *** PCA Result***\n Started with %d features, reduced to %d features''' % (len(df.columns)-1, pcaTransformer.n_components_))
+    df_with_pca.reset_index(inplace=True)
+    x, y = split_sequences(df_with_pca.values, n_steps_in=n_history, n_steps_out=pred_horizon)
+    return x, y, scalerX, scalerY
+
+def gru_split_train_test(x, y, pred_horizon):
+    x_train = x[:-pred_horizon]
+    x_test = x[-pred_horizon:]
+    y_train = y[:-pred_horizon]
+    y_test = y[-pred_horizon:]
+    
+    return x_train, x_test, y_train, y_test
+
+def train_gru(df, n_history, pred_horizon):
+    # data split / preprocessing
+    x, y, scalerX, scalerY = gru_data_preprocessing(df, n_history=n_history, pred_horizon=pred_horizon)
+    print("SHAPES: ", x.shape, y.shape)
+    numberOfFeatures = x.shape[2]
+    x_train, x_test, y_train, y_test = gru_split_train_test(x, y, pred_horizon)
+    print("Shapes: xtr, xte, ytr, yte: ", x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+    preprocessingResult = [x_train, x_test, y_train, y_test, scalerX, scalerY]
+    with(open("gru_preprocessingResult.pkl", "wb")) as pkl:
+        pickle.dump(preprocessingResult, pkl)
+
+    # model definition
+    model = Sequential()
+    model.add(GRU(75, activation='tanh', return_sequences=True, input_shape=(n_history, numberOfFeatures)))
+    model.add(GRU(75, activation="tanh", return_sequences=True))
+    model.add(GRU(75, activation="tanh"))
+    model.add(Dense(pred_horizon))
+    model.compile(optimizer='adam', loss='mse', metrics=['mse'])
+    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=20)
+    mc = ModelCheckpoint('gru_multistep_multivariate.h5', monitor='val_loss' , mode='min', verbose=1, save_best_only=True)
+    # model train
+    model.fit(x_train, y_train,  validation_split=0.1, epochs=200, callbacks=[es, mc])
+    print('''*** Model fitted ***''')
+    return None
+
+def forecast_gru(df, n_history, pred_horizon):
+    model = load_model('gru_multistep_multivariate.h5')
+    with(open("gru_preprocessingResult.pkl", "rb")) as pkl:
+        x_train, x_test, y_train, y_test, scalerX, scalerY = pickle.load(pkl)
+    numberOfFeatures = x_train.shape[2]
+    pred_input = x_train[-1]
+    pred_input = pred_input.reshape((1, pred_input.shape[0],pred_input.shape[1]))
+    
+    prediction = model.predict(pred_input)
+    prediction = prediction.reshape((pred_horizon,1))
+    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], numberOfFeatures-1), dtype=prediction.dtype)))
+    prediction = scalerY.inverse_transform(prediction)
+    
+    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['GRU Multistep Multivariate'])
+    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon)
+
+
+# In[8]:
+
+
+def mlp_data_preprocessing(df, n_history, pred_horizon):
+    if not df.index.name == timestamp:
+        dataset = df.set_index(timestamp)
+    else:
+        dataset = df
+         
+    y = dataset[predictionColumn].copy()
+    x = dataset.drop(columns=predictionColumn)
+    
+    scalerX = StandardScaler()
+    scalerX.fit(x)
+    x = scalerX.transform(x)
+    scalerY = StandardScaler()
+   # .reshape(-1, 1) # needed for standardScaler
+    scalerY.fit(y.values.reshape(-1,1))
+    y = scalerY.transform(y.values.reshape(-1,1))
+    
+    pcaTransformer = PCA(0.95) # keep 95% variance
+    pcaTransformer.fit(x)
+    x = pcaTransformer.transform(x)
+    df_with_pca = pd.DataFrame().from_records(x)
+    df_with_pca[predictionColumn] = y
+    print(''' *** PCA Result***\n Started with %d features, reduced to %d features''' % (len(df.columns)-1, pcaTransformer.n_components_))
+    df_with_pca.reset_index(inplace=True)
+    x, y = split_sequences(df_with_pca.values, n_steps_in=n_history, n_steps_out=pred_horizon)
+    return x, y, scalerX, scalerY
+
+
+def train_mlp(df, n_history, pred_horizon):
+    x, y, scalerX, scalerY = mlp_data_preprocessing(df, n_history=n_history, pred_horizon=pred_horizon)
+    print("SHAPES: ", x.shape, y.shape)
+    x_train, x_test, y_train, y_test = lstm_split_train_test(x, y, pred_horizon)
+    print("Shapes: xtr, xte, ytr, yte: ", x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+    n_input = x_train.shape[1] * x_train.shape[2]
+    x_train = x_train.reshape((x_train.shape[0], n_input))
+    n_neurons = int((n_input + pred_horizon)/2)
+    preprocessingResult = [x_train, x_test, y_train, y_test, scalerX, scalerY]
+    with(open("mlp_preprocessingResult.pkl", "wb")) as pkl:
+        pickle.dump(preprocessingResult, pkl)
+        
+    model = Sequential()
+    model.add(Dense(n_neurons, activation='tanh', input_dim=n_input))
+    model.add(Dense(n_neurons, activation="tanh"))
+    model.add(Dense(n_neurons, activation="tanh"))
+    model.add(Dense(pred_horizon))
+    model.compile(optimizer='adam', loss='mse')
+    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=30)
+    mc = ModelCheckpoint('mlp_multistep_multivariate.h5', monitor='val_loss' , mode='min', verbose=1, save_best_only=True)    
+    model.fit(x_train, y_train, validation_split=0.1, epochs=200, callbacks=[es, mc])
+    return None
+
+def forecast_mlp(df, n_history, pred_horizon):
+    model_mlp = load_model('mlp_multistep_multivariate.h5')
+    with(open("mlp_preprocessingResult.pkl", "rb")) as pkl:
+        x_train, x_test, y_train, y_test, scalerX, scalerY = pickle.load(pkl)
+
+    numberOfFeatures =  x_train.shape[1] // n_history # was reshaped to featureNumber * n_history, so divide it to get number of features = 61
+    pred_input = x_train[-1:]
+    n_input = pred_input.shape[0] * pred_input.shape[1]
+    pred_input = pred_input.reshape((1,n_input))
+    
+    prediction = model_mlp.predict(pred_input)
+    prediction = prediction.reshape((pred_horizon,1))
+    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], numberOfFeatures-1), dtype=prediction.dtype)))
+    prediction = scalerY.inverse_transform(prediction)
+    
+    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['MLP Multistep Multivariate'])
+    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon)       
+
+
+# In[9]:
+
+
+def cnn_data_preprocessing(df, n_history, pred_horizon):
+    if not df.index.name == timestamp:
+        dataset = df.set_index(timestamp)
+    else:
+        dataset = df
+    
+    y = dataset[predictionColumn].copy()
+    x = dataset.drop(columns=predictionColumn)
+    
+    scalerX = StandardScaler()
+    scalerX.fit(x)
+    x = scalerX.transform(x)
+    scalerY = StandardScaler()
+   # .reshape(-1, 1) # needed for standardScaler
+    scalerY.fit(y.values.reshape(-1,1))
+    y = scalerY.transform(y.values.reshape(-1,1))
+    
+    pcaTransformer = PCA(0.95) # keep 95% variance
+    pcaTransformer.fit(x)
+    x = pcaTransformer.transform(x)
+    df_with_pca = pd.DataFrame().from_records(x)
+    df_with_pca[predictionColumn] = y
+    print(''' *** PCA Result***\n Started with %d features, reduced to %d features''' % (len(df.columns)-1, pcaTransformer.n_components_))
+    df_with_pca.reset_index(inplace=True)
+    x, y = split_sequences(df_with_pca.values, n_steps_in=n_history, n_steps_out=pred_horizon)
+    return x, y, scalerX, scalerY
+
+def train_cnn(df, pred_horizon, n_history):
+    x, y, scalerX, scalerY = cnn_data_preprocessing(df, n_history=n_history, pred_horizon=pred_horizon)
+    print("SHAPES: ", x.shape, y.shape)
+    numberOfFeatures = x.shape[2]
+    x_train, x_test, y_train, y_test = lstm_split_train_test(x, y, pred_horizon)
+    print("Shapes: xtr, xte, ytr, yte: ", x_train.shape, x_test.shape, y_train.shape, y_test.shape)
+    preprocessingResult = [x_train, x_test, y_train, y_test, scalerX, scalerY]
+    with(open("lstm_preprocessingResult.pkl", "wb")) as pkl:
+        pickle.dump(preprocessingResult, pkl)
+        
+    model = Sequential()
+    model.add(Conv1D(filters=75, kernel_size=3, activation='relu', input_shape=(n_history, numberOfFeatures)))
+    model.add(MaxPooling1D(pool_size=2))
+    model.add(Conv1D(filters=38, kernel_size=3, activation='relu'))
+    model.add(MaxPooling1D(pool_size=2))
+    model.add(LSTM(100, activation='tanh',return_sequences=True))
+    model.add(LSTM(50, activation='tanh'))
+    model.add(Dense(pred_horizon))
+    model.compile(loss='mse', optimizer='adam')
+    es = EarlyStopping(monitor='val_loss', mode='min', verbose=1, patience=100)
+    mc = ModelCheckpoint('cnn_multistep_multivariate.h5', monitor='val_loss' , mode='min', verbose=1, save_best_only=True)
+    model.fit(x_train, y_train,  validation_split=0.1, epochs=200, callbacks=[es, mc])
+    print('''*** Model fitted ***''') 
+    return None
+
+def forecast_cnn(df, n_history, pred_horizon):
+    model = load_model('cnn_multistep_multivariate.h5')
+    with(open("lstm_preprocessingResult.pkl", "rb")) as pkl:
+        x_train, x_test, y_train, y_test, scalerX, scalerY = pickle.load(pkl)
+    numberOfFeatures = x_train.shape[2]
+    pred_input = x_train[-1] 
+    pred_input = pred_input.reshape((1, pred_input.shape[0],pred_input.shape[1]))
+    
+    prediction = model.predict(pred_input)
+    prediction = prediction.reshape((pred_horizon,1))
+    prediction = np.hstack((prediction, np.zeros((prediction.shape[0], numberOfFeatures-1), dtype=prediction.dtype)))
+    prediction = prediction = scalerY.inverse_transform(prediction)
+    
+    df_forecast = pd.DataFrame(prediction[:,[0]], columns=['CNN Multistep Multivariate'])
+    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon) 
+
+
+# In[10]:
+
+
+def train_fbprophet_additiv(df, n_history):
+    train = df.reset_index()[[timestamp, predictionColumn]][:-n_history]
+    train.columns = ["ds","y"]
+    m = Prophet(weekly_seasonality=True, yearly_seasonality=True)
+    m.fit(train)
+    with open('fbprophet_additiv.pckl', 'wb') as fout:
+        pickle.dump(m, fout)
+    return None
+
+def train_fbprophet_boxcox(df, n_history):
+    train = df.reset_index()[[timestamp, predictionColumn]][:-n_history]
+    train.columns = ["ds","y"]
+    train["y"] = pd.to_numeric(train["y"])
+    train['y'], lam = boxcox(train['y'])
+    m = Prophet(weekly_seasonality=True, yearly_seasonality=True)
+    m.fit(train)
+    with open('fbprophet_boxcox.pckl', 'wb') as fout:
+        pickle.dump(m, fout)
+    return lam
+
+def forecast_fbprophet_additiv(pred_horizon):
+    with open('fbprophet_additiv.pckl', 'rb') as fin:
+        m = pickle.load(fin)
+    future = m.make_future_dataframe(periods=pred_horizon, freq='15min')
+    forecast_prophet = m.predict(future)[['ds', 'yhat']]
+    forecast_prophet.columns = ['date','FBProphet without Box-Cox-Transform']
+    forecast_prophet.set_index('date', inplace=True)
+    return forecast_prophet.tail(pred_horizon) 
+
+def forecast_fbprophet_boxcox(pred_horizon, lam):
+    with open('fbprophet_boxcox.pckl', 'rb') as fin:
+        m = pickle.load(fin)
+    future = m.make_future_dataframe(periods=pred_horizon, freq='15min')
+    forecast_prophet_box_cox = m.predict(future)[['ds', 'yhat']]
+    forecast_prophet_box_cox['yhat'] = forecast_prophet_box_cox['yhat'].apply(lambda x: inv_boxcox(x, lam))
+    forecast_prophet_box_cox.columns = ['date','FBProphet with Box-Cox-Transform']
+    forecast_prophet_box_cox.set_index('date', inplace=True)
+    return forecast_prophet_box_cox.tail(pred_horizon)     
+
+
+# In[13]:
+
+
+def train_sarima(df, n_history, pred_horizon, order, seasonal_order):
+    trainingData = pd.DataFrame(df[predictionColumn], columns=[predictionColumn])
+    print(trainingData.head())
+    model = SARIMAX(trainingData[predictionColumn],order=order, seasonal_order=seasonal_order, start_p = 1, start_q = 1)
+    fit = model.fit()
+    fit.save("sarima.pkl")
+
+    return None    
+
+def forecast_sarima(df, n_history, pred_horizon):
+
+    start = len(df[:-pred_horizon]) - 1
+    end = start + pred_horizon - 1
+    starttime = time.time()
+    
+    order = (1, 3, 0)
+    seasonal_order = (1, 1, 1, n_history) #last parameter should be 52 for weekly saisonality
+    train_sarima(df, n_history = n_history, pred_horizon=pred_horizon, order=order, seasonal_order=seasonal_order)
+    print("training sarima took ", time.time() - starttime)
+
+    model = SARIMAXResults.load('sarima.pkl')
+    
+    predictions = model.predict(start=start, end=end, dynamic=False).rename('SARIMAX Predictions' % n_history)
+    
+    df_forecast = pd.DataFrame(predictions.values, columns=['SARIMA Predictions (1, 3, 0)(1, 1, 1, n_history) ' % n_history])
+    return generate_index_forecast(df, df_forecast, pred_horizon=pred_horizon) 
+
+
+# In[7]:
 
 
 # Declaration
 skip_csv_rows = 0
-pred_horizon = 432 #3 days (6*24*3)
-n_history = 36 #6 hours
+measureInterval = 15 #min
+daysToPredict = 5
+pred_horizon = (60//measureInterval) * 24 * daysToPredict #5 days (4*24*5), timestep = 15min
+hours_history = 8
+n_history = (60//measureInterval)*hours_history 
 
-# Read data from csv file
-df = pd.read_csv('ISTATX_transformed.csv', sep=',', parse_dates=['10MIN_TIMESTAMP'], index_col=0, skiprows=range(1, skip_csv_rows))
-df.dropna(inplace=True)
+# Read data from pickle file
+with open("./4week_transformed_droppedErrors_filled.pkl", "rb") as pickleFile:
+    df = pickle.load(pickleFile)
 
-# Train
-train_fbprophet_additiv(df, n_history)
-#fbprophet_boxcox_lam = -2.0665863314901394
-fbprophet_boxcox_lam = train_fbprophet_boxcox(df, n_history)
-train_lstm(df.copy().reset_index(), pred_horizon, n_history)
-train_mlp(df.copy().reset_index(), pred_horizon, n_history)
-train_cnn(df.copy().reset_index(), pred_horizon, n_history)
-#train_arima(pred_horizon)
+
+# In[8]:
+
+
+df = df.reset_index()
+
+
+# In[9]:
+
+
+df[predictionColumn] = pd.to_numeric(df[predictionColumn])
+
+
+# In[18]:
+
+
+starttime = time.time()
+train_fbprophet_additiv(df, pred_horizon)
+print("training prophet without boxcox took ", time.time() - starttime)
+starttime = time.time()
+fbprophet_boxcox_lam = train_fbprophet_boxcox(df, pred_horizon)
+print("training prophet with boxcox took ", time.time() - starttime)
+
+
+# In[16]:
+
+
+starttime = time.time()
+train_lstm(df.copy().reset_index(), n_history=n_history, pred_horizon=pred_horizon)
+print("training lstm took ", time.time() - starttime)
+
+
+# In[19]:
+
+
+starttime = time.time()
+train_mlp(df.copy().reset_index(), pred_horizon=pred_horizon, n_history=n_history)
+print("training mlp took ", time.time() - starttime)
+
+
+# In[16]:
+
+
+starttime = time.time()
+train_cnn(df.copy().reset_index(), pred_horizon=pred_horizon, n_history=n_history)
+print("training cnn took ", time.time() - starttime)
+
+
+# In[16]:
+
+
+starttime = time.time()
+train_gru(df.copy().reset_index(), pred_horizon=pred_horizon, n_history=n_history)
+print("training GRU took ", time.time() - starttime)
+
+
+# In[7]:
+
+
+# this produces a memory error with 8gb RAM even when changing the paging size
+#auto_arima(df[predictionColumn], start_p=1, start_q=1,
+#                          test='adf',
+#                          max_p=2, max_q=2, m=52,
+#                          start_P=0, seasonal=True,
+#                          d=None, D=1, trace=True,
+#                          error_action='ignore',  
+#                          suppress_warnings=True, 
+#                          stepwise=True)
+# m=52 for weekly seasonality https://alkaline-ml.com/pmdarima/tips_and_tricks.html#period
+
+
+# In[17]:
+
 
 # Real data
 plot_frames = []
 plot_frames.append(plot_real_data_train(df, n_history))
-plot_frames.append(plot_real_data_test(df, n_history))
+plot_frames.append(plot_real_data_test(df, pred_horizon))
 
-# Forecast data
+
+# In[20]:
+
+
+plot_frames.append(forecast_gru(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
+
+
+# In[21]:
+
+
 plot_frames.append(forecast_fbprophet_additiv(pred_horizon))
 plot_frames.append(forecast_fbprophet_boxcox(pred_horizon, fbprophet_boxcox_lam))
-plot_frames.append(forecast_lstm(df.copy().reset_index(), pred_horizon, n_history))
-plot_frames.append(forecast_mlp(df.copy().reset_index(), pred_horizon, n_history))
-plot_frames.append(forecast_cnn(df.copy().reset_index(), pred_horizon, n_history))
-#plot_frames.append(forecast_arima(df.copy().reset_index(), pred_horizon, n_history))
+plot_frames.append(forecast_lstm(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
+plot_frames.append(forecast_mlp(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
+plot_frames.append(forecast_cnn(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
+plot_frames.append(forecast_sarima(df.copy().reset_index(), n_history = n_history, pred_horizon = pred_horizon))
+
+
+# In[21]:
+
 
 # Plot
-plot_data(pd.concat(plot_frames, sort=True),'ML-Models')
+plot_data(pd.concat(plot_frames, sort=True),'Vergleich ML-Models')
 
 
-# 
+# In[ ]:
+
+
+
+
