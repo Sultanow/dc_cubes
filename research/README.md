@@ -53,6 +53,11 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | loss  | mse  |
 | Hidden Layer | 2 |
 | training runtime | 5m (EarlyStop after 50 epochs based on val_loss)|
+| epoch time with PCA | 25s|
+| epoch time without PCA | 150s|
+| best val_loss (MSE) with PCA| 0.976|
+| best val_loss (MSE) without PCA| 1.090|
+| RMSE (with test data) | 2.670|
 
 <img src="img/MLP-Real.jpg" width="560" alt="ml-mlp" /><br />
 Further information: [Multilayer Perceptron](https://en.wikipedia.org/wiki/Multilayer_perceptron), [Keras](https://keras.io/)
@@ -67,6 +72,11 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | loss  | mse  |
 | Hidden Layer | 2 (each with 75 LSTM cells) |
 | training runtime | 2m40s (EarlyStop after 50 epochs based on val_loss)|
+| epoch time with PCA | 6s |
+| epoch time without PCA |6s |
+| best val_loss (MSE) with PCA| 0.4613|
+| best val_loss (MSE) without PCA| 0.4528 |
+| RMSE (with test data) | 1.435 |
 
 <img src="img/LSTM-Real.jpg" width="560" alt="ml-lstm" /><br />
 Further information: [Long Short-Term Memory](https://en.wikipedia.org/wiki/Long_short-term_memory), [Keras](https://keras.io/)
@@ -82,6 +92,11 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | loss  | mse  |
 | layer| Conv1d, MaxPooling, Conv1d, MaxPooling, 2xLSTM, Dense |
 | training runtime | 1m50s (EarlyStop after 134 epochs based on val_loss) |
+| epoch time with PCA | 1s|
+| epoch time without PCA  | 1s |
+| best val_loss (MSE) with PCA| 0.425|
+| best val_loss (MSE) without PCA| 0.433|
+| RMSE (with test data) | 1.00 |
 
 <img src="img/CNN-Real.jpg" width="560" alt="ml-cnn" /><br />
 Further information: [Convolutional Neural Network](https://en.wikipedia.org/wiki/Convolutional_neural_network), [Keras](https://keras.io/)
@@ -97,6 +112,11 @@ The Python frameworks Keras/Scikit-Learn were used for prototyping with the foll
 | loss  | mse  |
 | Hidden Layer | 2 (each with 75 GRU cells) |
 | training runtime | 4m (EarlyStop after 58 epochs based on val_loss)|
+| epoch time with PCA | 8s |
+| epoch time without PCA | 7s|
+| best val_loss (MSE) with PCA| 0.500 |
+| best val_loss (MSE) without PCA| 0.446|
+| RMSE (with test data) | 1.189|
 
 <img src="img/GRU-Real.jpg" width="560" alt="ml-lstm" /><br />
 Further information: [Gated Recurrent Unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit), [Keras](https://keras.io/)
