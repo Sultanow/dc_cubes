@@ -112,7 +112,7 @@ router.get("/:index/:id", (req, res) => {
     })
 })
 
-// GET all aggegated data
+// GET all aggegated value for each timestamp by selectedMeasure
 router.get("/:index/:from/:to/:selectedMeasure/:aggregationType", (req, res) => {
     client.search({
         index: req.params.index,
@@ -121,8 +121,8 @@ router.get("/:index/:from/:to/:selectedMeasure/:aggregationType", (req, res) => 
                 "range": { 
                     "@timestamp": { 
                         "time_zone": "+02:00", 
-                        "gte": from, 
-                        "lte": to 
+                        "gte": req.params.from, 
+                        "lte": req.params.to 
                     }, 
                 },
                 "bool": { 
