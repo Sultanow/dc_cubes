@@ -112,10 +112,11 @@ router.get("/:index/:id", (req, res) => {
     })
 })
 
+
 // GET all aggegated value for each timestamp by selectedMeasure
 router.get("/:index/:from/:to/:selectedMeasure/:aggregationType", (req, res) => {
     client.search({
-        index: req.params.index,
+        index: req.params.index, 
         body: {
             "query": {
                 "range": { 
