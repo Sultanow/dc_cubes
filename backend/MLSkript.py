@@ -13,20 +13,25 @@ import numpy as np
 import keras
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Activation, Dropout
-
+measureInterval = 15 #min
+daysToPredict = 5
+pred_horizon = (60//measureInterval) * 24 * daysToPredict #5 days (4*24*5), timestep = 15min
+hours_history = 8
+n_history = (60//measureInterval)*hours_history 
 counter = 0
-historic_core_name = "dc_cubes"
-core_name = "dc_cubes_forecast"
+
+historic_core_name = "dc_cubes_historic"
+forecast_core_name = "dc_cubes_forecast"
 merged_core_name = "dc_cubes_merged"
-history_steps = 672
-forecast_steps = 672
+history_steps = n_history
+forecast_steps = pred_horizon
 
 
-def pushData(row):
-    global core_name
+def pushForecastData(row):
+    global forecast_core_name
     global counter
     # defining the api-endpoint
-    url = "http://localhost:8983/solr/"+core_name+"/update/json/docs"
+    url = "http://localhost:8983/solr/"+forecast_core_name+"/update/json/docs"
     # data to be sent to api
     data = {
                 "timestamp": row["timestamp"],
@@ -64,13 +69,13 @@ def pushData(row):
     counter += 1
     if (counter % 1000 == 0):
         print("Commiting... counter:", counter)
-        requests.get("http://localhost:8983/solr/"+core_name+"/update?commit=true")
+        requests.get("http://localhost:8983/solr/"+forecast_core_name+"/update?commit=true")
 
-def createSolrCore(core_name):
+def createSolrCore(forecast_core_name):
     url = "http://localhost:8983/solr/admin/cores?action=CREATE&name=" + \
-        core_name+"&configSet=_default"
+        forecast_core_name+"&configSet=_default"
     requests.post(url=url)
-    print(core_name, " created")
+    print(forecast_core_name, " created")
 
 
 """
@@ -114,8 +119,9 @@ def initSchema(core_name):
     print(core_name, " schema inited")
 
 
-def getHistoricData():
-    url = 'http://localhost:8983/solr/dc_cubes/select?q=*:*&sort=timestamp%20desc&rows=25000'
+def getData(core_name):
+    # from 1 Month, there are about 90k entries. 2 clusters * 2 dcs * 8 instances * (4 weeks * 7 days * 24 hours * 4 (15min intervall))
+    url = 'http://localhost:8983/solr/'+core_name+'/select?q=*:*&sort=timestamp%20asc&rows=100000'
     response = requests.get(url).json()['response']
     response
     return response['docs']
@@ -152,7 +158,7 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         verfahren = cube['verfahren'].iloc[0]
         service = cube['service'].iloc[0]
 
-        cube.drop(cube.columns.difference(['count']), 1, inplace=True)
+        cube.drop(cube.columns.difference(['count']), axis=1, inplace=True)
 
         # Converting the index as date
         cube.index = pd.to_datetime(cube.index).sort_values()
@@ -230,48 +236,48 @@ if __name__ == "__main__":
     activeCores = response['status'].keys()
 
     # if forecast core exists
-    if core_name in activeCores:
-        print(core_name + " already exists")
+    if forecast_core_name in activeCores:
+        print(forecast_core_name + " already exists")
         # delete old data/predictions
-        deleteCoreDocuments(core_name)
+        deleteCoreDocuments(forecast_core_name)
     # else forecast core doesn't exist
     else:
-        print(core_name + " doesn't exist")
+        print(forecast_core_name + " doesn't exist")
         # create an new forecast solr core
-        createSolrCore(core_name)
+        createSolrCore(forecast_core_name)
         # init schema
-        initSchema(core_name)
+        initSchema(forecast_core_name)
 
     # get data from historic solr core
-    df = pd.DataFrame.from_dict(getHistoricData())
+    df = pd.DataFrame.from_dict(getData(historic_core_name))
+    last_timestamp = df.timestamp.max()
     df = df.set_index('timestamp')
-    last_timestamp = df.index[0]
     df.index = pd.to_datetime(df.index).sort_values()
 
     # split cubes in own frames
     cubes_frames = splitInCubesFrames(df)
 
     # load the trained model
-    model = load_model('dc_lstm_model_retrained.h5')
+    model = load_model('cnn_multistep_multivariate.h5')
 
     # forecast
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
-    prediction_df.apply(pushData, axis=1)
+    prediction_df.apply(pushForecastData, axis=1)
     print("Last Commit...")
-    requests.get("http://localhost:8983/solr/"+core_name+"/update?commit=true")
+    requests.get("http://localhost:8983/solr/"+forecast_core_name+"/update?commit=true")
 
-    # if merged core exists
-    if merged_core_name in activeCores:
-        print(merged_core_name + " already exists")
-        # delete old data/predictions
-        deleteCoreDocuments(merged_core_name)
-    # else forecast core doesn't exist
-    else:
-        print(merged_core_name + " doesn't exist")
-        # create an new forecast solr core
-        createSolrCore(merged_core_name)
-        # init schema
-        initSchema(merged_core_name)
+    # # if merged core exists
+    # if merged_core_name in activeCores:
+    #     print(merged_core_name + " already exists")
+    #     # delete old data/predictions
+    #     deleteCoreDocuments(merged_core_name)
+    # # else forecast core doesn't exist
+    # else:
+    #     print(merged_core_name + " doesn't exist")
+    #     # create an new forecast solr core
+    #     createSolrCore(merged_core_name)
+    #     # init schema
+    #     initSchema(merged_core_name)
 
-    # merged historic and forecast core
-    mergeTwoCores(merged_core_name, historic_core_name, core_name)
+    # # merged historic and forecast core
+    # mergeTwoCores(merged_core_name, historic_core_name, forecast_core_name)
