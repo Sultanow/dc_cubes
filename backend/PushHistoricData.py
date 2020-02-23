@@ -73,7 +73,7 @@ def initSchema(core_name, allMetrics):
     headers = {'Content-type': 'application/json'}
     rowsDict = {
         "timestamp": "pdate", "host": "string", "cluster": "pint", "dc": "pint", "perm": "pint", "instanz": "string", "verfahren": "string",
-        "service": "string", "response": "pint", "count": "pint", "minv": "pint", "maxv": "pint", "avg": "pfloat", "var": "pfloat",
+        "service": "string", "response": "pint", "count": "pfloat", "minv": "pint", "maxv": "pint", "avg": "pfloat", "var": "pfloat",
         "dev_upp": "pfloat", "dev_low": "pfloat", "perc90": "pfloat", "perc95": "pfloat", "perc99": "pfloat", "sum": "pint",
         "sum_of_squares": "pint", "server": "string"}
 
@@ -84,11 +84,12 @@ def initSchema(core_name, allMetrics):
         requests.post(url=url, data=json.dumps(data), headers=headers)
         
     for metric in allMetrics:
-        data = {
-            "add-field": {"stored": "true", "docValues": "true", "indexed": "false", "multiValued": "false", "name": metric, "type": "pfloat"}
-        }
-        requests.post(url=url, data=json.dumps(data), headers=headers)
-    
+        if metric not in rowsDict:
+            data = {
+                "add-field": {"stored": "true", "docValues": "true", "indexed": "false", "multiValued": "false", "name": metric, "type": "pfloat"}
+            }
+            requests.post(url=url, data=json.dumps(data), headers=headers)
+      
     
     print(core_name, " schema inited")
 
@@ -151,5 +152,5 @@ df["cluster"] = 5
 pushDataForAllInstances(df)
 
 df["cluster"] = 7
-pushDataForAllInstances(df)df["cluster"] = 7
+pushDataForAllInstances(df)
 
