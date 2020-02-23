@@ -83,11 +83,37 @@ var sortTime = {
                 "order": "asc"
             }
         }],
-        "size": 1000
+        "size": 2
     }
 }
 
-const { body } = await client.search(sortTime)
+var id = {
+  "index": index, 
+    "body": {
+        "query": {
+          "bool": { 
+            "filter": [ 
+              { "term":  { "count": 423 }}
+            ]
+          }
+        }
+    }
+}
+
+var aggTest = {
+  "index": index, 
+    "body": {
+      "aggs" : {
+        "whatever_you_like_here" : {
+            "terms" : { "field" : "count", "size":10000 }
+        }
+    },
+    "size" : 3 
+    }
+}
+
+
+const { body } = await client.search(aggTest)
 console.log(body.hits.hits)
 
 //console.log(body.hits.hits[0]._source.avg)

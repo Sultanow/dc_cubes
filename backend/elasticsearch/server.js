@@ -93,9 +93,42 @@ router.get("/:index/:id", (req, res) => {
         body: {
             "query": {
                 "bool": { 
-                "filter": [ 
-                    { "term":  { "_id": req.params.id }}
-                ]
+                    "filter": [ 
+                        { "term":  { "_id": req.params.id }}
+                    ]
+                }
+            }       
+        }
+    }, function(err, response, status){
+        if(err){
+            console.log(err)
+        }
+        else{
+            res.status(200).send({
+                message: response.hits.hits
+            })
+            console.log("elasticsearch response", response);
+        }
+    })
+})
+
+// GET all aggegated data
+router.get("/:index/:from/:to/:selectedMeasure/:aggregationType", (req, res) => {
+    client.search({
+        index: req.params.index,
+        body: {
+            "query": {
+                "range": { 
+                    "@timestamp": { 
+                        "time_zone": "+02:00", 
+                        "gte": from, 
+                        "lte": to 
+                    }, 
+                },
+                "bool": { 
+                    "filter": [ 
+                        { "term":  { "_id": req.params.id }}
+                    ]
                 }
             }       
         }
