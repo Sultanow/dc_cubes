@@ -7,12 +7,13 @@ from requests.packages.urllib3.util.retry import Retry
 
 import pandas as pd
 import json
-import csv
-import pickle
-import numpy as np
-import keras
-from keras.models import Sequential, load_model
-from keras.layers import Dense, Activation, Dropout
+
+from keras.models import  load_model
+
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
+
+
 measureInterval = 15 #min
 daysToPredict = 5
 pred_horizon = (60//measureInterval) * 24 * daysToPredict #5 days (4*24*5), timestep = 15min
@@ -30,6 +31,7 @@ forecast_steps = pred_horizon
 def pushForecastData(row):
     global forecast_core_name
     global counter
+    global allColumns
     # defining the api-endpoint
     url = "http://localhost:8983/solr/"+forecast_core_name+"/update/json/docs"
     # data to be sent to api
@@ -56,6 +58,11 @@ def pushForecastData(row):
                 "sum_of_squares": row["sum_of_squares"],
                 "server": row["server"]
             }
+    
+    for col in allColumns:
+        if col not in data:
+            if col != "id": # if an id is set, all documents and up as the same entry, index will have only 1 entry in the end
+                data[col] = -1
     session = requests.Session()
     retry = Retry(connect=3, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
@@ -77,16 +84,14 @@ def createSolrCore(forecast_core_name):
     requests.post(url=url)
     print(forecast_core_name, " created")
 
-
 """
 if deleteEverything = True all files associated with the core are deleted aswell.
 See: https://lucene.apache.org/solr/guide/6_6/coreadmin-api.html#CoreAdminAPI-UNLOAD
 """
 
-
-def deleteSolrCore(core_name, deleteEverything):  # löscht immer den ganzen core
+def deleteSolrCore(core_name, deleteEverything=True):  # löscht immer den ganzen core
     url = "http://localhost:8983/solr/admin/cores?action=UNLOAD&core="+core_name
-    
+
     if (deleteEverything):
         url += "&deleteInstanceDir=true"
     requests.get(url)
@@ -102,12 +107,12 @@ def deleteCoreDocuments(core_name):
     print("deleted old documents from "+core_name+" core")
 
 
-def initSchema(core_name):
+def initSchema(core_name, allMetrics):
     url = "http://localhost:8983/solr/"+core_name+"/schema"
     headers = {'Content-type': 'application/json'}
     rowsDict = {
         "timestamp": "pdate", "host": "string", "cluster": "pint", "dc": "pint", "perm": "pint", "instanz": "string", "verfahren": "string",
-        "service": "string", "response": "pint", "count": "pint", "minv": "pint", "maxv": "pint", "avg": "pfloat", "var": "pfloat",
+        "service": "string", "response": "pint", "count": "pfloat", "minv": "pint", "maxv": "pint", "avg": "pfloat", "var": "pfloat",
         "dev_upp": "pfloat", "dev_low": "pfloat", "perc90": "pfloat", "perc95": "pfloat", "perc99": "pfloat", "sum": "pint",
         "sum_of_squares": "pint", "server": "string"}
 
@@ -116,6 +121,15 @@ def initSchema(core_name):
             "add-field": {"stored": "true", "docValues": "true", "indexed": "false", "multiValued": "false", "name": name, "type": rowsDict[name]}
         }
         requests.post(url=url, data=json.dumps(data), headers=headers)
+        
+    for metric in allMetrics:
+        if metric not in rowsDict:
+            data = {
+                "add-field": {"stored": "true", "docValues": "true", "indexed": "false", "multiValued": "false", "name": metric, "type": "pfloat"}
+            }
+            requests.post(url=url, data=json.dumps(data), headers=headers)
+    
+    
     print(core_name, " schema inited")
 
 
@@ -134,16 +148,17 @@ def mergeTwoCores(merged_core_name, core1, core2):
     print(core1 + " and " +  core2 + " have been merged to " + merged_core_name)
 
 # splits the data of each cube from the whole df in its own dataframe
+#  does not take only the last -history_steps, because PCA will be performed
 def splitInCubesFrames(df):
     unique_server_names = df.server.unique()
     splitted_frames = []
     for name in unique_server_names:
-        new_df = df[df['server'] == name][-history_steps:].copy()
+        new_df = df[df['server'] == name].copy()
         splitted_frames.append(new_df)
     return splitted_frames
 
 
-def makePredictionFrame(model, cubes_frames, last_timestamp):
+def makePredictionFrame(model, cubes_frames, last_timestamp, predictionColumn = "cpuusage_ps"):
     prediction_frames = []
     for cube in cubes_frames:
         # transform pre prediction input
@@ -158,47 +173,79 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         verfahren = cube['verfahren'].iloc[0]
         service = cube['service'].iloc[0]
 
-        cube.drop(cube.columns.difference(['count']), axis=1, inplace=True)
-
+        dropCols = ["id", "cluster",
+                "dc",
+                "perm",
+                "instanz",
+                "verfahren",
+                "service",
+                "response",
+                "minv",
+                "maxv", 
+                "avg",
+                "var",
+                "dev_upp",
+                "dev_low",
+                "perc90",
+                "perc95",
+                "perc99",
+                "sum",
+                "sum_of_squares",
+                "server"]
         # Converting the index as date
+#         pdb.set_trace()
         cube.index = pd.to_datetime(cube.index).sort_values()
-
-        # feature engineering
-        minutes = cube.index.minute
-        hours = cube.index.hour
-        day = cube.index.dayofweek
-        cube['minute'] = minutes
-        cube['hour'] = hours
-        cube['day'] = day
-
+        
+        dataset = cube.drop(dropCols,axis=1)
+        y = dataset[predictionColumn].copy() # prediction column was pushed to count
+        x = dataset.drop(columns=[predictionColumn, "count"])
+#         print(x.shape)
         # Standardise
-        import numpy as np
-        from sklearn.preprocessing import MinMaxScaler
+        allMetrics =  dataset.columns.tolist()
 
-        dataset = cube.values
+   #     dataset = cube.values
 
         # standardise
-        scaler = MinMaxScaler()
-        scaler.fit(dataset)
-        dataset = scaler.transform(dataset)
-
+        scalerX = StandardScaler()
+        scalerX.fit(x)
+        x = scalerX.transform(x)
+        scalerY = StandardScaler()
+       # .reshape(-1, 1) # needed for standardScaler
+        scalerY.fit(y.values.reshape(-1,1))
+        y = scalerY.transform(y.values.reshape(-1,1))
+        
+        #PCA
+        pcaTransformer = PCA(n_components=63) # keep 95% variance
+        pcaTransformer.fit(x)
+        x = pcaTransformer.transform(x)
+        
+        #transformed_df = pd.DataFrame().from_records(x)
+        #transformed_df[predictionColumn] = y
+        numberOfFeatures = pcaTransformer.n_components_
         # predict
-        pred_input = dataset
-        pred_input.shape
+        pred_input = x[x.shape[0]-history_steps:]
+#         print("***mean, std", x.mean(), x.std())
+#         print("************\n", pred_input)
+#         pdb.set_trace()
         pred_input = pred_input.reshape(
-            (1, pred_input.shape[0], pred_input.shape[1]))
+            (1, history_steps, numberOfFeatures)) # alternative (1, pred_input.shape[0],pred_input.shape[1])
         prediction = model.predict(pred_input)
-
+#         print("prediction: ", prediction, prediction.shape)
+        #prediction = np.hstack((prediction, np.zeros((prediction.shape[0], numberOfFeatures-1), dtype=prediction.dtype)))
+        
+#         print("pre inverse scaling", prediction)
+        prediction = scalerY.inverse_transform(prediction)
+#         print("post inverse scaling", prediction)
         # transform pre solr
-        prediction = prediction.reshape((forecast_steps, 1))
-        prediction = np.hstack((prediction, np.zeros(
-            (prediction.shape[0], 3), dtype=prediction.dtype)))
-        prediction = prediction = scaler.inverse_transform(prediction)
-        prediction = prediction[:, [0]]
-        int_prediction = prediction.astype(int, copy=True)
-        prediction = int_prediction
-        prediction *= (prediction > 0)
-
+#         prediction = prediction.reshape((forecast_steps, 1))
+#         prediction = np.hstack((prediction, np.zeros(
+#             (prediction.shape[0], 3), dtype=prediction.dtype)))
+#         prediction = prediction = scaler.inverse_transform(prediction)
+#         prediction = prediction[:, [0]]
+#         int_prediction = prediction.astype(int, copy=True)
+#         prediction = int_prediction
+#         prediction *= (prediction > 0)
+        prediction = prediction.reshape(prediction.shape[1])
         # make the dataframe
         next_timestamps = pd.date_range(
             start=last_timestamp, periods=forecast_steps+1, freq='15min',  closed='right')
@@ -206,7 +253,11 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
         d = {'timestamp': next_timestamps, 'cluster': cluster, 'dc': dc,
              'perm': perm, 'instanz': instanz,  'verfahren': verfahren, 'service': service, 'response': 200}
         pred_df = pd.DataFrame(data=d)
+        for metric in allMetrics:
+            pred_df[metric] = -1
+#         print("Length:", len(pred_df), "::::::", prediction.shape)
         pred_df['count'] = prediction
+        pred_df[predictionColumn] = prediction
         pred_df['minv'] = 0
         pred_df['maxv'] = 0
         pred_df['avg'] = 0
@@ -227,8 +278,15 @@ def makePredictionFrame(model, cubes_frames, last_timestamp):
     return pd.concat(prediction_frames, ignore_index=True)
 
 
+
+
 if __name__ == "__main__":
     print("Started MLSkript.py ...")
+
+
+
+    hist_df = pd.DataFrame.from_dict(getData(historic_core_name))
+    allColumns = hist_df.columns.to_list()  
 
     # get existing solr cores
     url = "http://localhost:8983/solr/admin/cores?action=STATUS"
@@ -238,46 +296,58 @@ if __name__ == "__main__":
     # if forecast core exists
     if forecast_core_name in activeCores:
         print(forecast_core_name + " already exists")
+        deleteSolrCore(forecast_core_name)
         # delete old data/predictions
-        deleteCoreDocuments(forecast_core_name)
+        createSolrCore(forecast_core_name)
+        # init schema
+        initSchema(forecast_core_name, allColumns)
+        #deleteCoreDocuments(forecast_core_name)
     # else forecast core doesn't exist
     else:
         print(forecast_core_name + " doesn't exist")
         # create an new forecast solr core
         createSolrCore(forecast_core_name)
         # init schema
-        initSchema(forecast_core_name)
+        initSchema(forecast_core_name, allColumns)
 
-    # get data from historic solr core
-    df = pd.DataFrame.from_dict(getData(historic_core_name))
-    last_timestamp = df.timestamp.max()
-    df = df.set_index('timestamp')
-    df.index = pd.to_datetime(df.index).sort_values()
+    timestamp = "timestamp"
+    last_timestamp = hist_df.timestamp.max()
+    hist_df[timestamp] = pd.to_datetime(hist_df.timestamp)
+    # generate features/columns from the timestamp
+    hist_df["dayOfWeek"] = hist_df[timestamp].map(lambda x: x.dayofweek)
+    hist_df["isWeekend"] = hist_df.dayOfWeek.map(lambda x: 0 if (x < 5) else 1) # saturday.dayofweek = 5, monday=0
+    hist_df["weekofyear"] = hist_df[timestamp].map(lambda x: x.weekofyear)
+    hist_df["hour"] = hist_df[timestamp].map(lambda x: x.hour)
+    hist_df["minute"]= hist_df[timestamp].map(lambda x: x.minute)
+    hist_df = hist_df.set_index('timestamp')
+
+    hist_df.index = pd.to_datetime(hist_df.index).sort_values()
 
     # split cubes in own frames
-    cubes_frames = splitInCubesFrames(df)
+    cubes_frames = splitInCubesFrames(hist_df)
 
     # load the trained model
     model = load_model('cnn_multistep_multivariate.h5')
-
-    # forecast
+    
     prediction_df = makePredictionFrame(model, cubes_frames, last_timestamp)
+
     prediction_df.apply(pushForecastData, axis=1)
     print("Last Commit...")
     requests.get("http://localhost:8983/solr/"+forecast_core_name+"/update?commit=true")
 
-    # # if merged core exists
-    # if merged_core_name in activeCores:
-    #     print(merged_core_name + " already exists")
-    #     # delete old data/predictions
-    #     deleteCoreDocuments(merged_core_name)
-    # # else forecast core doesn't exist
-    # else:
-    #     print(merged_core_name + " doesn't exist")
-    #     # create an new forecast solr core
-    #     createSolrCore(merged_core_name)
-    #     # init schema
-    #     initSchema(merged_core_name)
 
-    # # merged historic and forecast core
-    # mergeTwoCores(merged_core_name, historic_core_name, forecast_core_name)
+    # if merged core exists
+    if merged_core_name in activeCores:
+        print(merged_core_name + " already exists")
+        # delete old data/predictions
+        deleteCoreDocuments(merged_core_name)
+    # else forecast core doesn't exist
+    else:
+        print(merged_core_name + " doesn't exist")
+        # create an new forecast solr core
+        createSolrCore(merged_core_name)
+        # init schema
+        initSchema(merged_core_name, allColumns)
+
+    # merged historic and forecast core
+    mergeTwoCores(merged_core_name, historic_core_name, forecast_core_name)

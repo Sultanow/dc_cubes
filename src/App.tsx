@@ -60,7 +60,7 @@ interface AppState {
   customMapping: any
   aggregationType: AggregationType
   aggregatedData: DCState
-  
+
   predictionActivated: boolean
   forecastDataReceived: boolean
   rawForecastData: any,
@@ -78,7 +78,7 @@ interface AppState {
 
 class App extends React.Component<{}, AppState> {
 
-  private aggregationTypes = {"avg": "Mittelwert", "sum": "Summe", "max": "Maximum", "min": "Minimum"}
+  private aggregationTypes = { "avg": "Mittelwert", "sum": "Summe", "max": "Maximum", "min": "Minimum" }
   private listOfAllMeasures = {
     "count": "Auslastung",
     "minv": "minv",
@@ -98,10 +98,10 @@ class App extends React.Component<{}, AppState> {
       backendUrl: "http://localhost:8080",
       dataSource: 'solr',
       solrBaseUrl: 'http://localhost:8983/solr/',
-      solrCore: 'dc_cubes',
+      solrCore: 'dc_cubes_historic',
       solrForecastCore: 'dc_cubes_forecast',
       solrMergedCore: 'dc_cubes_merged',
-      solrQuery: '/query?q=*:*&start=0&rows=30000',
+      solrQuery: '/query?q=*:*&start=0&rows=100000', // solr contains 4 weeks, roughly 90k entries
       dataSourceError: true,
       timeSelectionMode: 'pointInTime',
       timespanAbsoluteTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + "Z",
@@ -156,19 +156,19 @@ class App extends React.Component<{}, AppState> {
   }
 
   init = () => {
-    
+
   }
 
   getLogData = () => {
     const dataService = new DataService(this.state.dataSource,
-                                        this.state.timespanAbsoluteTimestampLowerBound,
-                                        this.state.timespanAbsoluteTimestampUpperBound, 
-                                        this.state.solrBaseUrl, 
-                                        this.state.solrCore,
-                                        this.state.solrForecastCore,
-                                        this.state.solrMergedCore,
-                                        this.state.selectedMeasure, 
-                                        this.state.aggregationType)
+      this.state.timespanAbsoluteTimestampLowerBound,
+      this.state.timespanAbsoluteTimestampUpperBound,
+      this.state.solrBaseUrl,
+      this.state.solrCore,
+      this.state.solrForecastCore,
+      this.state.solrMergedCore,
+      this.state.selectedMeasure,
+      this.state.aggregationType)
     // Initially get all data because the placeholder visualization needs the full temporalAxis
     dataService.getHistorical().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
@@ -176,8 +176,8 @@ class App extends React.Component<{}, AppState> {
 
       standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure)
 
-      if( data.data.response.docs.length < 2) {
-        this.setState({dataSourceError: true});
+      if (data.data.response.docs.length < 2) {
+        this.setState({ dataSourceError: true });
         throw new Error("Data not available");
       }
 
@@ -196,16 +196,16 @@ class App extends React.Component<{}, AppState> {
       });
 
       // Load prediction data on demand
-      if(this.state.predictionActivated) {
+      if (this.state.predictionActivated) {
         dataService.getForecast().then((data: any) => {
           const standardAdapter = new StandardAdapter();
           standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
-  
-          if( data.data.response.docs.length < 2) {
-            this.setState({dataSourceError: true});
+
+          if (data.data.response.docs.length < 2) {
+            this.setState({ dataSourceError: true });
             throw new Error("Data not available");
           }
-    
+
           this.setState({
             forecastTemporalAxis: standardAdapter.temporalAxis,
             combinedTemporalAxis: this.state.temporalAxis.concat(standardAdapter.temporalAxis),
@@ -243,13 +243,13 @@ class App extends React.Component<{}, AppState> {
     const dataService = new DataService(this.state.dataSource,
       this.state.timespanTimestampLowerBound,
       this.state.timespanTimestampUpperBound,
-      this.state.solrBaseUrl, 
+      this.state.solrBaseUrl,
       this.state.solrCore,
       this.state.solrForecastCore,
       this.state.solrMergedCore,
-      this.state.selectedMeasure, 
-      this.state.aggregationType) 
-      
+      this.state.selectedMeasure,
+      this.state.aggregationType)
+
     dataService.getAggregatedLogData().then((data: any) => {
       const standardAdapter = new StandardAdapter()
       let strTimeStamp = "timespan"
@@ -257,17 +257,17 @@ class App extends React.Component<{}, AppState> {
       data.data.facets.datacenters.buckets.forEach(strDataCenter => {
         strDataCenter.clusters.buckets.forEach(strCluster => {
           strCluster.instances.buckets.forEach(strInstance => {
-            standardAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue))) 
+            standardAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue)))
           })
         })
       })
-      this.setState<never>({ aggregatedData: standardAdapter.timeSeries.get(strTimeStamp), isLoading: false})     
+      this.setState<never>({ aggregatedData: standardAdapter.timeSeries.get(strTimeStamp), isLoading: false })
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
       console.log(error)
     })
   }
-  
+
 
   updatePredictions = () => {
     console.log("update predicitons called")
@@ -279,7 +279,7 @@ class App extends React.Component<{}, AppState> {
   render() {
     let TimeseriesNavigationChartComponent = null;
     if (this.state.isRawTimeseriesDataLoaded) {
-      TimeseriesNavigationChartComponent = <TimeseriesNavigationChart 
+      TimeseriesNavigationChartComponent = <TimeseriesNavigationChart
         timeseriesData={this.state.rawTimeseriesData}
         forecastData={this.state.rawForecastData}
         updateTimespanTimestamps={this.updateTimespanTimestamps}
@@ -339,31 +339,31 @@ class App extends React.Component<{}, AppState> {
               (props) =>
                 <React.Fragment>
                   <div className="content-row" >
-                      <CubesVisualization {...props}
-                        data={cubesVisData}
-                        aggregatedData={this.state.aggregatedData}
-                        clusterColors={this.state.clusterColors}
-                        grid={this.state.grid}
-                        maxH={this.state.maxH}
-                        timeSelectionMode={this.state.timeSelectionMode}
-                        accessApp={this.accessApp}
-                        temporalAxis={this.state.temporalAxis}
-                        dataSourceError={this.state.dataSourceError}
-                        isLoading={this.state.isLoading}
-                        pointInTimeTimestamp={this.state.pointInTimeTimestamp}
-                        timespanTimestampLowerBound={this.state.timespanTimestampLowerBound}
-                        timespanTimestampUpperBound={this.state.timespanTimestampUpperBound}
-                        lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
-                        aggregationType={this.state.aggregationType}
-                        updateAggregationType={this.updateAggregationType}
-                        selectedMeasure={this.state.selectedMeasure}
-                        updateSelectedMeasure={this.updateSelectedMeasure}
-                        aggregationTypes={this.aggregationTypes}
-                        listOfAllMeasures={this.listOfAllMeasures}
-                      >
+                    <CubesVisualization {...props}
+                      data={cubesVisData}
+                      aggregatedData={this.state.aggregatedData}
+                      clusterColors={this.state.clusterColors}
+                      grid={this.state.grid}
+                      maxH={this.state.maxH}
+                      timeSelectionMode={this.state.timeSelectionMode}
+                      accessApp={this.accessApp}
+                      temporalAxis={this.state.temporalAxis}
+                      dataSourceError={this.state.dataSourceError}
+                      isLoading={this.state.isLoading}
+                      pointInTimeTimestamp={this.state.pointInTimeTimestamp}
+                      timespanTimestampLowerBound={this.state.timespanTimestampLowerBound}
+                      timespanTimestampUpperBound={this.state.timespanTimestampUpperBound}
+                      lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
+                      aggregationType={this.state.aggregationType}
+                      updateAggregationType={this.updateAggregationType}
+                      selectedMeasure={this.state.selectedMeasure}
+                      updateSelectedMeasure={this.updateSelectedMeasure}
+                      aggregationTypes={this.aggregationTypes}
+                      listOfAllMeasures={this.listOfAllMeasures}
+                    >
                       {TimeseriesNavigationChartComponent}
-                      </CubesVisualization>
-                      <SectionRight />
+                    </CubesVisualization>
+                    <SectionRight />
                   </div>
                 </React.Fragment>
             } />
@@ -452,7 +452,7 @@ class App extends React.Component<{}, AppState> {
     })
   }
 
-  updateBoundariesForDataRetrieval = (newTimespanData: object) =>{
+  updateBoundariesForDataRetrieval = (newTimespanData: object) => {
     this.setState<never>(newTimespanData, () => {
       this.getLogData()
 
