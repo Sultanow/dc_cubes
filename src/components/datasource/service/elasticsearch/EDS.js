@@ -36,6 +36,7 @@ async function run () {
 var from = "2018-08-01T04:45:00"
 var to = "2018-08-01T04:45:00"
 var index = "dc_cubes"
+var measure = "avg"
 
 var params = {  "index": index, 
                 "body": { 
@@ -70,6 +71,16 @@ var maxAvg = {
         }],
         "size": 1
     }
+}
+
+
+var maxSelectedMeasure = {  
+  "index": index, 
+  "body": {
+    "aggs" : {
+      "max_value" : { "max" : { "field" : measure } }
+    }
+  }
 }
 
 var sortTime = {  
@@ -113,7 +124,7 @@ var aggTest = {
 }
 
 
-const { body } = await client.search(aggTest)
+const { body } = await client.search(id)
 console.log(body.hits.hits)
 
 //console.log(body.hits.hits[0]._source.avg)

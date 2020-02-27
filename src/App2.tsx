@@ -9,7 +9,7 @@ import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNa
 import Topbar from './components/topbar/Topbar'
 import SectionRight from "./components/SectionRight"
 import DataSources2 from './components/datasource/config/DataSources2'
-import DataService from './components/datasource/DataService'
+import DataService2 from './components/datasource/DataService2'
 import StandardAdapter from './components/datasource/service/StandardAdapter'
 import DCState from './model/DCState'
 import DataSource from './model/DataSource'
@@ -76,7 +76,7 @@ interface AppState {
   preparedCombinedAvgData: TimeseriesData[]
 }
 
-class App extends React.Component<{}, AppState> {
+class App2 extends React.Component<{}, AppState> {
 
   private aggregationTypes = {"avg": "Mittelwert", "sum": "Summe", "max": "Maximum", "min": "Minimum"}
   private listOfAllMeasures = {
@@ -160,7 +160,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   getLogData = () => {
-    const dataService = new DataService(this.state.dataSource,
+    const dataService = new DataService2(this.state.dataSource,
                                         this.state.timespanAbsoluteTimestampLowerBound,
                                         this.state.timespanAbsoluteTimestampUpperBound, 
                                         this.state.elasticsearchIndex,
@@ -239,7 +239,7 @@ class App extends React.Component<{}, AppState> {
   }
 
   getAggregatedLogData = () => {
-    const dataService = new DataService(this.state.dataSource,
+    const dataService = new DataService2(this.state.dataSource,
       this.state.timespanTimestampLowerBound,
       this.state.timespanTimestampUpperBound,
       this.state.elasticsearchIndex,
@@ -462,6 +462,7 @@ class App extends React.Component<{}, AppState> {
     this.setState({ dataSource: dataSource.target.value })
   }
 
+  /*
   setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
     this.setState<never>({
       [solrUrlPartName]: solrUrlPart
@@ -469,6 +470,7 @@ class App extends React.Component<{}, AppState> {
       this.getLogData()
     })
   }
+  */
 }
 
-export default App;
+export default App2;

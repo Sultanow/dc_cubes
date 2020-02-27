@@ -4,7 +4,7 @@ import DataSourceService from '../../model/DataSourceService'
 import SolrDataService from './service/solr/SolrDataService'
 import ElasticsearchDataService from './service/elasticsearch/ElasticsearchDataService'
 
-export default class DataService {
+export default class DataService2 {
 
     private dataSourceService: DataSourceService
     private from: string
@@ -27,12 +27,12 @@ export default class DataService {
 
         }
     }
-
-    getHistorical = (from: string, to: string): any => {
+    // Get log data for specific time interval
+    getHistorical = () => {
         return this.dataSourceService.getHistorical(this.from, this.to);
     };
 
-    getForecast = (from: string, to: string): any => {
+    getForecast  = () => {
         return this.dataSourceService.getAllHistorical()
     };
 
@@ -40,6 +40,13 @@ export default class DataService {
        
     }
         
+    getAggregatedLogData = () => {
+        return this.dataSourceService.getAggregatedLogData(this.from, this.to, this.selectedMeasure, this.aggregationType)
+    }
+
+    getMaxValueOfTimeseries = () => {
+        return this.dataSourceService.getMaxValueOfTwoCores(this.from, this.to, this.selectedMeasure)
+    }
 
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
         return this.dataSourceService.getMaxValueOfTwoCores(this.from, this.to, this.selectedMeasure)

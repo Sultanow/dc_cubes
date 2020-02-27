@@ -12,7 +12,7 @@ interface DataSourcesProps {
     dataSourceError: boolean
     elasticsearchIndex: string
     setDataSource: any
-    setSolrUrlPart: any
+    //setSolrUrlPart: any
     history: any
     customMapping: any
     accessApp: any
@@ -22,7 +22,7 @@ interface DataSourcesState {
     changeDataSource: boolean
 }
 
-class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
+class DataSources2 extends React.Component<DataSourcesProps, DataSourcesState> {
 
     constructor(props: DataSourcesProps) {
         super(props);
@@ -100,4 +100,4 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
     }
 }
 
-export default DataSources;
+export default DataSources2;

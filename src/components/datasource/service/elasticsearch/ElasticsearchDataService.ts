@@ -16,21 +16,11 @@ export default class ElasticsearchDataService implements DataSourceService {
     }
 
     getHistorical = (from: string, to: string): any => {
-        httpClient.get("http://localhost:5000/" + this.elasticsearchIndex + "indices/from/" + from + "/to/" + to)
-            .then(response => {
-                return response
-            }).catch((error) => {
-                console.log(error);
-            })
+        return httpClient.get("http://localhost:5000/" + "indices/" + this.elasticsearchIndex + "from/" + from + "/to/" + to)
     };
 
     getForecast = (from: string, to: string): any => {
-        httpClient.get("http://localhost:5000/" + this.elasticsearchForecastIndex + "indices/from/" + from + "/to/" + to)
-            .then(response => {
-                return response
-            }).catch((error) => {
-                console.log(error);
-            })
+        return httpClient.get("http://localhost:5000/" + this.elasticsearchForecastIndex + "indices/from/" + from + "/to/" + to)
     }
 
     getAllHistorical = () => {
@@ -51,12 +41,12 @@ export default class ElasticsearchDataService implements DataSourceService {
     }
 
     getAggregatedValueForEachTimestamp = (selectedMeasure: string, aggregationType: AggregationType, solrCore: string): any => {
-       
+        return httpClient.get("http://localhost:5000/dummy/data")
     }
 
 
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
-       
+        return httpClient.get("http://localhost:5000/dummy/data")
     }
 
     

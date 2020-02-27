@@ -110,6 +110,65 @@ router.get("/indices/:index/from/:from/to/:to", (req, res) => {
     })
 })
 
+// GET max value of index in time range
+router.get("/indices/:index/from/:from/to/:to/selectedMeasure/:selectedMeasure/agg/:agg", (req, res) => {
+    
+    client.search({
+        index: req.params.index,
+        body: {
+            "query": {
+                "range": { 
+                    "@timestamp": { 
+                        "time_zone": "+02:00", 
+                        "gte": req.params.from, 
+                        "lte": req.params.to 
+                    }
+                } 
+            }
+                   
+        }
+    }, function(err, response, status){
+        if(err){
+            console.log(err)
+        }
+        else{
+            res.status(200).send({
+                message: response.hits.hits
+            })
+            console.log("elasticsearch response", response);
+        }
+    })
+})
+
+
+// dummy test data
+router.get("/dummy/data", (req, res) => {
+    
+    client.search({
+        index: req.params.index,
+        body: {
+            "query": {
+                "range": { 
+                    "@timestamp": { 
+                        "time_zone": "+02:00", 
+                        "gte": req.params.from, 
+                        "lte": req.params.to 
+                    }
+                } 
+            }
+                   
+        }
+    }, function(err, response, status){
+        if(err){
+            console.log(err)
+        }
+        else{
+            res.status(200).send(42)
+            console.log("elasticsearch response", response);
+        }
+    })
+})
+
 
 /*
 // TODO GET all aggegated value for each timestamp by selectedMeasure
