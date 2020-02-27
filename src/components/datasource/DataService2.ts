@@ -29,11 +29,11 @@ export default class DataService {
     }
 
     getHistorical = (from: string, to: string): any => {
-        
+        return this.dataSourceService.getHistorical(this.from, this.to);
     };
 
     getForecast = (from: string, to: string): any => {
-        
+        return this.dataSourceService.getAllHistorical()
     };
 
     getAllHistorical = () => {
@@ -42,6 +42,6 @@ export default class DataService {
         
 
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
-        
+        return this.dataSourceService.getMaxValueOfTwoCores(this.from, this.to, this.selectedMeasure)
     }
 }
