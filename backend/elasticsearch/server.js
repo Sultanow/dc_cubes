@@ -33,38 +33,8 @@ router.get("/:index", (req, res) => {
 */
 
 
-/*
-//GET specific dc_cubes doc by id
-router.get("/:index/:id", (req, res) => {
-    let doc;
-
-    client.get({
-        index: req.params.index,
-        id: req.params.id
-    }, function(err, resp, status){
-        if(err){
-            console.log(err)
-        }
-        else{
-            doc = resp._source
-        }
-    })
-
-    if(!doc){
-        return res.status(400).send({
-            message: "dc_cubes document is not found for id " + req.params.id + "."
-        })
-    }
-    return res.status(200).send({
-        message: "GET dc_cubes document call fo id " + req.params.id + " succeedeed.",
-        message: doc
-    });
-})
-*/
-
-
 // GET all data by index
-router.get("/:index/", (req, res) => {
+router.get("/indices/:index/", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
@@ -87,7 +57,7 @@ router.get("/:index/", (req, res) => {
 
 
 // GET all data by index and id
-router.get("/:index/:id", (req, res) => {
+router.get("/indices/:index/id/:id", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
@@ -112,8 +82,37 @@ router.get("/:index/:id", (req, res) => {
     })
 })
 
+// GET allHistorical 
+router.get("/indices/:index/from/:from/to/:to", (req, res) => {
+    client.search({
+        index: req.params.index,
+        body: {
+            "query": {
+                "range": { 
+                    "@timestamp": { 
+                        "time_zone": "+02:00", 
+                        "gte": req.params.from, 
+                        "lte": req.params.to 
+                    }
+                }
+            }       
+        }
+    }, function(err, response, status){
+        if(err){
+            console.log(err)
+        }
+        else{
+            res.status(200).send({
+                message: response.hits.hits
+            })
+            console.log("elasticsearch response", response);
+        }
+    })
+})
 
-// GET all aggegated value for each timestamp by selectedMeasure
+
+/*
+// TODO GET all aggegated value for each timestamp by selectedMeasure
 router.get("/:index/:from/:to/:selectedMeasure/:aggregationType", (req, res) => {
     client.search({
         index: req.params.index, 
@@ -145,7 +144,7 @@ router.get("/:index/:from/:to/:selectedMeasure/:aggregationType", (req, res) => 
         }
     })
 })
-
+*/
 
 app.use("/", router);
 
