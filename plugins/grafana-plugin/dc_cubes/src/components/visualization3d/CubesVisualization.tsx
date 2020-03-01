@@ -5,10 +5,10 @@ import DCState from '../../../../../../src/model/DCState';
 import Datacenter from '../../../../../../src/model/Datacenter';
 import Cluster from '../../../../../../src/model/Cluster';
 import Instance from '../../../../../../src/model/Instance';
+//import LoadingPlaceholder from '@grafana/ui';
 import './CubesVisualization.css';
 import LoadingOverlay from 'react-loading-overlay';
 import BarLoader from 'react-spinners/BarLoader';
-import AggregationType from '../../../../../../src/model/AggregationType';
 /* import Filter from "../Filter" */
 
 interface CubesVisProps {
@@ -27,12 +27,6 @@ interface CubesVisProps {
   timespanTimestampLowerBound: string;
   timespanTimestampUpperBound: string;
   lastHistoricDate: Date;
-  aggregationType: AggregationType;
-  selectedMeasure: string;
-  updateAggregationType: any;
-  updateSelectedMeasure: any;
-  aggregationTypes: object;
-  listOfAllMeasures: object;
 }
 
 interface Bar {
@@ -109,26 +103,24 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     }
 
     return (
-      <div className="cubes-visualization">
+      <React.Fragment>
         {/* <Filter /> */}
-        <div style={{ height: '53vh' }} className="content-container d-flex justify-content-center">
-          <LoadingOverlay active={isLoading} spinner={<BarLoader color={'#f7b613'} css={'background-color: #1b76ef'} />} text="Loading Data...">
-            <div style={{ height: '100%', width: '100%' }}>
-              <div id="cubes-visualization" style={{ height: '100%', width: '100%' }} />
-            </div>
-          </LoadingOverlay>
-        </div>
-        <header className="content-header" style={{ marginTop: '10px' }}>
-          <div className="param-info-container">
-            <div style={{ marginLeft: '10px' }}>{timestamp}</div>
+        <LoadingOverlay active={isLoading} spinner={<BarLoader color={'#f7b613'} css={'background-color: #1b76ef'} />} text="Loading Data...">
+          <div className="cubes-visualization">
+            <div id="cubes-visualization" />
           </div>
-          <div>{predictionWarning}</div>
-        </header>
-        <div className="content-container">
-          {/* The 2D Navigation chart is rendered in the line below */}
-          {this.props.children}
-        </div>
-      </div>
+          <div id="selection-visualization" className="selection-visualization">
+            <header className="content-header" style={{ marginTop: '10px' }}>
+              <div className="param-info-container">
+                <div style={{ marginLeft: '10px', marginBottom: '5px' }}>{timestamp}</div>
+              </div>
+              <div>{predictionWarning}</div>
+            </header>
+            {/* The 2D Navigation chart is rendered in the line below */}
+            {this.props.children}
+          </div>
+        </LoadingOverlay>
+      </React.Fragment>
     );
   }
 
@@ -500,16 +492,6 @@ class CubesVisualization extends React.Component<CubesVisProps> {
       this.camera.updateProjectionMatrix();
 
       // set render target sizes here
-    }
-  };
-
-  handleChange = e => {
-    const stateElement = e.target.name;
-
-    if (stateElement === 'selectedMeasure') {
-      this.props.updateSelectedMeasure(e.target.value);
-    } else {
-      this.props.updateAggregationType(e.target.value);
     }
   };
 }

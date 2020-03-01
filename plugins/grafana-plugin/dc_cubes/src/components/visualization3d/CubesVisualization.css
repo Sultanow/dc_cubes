@@ -1,15 +1,15 @@
 .cubes-visualization {
   padding: 0;
+
+  width: 100%;
+  height: 70%;
   /* background-color: white; */
   /* height          : calc(100vh - 110px); */
 }
 
-.overlay {
-  position: absolute;
-  z-index: 5;
-  font-size: medium;
-  padding: 10px;
-  text-align: center;
+.selection-visualization {
+  width: 100%;
+  height: 30%;
 }
 
 .content-header {
@@ -40,15 +40,4 @@
 ._loading_overlay_wrapper {
   height: 100%;
   width: 100%;
-}
-
-.selectAggregation {
-  margin-top: -6px;
-  margin-left: -7px;
-  margin-right: 7px;
-}
-
-.selectMeasure {
-  margin-top: -6px;
-  margin-right: 7px;
 }
