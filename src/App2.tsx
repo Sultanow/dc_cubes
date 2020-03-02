@@ -230,6 +230,7 @@ class App2 extends React.Component<{}, AppState> {
     });
 
     dataService.getMaxValueOfTimeseries().then((maxValue: number) => {
+      console.log("MaxValue: " + maxValue)        
       this.setState({ maxH: maxValue })
     }).catch((error: any) => {
       console.log(error)

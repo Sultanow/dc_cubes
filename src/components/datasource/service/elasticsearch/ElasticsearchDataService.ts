@@ -16,11 +16,11 @@ export default class ElasticsearchDataService implements DataSourceService {
     }
 
     getHistorical = (from: string, to: string): any => {
-        return httpClient.get("http://localhost:5000/" + "indices/" + this.elasticsearchIndex + "from/" + from + "/to/" + to)
+        return httpClient.get("http://localhost:5000/indices/" + this.elasticsearchIndex + "/from/" + from + "/to/" + to)
     };
 
     getForecast = (from: string, to: string): any => {
-        return httpClient.get("http://localhost:5000/" + this.elasticsearchForecastIndex + "indices/from/" + from + "/to/" + to)
+        return httpClient.get("http://localhost:5000/indices" + this.elasticsearchForecastIndex + "/from/" + from + "/to/" + to)
     }
 
     getAllHistorical = () => {
@@ -46,7 +46,20 @@ export default class ElasticsearchDataService implements DataSourceService {
 
 
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
-        return httpClient.get("http://localhost:5000/dummy/data")
+        //return httpClient.get("http://localhost:5000/dummy/data")
+
+        
+        const url = "http://localhost:5000/indices/" + this.elasticsearchIndex + "/from/" + from + "/to/" + to + "/count/max";
+        const urlForecast = "http://localhost:5000/indices/" + this.elasticsearchForecastIndex + "/from/" + from + "/to/" + to + "/count/max"
+
+        let maxValue = 42
+        
+        return new Promise((resolve, reject) => {
+            httpClient.post(url).then((data: any) => {
+                maxValue = data._source.count
+                return resolve(maxValue) 
+            });
+        })
     }
 
     

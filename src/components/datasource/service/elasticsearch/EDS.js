@@ -76,11 +76,23 @@ var maxAvg = {
 
 var maxSelectedMeasure = {  
   "index": index, 
-  "body": {
-    "aggs" : {
-      "max_value" : { "max" : { "field" : measure } }
-    }
-  }
+  body: {
+    "query": {
+        "range": { 
+            "@timestamp": { 
+                "time_zone": "+02:00", 
+                "gte": from, 
+                "lte": to 
+            }
+        } 
+    },
+    "sort": [{
+        "count": {
+            "order": "desc"
+        }
+    }],
+    "size": 1       
+}
 }
 
 var sortTime = {  
@@ -124,8 +136,8 @@ var aggTest = {
 }
 
 
-const { body } = await client.search(id)
-console.log(body.hits.hits)
+const { body } = await client.search(maxSelectedMeasure)
+console.log(body.hits.hits[0]._source.count)
 
 //console.log(body.hits.hits[0]._source.avg)
 
