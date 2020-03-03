@@ -4,6 +4,7 @@
 In the following you will find a list of the scientific work, produced within the DC Cube project:
 - [Paper: Visualization and Machine Learning for Data Center Management](https://dl.gi.de/handle/20.500.12116/25052)
 - [Thesis: Nicolas Walk](docs/bachelorthesis_walk_nicolas.pdf)
+- [Thesis: Aufbau einer Integrationsarchitektur für ein Auslastungsanalysetool in Grafana](docs/bachelorarbeit_odorfer.pdf)
 
 ## Talks
 - [Architecture Gathering](https://www.the-architecture-gathering.de/), 17. Oct 2019, _Eine Data Science-Architektur für die Analyse und Visualisierung von Rechenzentrumsdaten der Bundesagentur für Arbeit_ ([slides, german](docs/Do12-Sultanow-Sessler.pdf))
