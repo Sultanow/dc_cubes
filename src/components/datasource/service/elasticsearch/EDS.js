@@ -137,7 +137,7 @@ var aggTest = {
 
 
 const { body } = await client.search(maxSelectedMeasure)
-console.log(body.hits.hits[0]._source.count)
+console.log(body.hits.hits)
 
 //console.log(body.hits.hits[0]._source.avg)
 

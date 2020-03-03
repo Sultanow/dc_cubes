@@ -175,7 +175,7 @@ class App2 extends React.Component<{}, AppState> {
 
       standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure)
 
-      if( data.data.response.docs.length < 2) {
+      if( data.data.message < 2) {
         this.setState({dataSourceError: true});
         throw new Error("Data not available");
       }
@@ -200,7 +200,7 @@ class App2 extends React.Component<{}, AppState> {
           const standardAdapter = new StandardAdapter();
           standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
   
-          if( data.data.response.docs.length < 2) {
+          if( data.data.message.length < 2) {
             this.setState({dataSourceError: true});
             throw new Error("Data not available");
           }
@@ -229,7 +229,9 @@ class App2 extends React.Component<{}, AppState> {
       console.log(error)
     });
 
-    dataService.getMaxValueOfTimeseries().then((maxValue: number) => {
+    dataService.getMaxValueOfTimeseries().then((data: any) => {
+      //console.log(data.data.message[0]._source.count)
+      let maxValue:number = data.data.message[0]._source.count
       console.log("MaxValue: " + maxValue)        
       this.setState({ maxH: maxValue })
     }).catch((error: any) => {

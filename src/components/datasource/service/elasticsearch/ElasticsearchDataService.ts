@@ -20,7 +20,7 @@ export default class ElasticsearchDataService implements DataSourceService {
     };
 
     getForecast = (from: string, to: string): any => {
-        return httpClient.get("http://localhost:5000/indices" + this.elasticsearchForecastIndex + "/from/" + from + "/to/" + to)
+        return httpClient.get("http://localhost:5000/indices/" + this.elasticsearchForecastIndex + "/from/" + from + "/to/" + to)
     }
 
     getAllHistorical = () => {
@@ -52,14 +52,23 @@ export default class ElasticsearchDataService implements DataSourceService {
         const url = "http://localhost:5000/indices/" + this.elasticsearchIndex + "/from/" + from + "/to/" + to + "/count/max";
         const urlForecast = "http://localhost:5000/indices/" + this.elasticsearchForecastIndex + "/from/" + from + "/to/" + to + "/count/max"
 
-        let maxValue = 42
-        
         return new Promise((resolve, reject) => {
-            httpClient.post(url).then((data: any) => {
-                maxValue = data._source.count
-                return resolve(maxValue) 
+            httpClient.get(url)
+                .then(data => {
+                    return resolve(data)
+                }).catch((error: any) => {
+                    return reject(error)
+                })
+        })
+        
+        /*
+        return new Promise((resolve, reject) => {
+            httpClient.get(url).then((data: any) => {
+                //maxValue = data.hits.hits[0]._source.count
+                return resolve(data.hits.hits[0]._source.count) 
             });
         })
+        */
     }
 
     

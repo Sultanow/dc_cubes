@@ -27,7 +27,7 @@ export default class SolrAdapter {
 
     //generate data from socket json format
     receivedData(data: any, customMapping, selectedMeasure: string) {
-        let datajson: [] = data.data.response.docs
+        let datajson: [] = data.data.message
         this.rawTimeSeriesData = datajson
         this.temporalAxis = [];
 
