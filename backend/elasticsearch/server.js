@@ -22,19 +22,9 @@ router.use((req, res, next)=> {
     next();
 })
 
-/*
-// GET all docs
-router.get("/:index", (req, res) => {
-    return res.status(200).send({
-        message: "GET docs call succeeded",
-        dc_cubes: req.params.index
-    });
-})
-*/
-
 
 // GET all data by index
-router.get("/indices/:index/", (req, res) => {
+router.get("/:index", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
@@ -57,7 +47,7 @@ router.get("/indices/:index/", (req, res) => {
 
 
 // GET all data by index and id
-router.get("/indices/:index/id/:id", (req, res) => {
+router.get("/:index/:id", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
@@ -83,7 +73,7 @@ router.get("/indices/:index/id/:id", (req, res) => {
 })
 
 // GET allHistorical 
-router.get("/indices/:index/from/:from/to/:to", (req, res) => {
+router.get("/:index/:from/:to", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
@@ -110,9 +100,8 @@ router.get("/indices/:index/from/:from/to/:to", (req, res) => {
     })
 })
 
-// GET max value of index in time range
-//router.get("/indices/:index/from/:from/to/:to/selectedMeasure/:selectedMeasure/agg/:agg", (req, res) => {
-router.get("/indices/:index/from/:from/to/:to/count/max", (req, res) => {    
+// GET max count value of index in time range
+router.get("/:index/:from/:to/count/", (req, res) => {    
     client.search({
         index: req.params.index,
         body: {
@@ -144,67 +133,6 @@ router.get("/indices/:index/from/:from/to/:to/count/max", (req, res) => {
         }
     })
 })
-
-
-/* dummy test data
-router.get("/dummy/data", (req, res) => {
-    
-    client.search({
-        index: req.params.index,
-        body: {
-            "query": {
-                "match_all": { }
-            },
-            "size" : 1
-        }
-    }, function(err, response, status){
-        if(err){
-            console.log(err)
-        }
-        else{
-            res.sendStatus(status)
-            res.send(42)
-            console.log("elasticsearch response", response);
-        }
-    })
-})
-*/
-
-
-/*
-// TODO GET all aggegated value for each timestamp by selectedMeasure
-router.get("/:index/:from/:to/:selectedMeasure/:aggregationType", (req, res) => {
-    client.search({
-        index: req.params.index, 
-        body: {
-            "query": {
-                "range": { 
-                    "@timestamp": { 
-                        "time_zone": "+02:00", 
-                        "gte": req.params.from, 
-                        "lte": req.params.to 
-                    }, 
-                },
-                "bool": { 
-                    "filter": [ 
-                        { "term":  { "_id": req.params.id }}
-                    ]
-                }
-            }       
-        }
-    }, function(err, response, status){
-        if(err){
-            console.log(err)
-        }
-        else{
-            res.status(200).send({
-                message: response.hits.hits
-            })
-            console.log("elasticsearch response", response);
-        }
-    })
-})
-*/
 
 app.use("/", router);
 

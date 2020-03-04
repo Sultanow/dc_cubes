@@ -44,14 +44,35 @@ export default class ElasticsearchDataService implements DataSourceService {
         return httpClient.get("http://localhost:5000/dummy/data")
     }
 
-
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
         //return httpClient.get("http://localhost:5000/dummy/data")
 
         
-        const url = "http://localhost:5000/indices/" + this.elasticsearchIndex + "/from/" + from + "/to/" + to + "/count/max";
-        const urlForecast = "http://localhost:5000/indices/" + this.elasticsearchForecastIndex + "/from/" + from + "/to/" + to + "/count/max"
+        const url = "http://localhost:5000/" + this.elasticsearchIndex + "/" + from + "/" + to + "/" + selectedMeasure;
+        const urlForecast = "http://localhost:5000/" + this.elasticsearchForecastIndex + "/" + from + "/" + to + "/" + selectedMeasure;
 
+        let maxValue: number;
+
+        return new Promise((resolve, reject) => {
+            httpClient.get(url)
+                .then(data => {
+                    let maxValue = data.data.message[0]._source.count
+                    httpClient.get(urlForecast)
+                        .then(forecastData => {
+                            const forecastMax: number = forecastData.data.message[0]._source.count
+                            if (forecastMax !== undefined && maxValue < forecastMax){
+                                maxValue = forecastMax
+                            }
+                            return resolve(maxValue)
+                        }).catch((error: any) => {
+                            return resolve(maxValue)
+                        });
+                }).catch((error: any) => {
+                    return reject(error)
+                });
+        })
+
+        /*
         return new Promise((resolve, reject) => {
             httpClient.get(url)
                 .then(data => {
@@ -60,15 +81,9 @@ export default class ElasticsearchDataService implements DataSourceService {
                     return reject(error)
                 })
         })
-        
-        /*
-        return new Promise((resolve, reject) => {
-            httpClient.get(url).then((data: any) => {
-                //maxValue = data.hits.hits[0]._source.count
-                return resolve(data.hits.hits[0]._source.count) 
-            });
-        })
         */
+        
+        
     }
 
     

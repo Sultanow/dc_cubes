@@ -199,7 +199,9 @@ class App2 extends React.Component<{}, AppState> {
         dataService.getForecast().then((data: any) => {
           const standardAdapter = new StandardAdapter();
           standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure);
-  
+          
+          console.log("Test: " + data.data.message)
+
           if( data.data.message.length < 2) {
             this.setState({dataSourceError: true});
             throw new Error("Data not available");
@@ -230,8 +232,7 @@ class App2 extends React.Component<{}, AppState> {
     });
 
     dataService.getMaxValueOfTimeseries().then((data: any) => {
-      //console.log(data.data.message[0]._source.count)
-      let maxValue:number = data.data.message[0]._source.count
+      let maxValue:number = data
       console.log("MaxValue: " + maxValue)        
       this.setState({ maxH: maxValue })
     }).catch((error: any) => {
