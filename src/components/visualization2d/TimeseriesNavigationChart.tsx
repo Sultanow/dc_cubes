@@ -99,8 +99,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private preparedMinData: timeseriesData[];
     private preparedMaxData: timeseriesData[];
     private preparedForecastAvgData: timeseriesData[];
+    private preparedForecastMaxData: timeseriesData[];
+    private preparedForecastMinData: timeseriesData[];
 
     private selectedMeasure: string
+    private maxHPadding: number = 1;
 
     constructor(props: any) {
         super(props);
@@ -127,7 +130,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             let minHistoricTs = this.parseDate(this.props.timeseriesData[0].timestamp);
             let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1].timestamp);
             const timeDomain = [minHistoricTs, maxHistoricTs];
-            const maxCount = [0, maxH + 100];
+            const maxCount = [0, maxH + this.maxHPadding];
 
             this.xScale.domain(timeDomain);
             this.yScale.domain(maxCount);
@@ -175,7 +178,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 this.componentDidMount()
             }
             // Check if maxH has been updated
-            if (this.yScale.domain()[1] !== this.props.maxH + 100) {
+            if (this.yScale.domain()[1] !== this.props.maxH + this.maxHPadding) {
+                // this is REALLY dangerous. Magic number would cause infinite loop if domain gets set differently at the top
                 this.componentDidMount();
             }
             if (!this.forecastPreparationDone && this.props.forecastReceived) {
@@ -210,8 +214,14 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 }
                 if (!this.state.combinedAverage) {
                     this.preparedForecastAvgData = this.prepareDataForAvgLine(this.forecastUniqueTimestamps, this.props.forecastData);
+                    this.preparedForecastMaxData = this.prepareDataForMaxLine(this.forecastUniqueTimestamps, this.props.forecastData);
+                    this.preparedForecastMinData = this.prepareDataForMinLine(this.forecastUniqueTimestamps, this.props.forecastData);
                     const combinedAverage = this.combinedLineGenerator(this.preparedForecastAvgData);
+                    const combinedMax = this.combinedAreaGenerator(this.preparedForecastMaxData);
+                    const combinedMin = this.combinedAreaGenerator(this.preparedForecastMinData);
                     this.setState({ combinedAverage });
+                    this.setState({ combinedMax });
+                    this.setState({ combinedMin });
                     const historicAvg = this.combinedLineGenerator(this.preparedAvgData);
                     this.setState({ historicAvg })
                     const historicMin = this.combinedAreaGenerator(this.preparedMinData);
@@ -387,17 +397,17 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     toggleChartMax() {
-        let selection = d3.select(".area-max");
+        let selection = d3.selectAll(".area-max");
         if (selection.attr("display") === "none") selection.attr("display", "");
         else selection.attr("display", "none");
     }
     toggleChartAvg() {
-        let selection = d3.select(".line-avg");
+        let selection = d3.selectAll(".line-avg");
         if (selection.attr("display") === "none") selection.attr("display", "");
         else selection.attr("display", "none");
     }
     toggleChartMin() {
-        let selection = d3.select(".area-min");
+        let selection = d3.selectAll(".area-min");
         if (selection.attr("display") === "none") selection.attr("display", "");
         else selection.attr("display", "none");
     }
@@ -420,13 +430,21 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
 
 
-        var forecastLine = null;
+        var forecastLineAvg = null;
+        var forecastLineMin = null;
+        var forecastLineMax = null;
         var histroicAvgLine = null;
         var historicMinLine = null;
         var historicMaxLine = null;
         if (this.props.showPrediction) {
             if (this.state.combinedAverage != null) {
-                forecastLine = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" transform={translation} />
+                forecastLineAvg = <path className="line-avg prediction" d={this.state.combinedAverage} strokeLinecap="round" transform={translation} />
+            }
+            if (this.state.combinedMin != null) {
+                forecastLineMin = <path className="area-min prediction" d={this.state.combinedMin} strokeLinecap="round" transform={translation} />
+            }
+            if (this.state.combinedMax != null) {
+                forecastLineMax = <path className="area-max prediction" d={this.state.combinedMax} strokeLinecap="round" transform={translation} />
             }
 
             if (this.state.historicAvg != null) {
@@ -459,7 +477,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     {histroicAvgLine}
                     {minArea}
                     {historicMinLine}
-                    {forecastLine}
+                    {forecastLineMin}
+                    {forecastLineMax}
+                    {forecastLineAvg}
                     <g className="x-axis" transform={'translate(' + TRANSLATION_X + "," + this.height + ')'} ref={this.xAxisRef}></g>;
                     <g className="y-axis" transform={translation} ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>

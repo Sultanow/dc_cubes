@@ -4,7 +4,7 @@ import Cluster from '../../../model/Cluster'
 import Instance from '../../../model/Instance'
 
 interface ClusterColors {
-   [key: string]: number     
+    [key: string]: number
 }
 
 export default class SolrAdapter {

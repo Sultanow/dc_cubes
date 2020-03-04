@@ -90,8 +90,9 @@ class App extends React.Component<{}, AppState> {
   constructor(props: object) {
     super(props)
     // Set initial lower bound of timespan by subtracting days
-    const lowerBoundDate = new Date()
-    lowerBoundDate.setDate(lowerBoundDate.getDate() - 1000)
+    const upperBoundDate: Date = new Date(2020, 0, 25);
+    const lowerBoundDate: Date = new Date(2020, 0, 21);
+    // lowerBoundDate.setDate(upperBoundDate.getDate() - 3);
 
     this.state = {
       logData: [],
@@ -105,9 +106,9 @@ class App extends React.Component<{}, AppState> {
       dataSourceError: true,
       timeSelectionMode: 'pointInTime',
       timespanAbsoluteTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + "Z",
-      timespanAbsoluteTimestampUpperBound: new Date().toISOString().split('.')[0] + "Z",
+      timespanAbsoluteTimestampUpperBound: upperBoundDate.toISOString().split('.')[0] + "Z",
       timespanTimestampLowerBound: lowerBoundDate.toISOString().split('.')[0] + "Z",
-      timespanTimestampUpperBound: new Date().toISOString().split('.')[0] + "Z",
+      timespanTimestampUpperBound: upperBoundDate.toISOString().split('.')[0] + "Z",
       pointInTimeTimestamp: "",
       temporalAxis: [],
       historicTemporalAxis: [],
@@ -123,7 +124,7 @@ class App extends React.Component<{}, AppState> {
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      selectedMeasure: "count",
+      selectedMeasure: "cpuusage_ps",
       aggregationType: "avg",
       aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {

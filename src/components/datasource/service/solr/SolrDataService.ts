@@ -9,7 +9,7 @@ export default class SolrDataService implements DataSourceService {
     solrForecastCore: string;
     solrMergedCore: string;
     resultLimit = 2147483647 // Maximum of integer type
-    fieldList = "timestamp,cluster,dc,instanz,count"
+    fieldList = "timestamp,cluster,dc,instanz,cpuusage_ps"
     constructor(solrBaseUrl: string, solrCore: string, solrForecastCore: string, solrMergedCore: string) {
         this.solrBaseUrl = solrBaseUrl;
         this.solrCore = solrCore;
