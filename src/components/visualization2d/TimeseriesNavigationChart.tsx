@@ -477,8 +477,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     {histroicAvgLine}
                     {minArea}
                     {historicMinLine}
-                    {forecastLineMin}
                     {forecastLineMax}
+                    {forecastLineMin}
                     {forecastLineAvg}
                     <g className="x-axis" transform={'translate(' + TRANSLATION_X + "," + this.height + ')'} ref={this.xAxisRef}></g>;
                     <g className="y-axis" transform={translation} ref={this.yAxisRef}></g>;
