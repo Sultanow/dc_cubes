@@ -16,15 +16,15 @@ export default class ElasticsearchDataService implements DataSourceService {
     }
 
     getHistorical = (from: string, to: string): any => {
-        return httpClient.get("http://localhost:5000/indices/" + this.elasticsearchIndex + "/from/" + from + "/to/" + to)
+        return httpClient.get("http://localhost:5000/" + this.elasticsearchIndex + "/" + from + "/" + to)
     };
 
     getForecast = (from: string, to: string): any => {
-        return httpClient.get("http://localhost:5000/indices/" + this.elasticsearchForecastIndex + "/from/" + from + "/to/" + to)
+        return httpClient.get("http://localhost:5000/" + this.elasticsearchForecastIndex + "/" + from + "/" + to)
     }
 
     getAllHistorical = () => {
-        return httpClient.get("http://localhost:5000/indices/" + this.elasticsearchIndex)
+        return httpClient.get("http://localhost:5000/" + this.elasticsearchIndex)
     }
         
     // TODO
