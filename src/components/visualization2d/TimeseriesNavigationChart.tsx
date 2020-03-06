@@ -64,8 +64,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         historicMax: null,
     }
 
-    private margin = { top: 0, right: 0, bottom: 5, left: 0 };
-    private width = SVG_WIDTH - TRANSLATION_X//- (this.margin.left + this.margin.right);
+    private margin = { top: 0, right: 0, bottom: 5, left: 10 };
+    private width = SVG_WIDTH - (this.margin.left + this.margin.right) - TRANSLATION_X;
     private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
     private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
 
@@ -162,13 +162,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.setState({ min })
 
         }
-    }
-
-
-    componentWillReceiveProps(newProps) {
-        // this.removeChart();
-        console.log("2d Component will receive Props");
-        // todo: use this?
     }
 
     componentDidUpdate() {
@@ -414,7 +407,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
 
     render() {
-        const translation = "translate(" + TRANSLATION_X + ",0)";
+        const xTranslationChart: number = TRANSLATION_X + 15;
+        const translation = "translate(" + xTranslationChart + ",0)";
+        const translationAxis = "translate(" + TRANSLATION_X + ",0)";
         var maxArea = null;
         if (!this.props.showPrediction && this.state.max != null) {
             maxArea = <path className="area-max" d={this.state.max} strokeLinecap="round" transform={translation} />
@@ -470,7 +465,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
         return (
             <div className="container2d d-flex justify-content-center">
-                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT} transform={translation}>
+                <svg id={SVG_ID} width={SVG_WIDTH} height={SVG_HEIGHT} transform={translationAxis}>
                     {maxArea}
                     {historicMaxLine}
                     {avgline}
@@ -481,7 +476,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                     {forecastLineMin}
                     {forecastLineAvg}
                     <g className="x-axis" transform={'translate(' + TRANSLATION_X + "," + this.height + ')'} ref={this.xAxisRef}></g>;
-                    <g className="y-axis" transform={translation} ref={this.yAxisRef}></g>;
+                    <g className="y-axis" transform={translationAxis} ref={this.yAxisRef}></g>;
                     <g className="brush" ref={this.brushRef}></g>
                     <g className="mouseLine mouseClick">
                         <path id="selectedDatapointLine"></path>
@@ -563,6 +558,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         }
         return uniqueTimestamps;
     }
+
     prepareDataForMaxLine(timestamps: string[], timeseries: timeseriesData[]) {
         const valuesOnTimestamp: timeseriesData[] = [];
         timestamps.forEach(timestamp => {
@@ -640,6 +636,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     drawTimeNowLine() {
         let xcoord = this.combinedXScale(this.lastHistoricTimestamp);
         xcoord += this.calculateOffset();
+        xcoord += 18;
         d3.select("#timeNowLine").attr("d", function () {
             var d = "M" + xcoord + "," + SVG_HEIGHT;
             d += " " + xcoord + "," + 0;
