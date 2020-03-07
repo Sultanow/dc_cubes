@@ -117,47 +117,47 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     componentDidMount() {
         if (this.props.dataSourceError !== true) {
             // Save selectedMeasure to check on updates if change to it happened
-        this.selectedMeasure = this.props.selectedMeasure
+            this.selectedMeasure = this.props.selectedMeasure
 
-        const { timeseriesData, maxH, selectedMeasure} = this.props;
-        if (!timeseriesData) return;
+            const { timeseriesData, maxH, selectedMeasure } = this.props;
+            if (!timeseriesData) return;
 
-        this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1].timestamp);
+            this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1].timestamp);
 
-        let minHistoricTs = this.parseDate(this.props.timeseriesData[0].timestamp);
-        let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1].timestamp);
-        const timeDomain = [minHistoricTs, maxHistoricTs];
-        const maxCount = [0, maxH + 100];
+            let minHistoricTs = this.parseDate(this.props.timeseriesData[0].timestamp);
+            let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1].timestamp);
+            const timeDomain = [minHistoricTs, maxHistoricTs];
+            const maxCount = [0, maxH + 100];
 
-        this.xScale.domain(timeDomain);
-        this.yScale.domain(maxCount);
+            this.xScale.domain(timeDomain);
+            this.yScale.domain(maxCount);
 
-        this.uniqueTimestamps = this.props.temporalAxis;
+            this.uniqueTimestamps = this.props.temporalAxis;
 
-        // generate the max area
-        this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
-        this.areaGenerator.y0(this.yScale(0))
-        this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
+            // generate the max area
+            this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+            this.areaGenerator.y0(this.yScale(0))
+            this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
 
-        this.preparedMaxData = this.prepareDataForMaxLine(this.uniqueTimestamps, this.props.timeseriesData);
-        const max = this.areaGenerator(this.preparedMaxData);
-        this.setState({ max })
+            this.preparedMaxData = this.prepareDataForMaxLine(this.uniqueTimestamps, this.props.timeseriesData);
+            const max = this.areaGenerator(this.preparedMaxData);
+            this.setState({ max })
 
-        // generate the average line 
-        this.lineGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); });
-        this.lineGenerator.y(d => { return this.yScale(d[selectedMeasure]); })
-        this.preparedAvgData = this.prepareDataForAvgLine(this.uniqueTimestamps, this.props.timeseriesData);
-        const average = this.lineGenerator(this.preparedAvgData);
-        this.setState({ average })
+            // generate the average line 
+            this.lineGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); });
+            this.lineGenerator.y(d => { return this.yScale(d[selectedMeasure]); })
+            this.preparedAvgData = this.prepareDataForAvgLine(this.uniqueTimestamps, this.props.timeseriesData);
+            const average = this.lineGenerator(this.preparedAvgData);
+            this.setState({ average })
 
-        // generate the min area
-        this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
-        this.areaGenerator.y0(this.yScale(0))
-        this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
-        this.preparedMinData = this.prepareDataForMinLine(this.uniqueTimestamps, this.props.timeseriesData);
-        const min = this.areaGenerator(this.preparedMinData);
-        this.setState({ min })
-        
+            // generate the min area
+            this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+            this.areaGenerator.y0(this.yScale(0))
+            this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
+            this.preparedMinData = this.prepareDataForMinLine(this.uniqueTimestamps, this.props.timeseriesData);
+            const min = this.areaGenerator(this.preparedMinData);
+            this.setState({ min })
+
         }
     }
 
@@ -370,7 +370,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
         let newDateString = this.convertDateObjectToString(newDate);
         let found1 = this.preparedAvgData.find(x => x.timestamp === newDateString);
         let found2;
-        if (this.props.showPrediction) {
+        if (this.props.showPrediction && this.preparedForecastAvgData) {
             found2 = this.preparedForecastAvgData.find(x => x.timestamp === newDateString);
         }
 
