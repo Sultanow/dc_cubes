@@ -20,7 +20,8 @@ Due to the compact form of visualization and the different possible viewing angl
 Currently, a machine learning feature is under development, which provides an insight into future expectable infrastructure data.
 With DC Cubes it will not only be possible to get a compact overview of current data, but also an outlook on future data. This allows a more comprehensive and future-oriented evaluation of the data.
 
-## Grafana Plugin in development
+## Grafana Plugin available
+- [Installation and development guide (EN)](docs/en/instructions_grafana_plugin.md) 
 <img src="docs/img/grafana-plugin.png" width="560" alt="grafana-plugin" />
 <img src="docs/img/dc_cubes_grafana.png" width="560" alt="dc_cubes_grafana" />
 
