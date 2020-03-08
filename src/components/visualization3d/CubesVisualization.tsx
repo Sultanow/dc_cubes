@@ -249,6 +249,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             clusters.forEach((valueCluster: Cluster, keyCluster: string) => {
                 let instances = valueCluster.instances;
                 instances.forEach((valueInstance: Instance, keyInstance: string) => {
+                    console.log("valueInstance.utilization" + valueInstance.utilization);
                     var h = (Math.round(valueInstance.utilization * 100) / 100).toFixed(2);
                     let gridKey: string = keyDC + "_" + keyCluster + "_" + keyInstance;
                     let clusterKey = keyDC + "_" + keyCluster;

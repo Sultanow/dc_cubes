@@ -39,10 +39,12 @@ export default class SolrAdapter {
                 this.maxh = Number(strSelectedMeasure);
             }
 
+
             if (strTimeStamp !== undefined || null) {
                 this.buildTimeSeries(strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure);
             }
         });
+
 
         this.buildGrid()
     }
@@ -115,7 +117,7 @@ export default class SolrAdapter {
 
     // Build main structure from the data
     buildTimeSeries(strTimeStamp: string, strCluster: string, strDataCenter: string, strInstance: string, strUtilization: string) {
-
+        console.log("foreach" + strTimeStamp + ":::" + strUtilization);
         let dcState: DCState;
         if (this.timeSeries.has(strTimeStamp)) {
             dcState = this.timeSeries.get(strTimeStamp)!;
@@ -149,6 +151,8 @@ export default class SolrAdapter {
         if (cluster.instances.has(strInstance)) {
             instance = cluster.instances.get(strInstance)!;
         } else {
+
+            console.log("strUtiz " + strUtilization + "  :" + strInstance);
             instance = { utilization: Number(strUtilization) };
             cluster.instances.set(strInstance, instance);
             dcState.numInstances++;

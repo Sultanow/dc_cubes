@@ -63,6 +63,8 @@ def pushForecastData(row):
         if col not in data:
             if col != "id": # if an id is set, all documents and up as the same entry, index will have only 1 entry in the end
                 data[col] = -1
+
+    data.pop("id", None) # delete key, return None
     session = requests.Session()
     retry = Retry(connect=3, backoff_factor=0.5)
     adapter = HTTPAdapter(max_retries=retry)
