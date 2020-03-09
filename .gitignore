@@ -14,8 +14,8 @@
 
 # Models and similiar binary files, because they are too big
 #/research/scripts/forecast/*.h5
-/research/scripts/forecast/*.pckl
-/research/scripts/forecast/*.pkl
+#/research/scripts/forecast/*.pckl
+#/research/scripts/forecast/*.pkl
 !/research/scripts/forecast/4week_transformed_droppedErrors_filled.pkl
 # production
 /build
