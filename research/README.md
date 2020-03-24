@@ -3,7 +3,7 @@
 ## Scientific Work
 In the following you will find a list of the scientific work, produced within the DC Cube project:
 - [Paper: Visualization and Machine Learning for Data Center Management](https://dl.gi.de/handle/20.500.12116/25052)
-- [Thesis: Nicolas Walk](docs/bachelorthesis_walk_nicolas.pdf)
+- [Thesis: Architekturerstellung und Implementierung eines Systems zur Visualisierung und Analyse von Auslastungszeitreihen](docs/bachelorthesis_walk_nicolas.pdf)
 - [Thesis: Aufbau einer Integrationsarchitektur für ein Auslastungsanalysetool in Grafana](docs/bachelorarbeit_odorfer.pdf)
 - [Thesis: Integration von Python-basierten Vorhersagemodellen in ein Monitoring-Webdashboard](docs/Bachelorarbeit_Steindl_Sebastian.pdf)
 
