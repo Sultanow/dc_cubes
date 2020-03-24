@@ -5,6 +5,7 @@ In the following you will find a list of the scientific work, produced within th
 - [Paper: Visualization and Machine Learning for Data Center Management](https://dl.gi.de/handle/20.500.12116/25052)
 - [Thesis: Nicolas Walk](docs/bachelorthesis_walk_nicolas.pdf)
 - [Thesis: Aufbau einer Integrationsarchitektur für ein Auslastungsanalysetool in Grafana](docs/bachelorarbeit_odorfer.pdf)
+- [Thesis: Integration von Python-basierten Vorhersagemodellen in ein Monitoring-Webdashboard](docs/Bachelorarbeit_Steindl_Sebastian.pdf)
 
 ## Talks
 - [Architecture Gathering](https://www.the-architecture-gathering.de/), 17. Oct 2019, _Eine Data Science-Architektur für die Analyse und Visualisierung von Rechenzentrumsdaten der Bundesagentur für Arbeit_ ([slides, german](docs/Do12-Sultanow-Sessler.pdf))
@@ -19,7 +20,7 @@ Crucial to the outlook for expectable infrastructure data, four different approa
 - [Long Short-Term Memory](#long-short-term-memory)
 - [Convolutional Neural Network](#convolutional-neural-network)
 - [Gated Recurrent Unit](#gated-recurrent-unit)
- - [SARIMA](#seasonal-autoregressive-integrated-moving-average-sarima)
+- [SARIMA](#seasonal-autoregressive-integrated-moving-average-sarima)
 
 In the following chart, all forecasts of the respective models are visualized with the specific parameter set:
 
