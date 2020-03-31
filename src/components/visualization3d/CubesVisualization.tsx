@@ -44,7 +44,7 @@ interface Bar {
 }
 
 class CubesVisualization extends React.Component<CubesVisProps> {
-    
+
     scene: THREE.Scene;
     camera: THREE.PerspectiveCamera;
     mouse: THREE.Vector2;
@@ -81,7 +81,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
     render() {
         const selectedPointInTimeTimestamp: string = this.props.pointInTimeTimestamp;
 
-        let {timeSelectionMode, isLoading, listOfAllMeasures, aggregationTypes, aggregationType, selectedMeasure} = this.props;
+        let { timeSelectionMode, isLoading, listOfAllMeasures, aggregationTypes, aggregationType, selectedMeasure } = this.props;
         // TODO: use Date.tolocaleDate("en_us", options) after UTC Timezone fix https://stackoverflow.com/a/50293232
         const daysOfTheWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
         let timestamp = <div></div>;
@@ -249,7 +249,8 @@ class CubesVisualization extends React.Component<CubesVisProps> {
             clusters.forEach((valueCluster: Cluster, keyCluster: string) => {
                 let instances = valueCluster.instances;
                 instances.forEach((valueInstance: Instance, keyInstance: string) => {
-                    var h = valueInstance.utilization;
+                    console.log("valueInstance.utilization" + valueInstance.utilization);
+                    var h = (Math.round(valueInstance.utilization * 100) / 100).toFixed(2);
                     let gridKey: string = keyDC + "_" + keyCluster + "_" + keyInstance;
                     let clusterKey = keyDC + "_" + keyCluster;
 
@@ -533,7 +534,7 @@ class CubesVisualization extends React.Component<CubesVisProps> {
 
             // set render target sizes here
         }
-    } 
+    }
 
     handleChange = (e) => {
         const stateElement = e.target.name

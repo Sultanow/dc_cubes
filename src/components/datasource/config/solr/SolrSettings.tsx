@@ -28,7 +28,7 @@ export default class SolrSettings extends Component<SolrSettingsProps, SolrSetti
 
     this.state = {
       solrBaseUrl: 'http://localhost:8983/solr/',
-      solrCore: 'dc_cubes', 
+      solrCore: 'dc_cubes_historic', 
       solrQuery: '/query?q=*:*&start=0&rows=30000',
       solrInstanceStatus: false, // false -> offline, true -> online
       items: [],

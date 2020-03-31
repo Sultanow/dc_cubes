@@ -3,16 +3,18 @@ import httpClient from 'axios';
 import { PanelEditorProps } from '@grafana/data';
 import { Select, PanelOptionsGroup, FormLabel, Switch } from '@grafana/ui';
 import { EditorPanelOptions } from '../../App';
-import DataSource from '../../../../../../src/model/DataSource';
+import DataSourceOptions from '../../../../../../src/model/DataSourceOptions';
+import SelectOptions from '../../../../../../src/model/SelectOptions';
+import { SolrSettings } from './SolrSettings';
 
-const aggregationTypeOptions = [
+const aggregationTypeOptions: SelectOptions[] = [
   { value: 'min', label: 'Min' },
   { value: 'max', label: 'Max' },
   { value: 'avg', label: 'Average' },
   { value: 'sum', label: 'Sum' },
 ];
 
-const selectedMeasureOptions = [
+const selectedMeasureOptions: SelectOptions[] = [
   { value: 'count', label: 'Auslastung' },
   { value: 'minv', label: 'minv' },
   { value: 'maxv', label: 'maxv' },
@@ -20,12 +22,7 @@ const selectedMeasureOptions = [
   { value: 'dev_upp', label: 'dev_upp' },
 ];
 
-interface DataSourceObjects {
-  value: DataSource;
-  label: string;
-}
-
-const dataSources: DataSourceObjects[] = [
+const dataSources: DataSourceOptions[] = [
   { value: 'solr', label: 'Solr' },
   { value: 'elasticsearch', label: 'Elasticsearch' },
   { value: 'prometheus', label: 'Prometheus' },
@@ -47,34 +44,35 @@ export class EditorPanel extends PureComponent<PanelEditorProps<EditorPanelOptio
   onAggregationTypeChange = aggregationType => this.props.onOptionsChange({ ...this.props.options, aggregationType: aggregationType.value });
   onSelectedMeasureChange = selectedMeasure => this.props.onOptionsChange({ ...this.props.options, selectedMeasure: selectedMeasure.value });
   onDataSourceChange = dataSource => this.props.onOptionsChange({ ...this.props.options, dataSource: dataSource.value });
+  onPredictionChange = () => this.props.onOptionsChange({ ...this.props.options, predictionActivated: !this.props.options.predictionActivated });
 
   updatePredictions = () => {
-    console.log('update predicitons called');
     httpClient.get('http://localhost:8080/startscript').then((data: any) => {
       console.log('Update Predictions answer: ' + data.data);
     });
   };
 
   render() {
-    const { selectedMeasure, aggregationType, dataSource, predictionActivated } = this.props.options;
+    const {
+      selectedMeasure,
+      aggregationType,
+      dataSource,
+      predictionActivated,
+      solrBaseUrl,
+      solrHistoricalCore,
+      //solrQuery,
+    } = this.props.options;
 
     let dataSourceOptionsPage: JSX.Element;
     if (dataSource === 'solr') {
       dataSourceOptionsPage = (
-        <div className="section gf-form-group">
-          <h5 className="section-heading">Solr Options</h5>
-          <div className="gf-form">
-            <span className="gf-form-label width-8">Alert name</span>
-            <input type="text" className="gf-form-input max-width-15" placeholder="Alert name query" />
-          </div>
-          <div className="gf-form">
-            <span className="gf-form-label width-8">Dashboard title</span>
-            <input type="text" className="gf-form-input" placeholder="Dashboard title query" />
-          </div>
-          <div className="gf-form">
-            <span className="gf-form-label width-8">Dashboard tags</span>
-          </div>
-        </div>
+        <SolrSettings
+          solrBaseUrl={solrBaseUrl}
+          solrHistoricalCore={solrHistoricalCore}
+          //solrQuery={solrQuery}
+          onOptionsChange={this.props.onOptionsChange}
+          options={this.props.options}
+        />
       );
     } else if (dataSource === 'elasticsearch') {
       dataSourceOptionsPage = (
@@ -120,8 +118,8 @@ export class EditorPanel extends PureComponent<PanelEditorProps<EditorPanelOptio
             className="gf-form"
             checked={predictionActivated}
             label="Activate Prediction"
-            label-class="width-9"
-            onChange={this.onDataSourceChange}
+            label-class="width-12"
+            onChange={this.onPredictionChange}
           />
           <div className="gf-form-button-row">
             <button className="btn btn-inverse" onClick={this.updatePredictions}>
@@ -138,9 +136,9 @@ export class EditorPanel extends PureComponent<PanelEditorProps<EditorPanelOptio
                 <Select
                   width={12}
                   onChange={this.onDataSourceChange}
-                  defaultValue={dataSources[0]}
+                  defaultValue={dataSource}
                   options={dataSources}
-                  value={selectedMeasureOptions.find(option => option.value === dataSource)}
+                  value={dataSources.find(option => option.value === dataSource)}
                 />
               </div>
             </div>

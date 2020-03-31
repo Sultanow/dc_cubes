@@ -19,17 +19,15 @@ export interface EditorPanelOptions {
   aggregationType: AggregationType;
   dataSource: DataSource;
   predictionActivated: boolean;
+  solrBaseUrl: string;
+  solrHistoricalCore: string;
+  solrForecastCore: string;
+  solrMergedCore: string;
 }
 
 interface AppState {
   logData: [];
   backendUrl: string;
-  dataSourceUrl: string;
-  solrBaseUrl: string;
-  solrCore: string;
-  solrForecastCore: string;
-  solrMergedCore: string;
-  solrQuery: string;
   dataSourceError: boolean;
 
   timeSelectionMode: 'pointInTime' | 'timespan';
@@ -56,10 +54,7 @@ interface AppState {
   rawTimeseriesData: any;
   timespanError: boolean;
   isLoading: boolean;
-
-  selectedMeasure: string;
   customMapping: any;
-  aggregationType: AggregationType;
   aggregatedData: DCState | null;
 
   forecastDataReceived: boolean;
@@ -77,15 +72,6 @@ interface AppState {
 }
 
 export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState> {
-  private aggregationTypes = { avg: 'Mittelwert', sum: 'Summe', max: 'Maximum', min: 'Minimum' };
-  private listOfAllMeasures = {
-    count: 'Auslastung',
-    minv: 'minv',
-    maxv: 'maxv',
-    dev_low: 'dev_low',
-    dev_upp: 'dev_upp',
-  };
-
   requestID: string;
 
   constructor(props: PanelProps) {
@@ -97,12 +83,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
     this.state = {
       logData: [],
       backendUrl: 'http://localhost:8080',
-      dataSourceUrl: 'http://localhost:8983/solr/dc_cubes/query?q=*:*&start=0&rows=30000',
-      solrBaseUrl: 'http://localhost:8983/solr/',
-      solrCore: 'dc_cubes',
-      solrForecastCore: 'dc_cubes_forecast',
-      solrMergedCore: 'dc_cubes_merged',
-      solrQuery: '/query?q=*:*&start=0&rows=30000',
       dataSourceError: true,
       timeSelectionMode: 'pointInTime',
       // Time boundaries for server data
@@ -126,8 +106,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      selectedMeasure: this.props.options.selectedMeasure,
-      aggregationType: this.props.options.aggregationType,
       aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {
         const strTimeStamp: string = element['timestamp'];
@@ -157,6 +135,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
   }
 
   componentDidUpdate = nextProps => {
+    console.log(nextProps);
     const { selectedMeasure, aggregationType, predictionActivated } = this.props.options;
     if (nextProps.options.selectedMeasure !== selectedMeasure) {
       if (selectedMeasure) {
@@ -165,7 +144,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
     }
     if (nextProps.options.aggregationType !== aggregationType) {
       if (aggregationType) {
-        this.updateAggregationType(aggregationType);
+        this.updateAggregationType();
       }
     }
     if (nextProps.options.predictionActivated !== predictionActivated) {
@@ -182,8 +161,8 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
       this.getLogData();
     }
     this.requestID = this.props.data.request.requestId;
-    console.log(this.state.timespanAbsoluteTimestampLowerBound);
-    console.log(this.props);
+    //console.log(this.state.timespanAbsoluteTimestampLowerBound);
+    //console.log(this.props);
   };
 
   /**
@@ -197,12 +176,12 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
       this.props.options.dataSource,
       this.props.timeRange.from.toISOString().split('.')[0] + 'Z',
       this.props.timeRange.to.toISOString().split('.')[0] + 'Z',
-      this.state.solrBaseUrl,
-      this.state.solrCore,
-      this.state.solrForecastCore,
-      this.state.solrMergedCore,
+      this.props.options.solrBaseUrl,
+      this.props.options.solrHistoricalCore,
+      this.props.options.solrForecastCore,
+      this.props.options.solrMergedCore,
       this.props.options.selectedMeasure,
-      this.state.aggregationType
+      this.props.options.aggregationType
     );
     // Initially get all data because the placeholder visualization needs the full temporalAxis
     dataService
@@ -275,16 +254,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
         console.log(error);
       });
 
-    dataService /* if (refreshTimeUnit === 'se, da sie nur als JavaScript-Datumsobjekte vorlagen
-    return;
-  } */
-      .getMaxValueOfTimeseries()
-      .then((maxValue: number) => {
-        this.setState({ maxH: maxValue });
-      })
-      .catch((error: any) => {
-        console.log(error);
-      });
 
     this.getAggregatedLogData();
   };
@@ -294,12 +263,12 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
       this.props.options.dataSource,
       this.state.timespanTimestampLowerBound,
       this.state.timespanTimestampUpperBound,
-      this.state.solrBaseUrl,
-      this.state.solrCore,
-      this.state.solrForecastCore,
-      this.state.solrMergedCore,
+      this.props.options.solrBaseUrl,
+      this.props.options.solrHistoricalCore,
+      this.props.options.solrForecastCore,
+      this.props.options.solrMergedCore,
       this.props.options.selectedMeasure,
-      this.state.aggregationType
+      this.props.options.aggregationType
     );
 
     dataService
@@ -369,7 +338,7 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
       cubesVisData = this.state.aggregatedData!;
     }
     return (
-      <div className="App">
+      <div style={{ height: '100%', width: '100%' }} className="App">
         <React.Fragment>
           <CubesVisualization
             data={cubesVisData}
@@ -386,12 +355,6 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
             timespanTimestampLowerBound={this.state.timespanTimestampLowerBound}
             timespanTimestampUpperBound={this.state.timespanTimestampUpperBound}
             lastHistoricDate={new Date(this.state.historicTemporalAxis[this.state.historicTemporalAxis.length - 1])}
-            aggregationType={this.state.aggregationType}
-            updateAggregationType={this.updateAggregationType}
-            selectedMeasure={this.props.options.selectedMeasure}
-            updateSelectedMeasure={this.updateSelectedMeasure}
-            aggregationTypes={this.aggregationTypes}
-            listOfAllMeasures={this.listOfAllMeasures}
           >
             {TimeseriesNavigationChartComponent}
           </CubesVisualization>
@@ -445,8 +408,8 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
     this.setState<never>({ [stateElement]: value }, () => {});
   };
 
-  updateAggregationType = (aggregationType: AggregationType) => {
-    this.setState({ aggregationType: aggregationType, isLoading: true }, () => {
+  updateAggregationType = () => {
+    this.setState({ isLoading: true }, () => {
       this.getAggregatedLogData();
     });
   };
@@ -472,23 +435,5 @@ export class App extends PureComponent<PanelProps<EditorPanelOptions>, AppState>
 
   updatePointInTimeTimestamp = (newTimestamp: string) => {
     this.setState({ timeSelectionMode: 'pointInTime', pointInTimeTimestamp: newTimestamp });
-  };
-
-  setDataSourceUrl = (dataSourceUrl: string) => {
-    this.setState({ dataSourceUrl: dataSourceUrl }, () => {
-      this.getLogData();
-    });
-  };
-
-  setSolrUrlPart = (solrUrlPartName: string, solrUrlPart: string) => {
-    this.setState<never>(
-      {
-        [solrUrlPartName]: solrUrlPart,
-      },
-      () => {
-        const dataSourceUrl = this.state.solrBaseUrl.concat(this.state.solrCore, this.state.solrQuery);
-        this.setDataSourceUrl(dataSourceUrl);
-      }
-    );
   };
 }

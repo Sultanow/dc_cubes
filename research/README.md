@@ -1,9 +1,15 @@
 # Research
 
-## Scientific Work
+## Scientific Papers
 In the following you will find a list of the scientific work, produced within the DC Cube project:
 - [Paper: Visualization and Machine Learning for Data Center Management](https://dl.gi.de/handle/20.500.12116/25052)
-- [Thesis: Nicolas Walk](docs/bachelorthesis_walk_nicolas.pdf)
+
+## Theses
+- [Thesis: Konzeption eines Systems zur 3D-Visualisierung der Auslastung von Rechenzentren](docs/theses/LukasSprinck_Masterarbeit.pdf)
+- [Thesis: Architekturerstellung und Implementierung eines Systems zur Visualisierung und Analyse von Auslastungszeitreihen](docs/theses/bachelorthesis_walk_nicolas.pdf)
+- [Thesis: Aufbau einer Integrationsarchitektur für ein Auslastungsanalysetool in Grafana](docs/theses/bachelorarbeit_odorfer.pdf)
+- [Thesis: Integration von Python-basierten Vorhersagemodellen in ein Monitoring-Webdashboard](docs/theses/Bachelorarbeit_Steindl_Sebastian.pdf)
+- [Thesis: Machine Learning für Zeitreihen – Modell zur Vorhersage von Serverauslastungen](docs/theses/bachelorarbeit_ivan_levarda.pdf)
 
 ## Talks
 - [Architecture Gathering](https://www.the-architecture-gathering.de/), 17. Oct 2019, _Eine Data Science-Architektur für die Analyse und Visualisierung von Rechenzentrumsdaten der Bundesagentur für Arbeit_ ([slides, german](docs/Do12-Sultanow-Sessler.pdf))
@@ -18,7 +24,7 @@ Crucial to the outlook for expectable infrastructure data, four different approa
 - [Long Short-Term Memory](#long-short-term-memory)
 - [Convolutional Neural Network](#convolutional-neural-network)
 - [Gated Recurrent Unit](#gated-recurrent-unit)
- - [SARIMA](#seasonal-autoregressive-integrated-moving-average-sarima)
+- [SARIMA](#seasonal-autoregressive-integrated-moving-average-sarima)
 
 In the following chart, all forecasts of the respective models are visualized with the specific parameter set:
 
@@ -132,6 +138,12 @@ We used a SARIMA-Model with the parameters (1, 3, 0)(1, 1, 1, n_history) where n
 The Python frameworks Statsmodels/Scikit-Learn were used for prototyping.<br />
 <img src="img/SARIMA130111n.jpg" width="560" alt="sarima" /><br />
 Further information: [AutoRegressive Integrated Moving Average](https://en.wikipedia.org/wiki/Autoregressive_integrated_moving_average), [Statsmodels](https://www.statsmodels.org/stable/tsa.html)
+
+## Why LSTM, GRU and CNN are suited for time series
+When working with a time series its important to keep in mind that there is a correlation between the timestamps, e.g. between the value at timestep t and t-1. A standard MLP does not use this information. Reccurrent Neural Networks have an internal memory or state to account for that, making them suited for sequences (Timeseries, Translation, NLP). However, with the recurrent connection comes a problem: vanishing/exploding gradients. This basically means that the gradient gets too small/big and the NN can't learn the dependencies well anymore. LSTMs were designed to tackle this problem. They are a special architecture for the layers in a RNN. They use the so called constant error carousel (CEC) to represent the internal state and multiple gates to control or protect it. GRUs are similiar to LSTM-Units and ultimatley based on them, but are less complex in their structure. They still have an internal state and two gates to control it.   
+
+The CNN on the other hand might seem surprinsig at first. They are commonly used when working with images, e.g. classification. For this, the image is interpreted as a 2d grid. When using a CNN for timeseries however, you interpret your data as a 1d grid. The frequency between the measures determines the grid. The rest of the process is the same as when working with images. The CNN therefore will likely learn shorter term dependencies. 
+In this project we used a LSTM-Layer within the CNN, harnessing the advantages of both methods.  
 
 ## Optimization
 PCA (Principal Component Analysis): PCA (https://en.wikipedia.org/wiki/Principal_component_analysis) can be used to reduce the dimension/features of our data while retaining most of the information (e.g. > 95%) by representing redundant information in a lesser dimension. Therefore it can lessen the effect of the so called "curse of dimensionality" (https://en.wikipedia.org/wiki/Curse_of_dimensionality) and speed up the training of the ANN. PCA itself can be considered as an unsupervised machine learning algorithm. With our specific dataset, we were able to reduce the number of features from about 180 to 60 while keeping 95% of the variance. Concering runtime, it only had a noticable effect on the MLP where the time per epoch could be reduced to about 1/5 compared to the training without PCA. The performance/accuracy of the Nets wasn't greatly affected - as expected. With PCA we noticed a small improvement in validation loss for the MLP and CNN while experiencing a small negative on validation loss for the LSTM- and GRU-Net.

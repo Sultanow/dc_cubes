@@ -10,11 +10,11 @@ const port = config.backendPort;
 const historical = config.solrSettings.historicalDataCore;
 const forecast = config.solrSettings.forecastDataCore;
 
-const { spawn } = require("child_process");
-    const pythonProcess = spawn("python", ["prophet.py"]);
-    pythonProcess.stdout.on('data', function(data) {
-        process.stdout.write(data);
-    });
+// const { spawn } = require("child_process");
+// const pythonProcess = spawn("python", ["MLSkript.py"]);
+// pythonProcess.stdout.on('data', function (data) {
+//     process.stdout.write(data);
+// });
 
 app.get("/", function (req, res) {
     res.send("node is online");
