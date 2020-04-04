@@ -137,12 +137,107 @@ var aggT = {
 
 var aggTest = {
   "index" : index,
-  
+  "body": {
+    "_source": ["cluster", "instanz", "count", "timestamp", "dc"],
+    "aggs" : {
+      "datacenters" : {
+          "terms" : {
+              "field" : "dc",
+          },
+          "aggs": {
+            "cluster": {
+              "terms" : {
+                "field" : "dc",
+            },
+            "aggs": {
+              "instances": {
+                "terms": {
+                  "field": "instanz"
+                },
+                "aggs": {
+                  "aggregatedValue": { "avg": {"field": "count"} }
+                }
+              }
+            }
+            }
+          }
+      }
+    },
+    "size": 5
+  }
 }
 
+var aggTest3 = {
+  "index" : index,
+  "body": {
+    "_source": ["cluster", "instanz", "count", "timestamp", "dc"],
+    "aggs" : {
+      "datacenters" : {
+          "terms" : {
+              "field" : "dc", //value in "key" field in response object
+          },
+          "aggs": {
+            "cluster": {
+              "terms" : {
+                "field" : "dc",
+            },
+            "aggs": {
+              "instances": {
+                "terms": {
+                  "field": "instanz"
+                }
+              }
+            }
+            }
+          }
+      }
+    },
+    "size": 3
+  }
+}
 
-const { body } = await client.search(maxSelectedMeasure)
-console.log(body.hits.hits)
+var aggTest2 = {
+  "index" : index,
+  "body": {
+    "_source": ["cluster", "instanz", "count", "timestamp", "dc"],
+    "query": {
+      "match_all": { }
+    },
+    "size": 3
+  }
+}
+
+/*
+"aggs": {
+      "datacenters":{
+        "nested": {
+          "path": "dc"
+        }, 
+        "aggs": {
+          "clusters": {
+            "nested": {
+              "path": "cluster"
+            },
+            "aggs": {
+              "instances": {
+                "nested": {
+                  "path": "instanz"
+                },
+                "aggs": {
+                  "aggregatedValue": 6
+                }
+              }
+            }
+          }
+        } 
+      }
+    },
+*/
+
+
+
+const { body } = await client.search(aggTest)
+console.log(JSON.stringify(body, null, 2))
 
 //console.log(body.hits.hits[0]._source.avg)
 

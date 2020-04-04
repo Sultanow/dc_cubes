@@ -12,7 +12,7 @@ app.use(express.json());
 
 
 
-router.use((req, res, next)=> {
+router.use((req, res, next) => {
     console.log(req.method, req.url);
 
     res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
@@ -29,14 +29,14 @@ router.get("/:index", (req, res) => {
         index: req.params.index,
         body: {
             "query": {
-                "match_all": { }
+                "match_all": {}
             }
         }
-    }, function(err, response, status){
-        if(err){
+    }, function (err, response, status) {
+        if (err) {
             console.log(err)
         }
-        else{
+        else {
             res.status(200).send({
                 message: response.hits.hits
             })
@@ -52,18 +52,18 @@ router.get("/:index/:id", (req, res) => {
         index: req.params.index,
         body: {
             "query": {
-                "bool": { 
-                    "filter": [ 
-                        { "term":  { "_id": req.params.id }}
+                "bool": {
+                    "filter": [
+                        { "term": { "_id": req.params.id } }
                     ]
                 }
-            }       
+            }
         }
-    }, function(err, response, status){
-        if(err){
+    }, function (err, response, status) {
+        if (err) {
             console.log(err)
         }
-        else{
+        else {
             res.status(200).send({
                 message: response.hits.hits
             })
@@ -78,20 +78,20 @@ router.get("/:index/:from/:to", (req, res) => {
         index: req.params.index,
         body: {
             "query": {
-                "range": { 
-                    "@timestamp": { 
-                        "time_zone": "+02:00", 
-                        "gte": req.params.from, 
-                        "lte": req.params.to 
+                "range": {
+                    "@timestamp": {
+                        "time_zone": "+02:00",
+                        "gte": req.params.from,
+                        "lte": req.params.to
                     }
                 }
-            }       
+            }
         }
-    }, function(err, response, status){
-        if(err){
+    }, function (err, response, status) {
+        if (err) {
             console.log(err)
         }
-        else{
+        else {
             res.status(200).send({
                 message: response.hits.hits
             })
@@ -100,32 +100,80 @@ router.get("/:index/:from/:to", (req, res) => {
     })
 })
 
+// GET aggregatedLogData
+router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
+    client.search({
+        index: req.params.index,
+        body: {
+            "_source": ["cluster", "instanz", "count", "timestamp", "dc"],
+            "aggs": {
+                "datacenters": {
+                    "terms": {
+                        "field": "dc",
+                    },
+                    "aggs": {
+                        "cluster": {
+                            "terms": {
+                                "field": "dc",
+                            },
+                            "aggs": {
+                                "instances": {
+                                    "terms": {
+                                        "field": "instanz"
+                                    },
+                                    "aggs": {
+                                        "aggregatedValue": { 
+                                            "avg" : { 
+                                                "field": req.params.selectedMeasure 
+                                            } 
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }, function (err, response, status) {
+        if (err) {
+            console.log(err)
+        }
+        else {
+            res.status(200).send({
+                message: response
+            })
+            console.log("elasticsearch response", response);
+        }
+    })
+})
+
 // GET max cpuusage_ps value of index in time range
-router.get("/:index/:from/:to/cpuusage_ps/", (req, res) => {    
+router.get("/:index/:from/:to/cpuusage_ps/", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
             "query": {
-                "range": { 
-                    "@timestamp": { 
-                        "time_zone": "+02:00", 
-                        "gte": req.params.from, 
-                        "lte": req.params.to 
+                "range": {
+                    "@timestamp": {
+                        "time_zone": "+02:00",
+                        "gte": req.params.from,
+                        "lte": req.params.to
                     }
-                } 
+                }
             },
             "sort": [{
                 "cpuusage_ps": {
                     "order": "desc"
                 }
             }],
-            "size": 1       
+            "size": 1
         }
-    }, function(err, response, status){
-        if(err){
+    }, function (err, response, status) {
+        if (err) {
             console.log(err)
         }
-        else{
+        else {
             res.status(200).send({
                 message: response.hits.hits
             })
