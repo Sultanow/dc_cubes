@@ -120,7 +120,7 @@ class App2 extends React.Component<{}, AppState> {
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      selectedMeasure: "cpuusage_ps",
+      selectedMeasure: "count",
       aggregationType: "avg",
       aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {
@@ -169,10 +169,11 @@ class App2 extends React.Component<{}, AppState> {
     dataService.getHistorical().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const standardAdapter = new StandardAdapter();
-
+      console.log(data)
       standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure)
-
-      if (data.data.response.docs.length < 2) {
+      //console.log(data)
+      console.log("Length: " + data.data.message.length)
+      if (data.data.message.length < 2) {
         this.setState({ dataSourceError: true });
         throw new Error("Data not available");
       }
@@ -249,10 +250,11 @@ class App2 extends React.Component<{}, AppState> {
       const standardAdapter = new StandardAdapter()
       let strTimeStamp = "timespan"
 
-      data.data.facets.datacenters.buckets.forEach(strDataCenter => {
+      //console.log(data)
+      data.data.message.aggregations.datacenters.buckets.forEach(strDataCenter => {
         strDataCenter.clusters.buckets.forEach(strCluster => {
           strCluster.instances.buckets.forEach(strInstance => {
-            standardAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue)))
+            standardAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue.value)))
           })
         })
       })

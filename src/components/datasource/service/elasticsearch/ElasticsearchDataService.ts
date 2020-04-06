@@ -11,6 +11,8 @@ export default class ElasticsearchDataService implements DataSourceService {
     //resultLimit = 2147483647 // Maximum of integer type
     fieldList = "timestamp,cluster,dc,instanz,cpuusage_ps"
 
+    host = "http://localhost:5000/"
+
     constructor(elasticsearchIndex: string, elasticsearchForecastIndex: string, elasticsearchMergedIndex: string) {
         this.elasticsearchIndex = elasticsearchIndex;
         this.elasticsearchForecastIndex = elasticsearchForecastIndex;
@@ -18,26 +20,23 @@ export default class ElasticsearchDataService implements DataSourceService {
     }
 
     getHistorical = (from: string, to: string): any => {
-        return httpClient.get("http://localhost:5000/" + this.elasticsearchIndex + "/" + from + "/" + to)
+        return httpClient.get(this.host + this.elasticsearchIndex + "/" + from + "/" + to)
     };
 
     getForecast = (from: string, to: string): any => {
-        return httpClient.get("http://localhost:5000/" + this.elasticsearchForecastIndex + "/" + from + "/" + to)
+        return httpClient.get(this.host + this.elasticsearchForecastIndex + "/" + from + "/" + to)
     }
 
     getAllHistorical = () => {
-        return httpClient.get("http://localhost:5000/" + this.elasticsearchIndex)
+        return httpClient.get(this.host + this.elasticsearchIndex)
     }
 
 
 
     getAggregatedLogData = (from: string, to: string, selectedMeasure: string, aggregationType: AggregationType) => {
-        const query = {
-
-        }
-        const url = "/query"
-        return httpClient.post(url, query);
+        return httpClient.get(this.host + this.elasticsearchIndex + "/" + from + "/" + to + "/" + selectedMeasure + "/" + aggregationType)
     }
+
     /*
     getAggregatedLogData = (from: string, to: string, selectedMeasure: string, aggregationType: AggregationType) => {
         const query = {
@@ -175,8 +174,8 @@ export default class ElasticsearchDataService implements DataSourceService {
         //return httpClient.get("http://localhost:5000/dummy/data")
 
 
-        const url = "http://localhost:5000/" + this.elasticsearchIndex + "/" + from + "/" + to + "/" + selectedMeasure;
-        const urlForecast = "http://localhost:5000/" + this.elasticsearchForecastIndex + "/" + from + "/" + to + "/" + selectedMeasure;
+        const url = this.host + this.elasticsearchIndex + "/" + from + "/" + to + "/" + selectedMeasure;
+        const urlForecast = this.host + this.elasticsearchForecastIndex + "/" + from + "/" + to + "/" + selectedMeasure;
 
         let maxValue: number;
 

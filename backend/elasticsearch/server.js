@@ -92,6 +92,7 @@ router.get("/:index/:from/:to", (req, res) => {
             console.log(err)
         }
         else {
+            console.log("TEST: " + response)
             res.status(200).send({
                 message: response.hits.hits
             })
@@ -102,17 +103,27 @@ router.get("/:index/:from/:to", (req, res) => {
 
 // GET aggregatedLogData
 router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
+    
     client.search({
         index: req.params.index,
         body: {
             "_source": ["cluster", "instanz", "count", "timestamp", "dc"],
+            "query": {
+                "range": {
+                    "@timestamp": {
+                        "time_zone": "+02:00",
+                        "gte": req.params.from,
+                        "lte": req.params.to
+                    }
+                }
+            },
             "aggs": {
                 "datacenters": {
                     "terms": {
                         "field": "dc",
                     },
                     "aggs": {
-                        "cluster": {
+                        "clusters": {
                             "terms": {
                                 "field": "dc",
                             },
@@ -149,7 +160,7 @@ router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
 })
 
 // GET max cpuusage_ps value of index in time range
-router.get("/:index/:from/:to/cpuusage_ps/", (req, res) => {
+router.get("/:index/:from/:to/count/", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
