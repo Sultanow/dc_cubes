@@ -37,6 +37,7 @@ def getHistoricData(index_name):
     
     res = es.search(index=index_name, body=body)
 
+
     #print("Got %d Hits: " % res["hits"]["total"]["value"])
     #for hit in res['hits']['hits']:
         #printPretty(hit["_source"])
@@ -143,6 +144,7 @@ def mergeTwoIndices(index1, index2, es):
     activeIndices = es.indices.get_alias("dc_cubes*")
     print("########### Active Indices with alias: " + index_alias + " ###########")
     printPretty(activeIndices)
+
 
 def makePredictionFrame(model, cubes_frames, last_timestamp):
     prediction_frames = []
