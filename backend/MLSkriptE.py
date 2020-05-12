@@ -64,7 +64,7 @@ def createIndex(new_index_name, es):
                 },
                 "mappings": {
                     "properties": {
-                        "@timestamp": {
+                        "timestamp": {
                             "type":"date"
                         },
                         "host": {
