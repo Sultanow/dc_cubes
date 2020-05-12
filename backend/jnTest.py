@@ -285,7 +285,7 @@ def makePredictionFrame(modelDc0, modelDc1, cubes_frames, last_timestamp, predic
     return pd.concat(prediction_frames, ignore_index=True)
 
 import datetime as dt
-
+ 
 def pushData(row):
     global index_name
     global counter
