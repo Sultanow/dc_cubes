@@ -225,7 +225,47 @@ def pushData(row):
    
 
 
+def getData(index_name):
 
+    es.indices.refresh(index=index_name)
+        
+    body={
+        "_source": {
+            "includes": ["@timestamp","cluster","dc","perm","instanz","verfahren","service","response","count","minv","maxv","avg","var","dev_upp","dev_low","perc90","perc95","perc99","sum","sum_squares","server"],
+        },
+        "query": {
+            "match_all": {
+            }
+        },
+        "size": 2
+    }
+
+    body2={
+       "aggs": {
+        "my_date_histo":{
+            "date_histogram":{
+                "field":"timestamp"
+            },
+            "aggs":{
+                "the_sum":{
+                    "sum":{ "field": "cluster" } 
+                }
+            }
+        }
+    }
+    }
+    
+    res = es.search(index=index_name, body=body2)
+
+    #print("Got %d Hits: " % res["hits"]["total"]["value"])
+    #for hit in res['hits']['hits']:
+        #printPretty(hit["_source"])
+
+    resHits = res
+    #resHits = res["hits"]["hits"][0]["_source"]["@timestamp"]
+    #printPretty(resHits)
+
+    return resHits
 
 
 
@@ -270,7 +310,7 @@ if __name__ == "__main__":
         #res = es.search(index="dc_cubes_historic", body=request_body)
         #printPretty(res["hits"]["hits"])
 
-        printPretty(es.indices.get_mapping(index="tstest"))
+        #printPretty(es.indices.get_mapping(index="tstest"))
         
         #es.index(index="dc_cubes", doc_type="post", id=1, body=requestBody)
 
@@ -283,6 +323,8 @@ if __name__ == "__main__":
         #createIndex2("test_index2", es)
         #es.index(index="test_index", doc_type="_doc", id=1, body=requestBody)
         #getHistoricData("test_index")
+
+        printPretty(getData("dc_cubes_historic"))
         
     
     else:

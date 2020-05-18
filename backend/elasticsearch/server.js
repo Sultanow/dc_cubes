@@ -125,7 +125,7 @@ router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
                     "aggs": {
                         "clusters": {
                             "terms": {
-                                "field": "dc",
+                                "field": "cluster",
                             },
                             "aggs": {
                                 "instances": {
@@ -159,7 +159,7 @@ router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
     })
 })
 
-// GET max cpuusage_ps value of index in time range
+// GET max cpuusage_ps? value of index in time range
 router.get("/:index/:from/:to/count/", (req, res) => {
     client.search({
         index: req.params.index,
@@ -174,7 +174,7 @@ router.get("/:index/:from/:to/count/", (req, res) => {
                 }
             },
             "sort": [{
-                "cpuusage_ps": {
+                "count": {
                     "order": "desc"
                 }
             }],

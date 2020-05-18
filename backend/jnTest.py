@@ -135,6 +135,7 @@ def initSchema(core_name, allMetrics):
 # Every Cluster has all 8 instances
 
 def pushDataForAllInstances(df):
+    #instances = ["1"]
     instances = ["1","2","3","4","5","6","7","8" ]
     for instanz in instances:
         df["instanz"] = instanz
@@ -292,7 +293,7 @@ def pushData(row):
     global allMetrics
     global predictionColumn
 
-    print("row:  " + str(row["timestamp"]))
+    #print("row:  " + str(row["timestamp"]))
     date_time_str = '2018-06-29 17:08:00'
     date_time_obj = dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
 
@@ -366,8 +367,8 @@ predictionColumn = "cpuusage_ps"
 # Connect to Elasticearch cluster
 es = Elasticsearch([{"host":"localhost", "port": 9200}])
 
-res3 = es.indices.get_mapping(index="dc_cubes")
-printPretty(res3)
+#res3 = es.indices.get_mapping(index="dc_cubes")
+#printPretty(res3)
 
 # get existing elasticsearch indices
 index_alias = "dc_cubes_*"
@@ -386,8 +387,8 @@ else:
     createIndex(index_name, es)
     print(index_name + " created")
 
-res4 = es.indices.get_mapping(index="dc_cubes_historic")
-printPretty(res4)
+#res4 = es.indices.get_mapping(index="dc_cubes_historic")
+#printPretty(res4)
 
 # Read data from pickle file
 with open("../research/scripts/forecast/data_pblm1.pkl", "rb") as pickleFile:
@@ -475,7 +476,7 @@ forecast_steps = pred_horizon
 timestamp = "timestamp"
 hist_df.reset_index(inplace=True)
 
-last_timestamp = hist_df.timestamp.max()
+last_timestamp = hist_df["@timestamp"].max()
 hist_df[timestamp] = pd.to_datetime(hist_df.timestamp)
 # generate features/columns from the timestamp
 hist_df["dayOfWeek"] = hist_df[timestamp].map(lambda x: x.dayofweek)
