@@ -11,8 +11,8 @@ import csv
 import pickle
 import numpy as np
 import keras
-from keras.models import Sequential, load_model
-from keras.layers import Dense, Activation, Dropout
+#from keras.models import Sequential, load_model
+#from keras.layers import Dense, Activation, Dropout
 
 from elasticsearch import Elasticsearch
 from elasticsearch import helpers
@@ -255,13 +255,13 @@ def getData(index_name):
     }
     }
     
-    res = es.search(index=index_name, body=body2)
+    res = es.search(index=index_name, body=body)
 
     #print("Got %d Hits: " % res["hits"]["total"]["value"])
     #for hit in res['hits']['hits']:
         #printPretty(hit["_source"])
 
-    resHits = res
+    resHits = res["hits"]["hits"]
     #resHits = res["hits"]["hits"][0]["_source"]["@timestamp"]
     #printPretty(resHits)
 
@@ -325,6 +325,22 @@ if __name__ == "__main__":
         #getHistoricData("test_index")
 
         printPretty(getData("dc_cubes_historic"))
+        
+        docs = getData("dc_cubes_historic")
+
+        #hist_df = pd.DataFrame.from_dict(getData("dc_cubes_historic")["hits"]["hits"])
+
+        #allColumns = hist_df.columns.to_list()
+
+        new_docs = []
+
+        for doc in docs:
+            _id = doc["_id"]
+            doc_tmp = doc["_source"]
+            doc_tmp["id"] = _id
+            new_docs.append(doc_tmp)
+
+        printPretty(new_docs)
         
     
     else:

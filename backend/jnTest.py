@@ -174,8 +174,9 @@ def makePredictionFrame(modelDc0, modelDc1, cubes_frames, last_timestamp, predic
         else:
             model = modelDc1
             
-        dropCols = ["id", "cluster",
-                "_version_",
+        dropCols = [
+                "id", 
+                "cluster",
                 "dc",
                 "perm",
                 "instanz",
@@ -338,6 +339,32 @@ def getData(index_name):
     es.indices.refresh(index=index_name)
         
     body={
+        "_source": {
+            "includes": [
+                "@timestamp",
+                "cluster",
+                "dc",
+                "perm",
+                "instanz",
+                "verfahren",
+                "service",
+                "response",
+                "count",
+                "minv",
+                "maxv",
+                "avg",
+                "var",
+                "dev_upp",
+                "dev_low",
+                "perc90",
+                "perc95",
+                "perc99",
+                "sum",
+                "sum_of_squares",
+                "server",
+                "cpuusage_ps"
+                ]
+        },
         "query": {
             "match_all": {
             }
@@ -351,14 +378,25 @@ def getData(index_name):
     #for hit in res['hits']['hits']:
         #printPretty(hit["_source"])
 
-    resHits = res["hits"]
+    resHits = res["hits"]["hits"]
     #printPretty(resHits)
 
     return resHits
 
-        
 
-#######################################################################################################################################################
+def transformData(data):
+    printPretty(data)
+    new_docs = []
+
+    for doc in data:
+        _id = doc["_id"]
+        doc_tmp = doc["_source"]
+        doc_tmp["id"] = _id
+        new_docs.append(doc_tmp)
+
+    return new_docs
+
+############################################################################################################################################
 
 counter = 0
 index_name = "dc_cubes_historic"
@@ -446,7 +484,9 @@ pushDataForAllInstances(pblm1)
 forecast_index_name = "dc_cubes_forecast"
 historicIndexName = "dc_cubes_historic"
 
-hist_df = pd.DataFrame.from_dict(getData(historicIndexName))
+transformed_data = transformData(getData(historicIndexName))
+
+hist_df = pd.DataFrame.from_dict(transformed_data)
 allColumns = hist_df.columns.to_list()
 
 if forecast_index_name in activeIndices:
@@ -473,18 +513,18 @@ n_history = int((60//measureInterval)*hours_history)
 history_steps = n_history
 forecast_steps = pred_horizon
 
-timestamp = "timestamp"
+timestamp = "@timestamp"
 hist_df.reset_index(inplace=True)
 
-last_timestamp = hist_df["@timestamp"].max()
-hist_df[timestamp] = pd.to_datetime(hist_df.timestamp)
+last_timestamp = hist_df[timestamp].max()
+hist_df[timestamp] = pd.to_datetime(hist_df[timestamp])
 # generate features/columns from the timestamp
 hist_df["dayOfWeek"] = hist_df[timestamp].map(lambda x: x.dayofweek)
 hist_df["isWeekend"] = hist_df.dayOfWeek.map(lambda x: 0 if (x < 5) else 1) # saturday.dayofweek = 5, monday=0
 #hist_df["weekofyear"] = hist_df[timestamp].map(lambda x: x.weekofyear)
 hist_df["hour"] = hist_df[timestamp].map(lambda x: x.hour)
 hist_df["minute"]= hist_df[timestamp].map(lambda x: x.minute)
-hist_df = hist_df.set_index('timestamp')
+hist_df = hist_df.set_index(timestamp)
 
 hist_df.index = pd.to_datetime(hist_df.index).sort_values()
 
