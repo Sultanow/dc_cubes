@@ -89,7 +89,7 @@ def createIndex(new_index_name, es):
                             "type": "long"
                         },
                         "server": {
-                            "type": "text"
+                            "type": "float"
                         }, 
                         "timestamp": {
                             "type": "date", 
@@ -136,7 +136,7 @@ def initSchema(core_name, allMetrics):
 
 def pushDataForAllInstances(df):
     #instances = ["1"]
-    instances = ["1","2","3","4","5","6","7","8" ]
+    instances = [1,2,3,4,5,6,7,8 ]
     for instanz in instances:
         df["instanz"] = instanz
         df.apply(pushData, axis=1)
@@ -386,7 +386,7 @@ def getData(index_name):
 
 def transformData(data):
     printPretty(data)
-    new_docs = []
+    transformed_docs = []
 
     for doc in data:
         _id = doc["_id"]
@@ -394,9 +394,9 @@ def transformData(data):
         doc_tmp["id"] = _id
         new_docs.append(doc_tmp)
 
-    return new_docs
+    return transformed_docs
 
-############################################################################################################################################
+################################################################################################################################
 
 counter = 0
 index_name = "dc_cubes_historic"

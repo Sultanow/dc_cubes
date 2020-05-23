@@ -171,8 +171,6 @@ export default class ElasticsearchDataService implements DataSourceService {
     }
     */
     getMaxValueOfTwoCores = (from: string, to: string, selectedMeasure: string): any => {
-        //return httpClient.get("http://localhost:5000/dummy/data")
-
 
         const url = this.host + this.elasticsearchIndex + "/" + from + "/" + to + "/" + selectedMeasure;
         const urlForecast = this.host + this.elasticsearchForecastIndex + "/" + from + "/" + to + "/" + selectedMeasure;
@@ -183,6 +181,7 @@ export default class ElasticsearchDataService implements DataSourceService {
             httpClient.get(url)
                 .then(data => {
                     let maxValue = data.data.message[0]._source.cpuusage_ps
+                    console.log(maxValue)
                     httpClient.get(urlForecast)
                         .then(forecastData => {
                             const forecastMax: number = forecastData.data.message[0]._source.cpuusage_ps

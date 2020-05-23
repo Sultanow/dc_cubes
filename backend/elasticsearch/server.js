@@ -10,7 +10,30 @@ const app = express();
 const port = 5000;
 app.use(express.json());
 
-
+const fieldList = [
+    "@timestamp",
+    "cluster",
+    "dc",
+    "perm",
+    "instanz",
+    "verfahren",
+    "service",
+    "response",
+    "count",
+    "minv",
+    "maxv",
+    "avg",
+    "var",
+    "dev_upp",
+    "dev_low",
+    "perc90",
+    "perc95",
+    "perc99",
+    "sum",
+    "sum_of_squares",
+    "server",
+    "cpuusage_ps"
+    ]
 
 router.use((req, res, next) => {
     console.log(req.method, req.url);
@@ -28,9 +51,14 @@ router.get("/:index", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
+            "_source": {
+                "includes": fieldList
+            },
             "query": {
-                "match_all": {}
-            }
+                "match_all": {
+                }
+            },
+            "size": 10000,
         }
     }, function (err, response, status) {
         if (err) {
@@ -51,6 +79,9 @@ router.get("/:index/:id", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
+            "_source": {
+                "includes": fieldList
+            },
             "query": {
                 "bool": {
                     "filter": [
@@ -58,6 +89,7 @@ router.get("/:index/:id", (req, res) => {
                     ]
                 }
             }
+            
         }
     }, function (err, response, status) {
         if (err) {
@@ -77,6 +109,9 @@ router.get("/:index/:from/:to", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
+            "_source": {
+                "includes": fieldList
+            },
             "query": {
                 "range": {
                     "@timestamp": {
@@ -85,14 +120,14 @@ router.get("/:index/:from/:to", (req, res) => {
                         "lte": req.params.to
                     }
                 }
-            }
+            }, 
+            "size": 10000,
         }
     }, function (err, response, status) {
         if (err) {
             console.log(err)
         }
         else {
-            console.log("TEST: " + response)
             res.status(200).send({
                 message: response.hits.hits
             })
@@ -107,7 +142,9 @@ router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
-            "_source": ["cluster", "instanz", "count", "timestamp", "dc"],
+            "_source": {
+                "includes": fieldList
+            },
             "query": {
                 "range": {
                     "@timestamp": {
@@ -117,6 +154,7 @@ router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
                     }
                 }
             },
+            "size": 10000,
             "aggs": {
                 "datacenters": {
                     "terms": {
@@ -159,11 +197,14 @@ router.get("/:index/:from/:to/:selectedMeasure/avg", (req, res) => {
     })
 })
 
-// GET max cpuusage_ps? value of index in time range
-router.get("/:index/:from/:to/count/", (req, res) => {
+// GET max cpuusage_ps value of index in time range
+router.get("/:index/:from/:to/cpuusage_ps/", (req, res) => {
     client.search({
         index: req.params.index,
         body: {
+            "_source": {
+                "includes": fieldList
+            },
             "query": {
                 "range": {
                     "@timestamp": {

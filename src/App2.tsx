@@ -120,7 +120,7 @@ class App2 extends React.Component<{}, AppState> {
       intervalId: undefined,
       timespanError: false,
       isLoading: true,
-      selectedMeasure: "count",
+      selectedMeasure: "cpuusage_ps",
       aggregationType: "avg",
       aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {
@@ -169,9 +169,11 @@ class App2 extends React.Component<{}, AppState> {
     dataService.getHistorical().then((data: any) => {
       // TODO: call dataparser from util folder in order to parse the log data
       const standardAdapter = new StandardAdapter();
+      
+      console.log("GET LOG DATA: ")
       console.log(data)
       standardAdapter.receivedData(data, this.state.customMapping, this.state.selectedMeasure)
-      //console.log(data)
+   
       console.log("Length: " + data.data.message.length)
       if (data.data.message.length < 2) {
         this.setState({ dataSourceError: true });
@@ -249,15 +251,28 @@ class App2 extends React.Component<{}, AppState> {
     dataService.getAggregatedLogData().then((data: any) => {
       const standardAdapter = new StandardAdapter()
       let strTimeStamp = "timespan"
+      console.log("DATA:" )
 
-      //console.log(data)
+      console.log(data)
+
       data.data.message.aggregations.datacenters.buckets.forEach(strDataCenter => {
         strDataCenter.clusters.buckets.forEach(strCluster => {
           strCluster.instances.buckets.forEach(strInstance => {
+            standardAdapter.buildTimeSeries(strTimeStamp, strCluster.key, strDataCenter.key, strInstance.key, String(Math.round(strInstance.aggregatedValue.value)))
+          })
+          })
+        })
+  
+
+      /*
+      data.data.message.aggregations.datacenters.buckets.forEach(strDataCenter => {
+        strDataCenter.clusters.buckets.forEach(strCluster => {
+          strCluster.buckets.instances.forEach(strInstance => {
             standardAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue.value)))
           })
         })
       })
+      */
       this.setState<never>({ aggregatedData: standardAdapter.timeSeries.get(strTimeStamp), isLoading: false })
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
