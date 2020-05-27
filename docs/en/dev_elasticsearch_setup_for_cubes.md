@@ -1,8 +1,89 @@
 # Requirements
+
 * elasticsearch dump >= v6.16.2
 * node >= v10
+* elasticsearch >= v7
+
 # Setup
-t.b.d.
+
+## Install & run Elasticsearch with .zip on Windows
+
+### Download & Install the .zip package
+
+###### Download th .zip archive for Elasticsearch v7.7.0 from: <a href="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.0-windows-x86_64.zip">elasticsearch-7.7.0-windows-x86_64.zip</a>
+
+##### Unzip .zip archive
+
+Unzip it with your favourite unzip tool. This will create a folder called elasticsearch-7.7.0, which we will refer to as %ES_HOME%
+
+### Running Elasticsearch from the command line
+
+Elasticsearch can be started from the command line as follows:
+
+```
+.\bin\elasticsearch.bat
+```
+
+## Install Elasticsearch on macOS with Homebrew
+
+###### Tab the Elastic Homebrew:
+```
+brew tap elastic/tap
+```
+
+###### Tab the Elastic Homebrew:
+```
+brew install elastic/tap/elasticsearch-full
+```
+
+###### Directory layout for Homebrew installs:
+
+| Type | Description | Default Location| 
+|------|-------------|-----------------|
+| home | Elasticsearch home directory or $ES_HOME | /usr/local/var/homebrew/linked/elasticsearch-full |
+|bin|Binary scripts including elasticsearch to start a node and elasticsearch-plugin to install| |/usr/local/var/homebrew/linked/elasticsearch-full/bin|
+|conf|Configuration files including elasticsearch.yml|/usr/local/etc/elasticsearch|
+|data|The location of the data files of each index / shard allocated on the node. Can hold multiple locations.|/usr/local/var/lib/elasticsearch|
+|logs|Log files location.|/usr/local/var/log/elasticsearch|
+|plugins|Plugin files location. Each plugin will be contained in a subdirectory.|/usr/local/var/homebrew/linked/elasticsearch/plugins|
+
+## Install Elasticsearch with Docker
+
+###### Pulling the image
+
+```
+docker pull docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+```
+
+###### Starting a single node cluster with Docker
+
+```
+docker run -p 9200:9200 -p 9300:9300 -e "discovery.type=single-node" docker.elastic.co/elasticsearch/elasticsearch:7.7.0
+```
+
+## Install Elasticsearch from archive on LInux or MacOS
+
+### Download and install archive for MacOS
+
+The MacOS archive for Elasticsearch v7.7.0 can be downloaded and installed as follows:
+
+```
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.0-darwin-x86_64.tar.gz
+```
+```
+wget https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.0-darwin-x86_64.tar.gz.sha512
+```
+```
+shasum -a 512 -c elasticsearch-7.7.0-darwin-x86_64.tar.gz.sha512 
+```
+```
+tar -xzf elasticsearch-7.7.0-darwin-x86_64.tar.gz
+```
+```
+cd elasticsearch-7.7.0/ 
+```
+
+
 ## Elasticsearch data structure
 Index ``queue`` stores historical data within the following structure
 
