@@ -10,9 +10,7 @@
 
 ### Download & Install the .zip package
 
-###### Download th .zip archive for Elasticsearch v7.7.0 from: <a href="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.0-windows-x86_64.zip">elasticsearch-7.7.0-windows-x86_64.zip</a>
-
-##### Unzip .zip archive
+Download th .zip archive for Elasticsearch v7.7.0 from: <a href="https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.7.0-windows-x86_64.zip">elasticsearch-7.7.0-windows-x86_64.zip</a>
 
 Unzip it with your favourite unzip tool. This will create a folder called elasticsearch-7.7.0, which we will refer to as %ES_HOME%
 
