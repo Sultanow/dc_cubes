@@ -2,6 +2,7 @@
 
 * elasticsearch dump >= v6.16.2
 * node >= v10
+* Java >= 1.8
 * elasticsearch >= v7
 
 # Setup
