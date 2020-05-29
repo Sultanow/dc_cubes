@@ -25,78 +25,7 @@ def createIndex(new_index_name, es):
                 "settings" : {
                     "number_of_shards": 5,
                     "number_of_replicas": 1
-                },
-                "mappings": {
-                    "properties": {
-                        "host": {
-                            "type": "text"
-                        },
-                        "cluster": {
-                            "type": "long"
-                        },
-                        "dc": {
-                            "type": "long"
-                        },
-                        "perm": {
-                            "type": "long"
-                        },    
-                        "instanz": {
-                            "type": "long"
-                        },
-                        "verfahren": {
-                            "type": "text"
-                        },
-                        "service": {
-                            "type": "text"
-                        },  
-                        "response": {
-                            "type": "long"
-                        },  
-                        "count": {
-                            "type": "long"
-                        },
-                        "minv": {
-                            "type": "long"
-                        },
-                        "maxv": {
-                            "type": "long"
-                        },
-                        "avg": {
-                            "type": "float"
-                        },
-                        "var": {
-                            "type": "float"
-                        },
-                        "dev_upp": {
-                            "type": "float"
-                        },
-                         "dev_low": {
-                            "type": "float"
-                        },
-                        "perc90": {
-                            "type": "float"
-                        },
-                        "perc95": {
-                            "type": "float"
-                        },
-                        "perc99": {
-                            "type": "float"
-                        },
-                        "sum": {
-                            "type": "text"
-                        },
-                        "sum_of_squares": {
-                            "type": "long"
-                        },
-                        "server": {
-                            "type": "float"
-                        }, 
-                        "timestamp": {
-                            "type": "date", 
-                            "format": "yyyy-MM-dd HH:mm:ss"
-                        }
-                    }
-                },
+                }
             }
     es.indices.create(index = new_index_name, body = request_body)
     print(new_index_name + " created!")
@@ -392,7 +321,7 @@ def transformData(data):
         _id = doc["_id"]
         doc_tmp = doc["_source"]
         doc_tmp["id"] = _id
-        new_docs.append(doc_tmp)
+        transformed_docs.append(doc_tmp)
 
     return transformed_docs
 

@@ -123,9 +123,13 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.selectedMeasure = this.props.selectedMeasure
 
             const { timeseriesData, maxH, selectedMeasure } = this.props;
+            console.log("TimeseriesData NAVICHART: ")
+            console.log(timeseriesData)
             if (!timeseriesData) return;
 
             this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1].timestamp);
+            console.log("lastHist: " + this.lastHistoricTimestamp)
+
 
             let minHistoricTs = this.parseDate(this.props.timeseriesData[0].timestamp);
             let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1].timestamp);
