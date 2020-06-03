@@ -128,7 +128,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             if (!timeseriesData) return;
 
             this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1]["_source"]["@timestamp"]);
-            console.log("lastHist: " + this.lastHistoricTimestamp)
+            //console.log("lastHist: " + this.lastHistoricTimestamp)
 
 
             let minHistoricTs = this.parseDate(this.props.timeseriesData[0]["_source"]["@timestamp"]);
