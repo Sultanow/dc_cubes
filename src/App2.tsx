@@ -204,7 +204,6 @@ class App2 extends React.Component<{}, AppState> {
             this.setState({ dataSourceError: true });
             throw new Error("Data not available");
           }
-
           this.setState({
             forecastTemporalAxis: standardAdapter.temporalAxis,
             combinedTemporalAxis: this.state.temporalAxis.concat(standardAdapter.temporalAxis),
@@ -259,6 +258,9 @@ class App2 extends React.Component<{}, AppState> {
         strDataCenter.clusters.buckets.forEach(strCluster => {
           strCluster.instances.buckets.forEach(strInstance => {
             standardAdapter.buildTimeSeries(strTimeStamp, strCluster.key, strDataCenter.key, strInstance.key, String(Math.round(strInstance.aggregatedValue.value)))
+            console.log("strrrr: ")
+            console.log(strTimeStamp)
+
           })
           })
         })

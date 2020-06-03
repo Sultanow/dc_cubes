@@ -67,7 +67,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private margin = { top: 0, right: 0, bottom: 5, left: 10 };
     private width = SVG_WIDTH - (this.margin.left + this.margin.right) - TRANSLATION_X;
     private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
-    private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
+    private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S");
 
     private xScale = d3.scaleTime().range([0, this.width]);
     private yScale = d3.scaleLinear().range([this.height, 0]);
@@ -127,12 +127,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             console.log(timeseriesData)
             if (!timeseriesData) return;
 
-            this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1].timestamp);
+            this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1]["_source"]["@timestamp"]);
             console.log("lastHist: " + this.lastHistoricTimestamp)
 
 
-            let minHistoricTs = this.parseDate(this.props.timeseriesData[0].timestamp);
-            let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1].timestamp);
+            let minHistoricTs = this.parseDate(this.props.timeseriesData[0]["_source"]["@timestamp"]);
+            let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1]["_source"]["@timestamp"]);
             const timeDomain = [minHistoricTs, maxHistoricTs];
             const maxCount = [0, maxH + this.maxHPadding];
 
@@ -185,8 +185,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 let maxHistoricTs = this.xScale.domain()[1];
 
                 // array is sorted already
-                let minPredictionTs = this.parseDate(this.props.forecastData[0].timestamp);
-                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1].timestamp);
+                let minPredictionTs = this.parseDate(this.props.forecastData[0]["_source"]["@timestamp"]);
+                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1]["_source"]["@timestamp"]);
                 const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
 
                 if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
