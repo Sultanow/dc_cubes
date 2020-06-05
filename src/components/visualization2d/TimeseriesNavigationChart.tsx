@@ -123,13 +123,10 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.selectedMeasure = this.props.selectedMeasure
 
             const { timeseriesData, maxH, selectedMeasure } = this.props;
-            console.log("TimeseriesData NAVICHART: ")
-            console.log(timeseriesData)
+
             if (!timeseriesData) return;
 
             this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1]["_source"]["@timestamp"]);
-            //console.log("lastHist: " + this.lastHistoricTimestamp)
-
 
             let minHistoricTs = this.parseDate(this.props.timeseriesData[0]["_source"]["@timestamp"]);
             let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1]["_source"]["@timestamp"]);
@@ -264,6 +261,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             originalScope.drawMouseline(xcoord);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
             if (datapoint != null) originalScope.updateTooltip(datapoint);
+            console.log("bugfix datapoint: ")
+            console.log(datapoint)
 
             tooltipElement.style.visibility = "visible";
 
@@ -316,6 +315,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     updateTooltip(dp: timeseriesData) {
+        console.log("bugfix")
+        console.log(dp)
         let mousePosition = d3.mouse(document.getElementById(SVG_ID));
         let bbox = document.getElementById(SVG_ID).getBoundingClientRect();
         let xcoord: number = d3.event.pageX || mousePosition[0] + bbox.left;

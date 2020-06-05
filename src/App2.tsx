@@ -128,7 +128,7 @@ class App2 extends React.Component<{}, AppState> {
         const strCluster: string = element["_source"]["cluster"];
         const strDataCenter: string = element["_source"]["dc"];
         const strInstance: string = element["_source"]["instanz"];
-        const strSelectedMeasure: string = element[selectedMeasure];
+        const strSelectedMeasure: string = element["_source"][selectedMeasure];
         return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure }
       },
       predictionActivated: false,

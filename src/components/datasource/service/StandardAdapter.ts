@@ -31,8 +31,6 @@ export default class SolrAdapter {
         let datajson: [] = data.data.message
         this.rawTimeSeriesData = datajson
         this.temporalAxis = [];
-        console.log("DATAJSON: ")
-        console.log(datajson)
 
         datajson.forEach(element => {
             // TODO: make stringutilization dynamic to vis diffrent metrics
@@ -58,9 +56,9 @@ export default class SolrAdapter {
         //Todo outsourcec --> write once
         let instancesToClusterToDCMap = new Map<string, Map<string, Set<string>>>();
         let timestampValues: Array<DCState> = Array.from(this.timeSeries.values());
+        console.log("BUILD GRID: ")
+        console.log(timestampValues)
         timestampValues.forEach((dcState: DCState) => {
-            console.log("BUILD GRID: ")
-            console.log(dcState)
             dcState.datacenters.forEach((datacenter: Datacenter, keyDC: string) => {
                 let instancesToClusterMap: Map<string, Set<string>>;
                 if (instancesToClusterToDCMap.has(keyDC)) {
