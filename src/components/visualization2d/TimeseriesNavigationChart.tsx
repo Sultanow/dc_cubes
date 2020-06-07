@@ -134,7 +134,11 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             const maxCount = [0, maxH + this.maxHPadding];
 
             this.xScale.domain(timeDomain);
+            console.log("debug timeDOmain: ")
+            console.log(timeDomain)
             this.yScale.domain(maxCount);
+            console.log("debug maxCOunt: ")
+            console.log(timeDomain)
 
             this.uniqueTimestamps = this.props.temporalAxis;
 
