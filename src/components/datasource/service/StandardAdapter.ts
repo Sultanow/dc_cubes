@@ -152,7 +152,7 @@ export default class SolrAdapter {
             instance = cluster.instances.get(strInstance)!;
         } else {
 
-            console.log("strUtiz " + strUtilization + "  :" + strInstance);
+            //console.log("strUtiz " + strUtilization + "  :" + strInstance);
             instance = { utilization: Number(strUtilization) };
             cluster.instances.set(strInstance, instance);
             dcState.numInstances++;

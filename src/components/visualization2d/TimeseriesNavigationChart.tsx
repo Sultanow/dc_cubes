@@ -67,7 +67,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     private margin = { top: 0, right: 0, bottom: 5, left: 10 };
     private width = SVG_WIDTH - (this.margin.left + this.margin.right) - TRANSLATION_X;
     private height = SVG_HEIGHT - (this.margin.top + this.margin.bottom);
-    private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%SZ");
+    private parseDate = d3.timeParse("%Y-%m-%dT%H:%M:%S");
 
     private xScale = d3.scaleTime().range([0, this.width]);
     private yScale = d3.scaleLinear().range([this.height, 0]);
@@ -134,16 +134,19 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             const maxCount = [0, maxH + this.maxHPadding];
 
             this.xScale.domain(timeDomain);
-            console.log("debug timeDOmain: ")
-            console.log(timeDomain)
             this.yScale.domain(maxCount);
-            console.log("debug maxCOunt: ")
-            console.log(timeDomain)
 
             this.uniqueTimestamps = this.props.temporalAxis;
 
             // generate the max area
-            this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
+            this.areaGenerator.x(d => { 
+                console.log("bugfix timestamp: ")
+                console.log(this.parseDate(d.timestamp))
+
+                console.log("bugfix d: ")
+                console.log(d)
+                return this.xScale(this.parseDate(d.timestamp)); 
+            })
             this.areaGenerator.y0(this.yScale(0))
             this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
 

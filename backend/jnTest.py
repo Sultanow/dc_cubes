@@ -31,32 +31,6 @@ def createIndex(new_index_name, es):
     print(new_index_name + " created!")
 
 
-def initSchema(core_name, allMetrics):
-    url = "http://localhost:8983/solr/"+core_name+"/schema"
-    headers = {'Content-type': 'application/json'}
-    rowsDict = {
-        "timestamp": "pdate", "host": "string", "cluster": "pint", "dc": "pint", "perm": "pint", "instanz": "string", "verfahren": "string",
-        "service": "string", "response": "pint", "count": "pfloat", "minv": "pint", "maxv": "pint", "avg": "pfloat", "var": "pfloat",
-        "dev_upp": "pfloat", "dev_low": "pfloat", "perc90": "pfloat", "perc95": "pfloat", "perc99": "pfloat", "sum": "pint",
-        "sum_of_squares": "pint", "server": "string"}
-
-    for name in rowsDict:
-        data = {
-            "add-field": {"stored": "true", "docValues": "true", "indexed": "false", "multiValued": "false", "name": name, "type": rowsDict[name]}
-        }
-        requests.post(url=url, data=json.dumps(data), headers=headers)
-        
-    for metric in allMetrics:
-        if metric not in rowsDict:
-            data = {
-                "add-field": {"stored": "true", "docValues": "true", "indexed": "false", "multiValued": "false", "name": metric, "type": "pfloat"}
-            }
-            requests.post(url=url, data=json.dumps(data), headers=headers)
-    
-    
-    print(core_name, " schema inited")
-
-
 
 # There are two dc's: 0 and 1
 # dc 0 has clusters 6 and 8
@@ -429,7 +403,6 @@ else:
     print(forecast_index_name + " doesn't exist")
     # create an new elasticsearch index
     createIndex(forecast_index_name, es)
-
 
 
 measureInterval = 15 #min
