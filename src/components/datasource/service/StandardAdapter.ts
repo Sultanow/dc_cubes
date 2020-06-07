@@ -27,7 +27,6 @@ export default class SolrAdapter {
 
     //generate data from socket json format
     receivedData(data: any, customMapping, selectedMeasure: string) {
-        console.log(data)
         let datajson: [] = data.data.message
         this.rawTimeSeriesData = datajson
         this.temporalAxis = [];
@@ -56,8 +55,6 @@ export default class SolrAdapter {
         //Todo outsourcec --> write once
         let instancesToClusterToDCMap = new Map<string, Map<string, Set<string>>>();
         let timestampValues: Array<DCState> = Array.from(this.timeSeries.values());
-        console.log("BUILD GRID: ")
-        console.log(timestampValues)
         timestampValues.forEach((dcState: DCState) => {
             dcState.datacenters.forEach((datacenter: Datacenter, keyDC: string) => {
                 let instancesToClusterMap: Map<string, Set<string>>;
@@ -120,7 +117,7 @@ export default class SolrAdapter {
 
     // Build main structure from the data
     buildTimeSeries(strTimeStamp: string, strCluster: string, strDataCenter: string, strInstance: string, strUtilization: string) {
-        //console.log("foreach " + strTimeStamp + ":::" + strUtilization);
+        //console.log("foreach" + strTimeStamp + ":::" + strUtilization);
         let dcState: DCState;
         if (this.timeSeries.has(strTimeStamp)) {
             dcState = this.timeSeries.get(strTimeStamp)!;
@@ -155,7 +152,7 @@ export default class SolrAdapter {
             instance = cluster.instances.get(strInstance)!;
         } else {
 
-            //console.log("strUtiz " + strUtilization + "  :" + strInstance);
+            console.log("strUtiz " + strUtilization + "  :" + strInstance);
             instance = { utilization: Number(strUtilization) };
             cluster.instances.set(strInstance, instance);
             dcState.numInstances++;

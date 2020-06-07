@@ -258,9 +258,6 @@ class App2 extends React.Component<{}, AppState> {
         strDataCenter.clusters.buckets.forEach(strCluster => {
           strCluster.instances.buckets.forEach(strInstance => {
             standardAdapter.buildTimeSeries(strTimeStamp, strCluster.key, strDataCenter.key, strInstance.key, String(Math.round(strInstance.aggregatedValue.value)))
-            console.log("strrrr: ")
-            console.log(strTimeStamp)
-
           })
           })
         })
