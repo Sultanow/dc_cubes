@@ -126,10 +126,12 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             if (!timeseriesData) return;
 
-            this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1]["_source"]["@timestamp"]);
-
-            let minHistoricTs = this.parseDate(this.props.timeseriesData[0]["_source"]["@timestamp"]);
-            let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1]["_source"]["@timestamp"]);
+            this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1]["@timestamp"]);
+            console.log("bugfix last: ")
+            console.log(this.lastHistoricTimestamp)
+            console.log(timeseriesData)
+            let minHistoricTs = this.parseDate(this.props.timeseriesData[0]["@timestamp"]);
+            let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1]["@timestamp"]);
             const timeDomain = [minHistoricTs, maxHistoricTs];
             const maxCount = [0, maxH + this.maxHPadding];
 
@@ -189,8 +191,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 let maxHistoricTs = this.xScale.domain()[1];
 
                 // array is sorted already
-                let minPredictionTs = this.parseDate(this.props.forecastData[0]["_source"]["@timestamp"]);
-                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1]["_source"]["@timestamp"]);
+                let minPredictionTs = this.parseDate(this.props.forecastData[0]["@timestamp"]);
+                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1]["@timestamp"]);
                 const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
 
                 if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
@@ -269,7 +271,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
             if (datapoint != null) originalScope.updateTooltip(datapoint);
             console.log("bugfix datapoint: ")
-            console.log(datapoint)
+            console.log(originalScope)
+
 
             tooltipElement.style.visibility = "visible";
 

@@ -124,11 +124,11 @@ class App2 extends React.Component<{}, AppState> {
       aggregationType: "avg",
       aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {
-        const strTimeStamp: string = element["_source"]["@timestamp"];
-        const strCluster: string = element["_source"]["cluster"];
-        const strDataCenter: string = element["_source"]["dc"];
-        const strInstance: string = element["_source"]["instanz"];
-        const strSelectedMeasure: string = element["_source"][selectedMeasure];
+        const strTimeStamp: string = element["@timestamp"];
+        const strCluster: string = element["cluster"];
+        const strDataCenter: string = element["dc"];
+        const strInstance: string = element["instanz"];
+        const strSelectedMeasure: string = element[selectedMeasure];
         return { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure }
       },
       predictionActivated: false,
