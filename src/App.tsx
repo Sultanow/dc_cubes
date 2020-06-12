@@ -24,11 +24,11 @@ interface AppState {
   logData: []
   backendUrl: string
   dataSource: DataSource
-  solrBaseUrl: string
-  solrCore: string
-  solrForecastCore: string
-  solrMergedCore: string
-  solrQuery: string
+  solrBaseUrl?: string
+  dataSourceIndex: string
+  dataSourceForecastIndex: string
+  dataSourceMergedIndex?: string
+  solrQuery?: string
   dataSourceError: boolean
 
   timeSelectionMode: 'pointInTime' | 'timespan'
@@ -99,9 +99,9 @@ class App extends React.Component<{}, AppState> {
       backendUrl: "http://localhost:8080",
       dataSource: 'solr',
       solrBaseUrl: 'http://localhost:8983/solr/',
-      solrCore: 'dc_cubes_historic',
-      solrForecastCore: 'dc_cubes_forecast',
-      solrMergedCore: 'dc_cubes_merged',
+      dataSourceIndex: 'dc_cubes_historic',
+      dataSourceForecastIndex: 'dc_cubes_forecast',
+      dataSourceMergedIndex: 'dc_cubes_merged',
       solrQuery: '/query?q=*:*&start=0&rows=100000', // solr contains 4 weeks, roughly 90k entries
       dataSourceError: true,
       timeSelectionMode: 'pointInTime',
@@ -165,9 +165,9 @@ class App extends React.Component<{}, AppState> {
       this.state.timespanAbsoluteTimestampLowerBound,
       this.state.timespanAbsoluteTimestampUpperBound,
       this.state.solrBaseUrl,
-      this.state.solrCore,
-      this.state.solrForecastCore,
-      this.state.solrMergedCore,
+      this.state.dataSourceIndex,
+      this.state.dataSourceForecastIndex,
+      this.state.dataSourceMergedIndex,
       this.state.selectedMeasure,
       this.state.aggregationType)
     // Initially get all data because the placeholder visualization needs the full temporalAxis
@@ -245,9 +245,9 @@ class App extends React.Component<{}, AppState> {
       this.state.timespanTimestampLowerBound,
       this.state.timespanTimestampUpperBound,
       this.state.solrBaseUrl,
-      this.state.solrCore,
-      this.state.solrForecastCore,
-      this.state.solrMergedCore,
+      this.state.dataSourceIndex,
+      this.state.dataSourceForecastIndex,
+      this.state.dataSourceMergedIndex,
       this.state.selectedMeasure,
       this.state.aggregationType)
 
@@ -376,7 +376,7 @@ class App extends React.Component<{}, AppState> {
                 setDataSource={this.setDataSource}
                 setSolrUrlPart={this.setSolrUrlPart}
                 solrBaseUrl={this.state.solrBaseUrl}
-                solrCore={this.state.solrCore}
+                dataSourceIndex={this.state.dataSourceIndex}
                 solrQuery={this.state.solrQuery}
                 customMapping={this.state.customMapping}
                 accessApp={this.accessApp} />} />

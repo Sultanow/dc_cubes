@@ -8,7 +8,7 @@ import CubesVisualization from './components/visualization3d/CubesVisualization'
 import TimeseriesNavigationChart from './components/visualization2d/TimeseriesNavigationChart'
 import Topbar from './components/topbar/Topbar'
 import SectionRight from "./components/SectionRight"
-import DataSources from './components/datasource/DataSources2'
+import DataSources from './components/datasource/config/DataSources'
 import DataService from './components/datasource/DataService2'
 import StandardAdapter from './components/datasource/service/StandardAdapter'
 import DCState from './model/DCState'
@@ -124,7 +124,7 @@ class App2 extends React.Component<{}, AppState> {
       aggregationType: "avg",
       aggregatedData: null,
       customMapping: (element: object, selectedMeasure: string) => {
-        const strTimeStamp: string = element["@timestamp"];
+        const strTimeStamp: string = element["timestamp"];
         const strCluster: string = element["cluster"];
         const strDataCenter: string = element["dc"];
         const strInstance: string = element["instanz"];
@@ -261,17 +261,6 @@ class App2 extends React.Component<{}, AppState> {
           })
           })
         })
-  
-
-      /*
-      data.data.message.aggregations.datacenters.buckets.forEach(strDataCenter => {
-        strDataCenter.clusters.buckets.forEach(strCluster => {
-          strCluster.buckets.instances.forEach(strInstance => {
-            standardAdapter.buildTimeSeries(strTimeStamp, strCluster.val, strDataCenter.val, strInstance.val, String(Math.round(strInstance.aggregatedValue.value)))
-          })
-        })
-      })
-      */
       this.setState<never>({ aggregatedData: standardAdapter.timeSeries.get(strTimeStamp), isLoading: false })
     }).catch((error: any) => {
       this.setState({ dataSourceError: true })
@@ -289,6 +278,8 @@ class App2 extends React.Component<{}, AppState> {
 
   render() {
     let TimeseriesNavigationChartComponent = null;
+    console.log("bugfix state: ")
+    console.log(this.state)
     if (this.state.isRawTimeseriesDataLoaded) {
       TimeseriesNavigationChartComponent = <TimeseriesNavigationChart
         timeseriesData={this.state.rawTimeseriesData}

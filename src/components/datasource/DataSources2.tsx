@@ -12,7 +12,7 @@ interface DataSourcesProps {
     dataSourceError: boolean
     elasticsearchIndex: string
     setDataSource: any
-    //setSolrUrlPart: any
+    setSolrUrlPart?: any
     history: any
     customMapping: any
     accessApp: any

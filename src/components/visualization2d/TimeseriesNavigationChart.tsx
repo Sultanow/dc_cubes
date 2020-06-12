@@ -126,12 +126,9 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
 
             if (!timeseriesData) return;
 
-            this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1]["@timestamp"]);
-            console.log("bugfix last: ")
-            console.log(this.lastHistoricTimestamp)
-            console.log(timeseriesData)
-            let minHistoricTs = this.parseDate(this.props.timeseriesData[0]["@timestamp"]);
-            let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1]["@timestamp"]);
+            this.lastHistoricTimestamp = this.parseDate(timeseriesData[timeseriesData.length - 1]["timestamp"]);
+            let minHistoricTs = this.parseDate(this.props.timeseriesData[0]["timestamp"]);
+            let maxHistoricTs = this.parseDate(this.props.timeseriesData[this.props.timeseriesData.length - 1]["timestamp"]);
             const timeDomain = [minHistoricTs, maxHistoricTs];
             const maxCount = [0, maxH + this.maxHPadding];
 
@@ -141,14 +138,7 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             this.uniqueTimestamps = this.props.temporalAxis;
 
             // generate the max area
-            this.areaGenerator.x(d => { 
-                console.log("bugfix timestamp: ")
-                console.log(this.parseDate(d.timestamp))
-
-                console.log("bugfix d: ")
-                console.log(d)
-                return this.xScale(this.parseDate(d.timestamp)); 
-            })
+            this.areaGenerator.x(d => { return this.xScale(this.parseDate(d.timestamp)); })
             this.areaGenerator.y0(this.yScale(0))
             this.areaGenerator.y1(d => { return this.yScale(d[selectedMeasure]); });
 
@@ -191,8 +181,8 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
                 let maxHistoricTs = this.xScale.domain()[1];
 
                 // array is sorted already
-                let minPredictionTs = this.parseDate(this.props.forecastData[0]["@timestamp"]);
-                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1]["@timestamp"]);
+                let minPredictionTs = this.parseDate(this.props.forecastData[0]["timestamp"]);
+                let maxPredictionTs = this.parseDate(this.props.forecastData[this.props.forecastData.length - 1]["timestamp"]);
                 const combinedTimeDomain = [minHistoricTs, maxPredictionTs];
 
                 if (minHistoricTs > minPredictionTs || maxHistoricTs > maxPredictionTs) {
@@ -270,9 +260,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
             originalScope.drawMouseline(xcoord);
             let datapoint = originalScope.getValidDatapointFromMousePosition(xcoord);
             if (datapoint != null) originalScope.updateTooltip(datapoint);
-            console.log("bugfix datapoint: ")
-            console.log(originalScope)
-
 
             tooltipElement.style.visibility = "visible";
 
@@ -325,8 +312,6 @@ export default class TimeseriesNavigationChart extends Component<TimeseriesNavig
     }
 
     updateTooltip(dp: timeseriesData) {
-        console.log("bugfix")
-        console.log(dp)
         let mousePosition = d3.mouse(document.getElementById(SVG_ID));
         let bbox = document.getElementById(SVG_ID).getBoundingClientRect();
         let xcoord: number = d3.event.pageX || mousePosition[0] + bbox.left;

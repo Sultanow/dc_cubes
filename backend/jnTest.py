@@ -197,15 +197,8 @@ def pushData(row):
     global allMetrics
     global predictionColumn
 
-    #print("row:  " + str(row["timestamp"]))
-    date_time_str = '2018-06-29 17:08:00'
-    date_time_obj = dt.datetime.strptime(date_time_str, '%Y-%m-%d %H:%M:%S')
-
-    #print("test:" + date_time_obj)
-
-
     data = {
-                "@timestamp": str(row["timestamp"]).replace(" ", "T"),
+                "timestamp": str(row["timestamp"]).replace(" ", "T"),
                 "cluster": row["cluster"],
                 "dc": row["dc"],
                 "perm": -1, #row["perm"],
@@ -244,7 +237,7 @@ def getData(index_name):
     body={
         "_source": {
             "includes": [
-                "@timestamp",
+                "timestamp",
                 "cluster",
                 "dc",
                 "perm",
@@ -347,7 +340,6 @@ pblm2.timestamp.max()
 copyRow = pblm2[pblm2.timestamp == pblm2.timestamp.max()].copy()
 
 copyRow.timestamp = pd.Timestamp("2020-01-23 09:45:00")
-copyRow
 
 pblm2 = pblm2.append(copyRow, ignore_index=True)
 
@@ -415,7 +407,7 @@ n_history = int((60//measureInterval)*hours_history)
 history_steps = n_history
 forecast_steps = pred_horizon
 
-timestamp = "@timestamp"
+timestamp = "timestamp"
 hist_df.reset_index(inplace=True)
 
 last_timestamp = hist_df[timestamp].max()
