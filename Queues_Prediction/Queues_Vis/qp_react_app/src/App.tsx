@@ -4,17 +4,24 @@ import Header from "./Header";
 import Pipeline from "./Pipeline";
 import PredictionDataTable from "./PredictionDataTable";
 
-function App() {
-  return (
-    <div className="App" style={appContainer}> 
-      <Header/>
-      <Pipeline/>
-      <PredictionDataTable/>
-    </div>
-  );
+interface AppState {
+
 }
 
-export default App;
+export class App extends React.Component<{}, AppState> {
+  render() {
+      return (
+        <div className="App" style={appContainer}> 
+          <Header/>
+          <Pipeline/>
+          <PredictionDataTable/>
+      </div>
+      )
+  }
+}
+
+export default App
+
 
 const appContainer = {
   backgroundColor: "red"

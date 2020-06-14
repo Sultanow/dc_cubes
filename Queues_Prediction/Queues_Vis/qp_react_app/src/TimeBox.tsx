@@ -2,14 +2,38 @@ import React, { Component } from 'react'
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 import {faClock} from "@fortawesome/free-solid-svg-icons"
 
-export class TimeBox extends Component {
+type TimeboxState = {
+    timePosition : String
+}
+
+interface TimeboxProps {
+    timePosition: String, 
+    timestamp: String
+}
+
+export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
+    constructor(props:any) {
+        super(props);
+        
+        this.state = {
+            timePosition: "",
+        }
+    }
+    componentDidMount(){
+        this.setState({
+            timePosition : this.props.timePosition,
+        });
+    }
+
     render() {
         return (
             <div style={timeboxContainer}>
-                <div style={timebox}>
-                    <div style={timeboxTitle}>Start historic:</div>
+                <div style={this.state.timePosition === "start" ? timebox.start : timebox.end}>
+                    <div style={this.state.timePosition === "start" ? timeboxTitle.start : timeboxTitle.end}>
+                        {this.state.timePosition} historic:
+                    </div>
                     <div style={timeboxInnerBottom}>
-                        <FontAwesomeIcon icon={faClock} style={iconClock} /> 
+                        <FontAwesomeIcon icon={faClock} style={this.state.timePosition === "start" ? iconClock.start : iconClock.end} /> 
                         2020-01-20 12:01 UTC
                     </div>
                 </div>
@@ -21,8 +45,7 @@ export class TimeBox extends Component {
 export default TimeBox
 
 const timeboxContainer = {
-    color: "grey",
-    width: "200px"
+    width: "70%"
 }
 
 const timeboxInnerBottom = {
@@ -30,24 +53,51 @@ const timeboxInnerBottom = {
 }
 
 const timeboxTitle = {
-    fontSize: ".8rem", 
-    fontWeight: "bold" as "bold",
-    textAlign: "left" as "left",
-    color: "grey"
+    start:{
+        fontSize: ".6rem", 
+        fontWeight: "bold" as "bold",
+        textAlign: "left" as "left",
+        color: "grey",
+        textTransform: "uppercase" as "uppercase"
+    },
+    end:{
+        fontSize: ".6rem", 
+        fontWeight: "bold" as "bold",
+        textAlign: "left" as "left",
+        color: "white", 
+        textTransform: "uppercase" as "uppercase"
+    }
 }
 
 const iconClock = {
-    color: "lightgrey",
-    fontSize: ".8rem",
-    marginRight: "4px"
+    start: {
+        color: "lightgrey",
+        fontSize: ".8rem",
+        marginRight: "4px"
+    },
+    end: {
+        color: "white",
+        opacity: ".4",
+        fontSize: ".8rem",
+        marginRight: "4px"
+    }
 }
 
-const timebox = {
-    backgroundColor: "white",
-    height: "35px",    
-    color: "black",
-    border: "3px solid lightgrey",
-    borderRadius: "50px",
-    fontSize: ".8rem",
-    padding: "5px 15px 5px 15px",
+ const timebox = {
+    start:{
+        backgroundColor: "white",    
+        color: "black",
+        border: "3px solid #dbdbdb",
+        borderRadius: "50px",
+        fontSize: ".8rem",
+        padding: "5px 15px 5px 15px"
+    },
+    end: {
+        backgroundColor: "#D93D4A",    
+        color: "white",
+        border: "3px solid #D93D4A",
+        borderRadius: "50px",
+        fontSize: ".8rem",
+        padding: "5px 15px 5px 15px"
+    }
 }

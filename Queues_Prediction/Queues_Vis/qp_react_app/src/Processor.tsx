@@ -7,9 +7,11 @@ export class Processor extends Component {
         return (
             <div>
                 <div style={processorContainer}>
-                    <TimeBox/>
+                    <TimeBox timePosition={"start"}
+                    timestamp={"2020-01-20 12:01 UTC"}/>
                     <ProcessorBox/>
-                    <TimeBox/>
+                    <TimeBox timePosition={"end"}
+                    timestamp={"2020-01-23 08:20 UTC"}/>
                 </div>
             </div>
         )
@@ -19,5 +21,6 @@ export class Processor extends Component {
 export default Processor
 
 const processorContainer = {
-    padding: "10px"
+    padding: "10px",
+    width: "300px"
 }

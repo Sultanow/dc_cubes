@@ -4,8 +4,8 @@ export class Header extends Component {
     render() {
         return (
             <div style={headerContainer}>
-                <span>Queue</span> 
-                <span>Predictor</span>
+                <div>Queue</div> 
+                <div>Predictor</div>
             </div>
         )
     }
@@ -14,5 +14,7 @@ export class Header extends Component {
 export default Header
 
 const headerContainer = {
-    backgroundColor: "lightgrey"
+    backgroundColor: "lightgrey",
+    textAlign: "left" as "left", 
+    padding: "10px"
 }
