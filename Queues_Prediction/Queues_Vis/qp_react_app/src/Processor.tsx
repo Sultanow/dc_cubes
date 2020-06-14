@@ -8,10 +8,12 @@ export class Processor extends Component {
             <div>
                 <div style={processorContainer}>
                     <TimeBox timePosition={"start"}
-                    timestamp={"2020-01-20 12:01 UTC"}/>
+                    timestamp={"2020-01-20 12:01 UTC"}
+                    timeType={"Historic"}/>
                     <ProcessorBox/>
                     <TimeBox timePosition={"end"}
-                    timestamp={"2020-01-23 08:20 UTC"}/>
+                    timestamp={"2020-01-23 08:20 UTC"}
+                    timeType={"Forecast"}/>
                 </div>
             </div>
         )

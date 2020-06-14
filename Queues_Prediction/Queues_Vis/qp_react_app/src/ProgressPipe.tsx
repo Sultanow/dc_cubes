@@ -23,10 +23,6 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
     }
 
     setUpProgressBarStatus() {
-        console.log("degub progress status: ")
-        console.log(this.state.progressStatus)
-        console.log("props: ")
-        console.log(this.props.progressStatus)
         switch (this.props.progressStatus) {
             case 0:
                 return progressBar.base
@@ -80,8 +76,11 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 
     render() {
         return (
-            <div style={progressPipe}>
+            <div style={progressPipeContainer}>
                 <div style={this.setUpProgressBarStatus()}></div>
+                <div style={progressStatusInfoBox}>
+                    {this.props.progressStatus}%
+                </div>
             </div>
         )
     }
@@ -89,7 +88,7 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 
 export default ProgressPipe
 
-const progressPipe = {
+const progressPipeContainer = {
     height: "40px", 
     backgroundColor: "white", 
     marginTop: "auto", 
@@ -100,58 +99,74 @@ const progressPipe = {
 
 const progressBar = {
     base:{
-    backgroundColor: "yellow", 
+    backgroundColor: "#F2B544", 
     height: "100%",
     width: "0%" 
     }, 
     ten:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "10%"
     },
     twenty:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "20%"
     },
     thirty:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "30%"
     },
     fourty:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "40%"
     },
     fithy:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "50%"
     },
     sixty:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "60%"
     },
     seventy:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "70%"
     },
     eighty:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "80%"
     },
     ninethy:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "90%"
     },
     hundred:{
-        backgroundColor: "yellow", 
+        backgroundColor: "#F2B544", 
         height: "100%",
         width: "100%"
     },
+}
+
+const progressStatusInfoBox = {
+    backgroundColor: "white", 
+    color: "grey",
+    borderRadius: "50px",
+    position: "relative" as "relative", 
+    display: "flex", 
+    justifyContent: "center", 
+    top: "-77%", 
+    left: "15%",
+    width: "70%",
+    padding: "3px 0 3px 0", 
+    textAlign: "center" as "center", 
+    fontWeight: "bold" as "bold", 
+    fontSize: ".9rem"
 }

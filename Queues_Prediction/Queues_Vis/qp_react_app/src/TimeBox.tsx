@@ -3,12 +3,14 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 import {faClock} from "@fortawesome/free-solid-svg-icons"
 
 type TimeboxState = {
-    timePosition : String
+    timePosition : String, 
+    timeType : String
 }
 
 interface TimeboxProps {
     timePosition: String, 
-    timestamp: String
+    timestamp: String, 
+    timeType: String
 }
 
 export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
@@ -17,6 +19,7 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
         
         this.state = {
             timePosition: "",
+            timeType: ""
         }
     }
     componentDidMount(){
@@ -30,7 +33,7 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
             <div style={timeboxContainer}>
                 <div style={this.state.timePosition === "start" ? timebox.start : timebox.end}>
                     <div style={this.state.timePosition === "start" ? timeboxTitle.start : timeboxTitle.end}>
-                        {this.state.timePosition} historic:
+                        {this.state.timePosition} {this.props.timeType}
                     </div>
                     <div style={timeboxInnerBottom}>
                         <FontAwesomeIcon icon={faClock} style={this.state.timePosition === "start" ? iconClock.start : iconClock.end} /> 
@@ -93,9 +96,9 @@ const iconClock = {
         padding: "5px 15px 5px 15px"
     },
     end: {
-        backgroundColor: "#D93D4A",    
+        backgroundColor: "#F23D3D",    
         color: "white",
-        border: "3px solid #D93D4A",
+        border: "3px solid #F23D3D",
         borderRadius: "50px",
         fontSize: ".8rem",
         padding: "5px 15px 5px 15px"

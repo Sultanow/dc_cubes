@@ -30,7 +30,7 @@ const processorBox = {
 }
 
 const lineDashed = {
-    borderRight: "2px dashed lightgrey",
+    borderRight: "2px dashed grey",
     width: "95px",
     height: "20px",
 }
