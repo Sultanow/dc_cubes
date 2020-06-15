@@ -34,5 +34,5 @@ export class Processor extends Component<ProcessorProps, ProcessorState> {
 export default Processor
 
 const processorContainer = {
-    width: "300px",
+    width: "270px",
 }

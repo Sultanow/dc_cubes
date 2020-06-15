@@ -39,7 +39,7 @@
   animation: spin 10s linear infinite;
   position: absolute;
   top: 5px;
-  right: 5px;
+  left: 5px;
   z-index: 1;
   visibility: visible;;
 }
@@ -57,4 +57,38 @@
 
 .time-box:hover{
   border: 2px solid #8a8a8a!important;
+}
+
+input{
+  font-family: "Inter"!important;
+  font-size: .8rem;
+  color: black!important;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+select{
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+}
+
+.select-container {
+  /* ... */
+  position: relative;
+}
+.select-container::before {
+  font-family: "Font Awesome 5 Free";
+  content: "\f078";
+  font-size: 16px;
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  color: black;
+  pointer-events:none;
+}
+
+.prediction-btn:hover{
+  border-bottom: 2px solid black!important;
 }

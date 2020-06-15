@@ -48,7 +48,7 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
 export default TimeBox
 
 const timeboxContainer = {
-    width: "70%"
+    width: "75%"
 }
 
 const timeboxInnerBottom = {
@@ -68,7 +68,7 @@ const timeboxTitle = {
         fontSize: ".6rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
-        color: "black", 
+        color: "grey", 
         textTransform: "uppercase" as "uppercase",
         opacity: ".7"
     }
@@ -99,9 +99,9 @@ const iconClock = {
         cursor: "pointer",
     },
     end: {
-        backgroundColor: "#EFECFB",    
+        backgroundColor: "#ebe6ff",    
         color: "black",
-        border: "2px solid #dbdbdb",
+        border: "2px solid #ebe6ff",
         //borderRadius: "50px",
         fontSize: ".8rem",
         padding: "10px 15px 10px 15px",

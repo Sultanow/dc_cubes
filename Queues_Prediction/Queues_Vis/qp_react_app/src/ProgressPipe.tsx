@@ -5,7 +5,7 @@ type ProgressPipeState = {
 }
 
 interface ProgressPipeProps {
-    progressStatus: Number
+    
 }
 
 export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState>{
@@ -17,13 +17,21 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
         }
     }
     componentDidMount(){
+        this.setUpProgressPipe();
+    }
+
+    setUpProgressPipe(){
         this.setState({
-            progressStatus : this.props.progressStatus,
-        });
+            progressStatus: this.calculateProgressStatus()
+        })
+    }
+
+    calculateProgressStatus(){
+        return 70 //add calculation formula for ratio from timerange between start und end processing timestamps
     }
 
     setUpProgressBarStatus() {
-        switch (this.props.progressStatus) {
+        switch (this.state.progressStatus) {
             case 0:
                 return progressBar.base
             break;
@@ -79,7 +87,7 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
             <div style={progressPipeContainer}>
                 <div style={this.setUpProgressBarStatus()}></div>
                 <div style={progressStatusInfoBox}>
-                    {this.props.progressStatus}%
+                    {this.state.progressStatus}%
                 </div>
             </div>
         )
@@ -89,12 +97,12 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 export default ProgressPipe
 
 const progressPipeContainer = {
-    height: "30px",
+    height: "25px",
     backgroundColor: "white", 
     marginTop: "auto", 
     marginBottom: "auto",
-    borderTop: "4px solid rgb(66, 150, 190)",
-    borderBottom: "4px solid rgb(66, 150, 190)", 
+    borderTop: "2px solid black",
+    borderBottom: "2px solid black", 
     //boxShadow: "-1px 0px 22px -2px rgba(0,0,0,0.2)",
     position: "relative" as "relative",
     cursor: "pointer"
@@ -102,57 +110,57 @@ const progressPipeContainer = {
 
 const progressBar = {
     base:{
-    backgroundColor: "rgb(66, 150, 190)",
+    backgroundColor: "#3729A2",
     height: "100%",
     width: "0%" 
     }, 
     ten:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "10%"
     },
     twenty:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "20%"
     },
     thirty:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "30%"
     },
     fourty:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "40%"
     },
     fithy:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "50%"
     },
     sixty:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "60%"
     },
     seventy:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "70%"
     },
     eighty:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "80%"
     },
     ninethy:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "90%"
     },
     hundred:{
-        backgroundColor: "rgb(66, 150, 190)", 
+        backgroundColor: "#FE9C6A", 
         height: "100%",
         width: "100%"
     },
@@ -160,13 +168,13 @@ const progressBar = {
 
 const progressStatusInfoBox = {
     backgroundColor: "white", 
-    color: "rgb(66, 150, 190)",
+    color: "black",
     borderRadius: "50px",
     position: "absolute" as "absolute", 
     left: "50%",
-    top: "20%",
+    top: "15%",
     transform: "translate(-50%, 0)",
-    width: "40px",
+    width: "47px",
     padding: "2px 0 2px 0", 
     textAlign: "center" as "center", 
     fontWeight: "bold" as "bold", 
