@@ -33,11 +33,11 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
             <div style={timeboxContainer}>
                 <div style={this.state.timePosition === "start" ? timebox.start : timebox.end}>
                     <div style={this.state.timePosition === "start" ? timeboxTitle.start : timeboxTitle.end}>
-                        {this.state.timePosition} {this.props.timeType}
+                        {this.state.timePosition} {this.props.timeType}:
                     </div>
                     <div style={timeboxInnerBottom}>
                         <FontAwesomeIcon icon={faClock} style={this.state.timePosition === "start" ? iconClock.start : iconClock.end} /> 
-                        2020-01-20 12:01 UTC
+                        {this.props.timestamp}
                     </div>
                 </div>
             </div>
@@ -61,27 +61,29 @@ const timeboxTitle = {
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
         color: "grey",
-        textTransform: "uppercase" as "uppercase"
+        textTransform: "uppercase" as "uppercase", 
+        opacity: ".7"
     },
     end:{
         fontSize: ".6rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
-        color: "white", 
-        textTransform: "uppercase" as "uppercase"
+        color: "black", 
+        textTransform: "uppercase" as "uppercase",
+        opacity: ".7"
     }
 }
 
 const iconClock = {
     start: {
         color: "lightgrey",
-        fontSize: ".8rem",
+        fontSize: "1rem",
         marginRight: "4px"
     },
     end: {
-        color: "white",
-        opacity: ".4",
-        fontSize: ".8rem",
+        color: "black",
+        opacity: ".3",
+        fontSize: "1rem",
         marginRight: "4px"
     }
 }
@@ -96,9 +98,9 @@ const iconClock = {
         padding: "5px 15px 5px 15px"
     },
     end: {
-        backgroundColor: "#F23D3D",    
-        color: "white",
-        border: "3px solid #F23D3D",
+        backgroundColor: "#EFECFB",    
+        color: "black",
+        border: "3px solid #dbdbdb",
         borderRadius: "50px",
         fontSize: ".8rem",
         padding: "5px 15px 5px 15px"

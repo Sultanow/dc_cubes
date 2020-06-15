@@ -14,7 +14,8 @@ export class Header extends Component {
 export default Header
 
 const headerContainer = {
-    backgroundColor: "lightgrey",
+    backgroundColor: "white",
     textAlign: "left" as "left", 
-    padding: "10px"
+    padding: "10px", 
+    fontWeight: "bolder" as "bolder"
 }

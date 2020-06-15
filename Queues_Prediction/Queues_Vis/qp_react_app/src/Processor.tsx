@@ -2,7 +2,17 @@ import React, { Component } from 'react'
 import TimeBox from "./TimeBox"
 import ProcessorBox from "./ProcessorBox"
 
-export class Processor extends Component {
+type ProcessorState = {
+    isLastProcessor: Boolean,
+    processorName: String
+}
+
+interface ProcessorProps {
+    isLastProcessor: Boolean, 
+    processorName: String
+}
+
+export class Processor extends Component<ProcessorProps, ProcessorState> {
     render() {
         return (
             <div>
@@ -10,7 +20,8 @@ export class Processor extends Component {
                     <TimeBox timePosition={"start"}
                     timestamp={"2020-01-20 12:01 UTC"}
                     timeType={"Historic"}/>
-                    <ProcessorBox/>
+                    <ProcessorBox isLastProcessor={this.props.isLastProcessor}
+                    processorName={this.props.processorName}/>
                     <TimeBox timePosition={"end"}
                     timestamp={"2020-01-23 08:20 UTC"}
                     timeType={"Forecast"}/>
@@ -23,6 +34,5 @@ export class Processor extends Component {
 export default Processor
 
 const processorContainer = {
-    padding: "10px",
-    width: "300px"
+    width: "300px",
 }

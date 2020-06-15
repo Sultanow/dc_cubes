@@ -24,5 +24,5 @@ export default App
 
 
 const appContainer = {
-  backgroundColor: "red"
+
 }

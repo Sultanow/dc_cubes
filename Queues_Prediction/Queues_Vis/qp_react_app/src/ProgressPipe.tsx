@@ -89,67 +89,68 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 export default ProgressPipe
 
 const progressPipeContainer = {
-    height: "40px", 
+    height: "30px", 
     backgroundColor: "white", 
     marginTop: "auto", 
     marginBottom: "auto",
-    borderTop: "4px solid #e3e3e3",
-    borderBottom: "4px solid #e3e3e3", 
+    borderTop: "3px solid darkgrey",
+    borderBottom: "3px solid darkgrey", 
+    //boxShadow: "-1px 0px 22px -2px rgba(0,0,0,0.2)",
 }
 
 const progressBar = {
     base:{
-    backgroundColor: "#F2B544", 
+    backgroundColor: "#FFE576",
     height: "100%",
     width: "0%" 
     }, 
     ten:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "10%"
     },
     twenty:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "20%"
     },
     thirty:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "30%"
     },
     fourty:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "40%"
     },
     fithy:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "50%"
     },
     sixty:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "60%"
     },
     seventy:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "70%"
     },
     eighty:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "80%"
     },
     ninethy:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "90%"
     },
     hundred:{
-        backgroundColor: "#F2B544", 
+        backgroundColor: "#FFE576", 
         height: "100%",
         width: "100%"
     },
@@ -157,16 +158,16 @@ const progressBar = {
 
 const progressStatusInfoBox = {
     backgroundColor: "white", 
-    color: "grey",
+    color: "darkgrey",
     borderRadius: "50px",
     position: "relative" as "relative", 
     display: "flex", 
     justifyContent: "center", 
-    top: "-77%", 
+    top: "-82%", 
     left: "15%",
     width: "70%",
-    padding: "3px 0 3px 0", 
+    padding: "2px 0 2px 0", 
     textAlign: "center" as "center", 
     fontWeight: "bold" as "bold", 
-    fontSize: ".9rem"
+    fontSize: ".8rem"
 }
