@@ -74,10 +74,10 @@ const processorBoxContainer = {
 
 const processorBox = {
     base:{
-        backgroundColor : "#55C1CE",
+        backgroundColor : "#1DC9E9",
         padding: "30px 0px",
         borderRadius: "px",
-        //border: "3px solid #1D3159",
+        // border: "2px solid rgb(66, 150, 190)",
         color: "white", 
         cursor: "pointer",
         //fontWeight: "bold" as "bold",

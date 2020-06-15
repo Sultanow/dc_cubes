@@ -31,7 +31,7 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
     render() {
         return (
             <div style={timeboxContainer}>
-                <div style={this.state.timePosition === "start" ? timebox.start : timebox.end}>
+                <div className="time-box" style={this.state.timePosition === "start" ? timebox.start: timebox.end}>
                     <div style={this.state.timePosition === "start" ? timeboxTitle.start : timeboxTitle.end}>
                         {this.state.timePosition} {this.props.timeType}:
                     </div>
@@ -92,17 +92,19 @@ const iconClock = {
     start:{
         backgroundColor: "white",    
         color: "black",
-        border: "3px solid #dbdbdb",
-        borderRadius: "50px",
+        border: "2px solid #dbdbdb",
+        //borderRadius: "50px",
         fontSize: ".8rem",
-        padding: "5px 15px 5px 15px"
+        padding: "10px 15px 10px 15px",
+        cursor: "pointer",
     },
     end: {
         backgroundColor: "#EFECFB",    
         color: "black",
-        border: "3px solid #dbdbdb",
-        borderRadius: "50px",
+        border: "2px solid #dbdbdb",
+        //borderRadius: "50px",
         fontSize: ".8rem",
-        padding: "5px 15px 5px 15px"
+        padding: "10px 15px 10px 15px",
+        cursor: "pointer",
     }
 }
