@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import Processor from "./Processor"
 
 export class Pipeline extends Component {
-    
+
     render() {
         return (
             <div style={pipelineContainer}>

@@ -7,7 +7,6 @@ import FilterForm from "./FilterForm";
 import DragDropApp from "./DragDrop";
 import Chart from "./Chart"
 
-
 interface AppState {
 
 }
