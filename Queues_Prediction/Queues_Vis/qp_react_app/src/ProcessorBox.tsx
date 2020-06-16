@@ -4,12 +4,14 @@ import ProgressPipe from "./ProgressPipe"
 type ProcessorBoxState = {
     isLastProcessor: Boolean,
     processorName: String,
-    isProcessing: Boolean
+    isProcessing: Boolean, 
 }
 
 interface ProcessorBoxProps {
     isLastProcessor: Boolean,
-    processorName: String
+    processorName: String,
+    queueName: String,
+    queueType: String,
 }
 
 export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState> {
@@ -22,6 +24,10 @@ export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState
 
     constructor(props:any){
         super(props);
+        this.state = (
+            this.state
+        )
+
     }
 
     componentDidMount(){
@@ -50,7 +56,7 @@ export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState
                             <div className={this.state.isProcessing ? "border-loading-spin" : "hidden"}></div>
                             {this.props.processorName}
                         </div>
-                        {this.props.isLastProcessor ? null : <ProgressPipe/>}
+                        {this.props.isLastProcessor ? null : <ProgressPipe queName={this.props.queueName} queType={this.props.queueType} />}
                     </div>
                 <div style={lineDashed}></div>
             </div>
@@ -74,7 +80,7 @@ const processorBox = {
         cursor: "pointer",
         //fontWeight: "bold" as "bold",
         //boxShadow: "0px 0px 20px 1px rgba(0,0,0,0.2)", 
-        position: "relative" as "relative"
+        position: "relative" as "relative",
     }
 }
 

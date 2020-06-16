@@ -9,7 +9,9 @@ type ProcessorState = {
 
 interface ProcessorProps {
     isLastProcessor: Boolean, 
-    processorName: String
+    processorName: String,
+    queueType: String, 
+    queueName: String
 }
 
 export class Processor extends Component<ProcessorProps, ProcessorState> {
@@ -21,7 +23,9 @@ export class Processor extends Component<ProcessorProps, ProcessorState> {
                     timestamp={"2020-01-20 12:01 UTC"}
                     timeType={"Historic"}/>
                     <ProcessorBox isLastProcessor={this.props.isLastProcessor}
-                    processorName={this.props.processorName}/>
+                    processorName={this.props.processorName}
+                    queueName={this.props.queueName}
+                    queueType={this.props.queueType}/>
                     <TimeBox timePosition={"end"}
                     timestamp={"2020-01-23 08:20 UTC"}
                     timeType={"Forecast"}/>

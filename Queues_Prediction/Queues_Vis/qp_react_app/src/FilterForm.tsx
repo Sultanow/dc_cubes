@@ -17,7 +17,7 @@ export class FilterForm extends Component {
                             <option value="Ipsum">Ipsum</option>
                         </select>
                     </div>
-                    <button style={refreshBtn}>Refresh</button>
+                    <button id="search-btn" style={searchBtn}>Search</button>
                     <button className="prediction-btn" style={predictionBtn}>Create New Predictions</button>
                 </form>
             </div>
@@ -51,7 +51,7 @@ const select = {
     cursor: "pointer"
 }
 
-const refreshBtn = {
+const searchBtn = {
     backgroundColor: "#FE9C6A",
     height: "46px",
     color: "white",

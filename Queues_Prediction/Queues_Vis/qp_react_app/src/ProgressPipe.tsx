@@ -1,21 +1,27 @@
 import React, { Component } from 'react'
 
 type ProgressPipeState = {
-    progressStatus : Number
+    progressStatus : Number,
+    queueName: String,
+    queueType: String,
 }
 
 interface ProgressPipeProps {
-    
+    queType: String, 
+    queName: String
 }
 
 export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState>{
-    constructor(props:any) {
-        super(props);
-        
+
+    constructor(props: any){
+        super(props)
         this.state = {
-            progressStatus: 0
+            queueName: "Name undefined",
+            queueType: "Type undefined",
+            progressStatus: 0, 
         }
     }
+
     componentDidMount(){
         this.setUpProgressPipe();
     }
@@ -81,12 +87,15 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
                 break;
         }
     }
+    onClickTest = () => {
+        console.log("progress pipe clicked")
+    }
 
     render() {
         return (
             <div style={progressPipeContainer}>
                 <div style={this.setUpProgressBarStatus()}></div>
-                <div style={progressStatusInfoBox}>
+                <div style={progressStatusInfoBox} onClick={this.onClickTest}>
                     {this.state.progressStatus}%
                 </div>
             </div>
@@ -97,12 +106,12 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 export default ProgressPipe
 
 const progressPipeContainer = {
-    height: "25px",
+    height: "40px",
     backgroundColor: "white", 
     marginTop: "auto", 
     marginBottom: "auto",
-    borderTop: "2px solid black",
-    borderBottom: "2px solid black", 
+    borderTop: "6px solid #ddd",
+    borderBottom: "6px solid #ddd", 
     //boxShadow: "-1px 0px 22px -2px rgba(0,0,0,0.2)",
     position: "relative" as "relative",
     cursor: "pointer"
@@ -115,37 +124,37 @@ const progressBar = {
     width: "0%" 
     }, 
     ten:{
-        backgroundColor: "#FE9C6A", 
+        backgroundColor: "#FEE67F", 
         height: "100%",
         width: "10%"
     },
     twenty:{
-        backgroundColor: "#FE9C6A", 
+        backgroundColor: "#FEE67F", 
         height: "100%",
         width: "20%"
     },
     thirty:{
-        backgroundColor: "#FE9C6A", 
+        backgroundColor: "#FEE67F", 
         height: "100%",
         width: "30%"
     },
     fourty:{
-        backgroundColor: "#FE9C6A", 
+        backgroundColor: "#FEE67F", 
         height: "100%",
         width: "40%"
     },
     fithy:{
-        backgroundColor: "#FE9C6A", 
+        backgroundColor: "#FEE67F", 
         height: "100%",
         width: "50%"
     },
     sixty:{
-        backgroundColor: "#FE9C6A", 
+        backgroundColor: "#FEE67F", 
         height: "100%",
         width: "60%"
     },
     seventy:{
-        backgroundColor: "#FE9C6A", 
+        backgroundColor: "#FEE67F", 
         height: "100%",
         width: "70%"
     },
@@ -172,11 +181,11 @@ const progressStatusInfoBox = {
     borderRadius: "50px",
     position: "absolute" as "absolute", 
     left: "50%",
-    top: "15%",
+    top: "25%",
     transform: "translate(-50%, 0)",
     width: "47px",
     padding: "2px 0 2px 0", 
     textAlign: "center" as "center", 
-    fontWeight: "bold" as "bold", 
-    fontSize: ".7rem",
+    // fontWeight: "bold" as "bold", 
+    fontSize: ".8rem",
 }
