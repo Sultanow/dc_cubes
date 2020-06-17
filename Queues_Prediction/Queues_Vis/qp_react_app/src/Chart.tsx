@@ -19,7 +19,10 @@ export class Chart extends Component<ChartProps, ChartState> {
     render() {
         return (
             <div style={chartContainer}>
-                <div style={chart} className="chart">{this.props.queueName}</div>
+                <div style={chart} className="chart">
+                    <p>Chart for QueueName x Queue Type</p>
+                    {this.props.queueName}
+                </div>
             </div>
         )
     }

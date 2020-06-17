@@ -4,13 +4,13 @@ import {faClock} from "@fortawesome/free-solid-svg-icons"
 
 type TimeboxState = {
     timePosition : String, 
-    timeType : String
+    isHistoric: Boolean, 
 }
 
-interface TimeboxProps {
-    timePosition: String, 
+interface TimeboxProps { 
     timestamp: String, 
-    timeType: String
+    isHistoric: Boolean, 
+    isStart: Boolean
 }
 
 export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
@@ -19,24 +19,24 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
         
         this.state = {
             timePosition: "",
-            timeType: ""
+            isHistoric: true
         }
     }
     componentDidMount(){
         this.setState({
-            timePosition : this.props.timePosition,
+
         });
     }
 
     render() {
         return (
             <div style={timeboxContainer}>
-                <div className="time-box" style={this.state.timePosition === "start" ? timebox.start: timebox.end}>
-                    <div style={this.state.timePosition === "start" ? timeboxTitle.start : timeboxTitle.end}>
-                        {this.state.timePosition} {this.props.timeType}:
+                <div className="time-box" style={this.props.isHistoric ? timebox.historic: timebox.forecast}>
+                    <div style={this.state.isHistoric ? timeboxTitle.historic : timeboxTitle.forecast}>
+                        {this.state.isHistoric ? "Historic" : "Forecast"} {this.props.isStart ? "Start" : "End"}:
                     </div>
                     <div style={timeboxInnerBottom}>
-                        <FontAwesomeIcon icon={faClock} style={this.state.timePosition === "start" ? iconClock.start : iconClock.end} /> 
+                        <FontAwesomeIcon icon={faClock} style={this.props.isHistoric ? iconClock.historic : iconClock.forecast} /> 
                         {this.props.timestamp}
                     </div>
                 </div>
@@ -56,7 +56,7 @@ const timeboxInnerBottom = {
 }
 
 const timeboxTitle = {
-    start:{
+    historic:{
         fontSize: ".6rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
@@ -64,7 +64,7 @@ const timeboxTitle = {
         textTransform: "uppercase" as "uppercase", 
         opacity: ".7"
     },
-    end:{
+    forecast:{
         fontSize: ".6rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
@@ -75,12 +75,12 @@ const timeboxTitle = {
 }
 
 const iconClock = {
-    start: {
+    historic: {
         color: "lightgrey",
         fontSize: "1rem",
         marginRight: "4px"
     },
-    end: {
+    forecast: {
         color: "black",
         opacity: ".3",
         fontSize: "1rem",
@@ -89,7 +89,7 @@ const iconClock = {
 }
 
  const timebox = {
-    start:{
+    historic:{
         backgroundColor: "white",    
         color: "black",
         border: "2px solid #dbdbdb",
@@ -98,7 +98,7 @@ const iconClock = {
         padding: "10px 15px 10px 15px",
         cursor: "pointer",
     },
-    end: {
+    forecast: {
         backgroundColor: "#ebe6ff",    
         color: "black",
         border: "2px solid #ebe6ff",
