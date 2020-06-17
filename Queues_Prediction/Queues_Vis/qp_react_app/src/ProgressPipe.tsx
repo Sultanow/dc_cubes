@@ -93,7 +93,7 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 
     render() {
         return (
-            <div style={progressPipeContainer}>
+            <div className="progress-pipe-container" style={progressPipeContainer}>
                 <div style={this.setUpProgressBarStatus()}></div>
                 <div style={progressStatusInfoBox} onClick={this.onClickTest}>
                     {this.state.progressStatus}%

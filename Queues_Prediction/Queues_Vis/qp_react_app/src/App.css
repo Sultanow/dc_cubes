@@ -105,3 +105,12 @@ select:hover{
   background-color: rgb(238, 146, 99)!important;
   border: 2px solid rgb(238, 146, 99)!important;
 }
+
+.progress-pipe-container:hover{
+  border-top: 6px solid #a8a8a8!important;
+  border-bottom: 6px solid #a8a8a8!important; 
+}
+
+.processor-box:hover{
+  background-color: rgb(94, 181, 216)!important;
+}

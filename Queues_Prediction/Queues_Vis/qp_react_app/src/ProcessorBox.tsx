@@ -52,7 +52,7 @@ export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState
             <div style={processorBoxContainer}>
                 <div style={lineDashed}></div>
                     <div style={processorBoxProgressPipeContainer}>
-                        <div style={processorBox.base}>
+                        <div className="processor-box" style={processorBox.base}>
                             <div className={this.state.isProcessing ? "border-loading-spin" : "hidden"}></div>
                             {this.props.processorName}
                         </div>
@@ -72,7 +72,7 @@ const processorBoxContainer = {
 
 const processorBox = {
     base:{
-        backgroundColor : "#55C1CE",
+        backgroundColor : "#4bc5de", //55C1CE
         padding: "40px 0px",
         borderRadius: "0px",
         // border: "2px solid rgb(66, 150, 190)",
