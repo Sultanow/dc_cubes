@@ -10,7 +10,7 @@ interface ClusterColors {
 export default class SolrAdapter {
 
     public timeSeries = new Map<string, DCState>();
-    public rawTimeSeriesData: Array<object>;
+    public rawTimeSeriesData: [];
     public temporalAxis = new Array<string>();
     public maxh: number = 0;
     public maxZ: number = 3;
@@ -25,13 +25,13 @@ export default class SolrAdapter {
     public colorCounter = 0;
 
 
-    //generate raw from socket json format
+    //generate data from socket json format
     receivedData(data: any, customMapping, selectedMeasure: string) {
-        let datajson: [] = data.data.message
-        this.rawTimeSeriesData = this.transformData(datajson)
+        let datajson: [] = data.data.response.docs
+        this.rawTimeSeriesData = datajson
         this.temporalAxis = [];
 
-        this.rawTimeSeriesData.forEach(element => {
+        datajson.forEach(element => {
             // TODO: make stringutilization dynamic to vis diffrent metrics
             let { strTimeStamp, strCluster, strDataCenter, strInstance, strSelectedMeasure } = customMapping(element, selectedMeasure)
 
@@ -47,32 +47,6 @@ export default class SolrAdapter {
 
 
         this.buildGrid()
-    }
-
-    transformData = (data: Array<object>) => {
-        let transformed_docs = [];
-
-        data.forEach(item => {
-            var doc_tmp = item["_source"]
-            transformed_docs.push(doc_tmp)
-            //console.log("bugfix transformData: ")
-            //console.log(doc_tmp)
-        });
-
-        console.log("bugfix transf: ")
-        console.log(transformed_docs[2])
-
-        return transformed_docs
-
-        /*
-        data.forEach(doc: Array){
-            let _id = doc["_id"]
-            let doc_tmp = doc["_source"]
-            let doc_tmp["id"] = _id
-            transformed_docs.append(doc_tmp)
-        }
-        return transformed_docs
-        */
     }
 
     buildGrid() {
@@ -178,7 +152,7 @@ export default class SolrAdapter {
             instance = cluster.instances.get(strInstance)!;
         } else {
 
-            //console.log("strUtiz " + strUtilization + "  :" + strInstance);
+            console.log("strUtiz " + strUtilization + "  :" + strInstance);
             instance = { utilization: Number(strUtilization) };
             cluster.instances.set(strInstance, instance);
             dcState.numInstances++;
