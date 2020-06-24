@@ -10,11 +10,11 @@ import DataSource from '../../../model/DataSource'
 interface DataSourcesProps {
     dataSource: DataSource
     dataSourceError: boolean
-    solrBaseUrl?: string
-    dataSourceIndex: string
-    solrQuery?: string
+    solrBaseUrl: string
+    solrCore: string
+    solrQuery: string
     setDataSource: any
-    setSolrUrlPart?: any
+    setSolrUrlPart: any
     history: any
     customMapping: any
     accessApp: any
@@ -90,7 +90,7 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                                 dataSourceError={this.props.dataSourceError}
                                 setSolrUrlPart={this.props.setSolrUrlPart}
                                 solrBaseUrl={this.props.solrBaseUrl}
-                                solrCore={this.props.dataSourceIndex}
+                                solrCore={this.props.solrCore}
                                 solrQuery={this.props.solrQuery}
                                 customMapping={this.props.customMapping}
                                 accessApp={this.props.accessApp} />}/>
