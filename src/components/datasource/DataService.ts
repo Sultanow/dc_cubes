@@ -2,6 +2,7 @@ import DataSource from '../../model/DataSource'
 import AggregationType from '../../model/AggregationType'
 import DataSourceService from '../../model/DataSourceService'
 import SolrDataService from './service/solr/SolrDataService'
+import ElasticsearchDataService from './service/elasticsearch/ElasticsearchDataService'
 
 export default class DataService {
 
@@ -19,7 +20,7 @@ export default class DataService {
         if (dataSource === 'solr') {
             this.dataSourceService = new SolrDataService(solrBaseUrl, solrCore, solrForecastCore, solrMergedCore)
         } else if (dataSource === 'elasticsearch') {
-
+            this.dataSourceService = new ElasticsearchDataService(solrBaseUrl, solrCore, solrForecastCore)
         } else if (dataSource === 'prometheus') {
 
         } else {

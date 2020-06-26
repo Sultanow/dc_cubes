@@ -21,6 +21,7 @@ interface TimeseriesData {
 }
 
 interface AppState {
+  elasticsearchIndex: string, 
   logData: []
   backendUrl: string
   dataSource: DataSource
@@ -95,6 +96,8 @@ class App extends React.Component<{}, AppState> {
     // lowerBoundDate.setDate(upperBoundDate.getDate() - 3);
 
     this.state = {
+      elasticsearchIndex: "dc_cubes_historic",
+
       logData: [],
       backendUrl: "http://localhost:8080",
       dataSource: 'solr',
@@ -371,6 +374,7 @@ class App extends React.Component<{}, AppState> {
 
             <Container style={{ display: "contents" }}>
               <Route path="/data-sources" render={(props) => <DataSources {...props}
+                elasticsearchIndex={this.state.elasticsearchIndex}
                 dataSource={this.state.dataSource}
                 dataSourceError={this.state.dataSourceError}
                 setDataSource={this.setDataSource}

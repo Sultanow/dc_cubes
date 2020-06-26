@@ -8,6 +8,8 @@ import { Row, Col, Form, Button } from 'react-bootstrap';
 import DataSource from '../../../model/DataSource'
 
 interface DataSourcesProps {
+    elasticsearchIndex: string
+
     dataSource: DataSource
     dataSourceError: boolean
     solrBaseUrl: string
@@ -95,11 +97,18 @@ class DataSources extends React.Component<DataSourcesProps, DataSourcesState> {
                                 customMapping={this.props.customMapping}
                                 accessApp={this.props.accessApp} />}/>
                             <Route path="/data-sources/prometheus" render={(props) => <PrometheusSettings {...props}  />}/>
-                            <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  />}/>
+                            <Route path="/data-sources/elasticsearch" render={(props) => <ElasticsearchSettings {...props}  
+                                elasticsearchIndex={this.props.elasticsearchIndex}
+                                dataSourceError={this.props.dataSourceError}
+                                setSolrUrlPart={this.props.setSolrUrlPart}
+                                solrBaseUrl={this.props.solrBaseUrl}
+                                solrQuery={this.props.solrQuery}
+                                customMapping={this.props.customMapping}
+                                accessApp={this.props.accessApp} />}/>
                         </Col>
             </div>
             
-        )
+        ) 
     };
 
     changeDataSource = () => {
