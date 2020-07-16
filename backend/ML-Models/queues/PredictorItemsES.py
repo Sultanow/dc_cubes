@@ -151,7 +151,7 @@ def es_predict(host, port, progress, date):
 
     # n = number of samples, ts = number of Timesteps, d = dimension of input(Features)
     n_tr, ts, d_X = X_pr.shape
-
+    X_pr_scaled = scaler_X.fit_transform(X_pr.reshape(n_tr*ts, d_X)).reshape(X_pr.shape)
     # Create a list to keep track on the steps each item is in the queue, to get the matching prediction later
     steps_X = list()
     for x in X_pr:
@@ -161,7 +161,7 @@ def es_predict(host, port, progress, date):
     # Load the pretrained model and predict with it
     model = load_model("res_model_items_1w.h5")
 
-    pred = model.predict(X_pr)
+    pred = model.predict(X_pr_scaled)
     # Rescale the predictions
     y_pred = scaler_y.inverse_transform(pred.reshape(-1, 1)).reshape(pred.shape)
 
