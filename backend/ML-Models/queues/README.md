@@ -96,10 +96,28 @@ We try to resample the dataset aswell to see how the performance improves by tak
 
 ### Scoring
 
-To score the models we use the MAE, which shows us how close our predictions are. The LSTM score is based on the 1% downsampled model, so the real score may vary.
+To score the models we use the MAE, which shows us how close our predictions are. The LSTM score is based on the 1% downsampled model, so the real score may vary. The time error recalculates the 5min steps, so it basically is the average timeframe the prediction misses on average.
 
-| Model | MAE |
-| --- | --- |
-| LSTM | 136 |
-| Linear Regression | 644 |
-| Decision Trees | 402 |
+| Model | MAE | time error |
+| --- | --- | --- |
+| LSTM | 136 | ~11h |
+| LSTM resampled | 46 | ~4h |
+| Linear Regression | 644 | ~54h |
+| Decision Trees | 402 | ~47h |
+
+
+### Predictions
+
+Due to the inconsistency of the initial queue waiting time, the prediction is tailored for each item individually and has various outcomes. Down below there are 3 example comparisons.
+
+Example 1
+
+![Prediction_sample1](https://user-images.githubusercontent.com/9306218/87714106-9452a280-c7ab-11ea-871c-5fca757004fe.png)
+
+Example 2
+
+![Prediction_sample2](https://user-images.githubusercontent.com/9306218/87714191-b3513480-c7ab-11ea-8e2e-c6ca0e233652.png)
+
+Example 3
+
+![Prediction_sample3](https://user-images.githubusercontent.com/9306218/87714224-be0bc980-c7ab-11ea-9e41-9b4f53caa3fe.png)
