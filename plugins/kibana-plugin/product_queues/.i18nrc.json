@@ -1,0 +1,10 @@
+{
+    "prefix": "productQueues",
+    "paths": {
+      "productQueues": "."
+    },
+    "translations": [
+      "translations/ja-JP.json"
+    ]
+  }
+  

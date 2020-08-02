@@ -1,0 +1,34 @@
+[
+    {
+      "_id": "5f05f81b5c0b9cc7ab239bf0",
+      "processor_name": "ERP",
+      "timestamp_start": "Fri Jan 03 2020 12:12:47 GMT+0000 (UTC)",
+      "timestamp_end": "Sat Jan 04 2020 19:31:52 GMT+0000 (UTC)",
+      "isForecast_start": false,
+      "isForecast_end": false
+    },
+    {
+      "_id": "5f05f81b30de84958b694854",
+      "processor_name": "PIM Edit",
+      "timestamp_start": "Sat Jan 04 2020 19:31:52 GMT+0000 (UTC)",
+      "timestamp_end": "Sat Jan 04 2020 23:10:04 GMT+0000 (UTC)",
+      "isForecast_start": false,
+      "isForecast_end": true
+    },
+    {
+      "_id": "5f05f81b83d8df5283298b2a",
+      "processor_name": "PIM Browse B2B",
+      "timestamp_start": "Sat Jan 04 2020 23:10:04 GMT+0000 (UTC)",
+      "timestamp_end": "Mon Jan 05 2020 15:41:46 GMT+0000 (UTC)",
+      "isForecast_start": true,
+      "isForecast_end": true
+    },
+    {
+      "_id": "5f05f81b791db49362765656",
+      "processor_name": "D2C",
+      "timestamp_start": "Mon Jan 05 2020 15:41:46 GMT+0000 (UTC)",
+      "timestamp_end": "Wed Jan 07 2020 04:29:06 GMT+0000 (UTC)",
+      "isForecast_start": true,
+      "isForecast_end": true
+    }
+  ]
