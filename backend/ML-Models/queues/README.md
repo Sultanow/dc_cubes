@@ -121,3 +121,17 @@ Example 2
 Example 3
 
 ![Prediction_sample3](https://user-images.githubusercontent.com/9306218/87714224-be0bc980-c7ab-11ea-9e41-9b4f53caa3fe.png)
+
+
+## Concept for two queues
+
+Now that there are two queues, with one following the other we treat both as one. Note that there is some logic behind them. Items can occur first in the prior queue (censhare), but don´t have to ! If they occur they will definitely get into the following queue (pic). Items can also only start in the second one. So we mark items that started in the first queue with an additional feature and count their steps from first occurence in the first until the last occurence in the second combining with the features (size, n_added, n_removed) of the second queue. 
+
+Example item from above with additional feature:
+
+| n_steps_in_Q | Q_size | n_added | n_removed | cen |
+| --- | --- | --- | --- | --- |
+| 1 | 5000 | 10 | 5 | 1 |
+| 2 | 5010 | 20 | 10 | 1 |
+| ... | ... | ... | ... | ... |
+| 1000 | 4000 | 5 | 15 | 1 |
