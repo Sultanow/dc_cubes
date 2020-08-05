@@ -84,18 +84,14 @@ Our dataset is pretty large, so we use downsampling to compare the times it take
 | 1948 | ~27min |
 | 19653 | ~4:47h |
 
-| Number of samples | time per epoch |
-| --- | --- |
-| 226 | ~210s |
-| 1948 | ~27min |
-| 19653 | ~4:47h |
 
 ### Resampling
 
 We try to resample the dataset aswell to see how the performance improves by taking every 10th datapoint. Thus we now have a sample rate of 5 minutes instead of 30 seconds. While doing it, we loose some short staying items (now we only got 34404 items compared to 35096), but our main focus is to predict items that stay for a rather long time in the queue.
 
+
 | Number of samples | time per epoch |
-| --- | --- |
+| --- | --- |
 | 208 | ~18s |
 | 1900 | ~2min |
 | 19265 | ~33min |
