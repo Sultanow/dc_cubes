@@ -123,7 +123,7 @@ Path to file:
 ## Canvas Example
 <img src="./img/canvas.png">
 
-<img src="./img/canvas_pred_kpi_5.png">
+<img src="./img/canvas_pred_kpi_5.png" height="300px">
 
 ### Update prediction data
 
