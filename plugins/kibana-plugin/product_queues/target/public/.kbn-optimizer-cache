@@ -1,0 +1,49 @@
+{
+  "optimizerCacheKey": {
+    "lastCommit": "f3fdc79f03a055de302136599bf95f035aa5d40c",
+    "bootstrap": "# this is only human readable for debugging, please don't try to parse this\n@kbn/babel-preset:b2613dfdc4e1b8fd1be304e34e964e5a1db736f1\n@kbn/dev-utils:dea76490244c132878503c2ba1f25078afba3170\n@kbn/expect:e188c11779360fde9d5a3161a808aceb5e52ab12\n@kbn/i18n:1e227894cf29c8ffeb746db85e7afa28d6c04659\n@kbn/optimizer:5c647db026f1048c72eeb60f7074fb763774ce9b\n@kbn/ui-shared-deps:82f409f17d53196062267cf1d2dc081ecedd35ec",
+    "deletedPaths": [],
+    "modifiedTimes": {},
+    "workerConfig": {
+      "dist": false,
+      "repoRoot": "/Users/burak/dev/kibana",
+      "optimizerCacheKey": "♻",
+      "browserslistEnv": "dev"
+    }
+  },
+  "cacheKey": {
+    "spec": {
+      "type": "plugin",
+      "id": "productQueues",
+      "entry": "./public/index",
+      "contextDir": "/Users/burak/dev/kibana/plugins/product_queues",
+      "sourceRoot": "/Users/burak/dev/kibana",
+      "outputDir": "/Users/burak/dev/kibana/plugins/product_queues/target/public"
+    },
+    "mtimes": {
+      "/Users/burak/dev/kibana/node_modules/css-loader/package.json": 1596063441674,
+      "/Users/burak/dev/kibana/node_modules/style-loader/package.json": 1596063441965,
+      "/Users/burak/dev/kibana/packages/kbn-ui-shared-deps/public_path_module_creator.js": 1592044418000,
+      "/Users/burak/dev/kibana/plugins/product_queues/common/index.ts": 1596118445572.6096,
+      "/Users/burak/dev/kibana/plugins/product_queues/public/application.tsx": 1594932203159.105,
+      "/Users/burak/dev/kibana/plugins/product_queues/public/components/app.tsx": 1596129648757.0874,
+      "/Users/burak/dev/kibana/plugins/product_queues/public/index.scss": 1594932197254.1182,
+      "/Users/burak/dev/kibana/plugins/product_queues/public/index.ts": 1594932203159.4968,
+      "/Users/burak/dev/kibana/plugins/product_queues/public/plugin.ts": 1594932203159.6125,
+      "/Users/burak/dev/kibana/plugins/product_queues/public/types.ts": 1594932203159.932
+    }
+  },
+  "moduleCount": 14,
+  "files": [
+    "/Users/burak/dev/kibana/node_modules/css-loader/package.json",
+    "/Users/burak/dev/kibana/node_modules/style-loader/package.json",
+    "/Users/burak/dev/kibana/packages/kbn-ui-shared-deps/public_path_module_creator.js",
+    "/Users/burak/dev/kibana/plugins/product_queues/common/index.ts",
+    "/Users/burak/dev/kibana/plugins/product_queues/public/application.tsx",
+    "/Users/burak/dev/kibana/plugins/product_queues/public/components/app.tsx",
+    "/Users/burak/dev/kibana/plugins/product_queues/public/index.scss",
+    "/Users/burak/dev/kibana/plugins/product_queues/public/index.ts",
+    "/Users/burak/dev/kibana/plugins/product_queues/public/plugin.ts",
+    "/Users/burak/dev/kibana/plugins/product_queues/public/types.ts"
+  ]
+}
