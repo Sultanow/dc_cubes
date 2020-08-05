@@ -123,6 +123,8 @@ Path to file:
 ## Canvas Example
 <img src="./img/canvas.png">
 
+<img src="./img/canvas_pred_kpi.png">
+
 ### Update prediction data
 
 1. Open Prediciton Control Settings Panel (Kibana Plugin -> README tbd.)
