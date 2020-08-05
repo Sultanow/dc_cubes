@@ -77,18 +77,21 @@ Because each item has a different amount of steps in the queue, we need to pad t
 
 Our dataset is pretty large, so we use downsampling to compare the times it takes the model to train for 1 epoch. Several epochs are needed to get a stable model. We break down our 24500 samples into portions of approximatley 1%, 10% and 100%.
 
+
 | Number of samples | time per epoch |
-| --- | --- |
+| --- | --- |
 | 226 | ~210s |
 | 1948 | ~27min |
 | 19653 | ~4:47h |
+
 
 ### Resampling
 
 We try to resample the dataset aswell to see how the performance improves by taking every 10th datapoint. Thus we now have a sample rate of 5 minutes instead of 30 seconds. While doing it, we loose some short staying items (now we only got 34404 items compared to 35096), but our main focus is to predict items that stay for a rather long time in the queue.
 
+
 | Number of samples | time per epoch |
-| --- | --- |
+| --- | --- |
 | 208 | ~18s |
 | 1900 | ~2min |
 | 19265 | ~33min |
@@ -96,10 +99,42 @@ We try to resample the dataset aswell to see how the performance improves by tak
 
 ### Scoring
 
-To score the models we use the MAE, which shows us how close our predictions are. The LSTM score is based on the 1% downsampled model, so the real score may vary.
+To score the models we use the MAE, which shows us how close our predictions are. The LSTM score is based on the 1% downsampled model, so the real score may vary. The time error recalculates the 5min steps, so it basically is the average timeframe the prediction misses on average.
 
-| Model | MAE |
-| --- | --- |
-| LSTM | 136 |
-| Linear Regression | 644 |
-| Decision Trees | 402 |
+| Model | MAE | time error |
+| --- | --- | --- |
+| LSTM | 136 | ~11h |
+| LSTM resampled | 46 | ~4h |
+| Linear Regression | 644 | ~54h |
+| Decision Trees | 402 | ~47h |
+
+
+### Predictions
+
+Due to the inconsistency of the initial queue waiting time, the prediction is tailored for each item individually and has various outcomes. Down below there are 3 example comparisons.
+
+Example 1
+
+![Prediction_sample1](https://user-images.githubusercontent.com/9306218/87714106-9452a280-c7ab-11ea-871c-5fca757004fe.png)
+
+Example 2
+
+![Prediction_sample2](https://user-images.githubusercontent.com/9306218/87714191-b3513480-c7ab-11ea-8e2e-c6ca0e233652.png)
+
+Example 3
+
+![Prediction_sample3](https://user-images.githubusercontent.com/9306218/87714224-be0bc980-c7ab-11ea-9e41-9b4f53caa3fe.png)
+
+
+## Concept for two queues
+
+Now that there are two queues, with one following the other we treat both as one. Note that there is some logic behind them. Items can occur first in the prior queue (censhare), but don´t have to ! If they occur they will definitely get into the following queue (pic). Items can also only start in the second one. So we mark items that started in the first queue with an additional feature and count their steps from first occurence in the first until the last occurence in the second combining with the features (size, n_added, n_removed) of the second queue.
+
+Example item from above with an additional feature:
+
+| n_steps_in_Q | Q_size | n_added | n_removed | cen |
+| --- | --- | --- | --- | --- |
+| 1 | 5000 | 10 | 5 | 1 |
+| 2 | 5010 | 20 | 10 | 1 |
+| ... | ... | ... | ... | ... |
+| 1000 | 4000 | 5 | 15 | 1 |
