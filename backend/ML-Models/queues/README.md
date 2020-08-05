@@ -77,6 +77,13 @@ Because each item has a different amount of steps in the queue, we need to pad t
 
 Our dataset is pretty large, so we use downsampling to compare the times it takes the model to train for 1 epoch. Several epochs are needed to get a stable model. We break down our 24500 samples into portions of approximatley 1%, 10% and 100%.
 
+
+| Number of samples | time per epoch |
+| --- | --- |
+| 226 | ~210s |
+| 1948 | ~27min |
+| 19653 | ~4:47h |
+
 | Number of samples | time per epoch |
 | --- | --- |
 | 226 | ~210s |
@@ -125,7 +132,7 @@ Example 3
 
 ## Concept for two queues
 
-Now that there are two queues, with one following the other we treat both as one. Note that there is some logic behind them. Items can occur first in the prior queue (censhare), but don´t have to ! If they occur they will definitely get into the following queue (pic). Items can also only start in the second one. So we mark items that started in the first queue with an additional feature and count their steps from first occurence in the first until the last occurence in the second combining with the features (size, n_added, n_removed) of the second queue. 
+Now that there are two queues, with one following the other we treat both as one. Note that there is some logic behind them. Items can occur first in the prior queue (censhare), but don´t have to ! If they occur they will definitely get into the following queue (pic). Items can also only start in the second one. So we mark items that started in the first queue with an additional feature and count their steps from first occurence in the first until the last occurence in the second combining with the features (size, n_added, n_removed) of the second queue.
 
 Example item from above with additional feature:
 
