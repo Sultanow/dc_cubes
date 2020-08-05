@@ -286,3 +286,7 @@ def predict_items(host, port, progress, start, stop):
         es.index('queues-prediction', body=doc_data)
         if count % progress == 0:
             print(str(count) + " Elemente hochgeladen")
+
+
+# Start script
+predict_items('localhost', 9200, 10, "2020-06-08", "2020-06-12")
