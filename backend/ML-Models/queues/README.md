@@ -138,3 +138,9 @@ Example item from above with an additional feature:
 | 2 | 5010 | 20 | 10 | 1 |
 | ... | ... | ... | ... | ... |
 | 1000 | 4000 | 5 | 15 | 1 |
+
+
+## Requirements.txt
+
+To install all needed librarys and tools use :
+**pip install -r requirements.txt**
