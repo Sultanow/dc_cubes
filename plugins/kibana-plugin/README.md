@@ -7,5 +7,15 @@
 | Develop Kibana Canvas Plug-In | Extend Canvas by own code using React | High effort, risk of high maintainability depending on your own code structure | Very high flexibility in querying, interaction, and visualization. |
 
 ## Use Kibana Canvas
-This approach we use for a simple
+This approach is used for an Infographics that shows basic key numbers such as **queue size** and prospectively **queue throughput** for different queues.
+One significant disadvantage is that queries for calculating those key numbers are limited. For example, we cannot calculate the **queue throughput** at this moment using the given data model. Calculating the throughput requires us to calculate the intersection (cut set) between two sets of queued items. We have an index called "queues" that stores snapshots of queue states as follows:
+Each document contains (along some other fields) the following fields:
+
+* **timestamp**: type=date, and it is searchable, aggregatable
+* **items**: type=string, and it is searchable
+
+The field items contains a large string consisting thousands of unsorted IDs, for example **items**="2070213614 2909589973 2771050342 ..."
+
+We need to query two rows (for two given timestamps) and calculate the intersection (cut set) of both item lists. Ultimately we need to know the size of this cut set. It is difficult to deal with this problem, if we want to display the calculated size of this intersection in an infographics Canvas in Kibana. The queries we are able to use
+
 Canvas expression language 
