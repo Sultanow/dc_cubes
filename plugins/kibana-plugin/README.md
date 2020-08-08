@@ -27,9 +27,10 @@ We use Kibana Canvas for an Infographics that shows the state of all queues at a
 This is a compromise between flexibility and implementation plus maintainance effort. Using [Kibana Plug-Ins](https://www.elastic.co/guide/en/kibana/current/kibana-plugins.html) we are more close to standard components, but must maintain code snippets for separate components that integrate into each other by the Kibana workflow. For example a button that trigger some individual action or setting is placed into Kibana's static UI structure. 
 
 ### Conclusion
-Since the functionality of displaying the queue status and an item's history is not so extensive, we must not scatter code over many components. Rather, we can integrate this in a minimalist way in one component. That
+Since the functionality of displaying the queue status and an item's history is not so extensive, we must not scatter code over many components. Rather, we can integrate this in a minimalist way in one component. Therefore we want to avoid this approach and try to build everything compactly into one component by the next approach *Developing Kibana Canvas Plug-In*.
 
 ## Develop Kibana Canvas Plug-In
 This is the most flexible way of developing a fully interactive canvas that is able to use queries which are complex as needed. The query results even can be postprocessed by custom functional code. Buttons and drop downs might be integrated into such an canvas without restriction. It should be noted that this API still is in development an to be considered as "Beta", see this [Link](https://discuss.elastic.co/t/custom-kibana-canvas-elements/202632/2) for more details.
 
 ### Conclusion
+As long as we focus delimited and focused functionality on one visualization component, this approach is the most appropriate. We choose this approach to depict the overall status of the queues. An interactive search allows us to display the history and currnt location of a specific item.
