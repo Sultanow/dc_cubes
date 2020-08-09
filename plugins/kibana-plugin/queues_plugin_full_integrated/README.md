@@ -31,6 +31,11 @@
   ````
   - basepath proxy server running at http://localhost:5601/XXX
 
+
+### Start Custom Kibana Plugin
+
+- 1. ``yarn start --oss``
+
 ---
 
 ## Development
