@@ -20,7 +20,7 @@
   - when not requested version install install via nvm
     ```nvm install X.X.X```
 - 2. install bootstrap kibana via yarn
-  -> yarn installed? -> Muss verwendet werden, funktioniert nicht mit npm
+  -> yarn installed? -> Yarn package manager require, Does not work with npm without side effects
   ```
   yarn kbn bootstrap
   ```
@@ -37,6 +37,6 @@
 
 ---
 
-## Development
+## Kibana Development Documentation
 
-See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) for instructions setting up your development environment.
+See the [kibana contributing guide](https://github.com/elastic/kibana/blob/master/CONTRIBUTING.md) for additional instructions setting up your development environment.
