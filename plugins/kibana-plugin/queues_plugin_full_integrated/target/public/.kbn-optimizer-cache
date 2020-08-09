@@ -1,0 +1,63 @@
+{
+  "optimizerCacheKey": {
+    "lastCommit": "8e5acc4532af173665d3774fb27fb415dfe832b6",
+    "bootstrap": "# this is only human readable for debugging, please don't try to parse this\n@kbn/babel-preset:1ee2d25bd9798ebc84d4fdb0536317f6249c1efc\n@kbn/dev-utils:d96d63e3a03878348c55cf1b8941e8759e5b2d0e\n@kbn/expect:69543d3d58391cda104ea6dc5b7633b47049753e\n@kbn/i18n:5b28144b1998f26a5e0daa0c8c4e0220751827d3\n@kbn/optimizer:65cefaad6cd1a412069f3a2496ddfa20ef7b2006\n@kbn/ui-shared-deps:fb4d2675c34232225f071088e2121837fee60375",
+    "deletedPaths": [],
+    "modifiedTimes": {},
+    "workerConfig": {
+      "dist": false,
+      "repoRoot": "/Users/burak/dev/kibana",
+      "optimizerCacheKey": "♻",
+      "browserslistEnv": "dev"
+    }
+  },
+  "cacheKey": {
+    "spec": {
+      "type": "plugin",
+      "id": "queuesPlugin",
+      "entry": "./public/index",
+      "contextDir": "/Users/burak/dev/kibana/plugins/queues_plugin",
+      "sourceRoot": "/Users/burak/dev/kibana",
+      "outputDir": "/Users/burak/dev/kibana/plugins/queues_plugin/target/public"
+    },
+    "mtimes": {
+      "/Users/burak/dev/kibana/node_modules/css-loader/package.json": 1596915889784,
+      "/Users/burak/dev/kibana/node_modules/style-loader/package.json": 1596915889842,
+      "/Users/burak/dev/kibana/packages/kbn-ui-shared-deps/public_path_module_creator.js": 1595305948000,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/common/index.ts": 1596924612600.0166,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/application.tsx": 1596924617513.9077,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/components/app.tsx": 1596969935913.1426,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/index.scss": 1596924612599.8506,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/index.ts": 1596924617514.8064,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/plugin.ts": 1596924617514.9482,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/FilterForm.tsx": 1593018783197.2754,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/Header.tsx": 1596969057944.7805,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/Pipeline.tsx": 1596969753880.3513,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/Processor.tsx": 1596969884043.6057,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/ProcessorBox.tsx": 1593018783200.4136,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/ProgressPipe.tsx": 1593018783200.11,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/TimeBox.tsx": 1596970285681.7986,
+      "/Users/burak/dev/kibana/plugins/queues_plugin/public/types.ts": 1596924617515.081
+    }
+  },
+  "moduleCount": 21,
+  "files": [
+    "/Users/burak/dev/kibana/node_modules/css-loader/package.json",
+    "/Users/burak/dev/kibana/node_modules/style-loader/package.json",
+    "/Users/burak/dev/kibana/packages/kbn-ui-shared-deps/public_path_module_creator.js",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/common/index.ts",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/application.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/components/app.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/index.scss",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/index.ts",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/plugin.ts",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/FilterForm.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/Header.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/Pipeline.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/Processor.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/ProcessorBox.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/ProgressPipe.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/src/TimeBox.tsx",
+    "/Users/burak/dev/kibana/plugins/queues_plugin/public/types.ts"
+  ]
+}
