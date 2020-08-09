@@ -12,7 +12,6 @@
 - Download Kibana Source Code from Elastic Website
 - 1. go to kibana directory
   - Important has to be named as "kibana"
-- Elasticserarch muss selbe Version haben wie Kibana (Source Code)
 - ```git init```
 - Install missing module 
   ```yarn add fsevents```
