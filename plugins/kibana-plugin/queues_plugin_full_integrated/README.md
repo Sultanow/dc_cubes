@@ -33,7 +33,7 @@
 
 
 ### Start Custom Kibana Plugin 'queues_plugin_full_integrated'
-- 1. Add Kibana Plugin ``dc_cubes/plugins/kibana-plugin/queues_plugin_full_integrated/`` to directory ``/kibana/plugin/`` in your Kibana Development Environment
+- 1. Add Kibana Plugin ``dc_cubes/plugins/kibana-plugin/queues_plugin_full_integrated/`` to directory ``/kibana/plugins/`` in your Kibana Development Environment
 - 2. ``yarn start --oss``
 
 ---
