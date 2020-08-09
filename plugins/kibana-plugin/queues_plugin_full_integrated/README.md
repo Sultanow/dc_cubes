@@ -11,7 +11,7 @@
 
 - Download Kibana Source Code from Elastic Website
 - 1. go to kibana directory
-  - important has to be named as "kibana"
+  - Important has to be named as "kibana"
 - Elasticserarch muss selbe Version haben wie Kibana (Source Code)
 - ```git init```
 - Install missing module 
@@ -32,9 +32,9 @@
   - basepath proxy server running at http://localhost:5601/XXX
 
 
-### Start Custom Kibana Plugin
-
-- 1. ``yarn start --oss``
+### Start Custom Kibana Plugin 'queues_plugin_full_integrated'
+- 1. Add Kibana Plugin ``dc_cubes/plugins/kibana-plugin/queues_plugin_full_integrated/`` to directory ``/kibana/plugin/`` in your Kibana Development Environment
+- 2. ``yarn start --oss``
 
 ---
 
