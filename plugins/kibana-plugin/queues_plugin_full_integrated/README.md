@@ -17,7 +17,7 @@
   ```yarn add fsevents```
 - Change node version with nvm:
   ```nvm use```
-  - when not requested version install install via nvm
+  - when not requested version installed install via nvm
     ```nvm install X.X.X```
 - 2. install bootstrap kibana via yarn
   -> yarn installed? -> Yarn package manager require, Does not work with npm without side effects
