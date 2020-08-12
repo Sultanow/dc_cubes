@@ -2,10 +2,12 @@
 
 | Approach      | Description  | Pros         | Cons  |
 |:------------- |:-------------|:-------------| :-----|
-| Use Kibana Canvas | Ready-made elements are puzzled together. Key numbers are placed in a (info)graphic and backed by queries (ESSQL, Canvas expression language, or Lucene) | Minimal effort, high maintainability | Little flexibility in querying, no complex queries possible. |
-| Develop Kibana Plug-In, Use Kibana Canvas | Develop separate elements using React-based Kibana Plug-In API, use these by the standard Canvas | Moderate effort, moderate maintainability | Flexibility is limited, Canvas cannot be extended by custome code. |
-| Develop Kibana Canvas Plug-In | Extend Canvas by own code using React | High effort, risk of high maintainability depending on your own code structure | Very high flexibility in querying, interaction, and visualization. |
-| Develop Kibana Plug-In without using Kibana Canvas or other Standard Components | Build a Kibana PLug-In by implementing the component for interactive visualization without using standard components | High effort, less maintainability which depends on size and structure of own code | Very flexible |
+| Use **Kibana Canvas** | Ready-made elements are puzzled together. Key numbers are placed in a (info)graphic and backed by queries (ESSQL, Canvas expression language, or Lucene) | Minimal effort, high maintainability | Little flexibility in querying, no complex queries possible. |
+| **Canvas + Kibana App:** Develop Kibana Plug-In, Use Kibana Canvas | Develop separate elements using React-based Kibana Plug-In API, use these by the standard Canvas | Moderate effort, moderate maintainability | Flexibility is limited, Canvas cannot be extended by custome code, Low usability|
+| **Custom Kibana Canvas:** Develop Kibana Canvas Plug-In | Extend Canvas Elements by own code using React | Medium flexibility in visualization. | Medium flexibility in querying. High effort, risk of high maintainability depending on your own code structure |
+| **Kibana Visualization Plugin App:** Develop Kibana Plug-In without using Kibana Canvas or other Standard Components | Build a Kibana PLug-In by implementing the component for interactive visualization without using standard components | High effort, less maintainability which depends on size and structure of own code | Very flexible |
+| Develop **Kibana Visualization Plugin**. | Develop Kibana Visualization Plugin as embedded visualization |  Hight Effort. Less Flexibility | High reusability in Kibana: Use Visualization in multiple Dashboards, simple without any advanced options. |
+
 
 ## Use Kibana Canvas
 This approach is used for an Infographics that shows basic key numbers such as **queue size** and prospectively **queue throughput** for different queues.
