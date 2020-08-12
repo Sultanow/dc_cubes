@@ -37,7 +37,7 @@ This is a flexible way of developing a fully interactive canvas that is able to 
 As long as we focus delimited and targeted functionality on one visualization component, this approach is appropriate. If the Canvas Plug-In API leafes its beta status and becomes future-proof, we would choose this approach to depict the overall status of the queues. An interactive search allows us to display the history and currnt location of a specific item.
 
 ## Develop Kibana Plug-In without using Kibana Canvas or other Standard Components
-This is the most flexible way of developing the Plug-In, since we take advantage of the fact that we are not limited to use standard components. We develop the complete visualization and interaction part by our own. But at least the access to the Elasticsearch data source is standardized. Exactly this standard we use for querying and retrieving the data.
+This is the most flexible way of developing the Plug-In, since we take advantage of the fact that we are not limited to use standard components. We develop the complete visualization and interaction part by our own. But at least the access to the Elasticsearch data sources is standardized. Exactly this standard we use for querying and retrieving the data.
 
 ### Conclusion
 Being focussed on dedicated functionality in visualizating the queue status, this approach is the most appropriate. We follow this approach in the first step and we can migrate the implemented functionality later into an more standardized solution, if the standard components or the Kibana Canvas API become more powerful.
