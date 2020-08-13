@@ -177,16 +177,12 @@ def create_dataset_predict(df_pic, df_cen):
                 # Create list of steps it stays in the queue
                 steps_list = list(range(1, diff+1))
 
-                # Create a dataframe and fill in the features
+                # Create a dataframe and fill in the
                 df_item = pd.DataFrame(data=steps_list, columns=[item]).astype(str).astype(int)
                 df_item['Q_size'] = size
                 df_item['n_added'] = added
                 df_item['n_removed'] = removed
                 df_item['cen'] = 1  # mark that it appeared in the first queue
-
-                # Filter out items with no values
-                if len(df_item) == 0:
-                    continue
 
                 data_x.append(df_item)
 
@@ -233,34 +229,31 @@ def create_dataset_predict(df_pic, df_cen):
     return data_x
 
 
-def scale_pad(dataset, maxlen):
-    '''Scales and pads the sequences (samples)
+def pad_scale(dataset):
+    '''Pads and scales the sequences (samples)
 
     Parameters:
     dataset (list): list containing the samples
-    maxlen (int): max number of timesteps/value to pad
 
     Returns:
-    X_pad_scaled (list): list with padded and scaled sequences
-    X_pad (list): list with padded sequences'''
-
-    # Load the scaler used for training
-    scaler_X = pickle.load(open("scaler_x_2q.p", "rb"))
-
-    # Scale the dataset
-    _ = [scaler_X.partial_fit(x) for x in dataset]
-    X_scaled = [scaler_X.transform(x) for x in dataset]
-
+    X_pad (list): list with padded sequences
+    X_pad_scaled (list): list with padded and scaled sequences'''
     # Pad the sequences
-
     def pad(sequence, maxlen):
         # fills list post (at the end) with 0s to make even sized sequences
-        return pad_sequences(sequence, maxlen=maxlen, dtype='float32', padding='post', value=0.0)
+        return pad_sequences(sequence, maxlen=720, dtype='float32', padding='post', value=0.0)
 
-    X_pad_scaled = pad([x for x in X_scaled], maxlen)
-    X_pad = pad([x.values for x in dataset], maxlen)
+    X_pad = pad([x.values for x in dataset], 720)
 
-    return X_pad_scaled, X_pad
+    # Load the scaler used for training
+    scaler_X = pickle.load(open("scaler_x.p", "rb"))
+
+    # Set number of samples, number of timesteps and number of features
+    n_sa, n_ts, n_f = X_pad.shape
+
+    # Scale the dataset
+    X_pad_scaled = scaler_X.fit_transform(X_pad.reshape(n_sa*n_ts, n_f)).reshape(X_pad.shape)
+    return X_pad, X_pad_scaled
 
 
 def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
@@ -269,7 +262,8 @@ def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
 
     Parameters:
     df_pic (pd.DataFrame): dataframe of the second queue
-    dataset (list): original dataset
+    dataset (list): list with samples
+    dataset_pad (list): list with padded sequences
     dataset_scaled (list): list with padded and scaled sequences
     host (str): name of the host e.g. 'localhost'
     port (int): number of port e.g. 9200
@@ -279,9 +273,9 @@ def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
     es = Elasticsearch([host], port=port)
 
     # Load the pretrained model, predict and rescale the prediction
-    model = load_model("model_2q_10epochs.h5")
+    model = load_model("model_cen_pic.h5")
     pred = model.predict(dataset_scaled)
-    scaler_y = pickle.load(open("scaler_y_2q.p", "rb"))
+    scaler_y = pickle.load(open("scaler_y.p", "rb"))
     pred_rescaled = scaler_y.inverse_transform(pred.reshape(-1, 1)).reshape(pred.shape)
 
     # Create a list containing the maximum number of steps for each item
@@ -317,7 +311,6 @@ def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
     final_df['items'] = final_list
     final_df['size'] = final_df['items'].apply(lambda x: len(
         x.split(" "))-1)  # calculate the size based on items
-
     # Generate timestamps based on the last timestamp
     time_stamps = pd.date_range(
         start=df_pic.index[-1]+datetime.timedelta(minutes=10), periods=len(final_df), freq='10min')
@@ -326,10 +319,6 @@ def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
         lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%S.%f%z'))
 
     # Upload the data back to ES
-    # Delete old prediction data
-    es.indices.delete(index='queues-prediction', ignore=[400, 404])
-    # Create new index to store again
-    es.indices.create(index='queues-prediction', ignore=400)
 
     count = 0
     for index, row in final_df.iterrows():
@@ -363,16 +352,11 @@ def predict(start, end, host, port):
     df_pic = es_to_df(start, end, 10, "pic", host, port)
     df_cen = es_to_df(start, end, 10, "censhare", host, port)
 
-    print("DataFrame complete: ", time.time() - start_time)
-
     X = create_dataset_predict(df_pic, df_cen)
 
-    print("Dataset with", len(X), "items complete: ", time.time() - start_time)
-
-    X_pad_scaled, X_pad = scale_pad(X, 720)
+    X_pad, X_pad_scaled = pad_scale(X)
 
     predict_upload(df_pic, X, X_pad, X_pad_scaled, host, port)
-
     print("Upload complete: ", time.time() - start_time)
 
 
