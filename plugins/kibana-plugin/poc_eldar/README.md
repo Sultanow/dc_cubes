@@ -1,5 +1,6 @@
 # Architecture
-tbd
+The folder structure is shown below
+<img src="doc/bsh_queues_folder.png">
 
 # Quick Install
 ## Setup Development Environment
