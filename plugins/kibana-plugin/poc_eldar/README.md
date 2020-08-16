@@ -1,6 +1,7 @@
-# Quick Install
 # Architecture
 tbd
+
+# Quick Install
 ## Setup Development Environment
 download and install nvm from
 https://github.com/coreybutler/nvm-windows/releases
@@ -20,7 +21,7 @@ Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana ru
 ```
 mklink /d C:\Development\kibana-7.8.1\plugins\bsh_queue_viz C:\Development\kibana\plugins\bsh_queue_viz\
 ```
-or using powershell
+or using Powershell
 ```
 new-item -itemtype symboliclink -path C:\Development\kibana-7.8.1\plugins\ -name bsh_queue_viz -value C:\Development\kibana\plugins\bsh_queue_viz
 ```
@@ -37,7 +38,7 @@ set ES_JAVA_OPTS="-Xms4g -Xmx4g"
 cd c:\development\elasticsearch-7.8.1\bin
 .\elasticsearch.bat
 ```
-
+Does Elasticsearch run properly? Just check it by opening http://localhost:9200/_cat/indices in a browser.
 ## Start Plug-In with Kibana
 ```
 cd C:\development\kibana\plugins\bsh_queue_viz\
