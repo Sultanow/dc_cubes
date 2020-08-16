@@ -17,11 +17,7 @@ yarn policies set-version 1.22.4
 yarn kbn bootstrap
 node scripts/generate_plugin bsh_queue_viz
 ```
-Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana runtime using cmd:
-```
-mklink /d C:\Development\kibana-7.8.1\plugins\bsh_queue_viz C:\Development\kibana\plugins\bsh_queue_viz\
-```
-or using Powershell:
+Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana runtime, for example into the runtime located in the "kibana-7.8.1" folder:
 ```
 new-item -itemtype symboliclink -path C:\Development\kibana-7.8.1\plugins\ -name bsh_queue_viz -value C:\Development\kibana\plugins\bsh_queue_viz
 ```
