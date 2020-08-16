@@ -1,6 +1,6 @@
 # Architecture
 The folder structure is shown below
-<img src="doc/bsh_queues_folder.png" width="1024px">
+<img src="doc/bsh_queues_folder.png" width="800">
 
 # Quick Install
 ## Setup Development Environment
