@@ -1,4 +1,6 @@
 # Quick Install
+# Architecture
+tbd
 ## Setup Development Environment
 download and install nvm from
 https://github.com/coreybutler/nvm-windows/releases
@@ -13,6 +15,14 @@ nvm use 10.21.0
 yarn policies set-version 1.22.4
 yarn kbn bootstrap
 node scripts/generate_plugin bsh_queue_viz
+```
+Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana runtime using cmd:
+```
+mklink /d C:\Development\kibana-7.8.1\plugins\bsh_queue_viz C:\Development\kibana\plugins\bsh_queue_viz\
+```
+or using powershell
+```
+new-item -itemtype symboliclink -path C:\Development\kibana-7.8.1\plugins\ -name bsh_queue_viz -value C:\Development\kibana\plugins\bsh_queue_viz
 ```
 You might try to speedup Kibana a bit by editing C:\Development\kibana\config\kibana.yml
 ```
@@ -70,8 +80,5 @@ POST /queues/_search
     "size": 0
 }
 ```
-# Architecture
-tbd
-
 # Screenshot
 <img src="doc/bsh_queues.png">
