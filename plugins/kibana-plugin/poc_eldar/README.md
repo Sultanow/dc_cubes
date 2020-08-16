@@ -34,11 +34,11 @@ cd C:\development\kibana\plugins\bsh_queue_viz\
 npm start
 ```
 Now we can call http://localhost:5601/ in a browser.
-Some queries one may start with are retrieving the schema by:
+Let us start with some queries. You may retrieve the schema by:
 ```
 GET index_name/_mapping?pretty
 ```
-and searching for the item "1400457484" entering and leaving a queue named "products":
+And you may search for the item "1400457484" entering and leaving a queue named "products" by the following query:
 ```
 POST /queues/_search
 {
@@ -70,8 +70,8 @@ POST /queues/_search
     "size": 0
 }
 ```
-# Screenshot
-<img src="doc/bsh_queues.png">
-
 # Architecture
 tbd
+
+# Screenshot
+<img src="doc/bsh_queues.png">
