@@ -21,7 +21,7 @@ Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana ru
 ```
 mklink /d C:\Development\kibana-7.8.1\plugins\bsh_queue_viz C:\Development\kibana\plugins\bsh_queue_viz\
 ```
-or using Powershell
+or using Powershell:
 ```
 new-item -itemtype symboliclink -path C:\Development\kibana-7.8.1\plugins\ -name bsh_queue_viz -value C:\Development\kibana\plugins\bsh_queue_viz
 ```
@@ -39,6 +39,17 @@ cd c:\development\elasticsearch-7.8.1\bin
 .\elasticsearch.bat
 ```
 Does Elasticsearch run properly? Just check it by opening http://localhost:9200/_cat/indices in a browser.
+## Import some data
+We download and install elasticdump:
+```
+cd c:\development\elasticdump
+npm install elasticdump
+```
+As an example we use the queue sample data "20200101-queues-sample.json.gz", which we extract to "c:\development\elasticdump".
+We finally perform the import by
+```
+.\node_modules\.bin\elasticdump --output=http://localhost:9200/queues --input=./20200101-queues-sample.json --type=data
+```
 ## Start Plug-In with Kibana
 ```
 cd C:\development\kibana\plugins\bsh_queue_viz\
