@@ -3,6 +3,10 @@ The folder structure is shown below
 
 <img src="doc/bsh_queues_folder.png" width="500">
 
+The architecture consists of two main components -- Kibana and Elasticsearch, whereas the Plug-In resides in Kibana and contains a server and a client part:
+
+<img src="doc/bsh_queues_folder.png" width="500">
+
 # Quick Install
 ## Setup Development Environment
 download and install nvm from
