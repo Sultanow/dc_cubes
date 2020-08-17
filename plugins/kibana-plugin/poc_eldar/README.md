@@ -5,7 +5,7 @@ The folder structure is shown below
 
 The architecture consists of two main components -- Kibana and Elasticsearch, whereas the Plug-In resides in Kibana and contains a server and a client part:
 
-<img src="doc/bsh_queues_architecture.png" width="500">
+<img src="doc/bsh_queues_architecture.png" width="600">
 
 # Quick Install
 ## Setup Development Environment
