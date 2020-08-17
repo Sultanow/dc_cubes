@@ -1,11 +1,13 @@
 # Architecture
-The folder structure is shown below
+The folder structure is shown below:
 
 <img src="doc/bsh_queues_folder.png" width="500">
 
 The architecture consists of two main components -- Kibana and Elasticsearch, whereas the plug-in resides in Kibana and contains a server and a client part. Moreover the plug-in has an "app component". Note: when generating the plug-in skeleton, you may choose the (default) option **Yes** for both questions:
 - Should an app component be generated? This allows you to not be limited on standard components and implement your own component
 - Should a server API be generated? This generates you the server part of the plug-in.
+
+The architecture is depicted below:
 
 <img src="doc/bsh_queues_architecture.png" width="600">
 
