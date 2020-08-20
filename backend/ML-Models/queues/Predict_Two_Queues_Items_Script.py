@@ -11,6 +11,7 @@ import datetime
 import time
 import pickle
 from tensorflow.keras.models import load_model
+import argparse
 
 # Functions
 
@@ -263,7 +264,7 @@ def scale_pad(dataset, maxlen):
     return X_pad_scaled, X_pad
 
 
-def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
+def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port, model, index_es):
     '''Generates a prediction for each item and uploads the
     transformed data to ES
 
@@ -273,13 +274,14 @@ def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
     dataset_scaled (list): list with padded and scaled sequences
     host (str): name of the host e.g. 'localhost'
     port (int): number of port e.g. 9200
-
+    model (str): filepath to keras model h5 file
+    index_es (str): indexname where predictions are stored
     '''
     # Establish connection to ES
     es = Elasticsearch([host], port=port)
 
     # Load the pretrained model, predict and rescale the prediction
-    model = load_model("model_2q_10epochs.h5")
+    model = load_model(model)  # "model_2q_10epochs.h5"
     pred = model.predict(dataset_scaled)
     scaler_y = pickle.load(open("scaler_y_2q.p", "rb"))
     pred_rescaled = scaler_y.inverse_transform(pred.reshape(-1, 1)).reshape(pred.shape)
@@ -327,9 +329,9 @@ def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
 
     # Upload the data back to ES
     # Delete old prediction data
-    es.indices.delete(index='queues-prediction', ignore=[400, 404])
+    es.indices.delete(index=index_es, ignore=[400, 404])
     # Create new index to store again
-    es.indices.create(index='queues-prediction', ignore=400)
+    es.indices.create(index=index_es, ignore=400)
 
     count = 0
     for index, row in final_df.iterrows():
@@ -343,22 +345,33 @@ def predict_upload(df_pic, dataset, dataset_pad, dataset_scaled, host, port):
             # 'cen' : row['cen']
         }
         count += 1
-        es.index('queues-prediction', body=doc_data)
+        es.index(index_es, body=doc_data)
         if count % 10 == 0:
             print(str(count) + " Elemente hochgeladen")
 
 
-def predict(start, end, host, port):
-    """Whole prediction process in one function
+# Main function
+if __name__ == '__main__':
+    # Initialize the parser
+    parser = argparse.ArgumentParser(
+        description="Prediction Script for Two Queues"
+    )
 
-    Parameters:
-    start (str): start date in format "yyyy-MM-dd"
-    end (str): end date in format "yyyy-MM-dd"
-    host (str): name of the host e.g. 'localhost'
-    port (int): number of port e.g. 9200
+    # Add Parameters
+    parser.add_argument('start', help="Start date in format yyyy-MM-dd ", type=str)
+    parser.add_argument('end', help="End date in format yyyy-MM-dd ", type=str)
+    parser.add_argument('host', help="Name of the host e.g. 'localhost'", type=str)
+    parser.add_argument('port', help="Number of port e.g. 9200", type=int)
+    parser.add_argument('model', help="File path to keras model h5 file e.g. ./model.h5", type=str)
+    parser.add_argument('index_es', help="Indexname for ES to store predictions", type=str)
 
-    """
+    # Parse the arguments
+    args = parser.parse_args()
+
+    # print(args)
     start_time = time.time()
+
+    start, end, host, port, model, index_es = args.start, args.end, args.host, args.port, args.model, args.index_es
 
     df_pic = es_to_df(start, end, 10, "pic", host, port)
     df_cen = es_to_df(start, end, 10, "censhare", host, port)
@@ -371,9 +384,6 @@ def predict(start, end, host, port):
 
     X_pad_scaled, X_pad = scale_pad(X, 720)
 
-    predict_upload(df_pic, X, X_pad, X_pad_scaled, host, port)
+    predict_upload(df_pic, X, X_pad, X_pad_scaled, host, port, model, index_es)
 
     print("Upload complete: ", time.time() - start_time)
-
-
-predict("2020-06-08", "2020-06-12", 'localhost', 9200)
