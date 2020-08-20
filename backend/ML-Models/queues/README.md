@@ -12,7 +12,7 @@
 
 ### Requirements.txt
 
-To install all needed librarys and tools use :
+To install all needed librarys and tools use (or requirements_predict.txt):
 ```
 pip install -r requirements.txt
 ```
@@ -169,12 +169,16 @@ Another way of boosting the performance is to use downsampling. We just simply t
 Due to the inconsistency of the initial queue waiting time, the prediction is tailored for each item individually and has various lengths. Down below are 3 example comparisons of our target value und the predicted output. The target value is the actual number of steps the item is still in the queue.
 
 
-![Unknown-3](https://user-images.githubusercontent.com/9306218/90170240-0664da00-dda0-11ea-8a62-29bab23ae951.png)
+![Sample1](https://user-images.githubusercontent.com/9306218/90815747-77ba0500-e32b-11ea-97a2-0ddba9f87350.png)
+![Sample2](https://user-images.githubusercontent.com/9306218/90815875-aafc9400-e32b-11ea-9b5d-faa78527244c.png)
+![Sample3](https://user-images.githubusercontent.com/9306218/90815879-ac2dc100-e32b-11ea-8f06-ca9f7abc865a.png)
+![Sample4](https://user-images.githubusercontent.com/9306218/90815888-adf78480-e32b-11ea-9fe6-f96198ea5d77.png)
+![Sample5](https://user-images.githubusercontent.com/9306218/90815891-af28b180-e32b-11ea-831a-97b379ffcf11.png)
+![Sample6](https://user-images.githubusercontent.com/9306218/90815894-b059de80-e32b-11ea-946a-b1659dd70f1f.png)
 
-![Unknown-4](https://user-images.githubusercontent.com/9306218/90170198-f4833700-dd9f-11ea-9f84-241bc8749221.png)
+Below is a comparison of the actual item size and the item size based only on the predicted items for the 19th June.
 
-![Unknown-5](https://user-images.githubusercontent.com/9306218/90170143-dd444980-dd9f-11ea-9019-472aa1699a34.png)
-
+![Unknown-9](https://user-images.githubusercontent.com/9306218/90815971-d1baca80-e32b-11ea-9ccd-bdfc007ecb4e.png)
 
 
 #### Score based on epochs
