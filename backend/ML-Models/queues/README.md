@@ -5,7 +5,7 @@
 * **archive** folder that contains multiple concepts and previous build models for item and size prediction
 * **Predict_Two_Queues_Items.ipynb** jupyter notebook showing the item prediction process for two queues
 * **Predict_Two_Queues_Items_Script.py** python script that runs the prediction process for two queues
-* **Live_Predict_Two_Queues_Items.ipynb** notebook with ES call for live data
+* **Live_Predict_Two_Queues_Items_Script.ipynb** python script that runs the prediction process for two queues based on the current date
 * **scaler_x_2q, scaler_y_2q** pickled StandardScaler from trainingsprocess
 * **model_2q_10epochs.h5** keras H5 format, contains the model´s architecture, weight values and compile() information
 
@@ -16,6 +16,7 @@ To install all needed librarys and tools use (or requirements_predict.txt):
 ```
 pip install -r requirements.txt
 ```
+
 
 
 ## Data Exploration
@@ -129,25 +130,30 @@ ___________________________
 
 
 #### Testing environment
-All models have been trained on a Mac with a quad-core Intel i7 2,9 GHz and 16 GB of RAM.
+All models have been trained on a PC with a AMD Ryzen 5 2600 Six-Core Processor with 3400 MHz and 16 GB of RAM.
 
+
+#### Testdata
+
+For training we used items that entered and left the queue between the 9th und 13th of June. With a resampling rate of 20 the total number of items in the dataset in that timeframe is 14786. 30% of them is then used in the test dataset, to later determine the MAE. Downsampling rate is 0.8, so in total we train our model with 8272 items and test with 3560 items.
 
 #### Resampling
 
-Because we have a large dataset with a lot of entries for each item, we resample the dataset by taking every 10th datapoint, to boost our performance. Thus we now have a sample rate of 10 minutes instead of 1 minute. While doing it, we loose some short staying items, but our main focus is to predict items that stay for a rather long time in the queue.
+Because we have a large dataset with a lot of entries for each item, we resample the dataset by taking every 20th datapoint, to boost our performance. Thus we now have a sample rate of 10 minutes instead of 30 seconds. While doing it, we loose some short staying items, but our main focus is to predict items that stay for a rather long time in the queue.
 
 
 #### Effects of resampling
 
-For 2500 items
+Downsampling rate of 0.25 is used on the dataset for this test, so the number of items in the training set is to multiply by 0.25
 
 *Numbers are approximate*
 
-| Resampling rate | time per epoch |
-| --- | --- |
-| 5 | 5min |
-| 10 | 2:30min |
-| 20 | 1:20min |
+| Resampling rate | time for 1 epoch | number of items in training set |
+| --- | --- | --- |
+| 1 | 23min | 17500 |
+| 5 | 195s | 16100 |
+| 10 | 85s | 15500 |
+| 20 | 40s | 14800 |
 
 #### Downsampling
 
@@ -155,13 +161,15 @@ Another way of boosting the performance is to use downsampling. We just simply t
 
 #### Effects of downsampling
 
+Resampling rate is 20.
+
 *Numbers are approximate*
 
-| Number of samples | time per epoch |
+| Number of samples | time for 1 epoch |
 | --- | --- |
-| 9000 | 8min |
-| 6000 | 6min |
-| 2500 | 2:30min |
+| 10000 | 150s |
+| 5000 | 80s |
+| 2500 | 40s |
 
 
 #### Predictions
@@ -183,12 +191,13 @@ Below is a comparison of the actual item size and the item size based only on th
 
 #### Score based on epochs
 
-The score is based on each timestep for each item compared to prediction step by step. MAE in time is based on the 10 minute steps used in the model. 5 Epochs of training equal approximately 35mins of training based on the data from 8.-12. and around 6000 Samples used for training.
+The score is based on each timestep for each item compared to prediction step by step. MAE in time is based on the 10 minute steps used in the model.
 
 | Number of epochs | MAE | MAE in time |
 | --- | --- | --- |
-| 5 | 40 | 6:30h |
-| 10 | 28 | 4:35h |
+| 5 | 24 | 4h |
+| 10 | 22 | 3:40h |
+| 20 | 23 | 3:50h |
 
 
 ## Prediction Process
@@ -205,10 +214,9 @@ Table showing time from start for different steps of the prediction process.
 
 | Number of items | Dataframe | Dataset | Prediction & Upload |
 | --- | --- | --- | --- |
-| 153 | 1s | 3s | 13s |
-| 435 | 8s | 13s | 28s |
-| 2550 | 1s | 11s | 62s |
-| 7900 | 8s | 36s | 179s |
+| 748 | 2s | 4s | 15s |
+| 4091 | 3s | 13s | 42s |
+| 10300 | 6s | 32s | 96s |
 
 
 #### Structure in ES
@@ -217,6 +225,26 @@ Screenshot of example predictions uploaded back into ES
 
 
 ![Bildschirmfoto 2020-08-14 um 00 44 02](https://user-images.githubusercontent.com/9306218/90194310-45f2ec80-ddc7-11ea-860e-042bb584c451.png)
+
+
+### Start the script
+
+To view the needed arguments for **Predict_Two_Queues_Items_Script.py**:
+```
+python Predict_Two_Queues_Items_Script.py -h
+```
+
+An example call would look like:
+```
+python .\Predict_Two_Queues_Items_Script.py 2020-06-14 2020-06-18 localhost 9200 ./model_2q_10epochs.h5 queues-prediction
+```
+
+**Live_Predict_Two_Queues_Items_Script.ipynb** exchanges the start and end argument with days (used for the trainingprocess)
+
+An example call would look like:
+```
+python .\Live_Predict_Two_Queues_Items_Script.py 6 localhost 9200 ./model_2q_10epochs.h5 queues-prediction
+```
 
 
 ## Previous tests
