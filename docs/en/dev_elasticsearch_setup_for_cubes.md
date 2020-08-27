@@ -167,3 +167,57 @@ export time window, sort items by timestamp, long running with ``nohup``:
 ```
 nohup sh -c "./elasticsearch-dump-6.16.2/bin/elasticdump --input=http://localhost:9200/queues --output=$ --type=data --searchBody='{\"query\":{ \"bool\": { \"filter\": [{\"range\": {\"timestamp\": {\"gte\": \"2020-04-01T00:00:00.000Z\",\"lte\": \"2020-05-01T00:00:00.000Z\",\"format\": \"strict_date_optional_time\"}}}]}}, \"sort\": [{\"timestamp\": {\"order\": \"asc\"}}]}' --transform='@./elasticsearch-dump-6.16.2/transforms/anonymize_items' | gzip > queues.json.gz" > elasticdump_nohub.out 2>&1 &
 ```
+
+### troubleshooting for elasticdump
+
+If there is an error regarding the import of data into elasticsearch via elasticdump a solution can be to create the index first before importing the data. Use the following mapping in kibana via Dev Tools
+
+```
+PUT /queues
+{
+  "settings": {
+    "number_of_shards": 1
+  },
+  "mappings": {
+     "properties": {
+        "items": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "name": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "querytime": {
+          "type": "long"
+        },
+        "size": {
+          "type": "long"
+        },
+        "tier": {
+          "type": "text",
+          "fields": {
+            "keyword": {
+              "type": "keyword",
+              "ignore_above": 256
+            }
+          }
+        },
+        "timestamp": {
+          "type": "date"
+        }
+      }
+  }
+}
+```
+
