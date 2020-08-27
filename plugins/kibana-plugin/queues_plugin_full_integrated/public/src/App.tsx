@@ -17,7 +17,7 @@ export class App extends React.Component<{}, AppState> {
         <div className="App" style={appContainer}> 
           <Header/>
           <FilterForm/>
-          <Pipeline/>
+          {/* <Pipeline/> */}
           <PredictionDataTable/>
           <Chart queueName={"someting"}
           queueType={"something"}/>

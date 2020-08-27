@@ -1,24 +1,42 @@
 import React, { Component } from 'react'
 import { NONAME } from 'dns'
-
+import {
+    EuiSelect,
+    EuiFormRow,
+    EuiFieldText,
+    EuiButton
+  } from '@elastic/eui';
 export class FilterForm extends Component {
     render() {
         return (
             <div style={filterFormContainer}>
                 <form style={form}>
-                    <label>
+                    {/* <label>
                         <input placeholder="Input Item Name..." style={input} type="text" name="name" />
-                    </label>
-                    <div className="select-container">
+                    </label> */}
+                    <EuiFormRow label="">
+                        <EuiFieldText name="first" />
+                    </EuiFormRow>
+                    <EuiSelect
+                        options={[
+                            { value: 'Products', text: 'Products' },
+                            { value: 'Product Relation', text: 'Product Relation' },
+                            { value: 'Lorem', text: 'Lorem' },
+                            { value: 'Ipsum', text: 'Ipsum' }
+                        ]}
+                        />
+                    {/* <div className="select-container">
                         <select style={select} name="queue-type" id="queue-type">
                             <option value="Product Queues">Product Queues</option>
                             <option value="Products Relations">Products Relations</option>
                             <option value="Lorem">Lorem</option>
                             <option value="Ipsum">Ipsum</option>
                         </select>
-                    </div>
-                    <button id="search-btn" style={searchBtn}>Search</button>
-                    <button className="prediction-btn" style={predictionBtn}>Create New Predictions</button>
+                    </div> */}
+                    {/* <button id="search-btn" style={searchBtn}>Search</button> */}
+                    <EuiButton type="primary" size="m">Search</EuiButton>
+                    <EuiButton type="primary" size="m">Update Predictions</EuiButton>
+                    {/* <button className="prediction-btn" style={predictionBtn}>Create New Predictions</button> */}
                 </form>
             </div>
         )

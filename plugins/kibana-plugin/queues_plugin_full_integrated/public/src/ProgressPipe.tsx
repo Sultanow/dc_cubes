@@ -1,46 +1,61 @@
 import React, { Component } from 'react'
 
+import {
+    EuiToolTip,
+    EuiLink
+} from '@elastic/eui';
+
 type ProgressPipeState = {
-    progressStatus : Number,
+    progressStatus: Number,
     queueName: String,
     queueType: String,
+    timeLeft: any
 }
 
 interface ProgressPipeProps {
-    queType: String, 
-    queName: String
+    queType: String,
+    queName: String,
+    timeLeft: any
 }
 
 export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState>{
 
-    constructor(props: any){
+    constructor(props: any) {
         super(props)
         this.state = {
             queueName: "Name undefined",
             queueType: "Type undefined",
-            progressStatus: 0, 
+            progressStatus: 0,
+            timeLeft: null
         }
     }
 
-    componentDidMount(){
+    static getDerivedStateFromProps(nextProps, prevState) {
+        return {
+            timeLeft: nextProps.timeLeft
+        };
+    }
+
+    componentDidMount() {
         this.setUpProgressPipe();
     }
 
-    setUpProgressPipe(){
+    setUpProgressPipe() {
         this.setState({
             progressStatus: this.calculateProgressStatus()
         })
     }
 
-    calculateProgressStatus(){
+    calculateProgressStatus() {
         return 70 //add calculation formula for ratio from timerange between start und end processing timestamps
     }
 
+    /* depricated */
     setUpProgressBarStatus() {
         switch (this.state.progressStatus) {
             case 0:
                 return progressBar.base
-            break;
+                break;
 
             case 10:
                 return progressBar.ten
@@ -56,11 +71,11 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 
             case 40:
                 return progressBar.fourty
-                break;  
+                break;
 
             case 50:
                 return progressBar.fithy
-                break;            
+                break;
 
             case 60:
                 return progressBar.sixty
@@ -76,12 +91,12 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 
             case 90:
                 return progressBar.ninethy
-                break;  
-                
+                break;
+
             case 100:
                 return progressBar.hundred
-                break;    
-                
+                break;
+
             default:
                 return progressBar.hundred
                 break;
@@ -96,8 +111,9 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
             <div className="progress-pipe-container" style={progressPipeContainer}>
                 <div style={this.setUpProgressBarStatus()}></div>
                 <div style={progressStatusInfoBox} onClick={this.onClickTest}>
-                    {this.state.progressStatus}%
+                    {this.state.timeLeft ? <span>T-{this.state.timeLeft}h</span>: <span>- - -</span>}
                 </div>
+
             </div>
         )
     }
@@ -106,86 +122,86 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 export default ProgressPipe
 
 const progressPipeContainer = {
-    height: "40px",
-    backgroundColor: "white", 
-    marginTop: "auto", 
+    height: "45px",
+    backgroundColor: "white",
+    marginTop: "auto",
     marginBottom: "auto",
     borderTop: "6px solid #ddd",
-    borderBottom: "6px solid #ddd", 
+    borderBottom: "6px solid #ddd",
     //boxShadow: "-1px 0px 22px -2px rgba(0,0,0,0.2)",
     position: "relative" as "relative",
     cursor: "pointer"
 }
 
 const progressBar = {
-    base:{
-    backgroundColor: "#3729A2",
-    height: "100%",
-    width: "0%" 
-    }, 
-    ten:{
-        backgroundColor: "#FEE67F", 
+    base: {
+        backgroundColor: "#F1D86F",
+        height: "100%",
+        width: "0%"
+    },
+    ten: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "10%"
     },
-    twenty:{
-        backgroundColor: "#FEE67F", 
+    twenty: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "20%"
     },
-    thirty:{
-        backgroundColor: "#FEE67F", 
+    thirty: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "30%"
     },
-    fourty:{
-        backgroundColor: "#FEE67F", 
+    fourty: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "40%"
     },
-    fithy:{
-        backgroundColor: "#FEE67F", 
+    fithy: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "50%"
     },
-    sixty:{
-        backgroundColor: "#FEE67F", 
+    sixty: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "60%"
     },
-    seventy:{
-        backgroundColor: "#FEE67F", 
+    seventy: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "70%"
     },
-    eighty:{
-        backgroundColor: "#FE9C6A", 
+    eighty: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "80%"
     },
-    ninethy:{
-        backgroundColor: "#FE9C6A", 
+    ninethy: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "90%"
     },
-    hundred:{
-        backgroundColor: "#FE9C6A", 
+    hundred: {
+        backgroundColor: "#F1D86F",
         height: "100%",
         width: "100%"
     },
 }
 
 const progressStatusInfoBox = {
-    backgroundColor: "white", 
+    backgroundColor: "white",
     color: "black",
     borderRadius: "50px",
-    position: "absolute" as "absolute", 
+    position: "absolute" as "absolute",
     left: "50%",
     top: "25%",
     transform: "translate(-50%, 0)",
     width: "47px",
-    padding: "2px 0 2px 0", 
-    textAlign: "center" as "center", 
+    padding: "2px 0 2px 0",
+    textAlign: "center" as "center",
     // fontWeight: "bold" as "bold", 
     fontSize: ".8rem",
 }

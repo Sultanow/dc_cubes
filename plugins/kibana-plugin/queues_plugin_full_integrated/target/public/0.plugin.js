@@ -69,17 +69,13 @@ var _react2 = __webpack_require__(/*! @kbn/i18n/react */ "@kbn/i18n/react");
 
 var _reactRouterDom = __webpack_require__(/*! react-router-dom */ "react-router-dom");
 
-var _Header = _interopRequireDefault(__webpack_require__(/*! ../src/Header */ "./public/src/Header.tsx"));
+__webpack_require__(/*! ../src/App.css */ "./public/src/App.css");
 
-var _Pipeline = _interopRequireDefault(__webpack_require__(/*! ../src/Pipeline */ "./public/src/Pipeline.tsx"));
-
-var _FilterForm = _interopRequireDefault(__webpack_require__(/*! ../src/FilterForm */ "./public/src/FilterForm.tsx"));
+var _Vis = __webpack_require__(/*! ../src/Vis */ "./public/src/Vis.tsx");
 
 var _eui = __webpack_require__(/*! @elastic/eui */ "@elastic/eui");
 
 var _common = __webpack_require__(/*! ../../common */ "./common/index.ts");
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
@@ -110,17 +106,153 @@ const QueuesPluginApp = ({
   navigation
 }) => {
   // Use React hooks to manage state.
-  const [timestamp, setTimestamp] = (0, _react.useState)();
+  const [censhareTimestamps, setCenshareTimestamps] = (0, _react.useState)([]);
+  const [picTimestamps, setPicTimestamps] = (0, _react.useState)([]);
+  const [queueName, setQueueName] = (0, _react.useState)("products");
+  const [item, setItem] = (0, _react.useState)();
+  const [queueSizeCenshare, setQueueSizeCenshare] = (0, _react.useState)();
+  const [queueSizePic, setQueueSizePic] = (0, _react.useState)();
+  const [queueItemsCenshare, setQueueItemsCenshare] = (0, _react.useState)([]);
+  const [queueItemsPic, setQueueItemsPic] = (0, _react.useState)([]);
+  const [isAutoRefresh, setIsAutoRefresh] = (0, _react.useState)();
+  const [updatedTimestamp, setUpdatedTimestamp] = (0, _react.useState)();
 
   const onClickHandler = () => {
-    // Use the core http service to make a response to the server API.
-    http.get('/api/queues_plugin/example').then(res => {
-      setTimestamp(res.time); // Use the core notifications service to display a success message.
+    http.get('http://localhost:5000/updatePrediction').then(res => {});
+    console.log('update button clicked');
+    let now = new Date();
+    console.log("now: ", now);
+    setUpdatedTimestamp(now.toDateString() + " " + now.toTimeString());
+    notifications.toasts.addSuccess(_i18n.i18n.translate('productQueues.dataUpdated', {
+      defaultMessage: 'Predicitons Updated!'
+    }));
+  };
 
-      notifications.toasts.addSuccess(_i18n.i18n.translate('queuesPlugin.dataUpdated', {
-        defaultMessage: 'Data updated'
-      }));
+  const onClickHandler3 = () => {
+    const body = {
+      item: item,
+      name: "products"
+    };
+    http.post("/api/censhare/item", {
+      body: JSON.stringify(body)
+    }).then(res => {
+      if (res) {
+        console.log("DATA res cen: ", res.data.aggregations);
+        setCenshareTimestamps(res.data.aggregations);
+      }
     });
+    http.post("/api/pic/item", {
+      body: JSON.stringify(body)
+    }).then(res2 => {
+      if (res2) {
+        console.log("DATA res pic: ", res2.data.aggregations);
+        setPicTimestamps(res2.data.aggregations);
+      }
+    });
+  };
+
+  function updateCenshareQueueItems() {
+    const body = {
+      name: "products"
+    };
+    http.post("/api/censhare/throughput/items", {
+      body: JSON.stringify(body)
+    }).then(res => {
+      if (res) {
+        //console.log("CEN Items DATA: ", res.data.aggregations);
+        setQueueItemsCenshare(res.data.aggregations);
+        console.log("items cen: ", queueItemsCenshare); //clearInterval(updateCenItems)
+      }
+    });
+  }
+
+  function updatePicQueueItems() {
+    const body = {
+      name: "products"
+    };
+    http.post("/api/pic/throughput/items", {
+      body: JSON.stringify(body)
+    }).then(res => {
+      if (res) {
+        //console.log("PIC Items DATA: ", res.data.aggregations);
+        console.log("items pic: ", queueItemsPic);
+        setQueueItemsPic(res.data.aggregations); //clearInterval(updatePicItems)
+      }
+    });
+  } //TODO
+
+
+  function updateCenshareQueueSize() {
+    const body = {
+      name: "products"
+    };
+    http.post("/api/censhare/size", {
+      body: JSON.stringify(body)
+    }).then(res => {
+      if (res) {
+        console.log("CEN SIZE DATA: ", res.data.hits.hits[0]._source.size);
+        setQueueSizeCenshare(res.data.hits.hits[0]._source.size);
+        clearInterval(updateCenSize);
+      }
+    });
+  } //TODO
+
+
+  function updatePicQueueSize() {
+    const body = {
+      name: "products"
+    };
+    http.post("/api/pic/size", {
+      body: JSON.stringify(body)
+    }).then(res => {
+      if (res) {
+        console.log("PIC SIZE DATA: ", res.data.hits.hits[0]._source.size);
+        setQueueSizePic(res.data.hits.hits[0]._source.size);
+        clearInterval(updatePicSize);
+      }
+    });
+  } // TODO
+
+
+  const updateCenSize = setInterval(updateCenshareQueueSize, 5000);
+  const updatePicSize = setInterval(updatePicQueueSize, 5000); //const updateCenItems = setInterval(updateCenshareQueueItems, 2000)
+  //const updatePicItems = setInterval(updatePicQueueItems, 2000)
+
+  const handleChange = event => {
+    setItem(event.target.value);
+  }; // TODO
+
+
+  const filterChange = event => {
+    // only for testing
+    if (isAutoRefresh == true) {
+      clearInterval(updatePicSize);
+      clearInterval(updateCenSize);
+      setIsAutoRefresh(false);
+    } else {
+      updateCenshareQueueItems();
+      updatePicQueueItems();
+      setIsAutoRefresh(true);
+    } //clearInterval(updateCenItems)
+    //clearInterval(updatePicItems)
+
+    /*
+    async function myStopFunction() {
+      clearInterval(updateCenSize)
+      clearInterval(updatePicSize)
+      return
+    }
+     async function afterFunction(){
+      await myStopFunction();
+       setQueueName(event.target.value)
+      console.log("current queue name: ",queueName)
+       updateCenshareQueueSize();
+      updatePicQueueSize();
+      console.log("target value filter: ", event.target.value)
+      console.log("current queue name: ", queueName)
+    };
+    */
+
   }; // Render the application DOM.
   // Note that `navigation.ui.TopNavMenu` is a stateful component exported on the `navigation` plugin's start contract.
 
@@ -131,7 +263,7 @@ const QueuesPluginApp = ({
     appName: _common.PLUGIN_ID,
     showSearchBar: true
   }), /*#__PURE__*/_react.default.createElement(_eui.EuiPage, {
-    restrictWidth: "1000px"
+    restrictWidth: "1200px"
   }, /*#__PURE__*/_react.default.createElement(_eui.EuiPageBody, null, /*#__PURE__*/_react.default.createElement(_eui.EuiPageHeader, null, /*#__PURE__*/_react.default.createElement(_eui.EuiTitle, {
     size: "l"
   }, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
@@ -140,97 +272,74 @@ const QueuesPluginApp = ({
     values: {
       name: _common.PLUGIN_NAME
     }
-  })))), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement(_eui.EuiPageContentHeader, null, /*#__PURE__*/_react.default.createElement(_eui.EuiTitle, null, /*#__PURE__*/_react.default.createElement("h2", null, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
-    id: "productQueues.congratulationsTitle",
-    defaultMessage: "Prediction Control Panel"
-  })))), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContentBody, null, /*#__PURE__*/_react.default.createElement(_eui.EuiText, null, /*#__PURE__*/_react.default.createElement("p", null, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
-    id: "productQueues.content",
-    defaultMessage: "Refresh predictions for queues start and endtime manually."
-  })), /*#__PURE__*/_react.default.createElement(_eui.EuiHorizontalRule, null), /*#__PURE__*/_react.default.createElement("p", null, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
-    id: "productQueues.timestampText",
-    defaultMessage: "Last time updated predictions: {time}",
-    values: {
-      time: timestamp ? timestamp : 'Unknown'
-    }
-  })), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
+  })))), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("div", {
+    style: filterFormContainer
+  }, /*#__PURE__*/_react.default.createElement(_eui.EuiFormRow, {
+    label: ""
+  }, /*#__PURE__*/_react.default.createElement(_eui.EuiFieldText, {
+    placeholder: "Search Item Timestamps...",
+    id: "productQueues.itemField",
+    onChange: handleChange
+  })), /*#__PURE__*/_react.default.createElement(_eui.EuiSelect, {
+    onChange: filterChange,
+    options: [{
+      value: 'products',
+      text: 'Products'
+    }, {
+      value: 'productrelation',
+      text: 'Product Relation'
+    }, {
+      value: 'csproducts',
+      text: 'CS Products'
+    }, {
+      value: 'stext',
+      text: 'S Text'
+    }, {
+      value: 'featurestories',
+      text: 'Feature Stories'
+    }]
+  }), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
     type: "primary",
-    size: "s",
-    onClick: onClickHandler
-  }, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
-    id: "productQueues.buttonText",
-    defaultMessage: "Refresh Predictions"
-  }))))), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement(_Header.default, null), /*#__PURE__*/_react.default.createElement(_FilterForm.default, null), /*#__PURE__*/_react.default.createElement(_Pipeline.default, null)))))));
+    size: "m",
+    onClick: onClickHandler3
+  }, "Search"), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
+    type: "primary",
+    color: "secondary",
+    onClick: onClickHandler,
+    fill: true,
+    size: "m",
+    style: {
+      marginLeft: "20px"
+    }
+  }, "Update Predictions")), /*#__PURE__*/_react.default.createElement(_Vis.Vis, {
+    picTimestamps: picTimestamps ? picTimestamps : [],
+    censhareTimestamps: censhareTimestamps ? censhareTimestamps : [],
+    queueSizeCenshare: queueSizeCenshare,
+    queueSizePic: queueSizePic,
+    queueItemsCenshare: queueItemsCenshare,
+    queueItemsPic: queueItemsPic,
+    updatedTimestamp: updatedTimestamp ? updatedTimestamp : undefined
+  })), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("table", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("th", null, "Tier"), /*#__PURE__*/_react.default.createElement("th", null, "Item")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "4288291908")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3506464042")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3810442950")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "2741829033")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "1400457484")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "3547747429")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "322537720")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "4181184071")))))))));
 };
 
 exports.QueuesPluginApp = QueuesPluginApp;
 
-/***/ }),
-
-/***/ "./public/src/FilterForm.tsx":
-/*!***********************************!*\
-  !*** ./public/src/FilterForm.tsx ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.FilterForm = void 0;
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-class FilterForm extends _react.Component {
-  render() {
-    return /*#__PURE__*/_react.default.createElement("div", {
-      style: filterFormContainer
-    }, /*#__PURE__*/_react.default.createElement("form", {
-      style: form
-    }, /*#__PURE__*/_react.default.createElement("label", null, /*#__PURE__*/_react.default.createElement("input", {
-      placeholder: "Input Item Name...",
-      style: input,
-      type: "text",
-      name: "name"
-    })), /*#__PURE__*/_react.default.createElement("div", {
-      className: "select-container"
-    }, /*#__PURE__*/_react.default.createElement("select", {
-      style: select,
-      name: "queue-type",
-      id: "queue-type"
-    }, /*#__PURE__*/_react.default.createElement("option", {
-      value: "Product Queues"
-    }, "Product Queues"), /*#__PURE__*/_react.default.createElement("option", {
-      value: "Products Relations"
-    }, "Products Relations"), /*#__PURE__*/_react.default.createElement("option", {
-      value: "Lorem"
-    }, "Lorem"), /*#__PURE__*/_react.default.createElement("option", {
-      value: "Ipsum"
-    }, "Ipsum"))), /*#__PURE__*/_react.default.createElement("button", {
-      id: "search-btn",
-      style: searchBtn
-    }, "Search"), /*#__PURE__*/_react.default.createElement("button", {
-      className: "prediction-btn",
-      style: predictionBtn
-    }, "Create New Predictions")));
+const ResponseDisplay = ({
+  data
+}) => {
+  if (data) {
+    return /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("pre", null, JSON.stringify(data, null, 2))));
   }
 
-}
+  return /*#__PURE__*/_react.default.createElement("div", null);
+};
 
-exports.FilterForm = FilterForm;
-var _default = FilterForm;
-exports.default = _default;
 const filterFormContainer = {
   backgroundColor: "#F5F9FC",
   height: "80px",
   justifyContent: "center",
-  display: "flex"
+  display: "flex",
+  paddingTop: "30px"
 };
 const input = {
   height: "40px",
@@ -277,49 +386,14 @@ const predictionBtn = {
 
 /***/ }),
 
-/***/ "./public/src/Header.tsx":
-/*!*******************************!*\
-  !*** ./public/src/Header.tsx ***!
-  \*******************************/
+/***/ "./public/src/App.css":
+/*!****************************!*\
+  !*** ./public/src/App.css ***!
+  \****************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
+/***/ (function(module, exports) {
 
 
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.default = exports.Header = void 0;
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-class Header extends _react.Component {
-  render() {
-    return /*#__PURE__*/_react.default.createElement("div", {
-      style: headerContainer
-    }, /*#__PURE__*/_react.default.createElement("div", {
-      style: appNameContainer
-    }, /*#__PURE__*/_react.default.createElement("div", null, "Queue"), /*#__PURE__*/_react.default.createElement("div", null, "Predictor")));
-  }
-
-}
-
-exports.Header = Header;
-var _default = Header;
-exports.default = _default;
-const headerContainer = {
-  backgroundColor: "white",
-  textAlign: "left",
-  padding: "10px",
-  fontWeight: "bolder",
-  display: "flex"
-};
-const appNameContainer = {};
 
 /***/ }),
 
@@ -349,29 +423,66 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 class Pipeline extends _react.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      censhareTimestamps: [],
+      picTimestamps: []
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return {
+      censhareTimestamps: nextProps.censhareTimestamps,
+      picTimestamps: nextProps.picTimestamps
+    };
+  }
+
+  componentDidUpdate() {}
+
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
       style: pipelineContainer
     }, /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
+      isFirstProcessor: true,
       processorName: "ERP",
-      queueName: "A-B",
-      queueType: "Product Queues"
+      queueName: "censhare",
+      queueType: "Product Queues",
+      timestamps: [],
+      queueSize: this.props.queueSizeCenshare,
+      timeLeft: getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left),
+      queueItems: this.props.queueItemsCenshare
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
+      isFirstProcessor: false,
       processorName: "PIM Edit",
-      queueName: "A-B",
-      queueType: "Product Queues"
+      queueName: "pic",
+      queueType: "Product Queues",
+      timestamps: this.props.censhareTimestamps,
+      queueSize: this.props.queueSizePic,
+      timeLeft: getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left),
+      queueItems: this.props.queueItemsPic
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
+      isFirstProcessor: false,
       processorName: "PIM Browse/ B2B",
-      queueName: "A-B",
-      queueType: "Product Queues"
+      queueName: "D-E",
+      queueType: "Product Queues",
+      timestamps: this.props.picTimestamps,
+      queueSize: this.props.queueSizeCenshare,
+      timeLeft: "",
+      queueItems: []
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: true,
+      isFirstProcessor: false,
       processorName: "D2C",
-      queueName: "A-B",
-      queueType: "Product Queues"
+      queueName: "E-F",
+      queueType: "Product Queues",
+      timestamps: [],
+      queueSize: 0,
+      timeLeft: "",
+      queueItems: []
     }));
   }
 
@@ -380,10 +491,38 @@ class Pipeline extends _react.Component {
 exports.Pipeline = Pipeline;
 var _default = Pipeline;
 exports.default = _default;
+
+function getTimeLeft(enter, left) {
+  //console.log("enter in pipeline: ", enter)
+  //console.log("left in pipeline: ", left)
+  if (enter && left && typeof enter.hits.hits[0] === "object" && typeof left.hits.hits[0] === "object") {
+    console.log("type enter: ", typeof enter);
+    console.log("type left: ", typeof left);
+    var hours = hoursLeft(new Date(enter.hits.hits[0]._source.timestamp).toString(), new Date(left.hits.hits[0]._source.timestamp).toString());
+    return hours;
+  } else 0;
+}
+
+function hoursLeft(enter, left) {
+  //console.log("enter date: ", enter)
+  //console.log("left date: ", left)
+  var enterDate = new Date(enter);
+  var leftDate = new Date(left);
+  var hours = Math.abs(enterDate.getTime() - leftDate.getTime()) / 36e5;
+  console.log("Hours Left: ", hours);
+
+  if (Math.round(hours) < 1) {
+    return hours;
+  } else {
+    return Math.round(hours);
+  }
+}
+
 const pipelineContainer = {
   backgroundColor: "#F5F9FC",
   display: "flex",
   padding: "20px",
+  paddingTop: "40px",
   justifyContent: "center"
 };
 
@@ -410,30 +549,49 @@ var _TimeBox = _interopRequireDefault(__webpack_require__(/*! ./TimeBox */ "./pu
 
 var _ProcessorBox = _interopRequireDefault(__webpack_require__(/*! ./ProcessorBox */ "./public/src/ProcessorBox.tsx"));
 
+var _QueueMetrics = _interopRequireDefault(__webpack_require__(/*! ./QueueMetrics */ "./public/src/QueueMetrics.tsx"));
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 class Processor extends _react.Component {
+  constructor(props) {
+    super(props);
+
+    _defineProperty(this, "state", {});
+
+    this.state = this.state;
+  }
+
+  componentDidMount() {}
+
+  componentDidUpdate() {}
+
   render() {
-    return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
+    return /*#__PURE__*/_react.default.createElement("div", null, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement(_QueueMetrics.default, {
+      queueSize: this.props.queueSize,
+      queueItems: this.props.queueItems
+    }) : null, /*#__PURE__*/_react.default.createElement("div", {
       style: processorContainer
-    }, /*#__PURE__*/_react.default.createElement(_TimeBox.default, {
-      isStart: true,
-      timestamp: "2020-01-20 12:01 UTC",
-      isHistoric: true
-    }), /*#__PURE__*/_react.default.createElement(_ProcessorBox.default, {
+    }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement(_TimeBox.default, {
+      isEnter: true,
+      timestamp: this.props.timestamps.queue_enter
+    }) : null, /*#__PURE__*/_react.default.createElement(_ProcessorBox.default, {
       isLastProcessor: this.props.isLastProcessor,
       processorName: this.props.processorName,
       queueName: this.props.queueName,
-      queueType: this.props.queueType
-    }), /*#__PURE__*/_react.default.createElement(_TimeBox.default, {
-      isStart: false,
-      timestamp: "2020-01-23 08:20 UTC",
-      isHistoric: false
-    })));
+      queueType: this.props.queueType,
+      isFirstProcessor: this.props.isFirstProcessor,
+      timeLeft: this.props.timeLeft
+    }), !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement(_TimeBox.default, {
+      isEnter: false,
+      timestamp: this.props.timestamps.queue_left
+    }) : null));
   }
 
 }
@@ -442,7 +600,8 @@ exports.Processor = Processor;
 var _default = Processor;
 exports.default = _default;
 const processorContainer = {
-  width: "270px"
+  width: "330px",
+  position: "relative"
 };
 
 /***/ }),
@@ -481,10 +640,17 @@ class ProcessorBox extends _react.Component {
     _defineProperty(this, "state", {
       isLastProcessor: false,
       processorName: "",
-      isProcessing: false
+      isProcessing: false,
+      timeLeft: ""
     });
 
     this.state = this.state;
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return {
+      timeLeft: nextProps.timeLeft
+    };
   }
 
   componentDidMount() {
@@ -509,21 +675,22 @@ class ProcessorBox extends _react.Component {
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
       style: processorBoxContainer
-    }, /*#__PURE__*/_react.default.createElement("div", {
+    }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
+      style: metricsLine
+    }) : null, /*#__PURE__*/_react.default.createElement("div", {
+      style: !this.props.isFirstProcessor ? processorBoxProgressPipeContainer : processorBoxProgressPipeContainerIsFirst
+    }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
       style: lineDashed
-    }), /*#__PURE__*/_react.default.createElement("div", {
-      style: processorBoxProgressPipeContainer
-    }, /*#__PURE__*/_react.default.createElement("div", {
+    }) : null, /*#__PURE__*/_react.default.createElement("div", {
       className: "processor-box",
       style: processorBox.base
-    }, /*#__PURE__*/_react.default.createElement("div", {
-      className: this.state.isProcessing ? "border-loading-spin" : "hidden"
-    }), this.props.processorName), this.props.isLastProcessor ? null : /*#__PURE__*/_react.default.createElement(_ProgressPipe.default, {
+    }, this.props.processorName), this.props.isLastProcessor ? null : /*#__PURE__*/_react.default.createElement(_ProgressPipe.default, {
       queName: this.props.queueName,
-      queType: this.props.queueType
-    })), /*#__PURE__*/_react.default.createElement("div", {
-      style: lineDashed
-    }));
+      queType: this.props.queueType,
+      timeLeft: this.props.timeLeft
+    })), !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
+      style: lineDashedBottom
+    }) : null);
   }
 
 }
@@ -532,9 +699,19 @@ exports.ProcessorBox = ProcessorBox;
 var _default = ProcessorBox;
 exports.default = _default;
 const processorBoxContainer = {};
+const metricsLine = {
+  border: "4px dashed #D3DAE6",
+  borderRight: "none",
+  borderBottom: "none",
+  height: "215px",
+  width: "33px",
+  position: "absolute",
+  left: "-33px",
+  top: "-69px"
+};
 const processorBox = {
   base: {
-    backgroundColor: "#4bc5de",
+    backgroundColor: "#006BB4",
     //55C1CE
     padding: "40px 0px",
     borderRadius: "0px",
@@ -543,17 +720,38 @@ const processorBox = {
     cursor: "pointer",
     //fontWeight: "bold" as "bold",
     //boxShadow: "0px 0px 20px 1px rgba(0,0,0,0.2)", 
-    position: "relative"
+    position: "relative",
+    textAlign: "center"
   }
 };
 const lineDashed = {
-  borderRight: "2px dashed grey",
-  width: "100px",
-  height: "20px"
+  border: "3px dashed grey",
+  borderRight: "none",
+  borderBottom: "none",
+  width: "18px",
+  height: "99px",
+  position: "absolute",
+  top: "47px",
+  left: "-17px"
+};
+const lineDashedBottom = {
+  border: "3px dashed grey",
+  borderRight: "none",
+  borderTop: "none",
+  width: "18px",
+  height: "99px",
+  position: "absolute",
+  top: "191px",
+  left: "-17px"
 };
 const processorBoxProgressPipeContainer = {
   display: "grid",
   gridTemplateColumns: "75% 25%"
+};
+const processorBoxProgressPipeContainerIsFirst = {
+  display: "grid",
+  gridTemplateColumns: "80% 20%",
+  marginTop: "261px"
 };
 
 /***/ }),
@@ -592,7 +790,14 @@ class ProgressPipe extends _react.Component {
     this.state = {
       queueName: "Name undefined",
       queueType: "Type undefined",
-      progressStatus: 0
+      progressStatus: 0,
+      timeLeft: null
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return {
+      timeLeft: nextProps.timeLeft
     };
   }
 
@@ -609,6 +814,8 @@ class ProgressPipe extends _react.Component {
   calculateProgressStatus() {
     return 70; //add calculation formula for ratio from timerange between start und end processing timestamps
   }
+  /* depricated */
+
 
   setUpProgressBarStatus() {
     switch (this.state.progressStatus) {
@@ -671,7 +878,7 @@ class ProgressPipe extends _react.Component {
     }), /*#__PURE__*/_react.default.createElement("div", {
       style: progressStatusInfoBox,
       onClick: this.onClickTest
-    }, this.state.progressStatus, "%"));
+    }, this.state.timeLeft ? /*#__PURE__*/_react.default.createElement("span", null, "T-", this.state.timeLeft, "h") : /*#__PURE__*/_react.default.createElement("span", null, "- - -")));
   }
 
 }
@@ -680,7 +887,7 @@ exports.ProgressPipe = ProgressPipe;
 var _default = ProgressPipe;
 exports.default = _default;
 const progressPipeContainer = {
-  height: "40px",
+  height: "45px",
   backgroundColor: "white",
   marginTop: "auto",
   marginBottom: "auto",
@@ -692,57 +899,57 @@ const progressPipeContainer = {
 };
 const progressBar = {
   base: {
-    backgroundColor: "#3729A2",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "0%"
   },
   ten: {
-    backgroundColor: "#FEE67F",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "10%"
   },
   twenty: {
-    backgroundColor: "#FEE67F",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "20%"
   },
   thirty: {
-    backgroundColor: "#FEE67F",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "30%"
   },
   fourty: {
-    backgroundColor: "#FEE67F",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "40%"
   },
   fithy: {
-    backgroundColor: "#FEE67F",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "50%"
   },
   sixty: {
-    backgroundColor: "#FEE67F",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "60%"
   },
   seventy: {
-    backgroundColor: "#FEE67F",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "70%"
   },
   eighty: {
-    backgroundColor: "#FE9C6A",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "80%"
   },
   ninethy: {
-    backgroundColor: "#FE9C6A",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "90%"
   },
   hundred: {
-    backgroundColor: "#FE9C6A",
+    backgroundColor: "#F1D86F",
     height: "100%",
     width: "100%"
   }
@@ -764,6 +971,83 @@ const progressStatusInfoBox = {
 
 /***/ }),
 
+/***/ "./public/src/QueueMetrics.tsx":
+/*!*************************************!*\
+  !*** ./public/src/QueueMetrics.tsx ***!
+  \*************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.QueueMetrics = void 0;
+
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
+
+var _eui = __webpack_require__(/*! @elastic/eui */ "@elastic/eui");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class QueueMetrics extends _react.Component {
+  constructor(props) {
+    super(props);
+
+    _defineProperty(this, "state", {
+      queueSize: 0,
+      queueItems: [],
+      queueWorkload: 0,
+      queueThroughput: 0
+    });
+
+    this.state = this.state;
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return {
+      queueSize: nextProps.queueSize,
+      queueItems: nextProps.queueItems
+    };
+  }
+
+  componentDidMount() {}
+
+  componentDidUpdate() {}
+
+  render() {
+    return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
+      style: metricsContainer
+    }, /*#__PURE__*/_react.default.createElement(_eui.EuiIcon, {
+      size: "xl",
+      type: "visGauge"
+    }), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Queue Size: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueSize)), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Throughput: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueThroughput)), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Workload: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueWorkload))));
+  }
+
+}
+
+exports.QueueMetrics = QueueMetrics;
+var _default = QueueMetrics;
+exports.default = _default;
+const metricsContainer = {
+  backgroundColor: "#D3DAE6",
+  padding: "15px 0px",
+  borderRadius: "0px",
+  color: "black",
+  cursor: "pointer",
+  textAlign: "center",
+  width: "80%",
+  marginBottom: "20px"
+};
+
+/***/ }),
+
 /***/ "./public/src/TimeBox.tsx":
 /*!********************************!*\
   !*** ./public/src/TimeBox.tsx ***!
@@ -781,19 +1065,34 @@ exports.default = exports.TimeBox = void 0;
 
 var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
 
+var _eui = __webpack_require__(/*! @elastic/eui */ "@elastic/eui");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+// import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
+// import {faClock} from "@fortawesome/free-solid-svg-icons"
 class TimeBox extends _react.default.Component {
   constructor(props) {
     super(props);
     this.state = {
       timePosition: "",
-      isHistoric: false
+      timestamp: this.props.timestamp,
+      isEnter: true,
+      isHistoric: true
     };
   }
 
-  componentDidMount() {
-    this.setState({});
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return {
+      timestamp: nextProps.timestamp
+    };
+  }
+
+  componentDidMount() {}
+
+  componentDidUpdate() {//console.log("did update in Timebox props: ", this.props.timestamps)
+    //console.log("did update in Timebox state: ", this.state.timestamps)
+    //checkDates(this.state.timestamp);
   }
 
   render() {
@@ -801,12 +1100,16 @@ class TimeBox extends _react.default.Component {
       style: timeboxContainer
     }, /*#__PURE__*/_react.default.createElement("div", {
       className: "time-box",
-      style: this.props.isHistoric ? timebox.historic : timebox.forecast
+      style: this.state.isHistoric ? timebox.historic : timebox.forecast
     }, /*#__PURE__*/_react.default.createElement("div", {
       style: this.state.isHistoric ? timeboxTitle.historic : timeboxTitle.forecast
-    }, this.state.isHistoric ? "Historic" : "Forecast", " ", this.props.isStart ? "Start" : "End", ":"), /*#__PURE__*/_react.default.createElement("div", {
+    }, /*#__PURE__*/_react.default.createElement(_eui.EuiIcon, {
+      type: "clock"
+    }), "  ", this.state.isHistoric ? "Historic" : "Forecast", " ", this.props.isEnter ? "Entered" : "Left", ":"), /*#__PURE__*/_react.default.createElement("div", {
       style: timeboxInnerBottom
-    }, this.props.timestamp)));
+    }, /*#__PURE__*/_react.default.createElement(TimestampDisplay, {
+      timestamp: this.state.timestamp
+    }))));
   }
 
 }
@@ -814,26 +1117,63 @@ class TimeBox extends _react.default.Component {
 exports.TimeBox = TimeBox;
 var _default = TimeBox;
 exports.default = _default;
-const timeboxContainer = {
-  width: "75%"
+
+function checkDates(timestamp) {
+  var CurrentDate = new Date();
+
+  if (timestamp && timestamp != undefined && new Date(timestamp.hits.hits[0]._source.timestamp) > CurrentDate) {} else {}
+}
+
+const TimestampDisplay = ({
+  timestamp
+}) => {
+  if (timestamp != null && typeof timestamp.hits.hits[0] === "object") {
+    return /*#__PURE__*/_react.default.createElement("div", {
+      style: {
+        padding: "5px"
+      }
+    }, new Date(timestamp.hits.hits[0]._source.timestamp).toString());
+  }
+
+  return /*#__PURE__*/_react.default.createElement("div", {
+    style: {
+      textAlign: "center",
+      paddingTop: "15px"
+    }
+  }, "- - - - - - -");
 };
-const timeboxInnerBottom = {
-  display: "flex"
+
+function hoursLeft(enter, left) {
+  console.log("enter date: ", enter);
+  console.log("left date: ", left);
+  var enterDate = new Date(enter);
+  var leftDate = new Date(left);
+  var hours = Math.abs(enterDate.getTime() - leftDate.getTime()) / 36e5;
+  console.log("Hours Left: ", hours);
+  return Math.round(hours);
+}
+
+const timeboxContainer = {
+  width: "80%",
+  marginBottom: "30px",
+  marginTop: "30px"
+};
+const timeboxInnerBottom = {// display: "flex",
 };
 const timeboxTitle = {
   historic: {
-    fontSize: ".6rem",
+    fontSize: ".8rem",
     fontWeight: "bold",
     textAlign: "left",
-    color: "grey",
+    color: "#2e2e2e",
     textTransform: "uppercase",
     opacity: ".7"
   },
   forecast: {
-    fontSize: ".6rem",
+    fontSize: ".8rem",
     fontWeight: "bold",
     textAlign: "left",
-    color: "grey",
+    color: "#2e2e2e",
     textTransform: "uppercase",
     opacity: ".7"
   }
@@ -855,22 +1195,90 @@ const timebox = {
   historic: {
     backgroundColor: "white",
     color: "black",
-    border: "2px solid #dbdbdb",
-    //borderRadius: "50px",
-    fontSize: ".8rem",
-    padding: "10px 15px 10px 15px",
-    cursor: "pointer"
+    border: "3px solid #dbdbdb",
+    borderRadius: "10px",
+    // fontSize: ".8rem",
+    padding: "15px 15px",
+    cursor: "pointer",
+    height: "90px"
   },
   forecast: {
-    backgroundColor: "#ebe6ff",
+    backgroundColor: "#e9dcf7",
     color: "black",
-    border: "2px solid #ebe6ff",
-    //borderRadius: "50px",
-    fontSize: ".8rem",
-    padding: "10px 15px 10px 15px",
-    cursor: "pointer"
+    border: "3px solid #e9dcf7",
+    borderRadius: "10px",
+    // fontSize: ".8rem",
+    padding: "15px 15px",
+    cursor: "pointer",
+    height: "90px"
   }
 };
+
+/***/ }),
+
+/***/ "./public/src/Vis.tsx":
+/*!****************************!*\
+  !*** ./public/src/Vis.tsx ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.Vis = void 0;
+
+var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
+
+var _Pipeline = _interopRequireDefault(__webpack_require__(/*! ../src/Pipeline */ "./public/src/Pipeline.tsx"));
+
+var _react2 = __webpack_require__(/*! @kbn/i18n/react */ "@kbn/i18n/react");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+class Vis extends _react.default.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      updatedTimestamp: undefined
+    };
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    return {
+      updatedTimestamp: nextProps.updatedTimestamp
+    };
+  }
+
+  componentDidMount() {}
+
+  componentDidUpdate() {}
+
+  render() {
+    return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_Pipeline.default, {
+      picTimestamps: this.props.picTimestamps,
+      censhareTimestamps: this.props.censhareTimestamps,
+      queueSizeCenshare: this.props.queueSizeCenshare,
+      queueSizePic: this.props.queueSizePic,
+      queueItemsCenshare: this.props.queueItemsCenshare,
+      queueItemsPic: this.props.queueItemsPic
+    }), /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
+      id: "productQueues.timestampText",
+      defaultMessage: "Last time updated predictions: {time}",
+      values: {
+        time: this.state.updatedTimestamp != "unknown" ? this.state.updatedTimestamp : 'Unknown'
+      }
+    }));
+  }
+
+}
+
+exports.Vis = Vis;
+var _default = Vis;
+exports.default = _default;
 
 /***/ })
 

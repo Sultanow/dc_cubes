@@ -1,16 +1,23 @@
 import React, { Component } from 'react'
+import { timeStamp } from 'console';
+import { object } from 'lodash';
 // import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 // import {faClock} from "@fortawesome/free-solid-svg-icons"
 
+import {
+    EuiIcon
+  } from '@elastic/eui';
+
 type TimeboxState = {
     timePosition : String, 
-    isHistoric: Boolean, 
+    timestamp: any,
+    isEnter: Boolean, 
+    isHistoric: Boolean
 }
 
 interface TimeboxProps { 
-    timestamp: String, 
-    isHistoric: Boolean, 
-    isStart: Boolean
+    isEnter: Boolean,
+    timestamp: any,
 }
 
 export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
@@ -19,25 +26,38 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
         
         this.state = {
             timePosition: "",
-            isHistoric: false
+            timestamp: this.props.timestamp,
+            isEnter: true, 
+            isHistoric: true
         }
     }
-    componentDidMount(){
-        this.setState({
 
-        });
+    static getDerivedStateFromProps(nextProps, prevState) {
+        return {
+            timestamp: nextProps.timestamp,
+        };
+    }
+
+    componentDidMount(){
+
+    }
+
+    componentDidUpdate(){
+        //console.log("did update in Timebox props: ", this.props.timestamps)
+        //console.log("did update in Timebox state: ", this.state.timestamps)
+
+        //checkDates(this.state.timestamp);
     }
 
     render() {
         return (
             <div style={timeboxContainer}>
-                <div className="time-box" style={this.props.isHistoric ? timebox.historic: timebox.forecast}>
+                <div className="time-box" style={this.state.isHistoric ? timebox.historic: timebox.forecast}>
                     <div style={this.state.isHistoric ? timeboxTitle.historic : timeboxTitle.forecast}>
-                        {this.state.isHistoric ? "Historic" : "Forecast"} {this.props.isStart ? "Start" : "End"}:
+                        <EuiIcon type="clock" />  {this.state.isHistoric ? "Historic" : "Forecast"} {this.props.isEnter ? "Entered" : "Left"}:
                     </div>
                     <div style={timeboxInnerBottom}>
-                        {/* <FontAwesomeIcon icon={faClock} style={this.props.isHistoric ? iconClock.historic : iconClock.forecast} />  */}
-                        {this.props.timestamp}
+                        <TimestampDisplay timestamp = {this.state.timestamp}/>
                     </div>
                 </div>
             </div>
@@ -47,28 +67,59 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
 
 export default TimeBox
 
+function checkDates(timestamp){
+    var CurrentDate = new Date();
+    if(timestamp && timestamp != undefined && new Date(timestamp.hits.hits[0]._source.timestamp) > CurrentDate){
+        
+    }
+    else{
+        
+    }
+}
+
+const TimestampDisplay = ({timestamp}) => {
+    if (timestamp != null && typeof timestamp.hits.hits[0] === "object") { 
+    return <div style={{padding:"5px"}}>{ new Date(timestamp.hits.hits[0]._source.timestamp).toString()}</div>; 
+    }
+    return <div style={{textAlign: "center", paddingTop:"15px"}}>- - - - - - -</div>;
+};
+
+function hoursLeft(enter:string, left:string): number{
+    console.log("enter date: ", enter)
+    console.log("left date: ", left)
+
+    var enterDate = new Date(enter)
+    var leftDate = new Date(left)
+
+    var hours = Math.abs(enterDate.getTime() - leftDate.getTime()) / 36e5
+    console.log("Hours Left: ", hours)
+    return Math.round(hours)
+}
+
 const timeboxContainer = {
-    width: "75%"
+    width: "80%",
+    marginBottom: "30px",
+    marginTop: "30px"
 }
 
 const timeboxInnerBottom = {
-    display: "flex",
+    // display: "flex",
 }
 
 const timeboxTitle = {
     historic:{
-        fontSize: ".6rem", 
+        fontSize: ".8rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
-        color: "grey",
+        color: "#2e2e2e",
         textTransform: "uppercase" as "uppercase", 
         opacity: ".7"
     },
     forecast:{
-        fontSize: ".6rem", 
+        fontSize: ".8rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
-        color: "grey", 
+        color: "#2e2e2e", 
         textTransform: "uppercase" as "uppercase",
         opacity: ".7"
     }
@@ -92,19 +143,21 @@ const iconClock = {
     historic:{
         backgroundColor: "white",    
         color: "black",
-        border: "2px solid #dbdbdb",
-        //borderRadius: "50px",
-        fontSize: ".8rem",
-        padding: "10px 15px 10px 15px",
+        border: "3px solid #dbdbdb",
+        borderRadius: "10px",
+        // fontSize: ".8rem",
+        padding: "15px 15px",
         cursor: "pointer",
+        height: "90px"
     },
     forecast: {
-        backgroundColor: "#ebe6ff",    
+        backgroundColor: "#e9dcf7",    
         color: "black",
-        border: "2px solid #ebe6ff",
-        //borderRadius: "50px",
-        fontSize: ".8rem",
-        padding: "10px 15px 10px 15px",
+        border: "3px solid #e9dcf7",
+        borderRadius: "10px",
+        // fontSize: ".8rem",
+        padding: "15px 15px",
         cursor: "pointer",
+        height: "90px"
     }
 }

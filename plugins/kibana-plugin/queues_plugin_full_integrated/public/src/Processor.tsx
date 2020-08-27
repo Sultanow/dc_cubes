@@ -1,34 +1,60 @@
 import React, { Component } from 'react'
 import TimeBox from "./TimeBox"
 import ProcessorBox from "./ProcessorBox"
+import QueueMetrics from "./QueueMetrics"
 
-type ProcessorState = {
-    isLastProcessor: Boolean,
-    processorName: String
+interface ProcessorState {
+    
 }
 
 interface ProcessorProps {
-    isLastProcessor: Boolean, 
+    isLastProcessor: Boolean,
+    isFirstProcessor: Boolean, 
     processorName: String,
     queueType: String, 
-    queueName: String
+    queueName: String,
+    timestamps: any,
+    queueSize: any,
+    timeLeft: any,
+    queueItems: any
 }
 
-export class Processor extends Component<ProcessorProps, ProcessorState> {
+export class Processor extends Component<ProcessorProps,ProcessorState> {
+
+    state = {
+    
+    }
+
+    constructor(props:any){
+        super(props);
+        this.state = (
+            this.state
+        )
+
+    }
+
+    componentDidMount(){
+
+    }
+
+    componentDidUpdate(){
+
+    }
+
     render() {
+
         return (
             <div>
+                {!this.props.isFirstProcessor ? <QueueMetrics queueSize={this.props.queueSize} queueItems={this.props.queueItems}/> : null}
                 <div style={processorContainer}>
-                    <TimeBox isStart={true}
-                    timestamp={"2020-01-20 12:01 UTC"}
-                    isHistoric={true}/>
+                    {!this.props.isFirstProcessor ? <TimeBox isEnter={true} timestamp={this.props.timestamps.queue_enter}/> : null}
                     <ProcessorBox isLastProcessor={this.props.isLastProcessor}
                     processorName={this.props.processorName}
                     queueName={this.props.queueName}
-                    queueType={this.props.queueType}/>
-                    <TimeBox isStart={false}
-                    timestamp={"2020-01-23 08:20 UTC"}
-                    isHistoric={false}/>
+                    queueType={this.props.queueType}
+                    isFirstProcessor={this.props.isFirstProcessor}
+                    timeLeft={this.props.timeLeft}/>
+                    {!this.props.isFirstProcessor ? <TimeBox isEnter={false} timestamp={this.props.timestamps.queue_left}/> : null}
                 </div>
             </div>
         )
@@ -38,5 +64,6 @@ export class Processor extends Component<ProcessorProps, ProcessorState> {
 export default Processor
 
 const processorContainer = {
-    width: "270px",
+    width: "330px",
+    position: "relative" as "relative"
 }
