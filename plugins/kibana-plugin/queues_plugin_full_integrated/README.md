@@ -1,4 +1,4 @@
-# How to Contribute?
+# Kibana Plugin App "Queues Plugin"
 
 ### Kibana Plugin App Demo
 
@@ -7,6 +7,8 @@
 ### Kibana Plugin App Demo with description
 
 <img src="./img/demo-plugin-app-2.png">
+
+# How to Contribute?
 
 ### Kibana Plugin Development Environment and Starting Kibana Plugin App
 
