@@ -7,7 +7,7 @@ import {
 interface QueueMetricsState {
     queueSize: any,
     queueItems: any,
-    queueWorkload: any,
+    queueUtilization: any,
     queueThroughput: any
 }
 
@@ -21,7 +21,7 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
     state = {
         queueSize: 0,
         queueItems: [],
-        queueWorkload: 0,
+        queueUtilization: 0,
         queueThroughput: 0
     }
 
@@ -59,11 +59,11 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
                         <span>{this.state.queueSize}</span></div>
                     <div>
                         <span>Throughput: </span>
-                        <span>{this.state.queueThroughput}</span>
+                        <span>{this.state.queueThroughput}/h</span>
                     </div>
                     <div>
                         <span>Workload: </span>
-                        <span>{this.state.queueWorkload}</span>
+                        <span>{this.state.queueUtilization}%</span>
                     </div>
                 </div>
             </div>

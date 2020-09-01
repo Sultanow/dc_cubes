@@ -14,7 +14,8 @@ interface ProcessorBoxProps {
     processorName: String,
     queueName: String,
     queueType: String,
-    timeLeft: any
+    timeLeft: any,
+    progessStatus: number
 }
 
 export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState> {
@@ -60,6 +61,8 @@ export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState
     render() {
         return (
             <div style={processorBoxContainer}>
+                                {!this.props.isFirstProcessor ? <div className="triangle-rotate" style={triangle}></div> : null}
+
                 {!this.props.isFirstProcessor ? <div style={metricsLine}></div> : null}
                     <div style={!this.props.isFirstProcessor ? processorBoxProgressPipeContainer : processorBoxProgressPipeContainerIsFirst}>
                     {!this.props.isFirstProcessor ? <div style={lineDashed}></div> : null}
@@ -67,7 +70,7 @@ export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState
                             {/* <div className={this.state.isProcessing ? "border-loading-spin" : "hidden"}></div> */}
                             {this.props.processorName}
                         </div>
-                        {this.props.isLastProcessor ? null : <ProgressPipe queName={this.props.queueName} queType={this.props.queueType} timeLeft={this.props.timeLeft}/>}
+                        {this.props.isLastProcessor ? null : <ProgressPipe progessStatus={this.props.progessStatus} queName={this.props.queueName} queType={this.props.queueType} timeLeft={this.props.timeLeft}/>}
                     </div>
                     {!this.props.isFirstProcessor ? <div style={lineDashedBottom}></div> : null}
             </div>
@@ -81,6 +84,19 @@ const processorBoxContainer = {
 
 }
 
+const triangle = {
+    width: "0",
+    height: "0",
+    borderLeft: "33px solid transparent",
+    borderRight: "33px solid transparent",
+    borderBottom: "34px solid #F1D86F", 
+    position: "absolute" as "absolute",
+    zIndex: "10" as "10",
+    top: "45%",
+    left: "-5%"
+    // marginTop: "auto", 
+    // marginBottom: "auto",
+}
 
 const metricsLine = {
     border: "4px dashed #D3DAE6",

@@ -15,7 +15,8 @@ type ProgressPipeState = {
 interface ProgressPipeProps {
     queType: String,
     queName: String,
-    timeLeft: any
+    timeLeft: any,
+    progessStatus: number
 }
 
 export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState>{
@@ -25,7 +26,7 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
         this.state = {
             queueName: "Name undefined",
             queueType: "Type undefined",
-            progressStatus: 0,
+            progressStatus: this.props.progessStatus,
             timeLeft: null
         }
     }
@@ -42,7 +43,7 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 
     setUpProgressPipe() {
         this.setState({
-            progressStatus: this.calculateProgressStatus()
+            progressStatus: this.props.progessStatus
         })
     }
 
@@ -199,7 +200,7 @@ const progressStatusInfoBox = {
     left: "50%",
     top: "25%",
     transform: "translate(-50%, 0)",
-    width: "47px",
+    width: "58px",
     padding: "2px 0 2px 0",
     textAlign: "center" as "center",
     // fontWeight: "bold" as "bold", 

@@ -49,7 +49,8 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 timestamps={[]}
                 queueSize={this.props.queueSizeCenshare}
                 timeLeft={getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left)}
-                queueItems={this.props.queueItemsCenshare}/>
+                queueItems={this.props.queueItemsCenshare}
+                progessStatus={100}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
                 processorName={"PIM Edit"}
@@ -58,7 +59,8 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 timestamps={this.props.censhareTimestamps}
                 queueSize={this.props.queueSizePic}
                 timeLeft={getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left)}
-                queueItems={this.props.queueItemsPic}/>
+                queueItems={this.props.queueItemsPic}
+                progessStatus={100}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
                 processorName={"PIM Browse/ B2B"}
@@ -67,7 +69,8 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 timestamps={this.props.picTimestamps}
                 queueSize={this.props.queueSizeCenshare}
                 timeLeft={""}
-                queueItems={[]}/>
+                queueItems={[]}
+                progessStatus={70}/>
                 <Processor isLastProcessor={true}
                 isFirstProcessor={false}
                 processorName={"D2C"}
@@ -76,7 +79,8 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 timestamps={[]}
                 queueSize={0}
                 timeLeft={""}
-                queueItems={[]}/>
+                queueItems={[]}
+                progessStatus={0}/>
             </div>
         )
     }

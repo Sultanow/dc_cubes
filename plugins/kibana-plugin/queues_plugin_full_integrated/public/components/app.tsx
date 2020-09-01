@@ -214,7 +214,7 @@ export const QueuesPluginApp = ({
       <I18nProvider>
         <>
           <navigation.ui.TopNavMenu appName={PLUGIN_ID} showSearchBar={true} />
-          <EuiPage restrictWidth="1200px">
+          <EuiPage restrictWidth="1500px">
             <EuiPageBody>
               <EuiPageHeader>
                 <EuiTitle size="l">
@@ -254,10 +254,13 @@ export const QueuesPluginApp = ({
               </EuiPageContent>
               <EuiPageContent>
                 <table>
+                  <thead>
                 <tr>
                   <th>Tier</th>
                   <th>Item</th> 
                 </tr>
+                </thead>
+                <tbody>
                 <tr>
                   <td>Censhare</td>
                   <td>4288291908</td> 
@@ -290,6 +293,7 @@ export const QueuesPluginApp = ({
                   <td>Pic</td>
                   <td>4181184071</td> 
                 </tr>
+                </tbody>
               </table>
               </EuiPageContent>
               {/* <ResponseDisplay data={censhareTimestamps ? censhareTimestamps : []} />

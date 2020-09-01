@@ -263,7 +263,7 @@ const QueuesPluginApp = ({
     appName: _common.PLUGIN_ID,
     showSearchBar: true
   }), /*#__PURE__*/_react.default.createElement(_eui.EuiPage, {
-    restrictWidth: "1200px"
+    restrictWidth: "1500px"
   }, /*#__PURE__*/_react.default.createElement(_eui.EuiPageBody, null, /*#__PURE__*/_react.default.createElement(_eui.EuiPageHeader, null, /*#__PURE__*/_react.default.createElement(_eui.EuiTitle, {
     size: "l"
   }, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
@@ -319,7 +319,7 @@ const QueuesPluginApp = ({
     queueItemsCenshare: queueItemsCenshare,
     queueItemsPic: queueItemsPic,
     updatedTimestamp: updatedTimestamp ? updatedTimestamp : undefined
-  })), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("table", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("th", null, "Tier"), /*#__PURE__*/_react.default.createElement("th", null, "Item")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "4288291908")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3506464042")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3810442950")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "2741829033")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "1400457484")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "3547747429")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "322537720")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "4181184071")))))))));
+  })), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("table", null, /*#__PURE__*/_react.default.createElement("thead", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("th", null, "Tier"), /*#__PURE__*/_react.default.createElement("th", null, "Item"))), /*#__PURE__*/_react.default.createElement("tbody", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "4288291908")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3506464042")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3810442950")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "2741829033")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "1400457484")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "3547747429")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "322537720")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "4181184071"))))))))));
 };
 
 exports.QueuesPluginApp = QueuesPluginApp;
@@ -452,7 +452,8 @@ class Pipeline extends _react.Component {
       timestamps: [],
       queueSize: this.props.queueSizeCenshare,
       timeLeft: getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left),
-      queueItems: this.props.queueItemsCenshare
+      queueItems: this.props.queueItemsCenshare,
+      progessStatus: 100
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
       isFirstProcessor: false,
@@ -462,7 +463,8 @@ class Pipeline extends _react.Component {
       timestamps: this.props.censhareTimestamps,
       queueSize: this.props.queueSizePic,
       timeLeft: getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left),
-      queueItems: this.props.queueItemsPic
+      queueItems: this.props.queueItemsPic,
+      progessStatus: 100
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
       isFirstProcessor: false,
@@ -472,7 +474,8 @@ class Pipeline extends _react.Component {
       timestamps: this.props.picTimestamps,
       queueSize: this.props.queueSizeCenshare,
       timeLeft: "",
-      queueItems: []
+      queueItems: [],
+      progessStatus: 70
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: true,
       isFirstProcessor: false,
@@ -482,7 +485,8 @@ class Pipeline extends _react.Component {
       timestamps: [],
       queueSize: 0,
       timeLeft: "",
-      queueItems: []
+      queueItems: [],
+      progessStatus: 0
     }));
   }
 
@@ -582,6 +586,7 @@ class Processor extends _react.Component {
       isEnter: true,
       timestamp: this.props.timestamps.queue_enter
     }) : null, /*#__PURE__*/_react.default.createElement(_ProcessorBox.default, {
+      progessStatus: this.props.progessStatus,
       isLastProcessor: this.props.isLastProcessor,
       processorName: this.props.processorName,
       queueName: this.props.queueName,
@@ -676,6 +681,9 @@ class ProcessorBox extends _react.Component {
     return /*#__PURE__*/_react.default.createElement("div", {
       style: processorBoxContainer
     }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
+      className: "triangle-rotate",
+      style: triangle
+    }) : null, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
       style: metricsLine
     }) : null, /*#__PURE__*/_react.default.createElement("div", {
       style: !this.props.isFirstProcessor ? processorBoxProgressPipeContainer : processorBoxProgressPipeContainerIsFirst
@@ -685,6 +693,7 @@ class ProcessorBox extends _react.Component {
       className: "processor-box",
       style: processorBox.base
     }, this.props.processorName), this.props.isLastProcessor ? null : /*#__PURE__*/_react.default.createElement(_ProgressPipe.default, {
+      progessStatus: this.props.progessStatus,
       queName: this.props.queueName,
       queType: this.props.queueType,
       timeLeft: this.props.timeLeft
@@ -699,6 +708,19 @@ exports.ProcessorBox = ProcessorBox;
 var _default = ProcessorBox;
 exports.default = _default;
 const processorBoxContainer = {};
+const triangle = {
+  width: "0",
+  height: "0",
+  borderLeft: "33px solid transparent",
+  borderRight: "33px solid transparent",
+  borderBottom: "34px solid #F1D86F",
+  position: "absolute",
+  zIndex: "10",
+  top: "45%",
+  left: "-5%" // marginTop: "auto", 
+  // marginBottom: "auto",
+
+};
 const metricsLine = {
   border: "4px dashed #D3DAE6",
   borderRight: "none",
@@ -790,7 +812,7 @@ class ProgressPipe extends _react.Component {
     this.state = {
       queueName: "Name undefined",
       queueType: "Type undefined",
-      progressStatus: 0,
+      progressStatus: this.props.progessStatus,
       timeLeft: null
     };
   }
@@ -807,7 +829,7 @@ class ProgressPipe extends _react.Component {
 
   setUpProgressPipe() {
     this.setState({
-      progressStatus: this.calculateProgressStatus()
+      progressStatus: this.props.progessStatus
     });
   }
 
@@ -962,7 +984,7 @@ const progressStatusInfoBox = {
   left: "50%",
   top: "25%",
   transform: "translate(-50%, 0)",
-  width: "47px",
+  width: "58px",
   padding: "2px 0 2px 0",
   textAlign: "center",
   // fontWeight: "bold" as "bold", 
@@ -1003,7 +1025,7 @@ class QueueMetrics extends _react.Component {
     _defineProperty(this, "state", {
       queueSize: 0,
       queueItems: [],
-      queueWorkload: 0,
+      queueUtilization: 0,
       queueThroughput: 0
     });
 
@@ -1027,7 +1049,7 @@ class QueueMetrics extends _react.Component {
     }, /*#__PURE__*/_react.default.createElement(_eui.EuiIcon, {
       size: "xl",
       type: "visGauge"
-    }), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Queue Size: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueSize)), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Throughput: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueThroughput)), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Workload: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueWorkload))));
+    }), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Queue Size: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueSize)), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Throughput: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueThroughput, "/h")), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Workload: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueUtilization, "%"))));
   }
 
 }
@@ -1231,13 +1253,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = exports.Vis = void 0;
 
-var _react = _interopRequireDefault(__webpack_require__(/*! react */ "react"));
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
 
 var _Pipeline = _interopRequireDefault(__webpack_require__(/*! ../src/Pipeline */ "./public/src/Pipeline.tsx"));
 
 var _react2 = __webpack_require__(/*! @kbn/i18n/react */ "@kbn/i18n/react");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
 class Vis extends _react.default.Component {
   constructor(props) {
@@ -1253,12 +1279,12 @@ class Vis extends _react.default.Component {
     };
   }
 
-  componentDidMount() {}
-
   componentDidUpdate() {}
 
   render() {
-    return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement(_Pipeline.default, {
+    return /*#__PURE__*/_react.default.createElement("div", {
+      style: vis
+    }, /*#__PURE__*/_react.default.createElement(_Pipeline.default, {
       picTimestamps: this.props.picTimestamps,
       censhareTimestamps: this.props.censhareTimestamps,
       queueSizeCenshare: this.props.queueSizeCenshare,
@@ -1279,6 +1305,36 @@ class Vis extends _react.default.Component {
 exports.Vis = Vis;
 var _default = Vis;
 exports.default = _default;
+const vis = {};
+
+const DisplayWindowDimensions = () => {
+  const [width, height] = useWindowSize();
+  return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Window size: ", width, " x ", height));
+};
+
+function getWindowWidth() {
+  const [width] = useWindowSize();
+  return width;
+}
+
+function getWindowHeight() {
+  const [height] = useWindowSize();
+  return height;
+}
+
+function useWindowSize() {
+  const [size, setSize] = (0, _react.useState)([0, 0]);
+  (0, _react.useLayoutEffect)(() => {
+    function updateSize() {
+      setSize([window.innerWidth, window.innerHeight]);
+    }
+
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+  return size;
+}
 
 /***/ })
 
