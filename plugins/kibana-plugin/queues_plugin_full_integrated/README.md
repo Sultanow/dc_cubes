@@ -2,11 +2,11 @@
 
 ### Kibana Plugin App Demo
 
-<img src="/img/demo-plugin-app.png">
+<img src="./img/demo-plugin-app.png">
 
 ### Kibana Plugin App Demo with description
 
-<img src="/img/demo-plugin-app-2.png">
+<img src="./img/demo-plugin-app-2.png">
 
 ### Kibana Plugin Development Environment and Starting Kibana Plugin App
 
