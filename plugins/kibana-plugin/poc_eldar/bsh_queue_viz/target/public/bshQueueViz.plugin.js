@@ -807,7 +807,7 @@ class BshQueueVizPlugin {
         // Load application bundle
         const {
           renderApp
-        } = await __webpack_require__.e(/*! import() */ 0).then(__webpack_require__.t.bind(null, /*! ./application */ "./public/application.tsx", 7)); // Get start services as specified in kibana.json
+        } = await Promise.all(/*! import() */[__webpack_require__.e(0), __webpack_require__.e(1)]).then(__webpack_require__.t.bind(null, /*! ./application */ "./public/application.tsx", 7)); // Get start services as specified in kibana.json
 
         const [coreStart, depsStart] = await core.getStartServices(); // Render the application
 
