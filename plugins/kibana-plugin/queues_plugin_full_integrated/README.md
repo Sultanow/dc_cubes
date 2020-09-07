@@ -1,23 +1,19 @@
-# How to Contribute?
+# Kibana Plugin App "Queues Plugin"
 
 ### Kibana Plugin App Demo
 
-<img src="/img/demo-plugin-app.png">
+<img src="./img/demo-plugin-app.png">
 
 ### Kibana Plugin App Demo with description
 
-<img src="/img/demo-plugin-app-2.png">
+<img src="./img/demo-plugin-app-2.png">
+
+# How to Contribute?
 
 ### Kibana Plugin Development Environment and Starting Kibana Plugin App
 
-- [Github - Kibana Releases](https://github.com/elastic/kibana/releases)
-  - Download Version 7.8.1
-  - Important: Used Elasticseach version has to match Verison of Kibana Source Code (7.8)
-  - Start Elasticsearch 7.8
-    - ``brew services start elasticsearch``
-  - rename Directory to `/kibana` not "kibana-7.8.1" !!
-
 - Download Kibana Source Code from Elastic Website
+  - [Github - Kibana Releases](https://github.com/elastic/kibana/releases)
 - 1. go to kibana directory
   - Important has to be named as "kibana"
 - ```git init```
