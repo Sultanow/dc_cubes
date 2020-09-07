@@ -23,7 +23,7 @@
   }
   
   .time-box:hover{
-    border: 3px solid #bdbdbd!important;
+    border: 2px solid #bdbdbd!important;
   }
   
   input{
@@ -58,6 +58,7 @@
     /* ... */
     position: relative;
   }
+  /*
   .select-container::before {
     font-family: "Font Awesome 5 Free";
     content: "\f078";
@@ -68,6 +69,7 @@
     color: black;
     pointer-events:none;
   }
+  */
   
   .prediction-btn:hover{
     border-bottom: 2px solid black!important;
@@ -79,17 +81,17 @@
   }
   
   .progress-pipe-container:hover{
-    border-top: 6px solid #a8a8a8!important;
-    border-bottom: 6px solid #a8a8a8!important; 
+    border-top: 5px solid #a8a8a8!important;
+    border-bottom: 5px solid #a8a8a8!important; 
   }
   
   .processor-box:hover{
-    background-color: #006BB4!important;
+    background-color: #0082d8!important;
     opacity: 80%;
   }
 
   td{
-    padding: 5px;
+    // padding: 5px;
   }
 
   .triangle-rotate{
@@ -99,4 +101,9 @@
     -webkit-transform: rotate(90deg);
 
     transform: rotate(90deg);
+  }
+
+  .processorOuterContainer:hover{
+    // background-color: rgba(255, 192, 203, 0.199);
+    // cursor: pointer;
   }

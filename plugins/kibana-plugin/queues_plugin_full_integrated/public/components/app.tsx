@@ -230,7 +230,7 @@ export const QueuesPluginApp = ({
               <EuiPageContent>
                 <div style={filterFormContainer}>
                   <EuiFormRow label="">
-                    <EuiFieldText placeholder="Search Item Timestamps..." id="productQueues.itemField" onChange={handleChange} />
+                    <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={handleChange} />
                   </EuiFormRow>
                   <EuiSelect onChange={filterChange}
                     options={[
@@ -343,7 +343,7 @@ const searchBtn = {
   color: "white",
   padding: "5px 20px 5px 20px",
   cursor: "pointer",
-  fontSize: ".8rem",
+  // fontSize: ".8rem",
   border: "2px solid #FE9C6A",
   borderRadius: "50px"
 }
@@ -359,7 +359,7 @@ const predictionBtn = {
   height: "30px",
   color: "black",
   cursor: "pointer",
-  fontSize: ".8rem",
+  // fontSize: ".8rem",
   fontWeight: "bold" as "bold",
   border: "none",
   borderBottom: "2px solid #F5F9FC",

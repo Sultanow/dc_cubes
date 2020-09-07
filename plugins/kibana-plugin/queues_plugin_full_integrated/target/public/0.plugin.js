@@ -277,7 +277,7 @@ const QueuesPluginApp = ({
   }, /*#__PURE__*/_react.default.createElement(_eui.EuiFormRow, {
     label: ""
   }, /*#__PURE__*/_react.default.createElement(_eui.EuiFieldText, {
-    placeholder: "Search Item Timestamps...",
+    placeholder: "Search Items...",
     id: "productQueues.itemField",
     onChange: handleChange
   })), /*#__PURE__*/_react.default.createElement(_eui.EuiSelect, {
@@ -361,7 +361,7 @@ const searchBtn = {
   color: "white",
   padding: "5px 20px 5px 20px",
   cursor: "pointer",
-  fontSize: ".8rem",
+  // fontSize: ".8rem",
   border: "2px solid #FE9C6A",
   borderRadius: "50px"
 };
@@ -375,7 +375,7 @@ const predictionBtn = {
   height: "30px",
   color: "black",
   cursor: "pointer",
-  fontSize: ".8rem",
+  // fontSize: ".8rem",
   fontWeight: "bold",
   border: "none",
   borderBottom: "2px solid #F5F9FC",
@@ -475,7 +475,7 @@ class Pipeline extends _react.Component {
       queueSize: this.props.queueSizeCenshare,
       timeLeft: "",
       queueItems: [],
-      progessStatus: 70
+      progessStatus: 0
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: true,
       isFirstProcessor: false,
@@ -577,7 +577,9 @@ class Processor extends _react.Component {
   componentDidUpdate() {}
 
   render() {
-    return /*#__PURE__*/_react.default.createElement("div", null, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement(_QueueMetrics.default, {
+    return /*#__PURE__*/_react.default.createElement("div", {
+      className: "processorOuterContainer"
+    }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement(_QueueMetrics.default, {
       queueSize: this.props.queueSize,
       queueItems: this.props.queueItems
     }) : null, /*#__PURE__*/_react.default.createElement("div", {
@@ -605,7 +607,7 @@ exports.Processor = Processor;
 var _default = Processor;
 exports.default = _default;
 const processorContainer = {
-  width: "330px",
+  width: "250px",
   position: "relative"
 };
 
@@ -709,33 +711,35 @@ var _default = ProcessorBox;
 exports.default = _default;
 const processorBoxContainer = {};
 const triangle = {
-  width: "0",
-  height: "0",
-  borderLeft: "33px solid transparent",
-  borderRight: "33px solid transparent",
-  borderBottom: "34px solid #F1D86F",
+  width: "0px",
+  height: "0px",
+  borderLeft: "30px solid transparent",
+  borderRight: "30px solid transparent",
+  borderBottom: "30px solid #F1D86F",
   position: "absolute",
-  zIndex: "10",
-  top: "45%",
-  left: "-5%" // marginTop: "auto", 
+  zIndex: 10,
+  top: "101px",
+  left: "-6%" // marginTop: "auto", 
   // marginBottom: "auto",
 
 };
 const metricsLine = {
-  border: "4px dashed #D3DAE6",
+  border: "3px dashed #D3DAE6",
   borderRight: "none",
   borderBottom: "none",
-  height: "215px",
-  width: "33px",
+  borderTop: "none",
+  height: "126px",
+  width: "31px",
   position: "absolute",
-  left: "-33px",
-  top: "-69px"
+  left: "-31px",
+  top: "-30px",
+  borderTopLeftRadius: "0px"
 };
 const processorBox = {
   base: {
     backgroundColor: "#006BB4",
     //55C1CE
-    padding: "40px 0px",
+    padding: "25px 0px",
     borderRadius: "0px",
     // border: "2px solid rgb(66, 150, 190)",
     color: "white",
@@ -743,28 +747,29 @@ const processorBox = {
     //fontWeight: "bold" as "bold",
     //boxShadow: "0px 0px 20px 1px rgba(0,0,0,0.2)", 
     position: "relative",
-    textAlign: "center"
+    textAlign: "center",
+    fontSize: ".8rem"
   }
 };
 const lineDashed = {
   border: "3px dashed grey",
   borderRight: "none",
   borderBottom: "none",
-  width: "18px",
-  height: "99px",
+  width: "16px",
+  height: "62px",
   position: "absolute",
-  top: "47px",
-  left: "-17px"
+  top: "35px",
+  left: "-16px"
 };
 const lineDashedBottom = {
   border: "3px dashed grey",
   borderRight: "none",
   borderTop: "none",
-  width: "18px",
-  height: "99px",
+  width: "16px",
+  height: "62px",
   position: "absolute",
-  top: "191px",
-  left: "-17px"
+  top: "136px",
+  left: "-16px"
 };
 const processorBoxProgressPipeContainer = {
   display: "grid",
@@ -772,8 +777,8 @@ const processorBoxProgressPipeContainer = {
 };
 const processorBoxProgressPipeContainerIsFirst = {
   display: "grid",
-  gridTemplateColumns: "80% 20%",
-  marginTop: "261px"
+  gridTemplateColumns: "75% 25%",
+  marginTop: "195px"
 };
 
 /***/ }),
@@ -909,12 +914,12 @@ exports.ProgressPipe = ProgressPipe;
 var _default = ProgressPipe;
 exports.default = _default;
 const progressPipeContainer = {
-  height: "45px",
+  height: "38px",
   backgroundColor: "white",
   marginTop: "auto",
   marginBottom: "auto",
-  borderTop: "6px solid #ddd",
-  borderBottom: "6px solid #ddd",
+  borderTop: "5px solid #ddd",
+  borderBottom: "5px solid #ddd",
   //boxShadow: "-1px 0px 22px -2px rgba(0,0,0,0.2)",
   position: "relative",
   cursor: "pointer"
@@ -982,13 +987,13 @@ const progressStatusInfoBox = {
   borderRadius: "50px",
   position: "absolute",
   left: "50%",
-  top: "25%",
+  top: "16%",
   transform: "translate(-50%, 0)",
   width: "58px",
-  padding: "2px 0 2px 0",
+  padding: "4px 0 4px 0",
   textAlign: "center",
   // fontWeight: "bold" as "bold", 
-  fontSize: ".8rem"
+  fontSize: ".7rem"
 };
 
 /***/ }),
@@ -1047,9 +1052,33 @@ class QueueMetrics extends _react.Component {
     return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
       style: metricsContainer
     }, /*#__PURE__*/_react.default.createElement(_eui.EuiIcon, {
-      size: "xl",
+      style: {
+        marginTop: "auto",
+        marginBottom: "auto"
+      },
+      size: "l",
       type: "visGauge"
-    }), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Queue Size: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueSize)), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Throughput: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueThroughput, "/h")), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("span", null, "Workload: "), /*#__PURE__*/_react.default.createElement("span", null, this.state.queueUtilization, "%"))));
+    }), /*#__PURE__*/_react.default.createElement("table", {
+      style: table
+    }, /*#__PURE__*/_react.default.createElement("thead", {
+      style: thead
+    }, /*#__PURE__*/_react.default.createElement("tr", {
+      style: tr
+    }, /*#__PURE__*/_react.default.createElement("th", {
+      style: th
+    }, "Queue Size:"), /*#__PURE__*/_react.default.createElement("th", {
+      style: th
+    }, "Throughput:"), /*#__PURE__*/_react.default.createElement("th", {
+      style: th
+    }, "Utilization:"))), /*#__PURE__*/_react.default.createElement("tbody", {
+      style: tbody
+    }, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", {
+      style: td
+    }, this.state.queueSize ? this.state.queueSize : 0), /*#__PURE__*/_react.default.createElement("td", {
+      style: td
+    }, this.state.queueThroughput, "/h"), /*#__PURE__*/_react.default.createElement("td", {
+      style: td
+    }, this.state.queueUtilization, "%"))))));
   }
 
 }
@@ -1057,15 +1086,43 @@ class QueueMetrics extends _react.Component {
 exports.QueueMetrics = QueueMetrics;
 var _default = QueueMetrics;
 exports.default = _default;
+const table = {
+  // justifyContent:"center" as "center",
+  // marginRight: "auto", 
+  marginLeft: "8px"
+};
+const tr = {};
+const thead = {
+  display: "block",
+  float: "left"
+};
+const tbody = {
+  display: "block",
+  float: "right"
+};
+const th = {
+  display: "block",
+  textAlign: "left",
+  padding: "1px"
+};
+const td = {
+  display: "block",
+  padding: "1px"
+};
 const metricsContainer = {
   backgroundColor: "#D3DAE6",
-  padding: "15px 0px",
-  borderRadius: "0px",
+  padding: "15px 10px",
+  borderRadius: "10px",
   color: "black",
   cursor: "pointer",
   textAlign: "center",
-  width: "80%",
-  marginBottom: "20px"
+  width: "75%",
+  marginBottom: "30px",
+  border: "3px solid white",
+  display: "flex",
+  fontSize: ".8rem",
+  position: "relative",
+  left: "-125px"
 };
 
 /***/ }),
@@ -1144,23 +1201,28 @@ function checkDates(timestamp) {
   var CurrentDate = new Date();
 
   if (timestamp && timestamp != undefined && new Date(timestamp.hits.hits[0]._source.timestamp) > CurrentDate) {} else {}
-}
+} // .toLocaleDateString('de-DE', {timeZoneName:'short'}).toString()
+
 
 const TimestampDisplay = ({
   timestamp
 }) => {
+  var offset = new Date().getTimezoneOffset();
+
   if (timestamp != null && typeof timestamp.hits.hits[0] === "object") {
     return /*#__PURE__*/_react.default.createElement("div", {
       style: {
         padding: "5px"
       }
-    }, new Date(timestamp.hits.hits[0]._source.timestamp).toString());
+    }, new Date(timestamp.hits.hits[0]._source.timestamp).toDateString() + " " + new Date(timestamp.hits.hits[0]._source.timestamp).toLocaleTimeString('de-DE', {
+      timeZoneName: 'short'
+    }).toString());
   }
 
   return /*#__PURE__*/_react.default.createElement("div", {
     style: {
       textAlign: "center",
-      paddingTop: "15px"
+      paddingTop: "8px"
     }
   }, "- - - - - - -");
 };
@@ -1176,15 +1238,16 @@ function hoursLeft(enter, left) {
 }
 
 const timeboxContainer = {
-  width: "80%",
-  marginBottom: "30px",
-  marginTop: "30px"
+  width: "75%",
+  marginBottom: "15px",
+  marginTop: "15px",
+  fontSize: ".7rem"
 };
 const timeboxInnerBottom = {// display: "flex",
 };
 const timeboxTitle = {
   historic: {
-    fontSize: ".8rem",
+    // fontSize: ".8rem", 
     fontWeight: "bold",
     textAlign: "left",
     color: "#2e2e2e",
@@ -1192,7 +1255,7 @@ const timeboxTitle = {
     opacity: ".7"
   },
   forecast: {
-    fontSize: ".8rem",
+    // fontSize: ".8rem", 
     fontWeight: "bold",
     textAlign: "left",
     color: "#2e2e2e",
@@ -1217,22 +1280,22 @@ const timebox = {
   historic: {
     backgroundColor: "white",
     color: "black",
-    border: "3px solid #dbdbdb",
+    border: "2px solid #dbdbdb",
     borderRadius: "10px",
     // fontSize: ".8rem",
-    padding: "15px 15px",
+    padding: "10px",
     cursor: "pointer",
-    height: "90px"
+    height: "70px"
   },
   forecast: {
     backgroundColor: "#e9dcf7",
     color: "black",
-    border: "3px solid #e9dcf7",
+    border: "2px solid #e9dcf7",
     borderRadius: "10px",
     // fontSize: ".8rem",
-    padding: "15px 15px",
+    padding: "10px",
     cursor: "pointer",
-    height: "90px"
+    height: "70px"
   }
 };
 
@@ -1257,7 +1320,7 @@ var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
 
 var _Pipeline = _interopRequireDefault(__webpack_require__(/*! ../src/Pipeline */ "./public/src/Pipeline.tsx"));
 
-var _react2 = __webpack_require__(/*! @kbn/i18n/react */ "@kbn/i18n/react");
+var _eui = __webpack_require__(/*! @elastic/eui */ "@elastic/eui");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1291,13 +1354,15 @@ class Vis extends _react.default.Component {
       queueSizePic: this.props.queueSizePic,
       queueItemsCenshare: this.props.queueItemsCenshare,
       queueItemsPic: this.props.queueItemsPic
-    }), /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
-      id: "productQueues.timestampText",
-      defaultMessage: "Last time updated predictions: {time}",
-      values: {
-        time: this.state.updatedTimestamp != "unknown" ? this.state.updatedTimestamp : 'Unknown'
+    }), /*#__PURE__*/_react.default.createElement(_eui.EuiToast // title=""
+    // color="success"
+    , {
+      iconType: ""
+    }, /*#__PURE__*/_react.default.createElement("p", null, /*#__PURE__*/_react.default.createElement("span", {
+      style: {
+        fontWeight: "bold"
       }
-    }));
+    }, "Last Prediction Update:"), /*#__PURE__*/_react.default.createElement("span", null, " ", this.state.updatedTimestamp != "unknown" && this.state.updatedTimestamp != undefined ? this.state.updatedTimestamp : 'Unknown'))));
   }
 
 }

@@ -45,7 +45,7 @@ export class Processor extends Component<ProcessorProps,ProcessorState> {
     render() {
 
         return (
-            <div>
+            <div className="processorOuterContainer">
                 {!this.props.isFirstProcessor ? <QueueMetrics queueSize={this.props.queueSize} queueItems={this.props.queueItems}/> : null}
                 <div style={processorContainer}>
                     {!this.props.isFirstProcessor ? <TimeBox isEnter={true} timestamp={this.props.timestamps.queue_enter}/> : null}
@@ -65,6 +65,6 @@ export class Processor extends Component<ProcessorProps,ProcessorState> {
 export default Processor
 
 const processorContainer = {
-    width: "330px",
+    width: "250px",
     position: "relative" as "relative"
 }

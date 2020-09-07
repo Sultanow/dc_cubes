@@ -85,34 +85,36 @@ const processorBoxContainer = {
 }
 
 const triangle = {
-    width: "0",
-    height: "0",
-    borderLeft: "33px solid transparent",
-    borderRight: "33px solid transparent",
-    borderBottom: "34px solid #F1D86F", 
+    width: "0px",
+    height: "0px",
+    borderLeft: "30px solid transparent",
+    borderRight: "30px solid transparent",
+    borderBottom: "30px solid #F1D86F", 
     position: "absolute" as "absolute",
-    zIndex: "10" as "10",
-    top: "45%",
-    left: "-5%"
+    zIndex: 10 as 10,
+    top: "101px",
+    left: "-6%"
     // marginTop: "auto", 
     // marginBottom: "auto",
 }
 
 const metricsLine = {
-    border: "4px dashed #D3DAE6",
+    border: "3px dashed #D3DAE6",
     borderRight: "none",
     borderBottom: "none",
-    height: "215px",
-    width: "33px",
+    borderTop: "none",
+    height: "126px",
+    width: "31px",
     position: "absolute" as "absolute",
-    left: "-33px",
-    top: "-69px"
+    left: "-31px",
+    top: "-30px", 
+    borderTopLeftRadius: "0px"
 }
 
 const processorBox = {
     base:{
         backgroundColor : "#006BB4", //55C1CE
-        padding: "40px 0px",
+        padding: "25px 0px",
         borderRadius: "0px",
         // border: "2px solid rgb(66, 150, 190)",
         color: "white", 
@@ -120,7 +122,8 @@ const processorBox = {
         //fontWeight: "bold" as "bold",
         //boxShadow: "0px 0px 20px 1px rgba(0,0,0,0.2)", 
         position: "relative" as "relative",
-        textAlign: "center" as "center"
+        textAlign: "center" as "center", 
+        fontSize: ".8rem"
     }
 }
 
@@ -128,11 +131,11 @@ const lineDashed = {
     border: "3px dashed grey",
     borderRight: "none",
     borderBottom: "none",
-    width: "18px",
-    height: "99px",
+    width: "16px",
+    height: "62px",
     position: "absolute" as "absolute",
-    top: "47px",
-    left: "-17px"
+    top: "35px",
+    left: "-16px"
 }
 
 
@@ -140,11 +143,11 @@ const lineDashedBottom = {
     border: "3px dashed grey",
     borderRight: "none",
     borderTop: "none",
-    width: "18px",
-    height: "99px",
+    width: "16px",
+    height: "62px",
     position: "absolute" as "absolute",
-    top: "191px",
-    left: "-17px"
+    top: "136px",
+    left: "-16px"
 }
 
 const processorBoxProgressPipeContainer = {
@@ -154,6 +157,6 @@ const processorBoxProgressPipeContainer = {
 
 const processorBoxProgressPipeContainerIsFirst = {
     display: "grid",
-    gridTemplateColumns: "80% 20%",
-    marginTop: "261px"
+    gridTemplateColumns: "75% 25%",
+    marginTop: "195px"
 }

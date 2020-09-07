@@ -3,6 +3,7 @@ import Header from "../src/Header";
 import Pipeline from "../src/Pipeline";
 import FilterForm from "../src/FilterForm";
 import { FormattedMessage, I18nProvider } from '@kbn/i18n/react';
+import { EuiToast } from '@elastic/eui';
 
 type VisState = {
     updatedTimestamp: string, 
@@ -51,11 +52,17 @@ export class Vis extends React.Component<VisProps, VisState> {
                     queueSizePic={this.props.queueSizePic}
                     queueItemsCenshare={this.props.queueItemsCenshare}
                     queueItemsPic={this.props.queueItemsPic} />
-                <FormattedMessage
+                <EuiToast 
+                    // title=""
+                    // color="success"
+                    iconType="">
+                    <p><span style={{fontWeight:"bold"}}>Last Prediction Update:</span><span> {this.state.updatedTimestamp != "unknown" && this.state.updatedTimestamp != undefined ? this.state.updatedTimestamp : 'Unknown' }</span></p>
+                </EuiToast>
+                {/* <FormattedMessage
                     id="productQueues.timestampText"
                     defaultMessage="Last time updated predictions: {time}"
                     values={{ time: this.state.updatedTimestamp != "unknown" ? this.state.updatedTimestamp : 'Unknown' }}
-                />
+                /> */}
             </div>
         )
     }
@@ -64,7 +71,7 @@ export class Vis extends React.Component<VisProps, VisState> {
 export default Vis
 
 const vis = {
-
+    
 }
 
 

@@ -77,11 +77,14 @@ function checkDates(timestamp){
     }
 }
 
+// .toLocaleDateString('de-DE', {timeZoneName:'short'}).toString()
+
 const TimestampDisplay = ({timestamp}) => {
+    var offset = new Date().getTimezoneOffset();
     if (timestamp != null && typeof timestamp.hits.hits[0] === "object") { 
-    return <div style={{padding:"5px"}}>{ new Date(timestamp.hits.hits[0]._source.timestamp).toString()}</div>; 
+    return <div style={{padding:"5px"}}>{ new Date(timestamp.hits.hits[0]._source.timestamp).toDateString() + " " + new Date(timestamp.hits.hits[0]._source.timestamp).toLocaleTimeString('de-DE', {timeZoneName:'short'}).toString()}</div>; 
     }
-    return <div style={{textAlign: "center", paddingTop:"15px"}}>- - - - - - -</div>;
+    return <div style={{textAlign: "center", paddingTop:"8px"}}>- - - - - - -</div>;
 };
 
 function hoursLeft(enter:string, left:string): number{
@@ -97,9 +100,10 @@ function hoursLeft(enter:string, left:string): number{
 }
 
 const timeboxContainer = {
-    width: "80%",
-    marginBottom: "30px",
-    marginTop: "30px"
+    width: "75%",
+    marginBottom: "15px",
+    marginTop: "15px", 
+    fontSize: ".7rem"
 }
 
 const timeboxInnerBottom = {
@@ -108,7 +112,7 @@ const timeboxInnerBottom = {
 
 const timeboxTitle = {
     historic:{
-        fontSize: ".8rem", 
+        // fontSize: ".8rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
         color: "#2e2e2e",
@@ -116,7 +120,7 @@ const timeboxTitle = {
         opacity: ".7"
     },
     forecast:{
-        fontSize: ".8rem", 
+        // fontSize: ".8rem", 
         fontWeight: "bold" as "bold",
         textAlign: "left" as "left",
         color: "#2e2e2e", 
@@ -143,21 +147,21 @@ const iconClock = {
     historic:{
         backgroundColor: "white",    
         color: "black",
-        border: "3px solid #dbdbdb",
+        border: "2px solid #dbdbdb",
         borderRadius: "10px",
         // fontSize: ".8rem",
-        padding: "15px 15px",
+        padding: "10px",
         cursor: "pointer",
-        height: "90px"
+        height: "70px"
     },
     forecast: {
         backgroundColor: "#e9dcf7",    
         color: "black",
-        border: "3px solid #e9dcf7",
+        border: "2px solid #e9dcf7",
         borderRadius: "10px",
         // fontSize: ".8rem",
-        padding: "15px 15px",
+        padding: "10px",
         cursor: "pointer",
-        height: "90px"
+        height: "70px"
     }
 }

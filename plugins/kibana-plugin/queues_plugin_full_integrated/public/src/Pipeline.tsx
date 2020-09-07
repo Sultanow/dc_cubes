@@ -70,7 +70,7 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 queueSize={this.props.queueSizeCenshare}
                 timeLeft={""}
                 queueItems={[]}
-                progessStatus={70}/>
+                progessStatus={0}/>
                 <Processor isLastProcessor={true}
                 isFirstProcessor={false}
                 processorName={"D2C"}

@@ -123,12 +123,12 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
 export default ProgressPipe
 
 const progressPipeContainer = {
-    height: "45px",
+    height: "38px",
     backgroundColor: "white",
     marginTop: "auto",
     marginBottom: "auto",
-    borderTop: "6px solid #ddd",
-    borderBottom: "6px solid #ddd",
+    borderTop: "5px solid #ddd",
+    borderBottom: "5px solid #ddd",
     //boxShadow: "-1px 0px 22px -2px rgba(0,0,0,0.2)",
     position: "relative" as "relative",
     cursor: "pointer"
@@ -198,11 +198,11 @@ const progressStatusInfoBox = {
     borderRadius: "50px",
     position: "absolute" as "absolute",
     left: "50%",
-    top: "25%",
+    top: "16%",
     transform: "translate(-50%, 0)",
     width: "58px",
-    padding: "2px 0 2px 0",
+    padding: "4px 0 4px 0",
     textAlign: "center" as "center",
     // fontWeight: "bold" as "bold", 
-    fontSize: ".8rem",
+    fontSize: ".7rem",
 }
