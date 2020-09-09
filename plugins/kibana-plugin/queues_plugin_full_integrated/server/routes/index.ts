@@ -28,7 +28,6 @@ export function defineRoutes(router: IRouter) {
               "must": [
                 { "match": { "items": request.body.item }},
                 { "match": { "tier": "censhare" }},
-                { "match": { "name": "products" }},
                 { "match": { "name": request.body.name }}
               ]
             }

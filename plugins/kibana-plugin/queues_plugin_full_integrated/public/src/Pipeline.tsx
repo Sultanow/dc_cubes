@@ -60,7 +60,7 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 queueSize={this.props.queueSizePic}
                 timeLeft={getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left)}
                 queueItems={this.props.queueItemsPic}
-                progessStatus={100}/>
+                progessStatus={50}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
                 processorName={"PIM Browse/ B2B"}

@@ -1,5 +1,0 @@
-processor_name,timestamp_start,timestamp_end,isForecast_start,isForecast_end
-ERP,Fri Jan 03 2020 12:12:47 GMT+0000 (UTC),Sat Jan 04 2020 19:31:52 GMT+0000 (UTC),false,false
-PIM Edit,Sat Jan 04 2020 19:31:52 GMT+0000 (UTC),Sat Jan 04 2020 23:10:04 GMT+0000 (UTC),false,true
-PIM Browse B2B,Sat Jan 04 2020 23:10:04 GMT+0000 (UTC),Mon Jan 05 2020 15:41:46 GMT+0000 (UTC),true,true
-D2C,Mon Jan 05 2020 15:41:46 GMT+0000 (UTC),Wed Jan 07 2020 04:29:06 GMT+0000 (UTC),true,true

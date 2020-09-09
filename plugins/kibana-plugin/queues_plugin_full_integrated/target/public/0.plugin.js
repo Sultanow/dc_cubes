@@ -464,7 +464,7 @@ class Pipeline extends _react.Component {
       queueSize: this.props.queueSizePic,
       timeLeft: getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left),
       queueItems: this.props.queueItemsPic,
-      progessStatus: 100
+      progessStatus: 50
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
       isFirstProcessor: false,
