@@ -60,19 +60,18 @@ export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState
 
     render() {
         return (
-            <div style={processorBoxContainer}>
-                                {!this.props.isFirstProcessor ? <div className="triangle-rotate" style={triangle}></div> : null}
-
+            <div className="processor-box-container" style={processorBoxContainer}>
+                {!this.props.isFirstProcessor ? <div className="triangle-rotate" style={triangle}></div> : null}
                 {!this.props.isFirstProcessor ? <div style={metricsLine}></div> : null}
-                    <div style={!this.props.isFirstProcessor ? processorBoxProgressPipeContainer : processorBoxProgressPipeContainerIsFirst}>
-                    {!this.props.isFirstProcessor ? <div style={lineDashed}></div> : null}
+                    <div className="processor-box-progress-pipe-container" style={!this.props.isFirstProcessor ? processorBoxProgressPipeContainer : processorBoxProgressPipeContainerIsFirst}>
+                    {!this.props.isFirstProcessor ? <div className="line-dashed" style={lineDashed}></div> : null}
                         <div className="processor-box" style={processorBox.base}>
                             {/* <div className={this.state.isProcessing ? "border-loading-spin" : "hidden"}></div> */}
                             {this.props.processorName}
                         </div>
-                        {this.props.isLastProcessor ? null : <ProgressPipe progessStatus={this.props.progessStatus} queName={this.props.queueName} queType={this.props.queueType} timeLeft={this.props.timeLeft}/>}
+                        {this.props.isLastProcessor ? null : <ProgressPipe progessStatus={this.props.progessStatus} queueName={this.props.queueName} queueType={this.props.queueType} timeLeft={this.props.timeLeft}/>}
                     </div>
-                    {!this.props.isFirstProcessor ? <div style={lineDashedBottom}></div> : null}
+                    {!this.props.isFirstProcessor ? <div className="line-dashed-bottom" style={lineDashedBottom}></div> : null}
             </div>
         )
     }
@@ -158,5 +157,5 @@ const processorBoxProgressPipeContainer = {
 const processorBoxProgressPipeContainerIsFirst = {
     display: "grid",
     gridTemplateColumns: "75% 25%",
-    marginTop: "195px"
+    marginTop: "209px"
 }

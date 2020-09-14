@@ -11,12 +11,12 @@ interface ProcessorProps {
     isLastProcessor: Boolean,
     isFirstProcessor: Boolean, 
     processorName: String,
-    queueType: String, 
-    queueName: String,
-    timestamps: any,
-    queueSize: any,
+    queueType?: String, 
+    queueName?: String,
+    timestamps?: any,
+    queueSize?: any,
     timeLeft: any,
-    queueItems: any,
+    queueItems?: any,
     progessStatus: number
 }
 
@@ -45,9 +45,9 @@ export class Processor extends Component<ProcessorProps,ProcessorState> {
     render() {
 
         return (
-            <div className="processorOuterContainer">
-                {!this.props.isFirstProcessor ? <QueueMetrics queueSize={this.props.queueSize} queueItems={this.props.queueItems}/> : null}
-                <div style={processorContainer}>
+            <div className="processor-outer-container">
+                {!this.props.isFirstProcessor ? <QueueMetrics tierName={this.props.queueName} queueSize={this.props.queueSize} queueItems={this.props.queueItems}/> : null}
+                <div className="processor-container" style={processorContainer}>
                     {!this.props.isFirstProcessor ? <TimeBox isEnter={true} timestamp={this.props.timestamps.queue_enter}/> : null}
                     <ProcessorBox progessStatus={this.props.progessStatus} isLastProcessor={this.props.isLastProcessor}
                     processorName={this.props.processorName}

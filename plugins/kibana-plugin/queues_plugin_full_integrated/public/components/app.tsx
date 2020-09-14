@@ -75,7 +75,7 @@ export const QueuesPluginApp = ({
 
   const [updatedTimestamp, setUpdatedTimestamp] = useState<string | undefined>();
 
-  const onClickHandler = () => {
+  const predictionHandler = () => {
     http.get('http://localhost:5000/updatePrediction').then((res) => {
     });
     console.log('update button clicked')
@@ -129,7 +129,7 @@ export const QueuesPluginApp = ({
     });
   }
 
-  //TODO
+  
   function updateCenshareQueueSize() {
     const body = { name: "products" };
     http.post("/api/censhare/size", { body: JSON.stringify(body) }).then(res => {
@@ -157,7 +157,6 @@ export const QueuesPluginApp = ({
   }
 
   // TODO
- 
     const updateCenSize = setInterval(updateCenshareQueueSize, 5000)
     const updatePicSize = setInterval(updatePicQueueSize, 5000)
 
@@ -175,7 +174,7 @@ export const QueuesPluginApp = ({
     // only for testing
     if(isAutoRefresh == true){
       clearInterval(updatePicSize)
-      clearInterval(updateCenSize)
+      //clearInterval(updateCenSize)
       setIsAutoRefresh(false)
     }else{
       updateCenshareQueueItems();
@@ -228,7 +227,7 @@ export const QueuesPluginApp = ({
                 </EuiTitle>
               </EuiPageHeader>
               <EuiPageContent>
-                <div style={filterFormContainer}>
+                <div className="filter-form-conatiner" style={filterFormContainer}>
                   <EuiFormRow label="">
                     <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={handleChange} />
                   </EuiFormRow>
@@ -242,7 +241,7 @@ export const QueuesPluginApp = ({
                     ]}
                   />
                   <EuiButton type="primary" size="m" onClick={onClickHandler3}>Search</EuiButton>
-                  <EuiButton type="primary" color="secondary" onClick={onClickHandler} fill size="m" style={{ marginLeft: "20px" }}>Update Predictions</EuiButton>
+                  <EuiButton type="primary" color="secondary" onClick={predictionHandler} fill size="m" style={{ marginLeft: "20px" }}>Update Predictions</EuiButton>
                 </div>
                 <Vis picTimestamps={picTimestamps ? picTimestamps : []}
                   censhareTimestamps={censhareTimestamps ? censhareTimestamps : []}

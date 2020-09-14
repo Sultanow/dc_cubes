@@ -13,8 +13,8 @@ type ProgressPipeState = {
 }
 
 interface ProgressPipeProps {
-    queType: String,
-    queName: String,
+    queueType: String,
+    queueName: String,
     timeLeft: any,
     progessStatus: number
 }
@@ -110,8 +110,8 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
     render() {
         return (
             <div className="progress-pipe-container" style={progressPipeContainer}>
-                <div style={this.setUpProgressBarStatus()}></div>
-                <div style={progressStatusInfoBox} onClick={this.onClickTest}>
+                <div className="progress-bar-status" style={this.setUpProgressBarStatus()}></div>
+                <div className="progress-status-info-box" style={progressStatusInfoBox} onClick={this.onClickTest}>
                     {this.state.timeLeft ? <span>T-{this.state.timeLeft}h</span>: <span>- - -</span>}
                 </div>
 

@@ -1,22 +1,23 @@
 import React, { Component } from 'react'
 
+
 import {
     EuiIcon
   } from '@elastic/eui';
-import { EuiTableHeader } from '@elastic/eui';
-import { EuiTable } from '@elastic/eui';
-import { EuiTableBody } from '@elastic/eui';
+
 
 interface QueueMetricsState {
     queueSize: any,
     queueItems: any,
     queueUtilization: any,
-    queueThroughput: any
+    queueThroughput: any,
+    isMouseInside: Boolean
 }
 
 interface QueueMetricsProps {
     queueSize: any,
-    queueItems: any
+    queueItems: any, 
+    tierName: String
 }
 
 export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState> {
@@ -25,7 +26,8 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
         queueSize: 0,
         queueItems: [],
         queueUtilization: 0,
-        queueThroughput: 0
+        queueThroughput: 0,
+        isMouseInside: false
     }
 
     constructor(props:any){
@@ -36,6 +38,14 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
 
     }
 
+    mouseEnter = () => {
+        this.setState({ isMouseInside: true });
+    }
+
+    mouseLeave = () => {
+    this.setState({ isMouseInside: false });
+    }
+
     static getDerivedStateFromProps(nextProps, prevState) {
         return {
             queueSize: nextProps.queueSize,
@@ -44,20 +54,26 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
     }
 
     componentDidMount() {
-
+        
     }
 
     componentDidUpdate() {
 
     }
 
+    
+
     render() {
 
         return (
             <div>
-                <div style={metricsContainer}>
+                <div style={{textAlign: "left", position: "relative", left: "-125px", fontSize: ".8rem"}}>
+                    <span style={{fontWeight:"bold"}}>Tier: </span><span>{this.props.tierName}</span>
+                </div>
+                <div >
+                    <div className="metrics-container" style={metricsContainer}>
                     <EuiIcon style={{marginTop: "auto", marginBottom: "auto"}} size="l" type="visGauge" />
-                            <table style={table}>
+                            <table className="metrics-table" style={table}>
                                 <thead style={thead}>
                                     <tr style={tr}>
                                         <th style={th}>Queue Size:</th>
@@ -73,6 +89,7 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
                                     </tr>
                                 </tbody>
                             </table>
+                        </div>
                 </div>
             </div>
         )

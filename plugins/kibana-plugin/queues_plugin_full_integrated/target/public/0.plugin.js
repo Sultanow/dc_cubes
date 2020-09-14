@@ -117,7 +117,7 @@ const QueuesPluginApp = ({
   const [isAutoRefresh, setIsAutoRefresh] = (0, _react.useState)();
   const [updatedTimestamp, setUpdatedTimestamp] = (0, _react.useState)();
 
-  const onClickHandler = () => {
+  const predictionHandler = () => {
     http.get('http://localhost:5000/updatePrediction').then(res => {});
     console.log('update button clicked');
     let now = new Date();
@@ -179,8 +179,7 @@ const QueuesPluginApp = ({
         setQueueItemsPic(res.data.aggregations); //clearInterval(updatePicItems)
       }
     });
-  } //TODO
-
+  }
 
   function updateCenshareQueueSize() {
     const body = {
@@ -226,8 +225,8 @@ const QueuesPluginApp = ({
   const filterChange = event => {
     // only for testing
     if (isAutoRefresh == true) {
-      clearInterval(updatePicSize);
-      clearInterval(updateCenSize);
+      clearInterval(updatePicSize); //clearInterval(updateCenSize)
+
       setIsAutoRefresh(false);
     } else {
       updateCenshareQueueItems();
@@ -273,6 +272,7 @@ const QueuesPluginApp = ({
       name: _common.PLUGIN_NAME
     }
   })))), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("div", {
+    className: "filter-form-conatiner",
     style: filterFormContainer
   }, /*#__PURE__*/_react.default.createElement(_eui.EuiFormRow, {
     label: ""
@@ -305,7 +305,7 @@ const QueuesPluginApp = ({
   }, "Search"), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
     type: "primary",
     color: "secondary",
-    onClick: onClickHandler,
+    onClick: predictionHandler,
     fill: true,
     size: "m",
     style: {
@@ -422,12 +422,32 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 class Pipeline extends _react.Component {
   constructor(props) {
     super(props);
+
+    _defineProperty(this, "updateCenshareQueueSize", () => {
+      let http;
+      const body = {
+        name: "products"
+      };
+      http.post("/api/censhare/size", {
+        body: JSON.stringify(body)
+      }).then(res => {
+        if (res) {
+          console.log("CEN SIZE DATA pipeline: ", res.data.hits.hits[0]._source.size); //this.setState({queueSizeCenshare: res.data.hits.hits[0]._source.size})
+          //setQueueSizeCenshare(res.data.hits.hits[0]._source.size)
+          //clearInterval(updateCenSize)
+        }
+      });
+    });
+
     this.state = {
       censhareTimestamps: [],
-      picTimestamps: []
+      picTimestamps: [],
+      queueSizeCenshare: 0
     };
   }
 
@@ -440,39 +460,38 @@ class Pipeline extends _react.Component {
 
   componentDidUpdate() {}
 
+  componentDidMount() {//this.updateCenshareQueueSize();
+  }
+
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
+      className: "pipeline-container",
       style: pipelineContainer
     }, /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
       isFirstProcessor: true,
       processorName: "ERP",
-      queueName: "censhare",
-      queueType: "Product Queues",
-      timestamps: [],
-      queueSize: this.props.queueSizeCenshare,
       timeLeft: getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left),
-      queueItems: this.props.queueItemsCenshare,
       progessStatus: 100
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
       isFirstProcessor: false,
       processorName: "PIM Edit",
-      queueName: "pic",
-      queueType: "Product Queues",
+      queueName: "censhare",
+      queueType: null,
       timestamps: this.props.censhareTimestamps,
-      queueSize: this.props.queueSizePic,
+      queueSize: this.props.queueSizeCenshare,
       timeLeft: getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left),
       queueItems: this.props.queueItemsPic,
-      progessStatus: 50
+      progessStatus: 100
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: false,
       isFirstProcessor: false,
       processorName: "PIM Browse/ B2B",
-      queueName: "D-E",
-      queueType: "Product Queues",
+      queueName: "pic",
+      queueType: null,
       timestamps: this.props.picTimestamps,
-      queueSize: this.props.queueSizeCenshare,
+      queueSize: this.props.queueSizePic,
       timeLeft: "",
       queueItems: [],
       progessStatus: 0
@@ -480,8 +499,8 @@ class Pipeline extends _react.Component {
       isLastProcessor: true,
       isFirstProcessor: false,
       processorName: "D2C",
-      queueName: "E-F",
-      queueType: "Product Queues",
+      queueName: "undefined",
+      queueType: null,
       timestamps: [],
       queueSize: 0,
       timeLeft: "",
@@ -578,11 +597,13 @@ class Processor extends _react.Component {
 
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
-      className: "processorOuterContainer"
+      className: "processor-outer-container"
     }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement(_QueueMetrics.default, {
+      tierName: this.props.queueName,
       queueSize: this.props.queueSize,
       queueItems: this.props.queueItems
     }) : null, /*#__PURE__*/_react.default.createElement("div", {
+      className: "processor-container",
       style: processorContainer
     }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement(_TimeBox.default, {
       isEnter: true,
@@ -681,6 +702,7 @@ class ProcessorBox extends _react.Component {
 
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
+      className: "processor-box-container",
       style: processorBoxContainer
     }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
       className: "triangle-rotate",
@@ -688,18 +710,21 @@ class ProcessorBox extends _react.Component {
     }) : null, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
       style: metricsLine
     }) : null, /*#__PURE__*/_react.default.createElement("div", {
+      className: "processor-box-progress-pipe-container",
       style: !this.props.isFirstProcessor ? processorBoxProgressPipeContainer : processorBoxProgressPipeContainerIsFirst
     }, !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
+      className: "line-dashed",
       style: lineDashed
     }) : null, /*#__PURE__*/_react.default.createElement("div", {
       className: "processor-box",
       style: processorBox.base
     }, this.props.processorName), this.props.isLastProcessor ? null : /*#__PURE__*/_react.default.createElement(_ProgressPipe.default, {
       progessStatus: this.props.progessStatus,
-      queName: this.props.queueName,
-      queType: this.props.queueType,
+      queueName: this.props.queueName,
+      queueType: this.props.queueType,
       timeLeft: this.props.timeLeft
     })), !this.props.isFirstProcessor ? /*#__PURE__*/_react.default.createElement("div", {
+      className: "line-dashed-bottom",
       style: lineDashedBottom
     }) : null);
   }
@@ -778,7 +803,7 @@ const processorBoxProgressPipeContainer = {
 const processorBoxProgressPipeContainerIsFirst = {
   display: "grid",
   gridTemplateColumns: "75% 25%",
-  marginTop: "195px"
+  marginTop: "209px"
 };
 
 /***/ }),
@@ -901,8 +926,10 @@ class ProgressPipe extends _react.Component {
       className: "progress-pipe-container",
       style: progressPipeContainer
     }, /*#__PURE__*/_react.default.createElement("div", {
+      className: "progress-bar-status",
       style: this.setUpProgressBarStatus()
     }), /*#__PURE__*/_react.default.createElement("div", {
+      className: "progress-status-info-box",
       style: progressStatusInfoBox,
       onClick: this.onClickTest
     }, this.state.timeLeft ? /*#__PURE__*/_react.default.createElement("span", null, "T-", this.state.timeLeft, "h") : /*#__PURE__*/_react.default.createElement("span", null, "- - -")));
@@ -1031,7 +1058,20 @@ class QueueMetrics extends _react.Component {
       queueSize: 0,
       queueItems: [],
       queueUtilization: 0,
-      queueThroughput: 0
+      queueThroughput: 0,
+      isMouseInside: false
+    });
+
+    _defineProperty(this, "mouseEnter", () => {
+      this.setState({
+        isMouseInside: true
+      });
+    });
+
+    _defineProperty(this, "mouseLeave", () => {
+      this.setState({
+        isMouseInside: false
+      });
     });
 
     this.state = this.state;
@@ -1050,6 +1090,18 @@ class QueueMetrics extends _react.Component {
 
   render() {
     return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
+      style: {
+        textAlign: "left",
+        position: "relative",
+        left: "-125px",
+        fontSize: ".8rem"
+      }
+    }, /*#__PURE__*/_react.default.createElement("span", {
+      style: {
+        fontWeight: "bold"
+      }
+    }, "Tier: "), /*#__PURE__*/_react.default.createElement("span", null, this.props.tierName)), /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
+      className: "metrics-container",
       style: metricsContainer
     }, /*#__PURE__*/_react.default.createElement(_eui.EuiIcon, {
       style: {
@@ -1059,6 +1111,7 @@ class QueueMetrics extends _react.Component {
       size: "l",
       type: "visGauge"
     }), /*#__PURE__*/_react.default.createElement("table", {
+      className: "metrics-table",
       style: table
     }, /*#__PURE__*/_react.default.createElement("thead", {
       style: thead
@@ -1078,7 +1131,7 @@ class QueueMetrics extends _react.Component {
       style: td
     }, this.state.queueThroughput, "/h"), /*#__PURE__*/_react.default.createElement("td", {
       style: td
-    }, this.state.queueUtilization, "%"))))));
+    }, this.state.queueUtilization, "%")))))));
   }
 
 }
@@ -1176,15 +1229,18 @@ class TimeBox extends _react.default.Component {
 
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
+      className: "timebox-container",
       style: timeboxContainer
     }, /*#__PURE__*/_react.default.createElement("div", {
       className: "time-box",
       style: this.state.isHistoric ? timebox.historic : timebox.forecast
     }, /*#__PURE__*/_react.default.createElement("div", {
+      className: "timebox-title",
       style: this.state.isHistoric ? timeboxTitle.historic : timeboxTitle.forecast
     }, /*#__PURE__*/_react.default.createElement(_eui.EuiIcon, {
       type: "clock"
     }), "  ", this.state.isHistoric ? "Historic" : "Forecast", " ", this.props.isEnter ? "Entered" : "Left", ":"), /*#__PURE__*/_react.default.createElement("div", {
+      className: "timebox-inner-bottom",
       style: timeboxInnerBottom
     }, /*#__PURE__*/_react.default.createElement(TimestampDisplay, {
       timestamp: this.state.timestamp
@@ -1346,6 +1402,7 @@ class Vis extends _react.default.Component {
 
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
+      className: "visualization-container",
       style: vis
     }, /*#__PURE__*/_react.default.createElement(_Pipeline.default, {
       picTimestamps: this.props.picTimestamps,

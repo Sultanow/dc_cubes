@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import Processor from "./Processor"
-import { time } from 'console';
+import { CoreStart, HttpStart, HttpSetup } from '../../../../src/core/public';
 
 interface PipelineProps {
     censhareTimestamps: object,
@@ -14,17 +14,20 @@ interface PipelineProps {
 interface PipeLineState{
     censhareTimestamps: any,
     picTimestamps: any,
+    queueSizeCenshare: number
 }
 
 export class Pipeline extends Component<PipelineProps, PipeLineState> {
-    
+
     constructor(props){
         super(props);
 
         this.state = {
             censhareTimestamps: [],
-            picTimestamps: []
+            picTimestamps: [],
+            queueSizeCenshare: 0
         }
+
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
@@ -35,47 +38,62 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
     }
 
     componentDidUpdate(){
-
+        
     }
+
+    componentDidMount(){
+        //this.updateCenshareQueueSize();
+    }
+
+    updateCenshareQueueSize = () => {
+        let http: CoreStart['http'];
+        const body = { name: "products" };
+        http.post("/api/censhare/size", { body: JSON.stringify(body) }).then(res => {
+          if (res) {
+            console.log("CEN SIZE DATA pipeline: ", res.data.hits.hits[0]._source.size);
+            //this.setState({queueSizeCenshare: res.data.hits.hits[0]._source.size})
+            
+            //setQueueSizeCenshare(res.data.hits.hits[0]._source.size)
+            
+            //clearInterval(updateCenSize)
+          }
+        });
+      }
     
     render() {
         return (
-            <div style={pipelineContainer}>
+            <div className="pipeline-container" style={pipelineContainer}>
+                {/* Metrics data of a Processor component in subsequent Processor component. TODO: Refactor Sequence.*/}
                 <Processor isLastProcessor={false}
                 isFirstProcessor={true}
                 processorName={"ERP"}
-                queueName={"censhare"}
-                queueType={"Product Queues"}
-                timestamps={[]}
-                queueSize={this.props.queueSizeCenshare}
                 timeLeft={getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left)}
-                queueItems={this.props.queueItemsCenshare}
                 progessStatus={100}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
                 processorName={"PIM Edit"}
-                queueName={"pic"}
-                queueType={"Product Queues"}
+                queueName={"censhare"}
+                queueType={null}
                 timestamps={this.props.censhareTimestamps}
-                queueSize={this.props.queueSizePic}
+                queueSize={this.props.queueSizeCenshare}
                 timeLeft={getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left)}
                 queueItems={this.props.queueItemsPic}
-                progessStatus={50}/>
+                progessStatus={100}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
                 processorName={"PIM Browse/ B2B"}
-                queueName={"D-E"}
-                queueType={"Product Queues"}
+                queueName={"pic"}
+                queueType={null}
                 timestamps={this.props.picTimestamps}
-                queueSize={this.props.queueSizeCenshare}
+                queueSize={this.props.queueSizePic}
                 timeLeft={""}
                 queueItems={[]}
                 progessStatus={0}/>
                 <Processor isLastProcessor={true}
                 isFirstProcessor={false}
                 processorName={"D2C"}
-                queueName={"E-F"}
-                queueType={"Product Queues"}
+                queueName={"undefined"}
+                queueType={null}
                 timestamps={[]}
                 queueSize={0}
                 timeLeft={""}

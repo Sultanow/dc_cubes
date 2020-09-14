@@ -42,7 +42,7 @@ export class Vis extends React.Component<VisProps, VisState> {
 
     render() {
         return (
-            <div style={vis}>
+            <div className="visualization-container" style={vis}>
                 {/* <DisplayWindowDimensions /> */}
                 {/* <Header/> */}
                 {/* <FilterForm/> */}

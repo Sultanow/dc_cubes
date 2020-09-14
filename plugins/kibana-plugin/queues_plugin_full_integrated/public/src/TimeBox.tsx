@@ -51,12 +51,12 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
 
     render() {
         return (
-            <div style={timeboxContainer}>
+            <div className="timebox-container" style={timeboxContainer}>
                 <div className="time-box" style={this.state.isHistoric ? timebox.historic: timebox.forecast}>
-                    <div style={this.state.isHistoric ? timeboxTitle.historic : timeboxTitle.forecast}>
+                    <div className="timebox-title" style={this.state.isHistoric ? timeboxTitle.historic : timeboxTitle.forecast}>
                         <EuiIcon type="clock" />  {this.state.isHistoric ? "Historic" : "Forecast"} {this.props.isEnter ? "Entered" : "Left"}:
                     </div>
-                    <div style={timeboxInnerBottom}>
+                    <div className="timebox-inner-bottom" style={timeboxInnerBottom}>
                         <TimestampDisplay timestamp = {this.state.timestamp}/>
                     </div>
                 </div>
