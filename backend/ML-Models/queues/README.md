@@ -8,6 +8,9 @@
 * **Live_Predict_Two_Queues_Items_Script.ipynb** python script that runs the prediction process for two queues based on the current date
 * **scaler_x_2q, scaler_y_2q** pickled StandardScaler from trainingsprocess
 * **model_2q_10epochs.h5** keras H5 format, contains the model´s architecture, weight values and compile() information
+* **Prediction_Functions.py** python file containing the functions used for predicting
+* **Live_Predict_Two_Queues_Items_Script_CLI.py** python script to execute Prediction_Functions via CLI.
+* **model_2q_40epochs.h5** newest trained model for Prediction_Functions
 
 
 ### Requirements.txt
