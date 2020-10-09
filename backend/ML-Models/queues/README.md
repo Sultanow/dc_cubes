@@ -19,8 +19,25 @@ To install all needed librarys and tools use (or requirements_predict.txt):
 ```
 pip install -r requirements.txt
 ```
+Minimum python version >= 3.5 as required by grpcio library.
 
+Example installation for RedHat/CentOS >= 7.7 flavor systems:
+```
+# install from standard repository
+sudo yum install python36 python36-pip
 
+# create virtualenv to isolate library dependencies
+python3 -m venv ~/venv_queues
+
+# jump into virtualenv
+source venv_queues/bin/activate
+
+# some dependencies require pip >= v19
+# HTTP proxy requirement may be removed depending on environment
+pip3 install --proxy your.proxy.here:8080 --upgrade pip
+# in virtualenv
+pip3 install --proxy your.proxy.here:8080 -r requirements.txt
+```
 
 ## Data Exploration
 
