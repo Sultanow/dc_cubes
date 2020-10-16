@@ -3,14 +3,12 @@
 
 ### File Overview
 * **archive** folder that contains multiple concepts and previous build models for item and size prediction
-* **Predict_Two_Queues_Items.ipynb** jupyter notebook showing the item prediction process for two queues
-* **Predict_Two_Queues_Items_Script.py** python script that runs the prediction process for two queues
-* **Live_Predict_Two_Queues_Items_Script.ipynb** python script that runs the prediction process for two queues based on the current date
+* **Train_Two_Queues_Items.ipynb** jupyter notebook showing the item training process for two queues
+* **Test_Two_Queues_Items.ipynb** jupyter notebook showing the item testing process for the prediction script
+* **Predict_Two_Queues_Items_Script_CLI.py** python script that runs the prediction process for two queues with CLI
+* **Prediction_Functions.py** containing the functions which are imported in the script
 * **scaler_x_2q, scaler_y_2q** pickled StandardScaler from trainingsprocess
-* **model_2q_10epochs.h5** keras H5 format, contains the model´s architecture, weight values and compile() information
-* **Prediction_Functions.py** python file containing the functions used for predicting
-* **Live_Predict_Two_Queues_Items_Script_CLI.py** python script to execute Prediction_Functions via CLI.
-* **model_2q_40epochs.h5** newest trained model for Prediction_Functions
+* **model_2q_best.h5** keras H5 format, contains the model´s architecture, weight values and compile() information
 
 
 ### Requirements.txt
@@ -19,33 +17,21 @@ To install all needed librarys and tools use (or requirements_predict.txt):
 ```
 pip install -r requirements.txt
 ```
-Minimum python version >= 3.5 as required by grpcio library.
 
-Example installation for RedHat/CentOS >= 7.7 flavor systems:
-```
-# install from standard repository
-sudo yum install python36 python36-pip
 
-# create virtualenv to isolate library dependencies
-python3 -m venv ~/venv_queues
-
-# jump into virtualenv
-source venv_queues/bin/activate
-
-# some dependencies require pip >= v19
-# HTTP proxy requirement may be removed depending on environment
-pip3 install --proxy your.proxy.here:8080 --upgrade pip
-# in virtualenv
-pip3 install --proxy your.proxy.here:8080 -r requirements.txt
-```
 
 ## Data Exploration
 
 
 #### Queues
-We have data from two consecutively queues, which are stored in an ElasticStack. The first queue is "censhare" and the following is "pic". Every minute there is an entry containing the queue size and the item names, which are at each timestamp in the queue waiting to be processed.
+We have data from two consecutively queues, which are stored in an ElasticStack. The first queue is called "censhare" and the following is called "pic". Every 30 seconds there is an entry containing the queue size and the item names, which are at each timestamp in the queue waiting to be processed.
 
 ![queue_overview](https://user-images.githubusercontent.com/9306218/90044529-0bf1ef80-dcce-11ea-8f42-bbe772cb02ae.png)
+
+In the future we want to predict even more consecutive queues!
+
+![Queue Overview](https://user-images.githubusercontent.com/9306218/96201335-98ce5900-0f5c-11eb-8297-99cef51bf1fe.png)
+
 
 The logic is the following: Every item that entered censhare will enter pic eventually, but not every item that entered pic must have been in censhare!
 
@@ -62,60 +48,116 @@ Overview of the item size in the pic queue in June:
 ![june_pic](https://user-images.githubusercontent.com/9306218/90045532-76575f80-dccf-11ea-818b-6ece0ee21e4e.jpeg)
 
 
-Items that started in censhare are treated in our model, as if they were already in the pic queue. That means, we use the features size, n_added_items and n_removed_items of the pic queue, but also mark them in an extra feature "cen" as 1, while items that haven´t gone through censhare are marked with 0.
-
 
 ## LSTM Model building process
 
+### Data Preparation
+
+To get an overview of the data preprocessing process the following section contains simplified sample data to illustrate the process.
 
 #### Get the data from ES
 
 The raw data is loaded from ES.
 
+**Raw data from Queue 1**
+
 | name | timestamp | querytime | items | tier | size |
 | --- | --- | --- | --- | --- | --- |
-| products | 2019-12-31T00:02:00.000000+00:00 | 0 | 1000 2000 | pic | 2 |
-| products | 2019-12-31T00:01:30.000000+00:00 | 0 | 2000 3000 | pic | 2 |
-| products | 2019-12-31T00:01:00.000000+00:00	 | 0 | 3000 | pic | 1 |
+| products | 2019-12-31T00:00:00.000000+00:00 | 0 |  | cen | 0 |
+| products | 2019-12-31T00:00:30.000000+00:00 | 0 | AAAA BBBB | cen | 2 |
+| products | 2019-12-31T00:01:00.000000+00:00 | 0 | BBBB CCCC | cen | 2 |
+| products | 2019-12-31T00:01:30.000000+00:00 | 0 | CCCC | cen | 1 |
+| products | 2019-12-31T00:02:00.000000+00:00 | 0 | CCCC | cen | 1 |
 
 
-#### Prepare the data
+#### Prepare each dataframe
 
-To work with the data we have to transform the data and build two main dataframes from which we can build our dataset. The first one is enriched with additional features (e.g. the number of items added each timestep). For the second one we use the MultiLabelBinarizer to get a column for each item, so we can count the steps per item in the queue.
+To work with the data we have to transform the data and build two main dataframes from which we can build our dataset consisting of individual item samples. First we add the features *n_added_items* and *n_removed_items* based on the given items. Afterwards we use the MultiLabelBinarizer on each dataframe to get a column for each item, so we can see when an item entered the queue and left it.
 
+**Raw dataframe Queue 1 with added features**
 
-| timestamp | items | size | diff | diff_items | diff_items_rev | n_removed_items | n_added_items |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| 2019-12-31 00:02:00.000000+00:00 | [1000, 2000] | 2 | 0.0 | [] | [] | 0 | 0 |
-| 2019-12-31 00:01:30.000000+00:00 | [2000, 3000] | 2 | 0.0 | [1000] | [3000] | 1 | 1 |
-| 2019-12-31 00:01:00.000000+00:00 | [3000] | 1 | -1.0 | [2000] | [] | 1 | 0  |
+| timestamp | items | size | n_added_items | n_removed_items |
+| --- | --- | --- | --- | --- |
+| 2019-12-31 00:00:00.000000+00:00 | [] | 0 | 0 | 0 |
+| 2019-12-31 00:00:30.000000+00:00 | [**AAAA**, BBBB] | 2 | 2 | 0 |
+| 2019-12-31 00:01:00.000000+00:00 | [BBBB, CCCC] | 2 | 1 | 1 |
+| 2019-12-31 00:01:30.000000+00:00 | [CCCC] | 1 | 0 | 1 |
+| 2019-12-31 00:02:00.000000+00:00 | [CCCC] | 1 | 0 | 0 |
+| 2019-12-31 00:02:30.000000+00:00 | [] | 0 | 0 | 1 |
 
+**MultiLabelBinarized dataframe Queue 1**
 
-| 1000 | 2000 | 3000 | ... |
+| AAAA | BBBB | CCCC | ... |
 | --- | --- | --- | --- |
+| 0 | 0 | 0 | ... |
 | 1 | 1 | 0 | ... |
 | 0 | 1 | 1 | ... |
-| 0 | 1 | 1 | ... |
+| 0 | 0 | 1 | ... |
+| 0 | 0 | 1 | ... |
+| 0 | 0 | 0 | ... |
+
+
+**Raw dataframe Queue 2 with added features**
+
+| timestamp | items | size | n_added_items | n_removed_items |
+| --- | --- | --- | --- | --- |
+| 2019-12-31 00:00:00.000000+00:00 | [] | 0 | 0 | 0 |
+| 2019-12-31 00:00:30.000000+00:00 | [**1000**, 2000] | 2 | 2 | 0 |
+| 2019-12-31 00:01:00.000000+00:00 | [**1000**, 2000, 3000] | 3 | 1 | 0 |
+| 2019-12-31 00:01:30.000000+00:00 | [**AAAA**, 2000, 3000] | 3 | 1 | 1 |
+| 2019-12-31 00:02:00.000000+00:00 | [**AAAA**, BBBB, 3000] | 3 | 1 | 1 |
+| 2019-12-31 00:02:30.000000+00:00 | [BBBB] | 1 | 0 | 2 |
+
+**MultiLabelBinarized dataframe Queue 2**
+
+| *1000* | 2000 | 3000 | *AAAA* | BBBB | CCCC | ... |
+| --- | --- | --- | --- | --- | --- | --- |
+| **0** | 0 | 0 | **0** | 0 | 0 | ... |
+| **1** | 1 | 0 | **0** | 0 | 0 | ... |
+| **1** | 1 | 1 | **0** | 0 | 0 | ... |
+| **0** | 1 | 1 | **1** | 0 | 0 | ... |
+| **0** | 0 | 1 | **1** | 1 | 0 | ... |
+| **0** | 0 | 0 | **0** | 1 | 0 | ... |
+
+Above we see that e.g. the item *AAAA* first entered the Queue 1 at index 1 and left Queue 1 at index 1. Afterwards it entered Queue 2 at index 3 and left at index 4. To find the first and last position for each item and for each queue we use a mask in our dataset creation function. We utilize that knowledge in the next step.
 
 
 #### Create the dataset
 
-Now we can build our dataset (X,y) combining these two dataframes. X contains per item each timestep it stays in the queue with the corresponding features Q_size, numbers of items added and numbers of items removed. y contains an array with the remaining steps the item is in the queue. We leave out items that haven´t left the queue at the last timestamp and those, which are in the queue at the first timestamp, in order to get only items that have been processed fully.
+Now we can build our dataset (X,y). **X** contains per item each timestep it stays in the queue with the corresponding features Q_size, numbers of items added, numbers of items removed and Q_start, which indicates in which Queue the item started (0 for first, 1 for second). We fill in these features based on the first an last index the item occured in each MLB dataframe.**y** contains an array with the remaining steps the item is in the queue. We leave out items that haven´t left the queue at the last timestamp and those, which are in the queue at the first timestamp, in order to get only items that have been processed fully.
 
-| n_steps_in_Q | Q_size | n_added | n_removed | cen |
-| --- | --- | --- | --- | --- |
-| 1 | 5000 | 10 | 5 | 0 |
-| 2 | 5010 | 20 | 10 | 0 |
-| ... | ... | ... | ... | ... |
-| 1000 | 4000 | 5 | 15 | 0 |
+Sample data X for item ***AAAA***
 
+| n_steps_in_Q | Q_size_one | Q_size_two | n_added_two | n_removed_two | Q_start |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 2| 2 | 2 | 0 | 0 |
+| 2 | 2 | 3 | 1 | 1 | 0 |
+| 3 | 1 | 3 | 1 | 1 | 0 |
+| 4 | 1 | 3 | 1 | 1 | 0 |
 
-| |
+Sample data y for item ***AAAA***
+
+| AAAA |
 | --- |
+| 4 |
+| 3 |
+| 2 |
+| 1 |
+
+Sample data X for item ***1000***
+
+| n_steps_in_Q | Q_size_one | Q_size_two | n_added_two | n_removed_two | Q_start |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 2| 2 | 2 | 0 | 1 |
+| 2 | 2 | 3 | 1 | 1 | 1 |
+
+
+Sample data y for item ***1000***
+
 | 1000 |
-| 999 |
-| ... |
-| 1|
+| --- |
+| 2 |
+| 1 |
 
 
 #### Scale, pad and split the dataset
@@ -128,17 +170,17 @@ We first standardize the features with the StandardScaler and afterwards pad the
 Model Summary:
 
 ```
-Layer (type)                 Output Shape              Param #   
+Layer (type)                 Output Shape              Param #
 =================================================================
-masking_8 (Masking)          (None, 720, 5)            0         
+masking_8 (Masking)          (None, 720, 5)            0
 _________________________________________________________________
-lstm_15 (LSTM)               (None, 720, 20)           2080      
+lstm_15 (LSTM)               (None, 720, 20)           2080
 _________________________________________________________________
-dropout_8 (Dropout)          (None, 720, 20)           0         
+dropout_8 (Dropout)          (None, 720, 20)           0
 _________________________________________________________________
-lstm_16 (LSTM)               (None, 720, 20)           3280      
+lstm_16 (LSTM)               (None, 720, 20)           3280
 _________________________________________________________________
-dense_8 (Dense)              (None, 720, 1)            21        
+dense_8 (Dense)              (None, 720, 1)            21
 =================================================================
 Total params: 5,381
 Trainable params: 5,381
@@ -248,22 +290,21 @@ Screenshot of example predictions uploaded back into ES
 
 
 ### Start the script
+To start the script you need to have **Predict_Two_Queues_Items_Script_CLI.py**, **Prediction_Functions.py**, **model_2q_best.h5**, **scaler_x_2q.p** and **scaler_y_2q.p** all in the same folder and navigate your terminal to it before executing the following statements.
 
-To view the needed arguments for **Predict_Two_Queues_Items_Script.py**:
+To view the additional informations about the arguments for **Predict_Two_Queues_Items_Script_CLI.py** use:
 ```
-python Predict_Two_Queues_Items_Script.py -h
-```
-
-An example call would look like:
-```
-python .\Predict_Two_Queues_Items_Script.py 2020-06-14 2020-06-18 localhost 9200 ./model_2q_10epochs.h5 queues-prediction
+python Predict_Two_Queues_Items_Script_CLI.py -h
 ```
 
-**Live_Predict_Two_Queues_Items_Script.ipynb** exchanges the start and end argument with days (used for the trainingprocess)
-
-An example call would look like:
+An example call with defined start and end date would look like:
 ```
-python .\Live_Predict_Two_Queues_Items_Script.py 6 localhost 9200 ./model_2q_10epochs.h5 queues-prediction
+python .\Predict_Two_Queues_Items_Script_CLI.py 2020-06-14 2020-06-18 localhost 9200 ./model_2q_best.h5 queues-prediction
+```
+
+If you wish to just take the last 5 days exchange the dates with an zero, like:
+```
+python .\Live_Predict_Two_Queues_Items_Script_CLI.py 0 0 localhost 9200 ./model_2q_best.h5 queues-prediction
 ```
 
 
@@ -288,3 +329,11 @@ To score the models we use the MAE, which shows us how close our predictions are
 | LSTM resampled | 46 | ~4h |
 | Linear Regression | 644 | ~54h |
 | Decision Trees | 402 | ~47h |
+
+
+## Concept for multiple queues and defined switching timestamps
+
+Below is a graphic inserted detailing the concept for multiple queues and the way to define, when each item left a queue and entered the following. The main difference compared to the existing model is that now there are 2 columns to predict, one now representing the queue number.
+
+
+![Concept1Q](https://user-images.githubusercontent.com/9306218/96201255-69b7e780-0f5c-11eb-8439-e98f625e4497.png)

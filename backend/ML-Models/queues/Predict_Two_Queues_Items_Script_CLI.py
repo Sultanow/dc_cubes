@@ -12,8 +12,8 @@ if __name__ == '__main__':
     )
 
     # Add Parameters
-    parser.add_argument('start', help="Start date e.g. 2020-06-09", type=str)
-    parser.add_argument('end', help="End date e.g. 2020-06-13", type=str)
+    parser.add_argument('start', help="Start date e.g. 2020-06-09, type 0 for automatic timeframe", type=str)
+    parser.add_argument('end', help="End date e.g. 2020-06-13, type 0 for automatic timeframe", type=str)
     parser.add_argument('host', help="Name of the host e.g. 'localhost'", type=str)
     parser.add_argument('port', help="Number of port e.g. 9200", type=int)
     parser.add_argument('model', help="File path to keras model h5 file e.g. ./model.h5", type=str)

@@ -39,24 +39,35 @@ class predict():
         # Establish connection
         es = Elasticsearch([host], port=port)
 
-        # Create a list of the given dates between start date and end date
-        slist = start.split("-")
-        slist = map(int, slist)
-        slist = list(slist)
+        if start == '0' and end == '0':
+            end = datetime.date.today()
+            start = end - datetime.timedelta(days=6)
 
-        elist = end.split("-")
-        elist = map(int, elist)
-        elist = list(elist)
+            datelist = list()
 
-        sdate = datetime.date(slist[0], slist[1], slist[2])
-        edate = datetime.date(elist[0], elist[1], elist[2])
-        delta = edate - sdate
+            for i in range(6):
+                day = start + datetime.timedelta(days=i)
+                datelist.append(day)
 
-        datelist = list()
+        else:
+            # Create a list of the given dates between start date and end date
+            slist = start.split("-")
+            slist = map(int, slist)
+            slist = list(slist)
 
-        for i in range(delta.days + 1):
-            day = sdate + datetime.timedelta(days=i)
-            datelist.append(day)
+            elist = end.split("-")
+            elist = map(int, elist)
+            elist = list(elist)
+
+            sdate = datetime.date(slist[0], slist[1], slist[2])
+            edate = datetime.date(elist[0], elist[1], elist[2])
+            delta = edate - sdate
+
+            datelist = list()
+
+            for i in range(delta.days + 1):
+                day = sdate + datetime.timedelta(days=i)
+                datelist.append(day)
 
         # Get the matching data for each day and store it in a list
         final_data = list()
@@ -92,6 +103,8 @@ class predict():
         # Format the timestamp
         df.index = df["timestamp"]
         df.index = pd.to_datetime(df.index, format='%Y-%m-%dT%H:%M:%S.%f%z').sort_values()
+        # Slice the dataframe
+        df = df[-720:]
         df.drop(columns=['timestamp', 'name'], inplace=True)  # drop unnecassry columns
         # Create a list of the items
         df['items'] = [[str(x)] if len(str(x)) < 10 else str(x).split(" ")
@@ -166,7 +179,11 @@ class predict():
 
         # List of samples
         data_x = list()
-
+        # print('len q one ', len(q_one))
+        # print('len q two ', len(q_two))
+        # print('len sizes q two', len(sizes_q_two))
+        # print('len size q one',len(sizes_q_one))
+        # print(sizes_q_one[424:452])
         # Create each sample
         for item in q_one_mlb.columns: #first queue
             if item in pred_items_q_two:
@@ -200,6 +217,14 @@ class predict():
 
                 # Create a dataframe and fill in the features
                 X_item = pd.DataFrame(data=steps_list, columns=[item]).astype(str).astype(int)
+                # print('item name: ', item)
+                # print('position_q_one_first', position_q_one_first)
+                # print('position_q_one_last', position_q_one_last)
+                # print('position_q_two_first', position_q_two_first)
+                # print('position_q_two_last', position_q_two_last)
+                # print('Length size one ',len(size_one))
+                # print('diff', diff)
+
                 X_item['Q_size_one'] = size_one
                 X_item['Q_size_two'] = size_two
                 X_item['n_added_two'] = added
@@ -208,16 +233,7 @@ class predict():
 
 
                 if len(X_item) == 0:
-                    print(item)
-                    print(X_item)
-                    print("First position Q_one: ", position_q_one_first)
-                    print("Last position Q_one: ", position_q_one_last)
-                    print("First position Q_two: ", position_q_two_first)
-                    print("Last position Q_two: ", position_q_two_last)
-                    print("Diff: ", diff)
-                    print("Steps list: ", steps_list)
-                    break
-                    #continue
+                    continue
 
                 data_x.append(X_item)
 
@@ -248,6 +264,9 @@ class predict():
                 X_item['n_removed_two'] = removed
                 X_item['Q_start'] = 0 #mark that the item appeared in the first queue
 
+                if len(X_item) == 0:
+                    continue
+
                 data_x.append(X_item)
 
             else:
@@ -258,7 +277,7 @@ class predict():
             if item in pred_items_q_two:
                 if item not in q_one_mlb.columns:
                     # Mark the occourence of the item in the second queue
-                    mask = q_two_mlb[item] != 0
+                    mask_q_two = q_two_mlb[item] != 0
 
                     # Get the first and last appearance of the item in the queue
                     position_q_two_first = q_two_mlb[item][mask_q_two].index[0]
@@ -281,6 +300,9 @@ class predict():
                     X_item['n_added_two'] = added
                     X_item['n_removed_two'] = removed
                     X_item['Q_start'] = 1 #mark that it didn't appear in the first queue
+
+                    if len(X_item) == 0:
+                        continue
 
                     data_x.append(X_item)
 
