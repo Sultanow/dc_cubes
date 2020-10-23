@@ -17,293 +17,266 @@
  * under the License.
  */
 
-import React, { useState } from 'react';
+import React, { useState, Component, useEffect } from 'react';
 import { i18n } from '@kbn/i18n';
 import { FormattedMessage, I18nProvider } from '@kbn/i18n/react';
 import { BrowserRouter as Router } from 'react-router-dom';
 
 import "../src/App.css"
-import { Vis } from "../src/Vis"
+import { Vis } from "./Vis"
 
 import {
   EuiButton,
-  EuiHorizontalRule,
   EuiPage,
   EuiPageBody,
   EuiPageContent,
-  EuiPageContentBody,
-  EuiPageContentHeader,
   EuiPageHeader,
   EuiTitle,
-  EuiText,
   EuiSelect,
   EuiFormRow,
   EuiFieldText,
-  EuiBasicTable,
 } from '@elastic/eui';
 
-import { CoreStart } from '../../../../src/core/public';
+import { CoreStart, HttpStart, HttpSetup } from '../../../../src/core/public';
 import { NavigationPublicPluginStart } from '../../../../src/plugins/navigation/public';
 import { PLUGIN_ID, PLUGIN_NAME } from '../../common';
-import { useSavedQuery } from '../../../../src/plugins/data/public/ui/search_bar/lib/use_saved_query';
-import { Table } from 'react-virtualized';
 
-interface QueuesPluginAppDeps {
+
+type QueuesPluginAppState = {
+  censhareTimestamps: Array<string>,
+  picTimestamps: Array<string>,
+  queueSizeCenshare: number,
+  queueSizePic: number,
+  queueItemsCenshare: Array<string>,
+  queueItemsPic: Array<string>,
+  updatedTimestamp: string,
+  item: string, 
+  intervalId: any, 
+  queueName: string
+}
+
+interface QueuesPluginAppProps {
   basename: string;
   notifications: CoreStart['notifications'];
   http: CoreStart['http'];
   navigation: NavigationPublicPluginStart;
 }
 
-export const QueuesPluginApp = ({
-  basename,
-  notifications,
-  http,
-  navigation,
-}: QueuesPluginAppDeps) => {
+export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPluginAppState>{
 
-  // Use React hooks to manage state.
-  const [censhareTimestamps, setCenshareTimestamps] = useState<object | undefined>([]);
-  const [picTimestamps, setPicTimestamps] = useState<object | undefined>([]);
-  const [queueName, setQueueName] = useState("products");
-  const [item, setItem] = useState<string | undefined>();
-  const [queueSizeCenshare, setQueueSizeCenshare] = useState<string | undefined>();
-  const [queueSizePic, setQueueSizePic] = useState<number | undefined>();
-  const [queueItemsCenshare, setQueueItemsCenshare] = useState<object | undefined>([]);
-  const [queueItemsPic, setQueueItemsPic] = useState([]);
-  const [isAutoRefresh, setIsAutoRefresh] = useState<boolean | undefined>();
+  state = {
+    censhareTimestamps: [],
+    picTimestamps: [],
+    queueSizeCenshare: 0,
+    queueSizePic: 0,
+    queueItemsCenshare: [],
+    queueItemsPic: [],
+    updatedTimestamp: "undefined",
+    item: "undefined",
+    intervalId: null, 
+    queueName: "undefined"
+  }
 
-  const [updatedTimestamp, setUpdatedTimestamp] = useState<string | undefined>();
+  constructor(props: any) {
+    super(props);
+    this.state = (
+      this.state
+    )
 
-  const predictionHandler = () => {
-    http.get('http://localhost:5000/updatePrediction').then((res) => {
+  }
+
+  componentDidMount() {
+    var intervalId = setInterval(this.updateMetrics, 5000);
+    this.setState({intervalId: intervalId});
+  }
+
+  componentWillUnmount(){
+    clearInterval(this.state.intervalId);
+  }
+
+  updateMetrics = () => {
+    this.updateCenshareQueueSize();
+    this.updatePicQueueSize();
+    this.updatePicQueueItems();
+    this.updateCenshareQueueItems();
+  }
+
+  predictionHandler = () => {
+
+    this.props.http.get('http://localhost:5000/updatePrediction').then((res) => {
     });
+
     console.log('update button clicked')
-      let now = new Date()
-      console.log("now: ", now)
-      setUpdatedTimestamp(now.toDateString() + " " + now.toTimeString());
-      notifications.toasts.addSuccess(
-        i18n.translate('productQueues.dataUpdated', {
-          defaultMessage: 'Predicitons Updated!',
-        })
-      );
+    let now = new Date()
+    console.log("now: ", now)
+
+    this.setState({ updatedTimestamp: now.toDateString() + " " + now.toTimeString() });
+
+    this.props.notifications.toasts.addSuccess(
+      i18n.translate('productQueues.dataUpdated', {
+        defaultMessage: 'Predicitons Updated!',
+      })
+    );
   };
 
-  const onClickHandler3 = () => {
-    const body = { item: item, name: "products"};
-    http.post("/api/censhare/item", { body: JSON.stringify(body) }).then(res => {
+  onClickHandler3 = () => {
+    const body = { item: this.state.item, name: "products" };
+    this.props.http.post("/api/censhare/item", { body: JSON.stringify(body) }).then(res => {
       if (res) {
-        console.log("DATA res cen: ", res.data.aggregations)
-        setCenshareTimestamps(res.data.aggregations);
+        //console.log("DATA res cen: ", res.data.aggregations)
+        this.setState({ censhareTimestamps: res.data.aggregations });
       }
     });
-    http.post("/api/pic/item", { body: JSON.stringify(body) }).then(res2 => {
+    this.props.http.post("/api/pic/item", { body: JSON.stringify(body) }).then(res2 => {
       if (res2) {
-        console.log("DATA res pic: ", res2.data.aggregations)
-        setPicTimestamps(res2.data.aggregations);
+        //console.log("DATA res pic: ", res2.data.aggregations)
+        this.setState({ picTimestamps: res2.data.aggregations })
       }
     });
   };
 
-  function updateCenshareQueueItems() {
+  updateCenshareQueueItems  = () => {
     const body = { name: "products" };
-    http.post("/api/censhare/throughput/items", { body: JSON.stringify(body) }).then(res => {
-      if (res) {
-        //console.log("CEN Items DATA: ", res.data.aggregations);
-        setQueueItemsCenshare(res.data.aggregations)
-        console.log("items cen: ", queueItemsCenshare)
-        //clearInterval(updateCenItems)
-      }
+    this.props.http.post("/api/censhare/throughput/items", { body: JSON.stringify(body) }).then(res => {
+      //console.log("censhare items obj: ", res);
+      this.setState({ queueItemsCenshare: res.data.aggregations });
     });
   }
 
-  function updatePicQueueItems() {
+  updatePicQueueItems = () => {
     const body = { name: "products" };
-    http.post("/api/pic/throughput/items", { body: JSON.stringify(body) }).then(res => {
-      if (res) {
-        //console.log("PIC Items DATA: ", res.data.aggregations);
-        console.log("items pic: ", queueItemsPic)
-        setQueueItemsPic(res.data.aggregations)
-        //clearInterval(updatePicItems)
-      }
+    this.props.http.post("/api/pic/throughput/items", { body: JSON.stringify(body) }).then(res => {
+      //console.log("pic items obj: ", res);
+      this.setState({ queueItemsPic: res.data.aggregations })
     });
   }
 
-  
-  function updateCenshareQueueSize() {
+  updateCenshareQueueSize() {
     const body = { name: "products" };
-    http.post("/api/censhare/size", { body: JSON.stringify(body) }).then(res => {
-      if (res) {
-        console.log("CEN SIZE DATA: ", res.data.hits.hits[0]._source.size);
-        setQueueSizeCenshare(res.data.hits.hits[0]._source.size)
-        
-        clearInterval(updateCenSize)
-      }
+    this.props.http.post("/api/censhare/size", { body: JSON.stringify(body) }).then(res => {
+      this.setState({ queueSizeCenshare: res.data.hits.hits[0]._source.size })
+      console.log("cen queue size: ", res.data.hits.hits[0]._source.size);
     });
   }
 
-  //TODO
-  function updatePicQueueSize() {
+  updatePicQueueSize  = () => {
     const body = { name: "products" };
-    http.post("/api/pic/size", { body: JSON.stringify(body) }).then(res => {
-      if (res) {
-        console.log("PIC SIZE DATA: ", res.data.hits.hits[0]._source.size);
-        setQueueSizePic(res.data.hits.hits[0]._source.size)
-        
-        clearInterval(updatePicSize)
-        
-      }
+    this.props.http.post("/api/pic/size", { body: JSON.stringify(body) }).then(res => {
+      this.setState({ queueSizePic: res.data.hits.hits[0]._source.size })
+      console.log("pic queue size: ", res.data.hits.hits[0]._source.size);
     });
   }
 
-  // TODO
-    const updateCenSize = setInterval(updateCenshareQueueSize, 5000)
-    const updatePicSize = setInterval(updatePicQueueSize, 5000)
-
-  //const updateCenItems = setInterval(updateCenshareQueueItems, 2000)
-  //const updatePicItems = setInterval(updatePicQueueItems, 2000)
-
-  
-  const handleChange = (event) => {
-    setItem(event.target.value)
+  handleChange = (event) => {
+    this.setState({ item: event.target.value })
   };
 
   // TODO
-  const filterChange = (event) => {
-
-    // only for testing
-    if(isAutoRefresh == true){
-      clearInterval(updatePicSize)
-      //clearInterval(updateCenSize)
-      setIsAutoRefresh(false)
-    }else{
-      updateCenshareQueueItems();
-      updatePicQueueItems();
-      setIsAutoRefresh(true)
-    }
-    
-
-    //clearInterval(updateCenItems)
-    //clearInterval(updatePicItems)
-    /*
-    async function myStopFunction() {
-      clearInterval(updateCenSize)
-      clearInterval(updatePicSize)
-      return
-    }
-
-    async function afterFunction(){
-      await myStopFunction();
-
-      setQueueName(event.target.value)
-      console.log("current queue name: ",queueName)
-
-      updateCenshareQueueSize();
-      updatePicQueueSize();
-      console.log("target value filter: ", event.target.value)
-      console.log("current queue name: ", queueName)
-    };
-    */
+  filterChange = (event) => {
+    console.log("Filter queue: ", event.target.value)
+    this.setState({ queueName: event.target.value })
   }
 
   // Render the application DOM.
   // Note that `navigation.ui.TopNavMenu` is a stateful component exported on the `navigation` plugin's start contract.
-  return (
-    <Router basename={basename}>
-      <I18nProvider>
-        <>
-          <navigation.ui.TopNavMenu appName={PLUGIN_ID} showSearchBar={true} />
-          <EuiPage restrictWidth="1500px">
-            <EuiPageBody>
-              <EuiPageHeader>
-                <EuiTitle size="l">
-                  <h1>
-                    <FormattedMessage
-                      id="productQueues.helloWorldText"
-                      defaultMessage="{name}"
-                      values={{ name: PLUGIN_NAME }}
+  render() {
+    return (
+      <Router basename={this.props.basename}>
+        <I18nProvider>
+          <>
+            <this.props.navigation.ui.TopNavMenu appName={PLUGIN_ID} showSearchBar={true} />
+            <EuiPage restrictWidth="1500px">
+              <EuiPageBody>
+                <EuiPageHeader>
+                  <EuiTitle size="l">
+                    <h1>
+                      <FormattedMessage
+                        id="productQueues.helloWorldText"
+                        defaultMessage="{name}"
+                        values={{ name: PLUGIN_NAME }}
+                      />
+                    </h1>
+                  </EuiTitle>
+                </EuiPageHeader>
+                <EuiPageContent>
+                  <div className="filter-form-conatiner" style={filterFormContainer}>
+                    <EuiFormRow label="">
+                      <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={this.handleChange} />
+                    </EuiFormRow>
+                    <EuiSelect onChange={this.filterChange}
+                      options={[
+                        { value: 'products', text: 'Products' },
+                        { value: 'productrelation', text: 'Product Relation' },
+                        { value: 'csproducts', text: 'CS Products' },
+                        { value: 'stext', text: 'S Text' },
+                        { value: 'featurestories', text: 'Feature Stories' }
+                      ]}
                     />
-                  </h1>
-                </EuiTitle>
-              </EuiPageHeader>
-              <EuiPageContent>
-                <div className="filter-form-conatiner" style={filterFormContainer}>
-                  <EuiFormRow label="">
-                    <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={handleChange} />
-                  </EuiFormRow>
-                  <EuiSelect onChange={filterChange}
-                    options={[
-                      { value: 'products', text: 'Products' },
-                      { value: 'productrelation', text: 'Product Relation' },
-                      { value: 'csproducts', text: 'CS Products' },
-                      { value: 'stext', text: 'S Text' },
-                      { value: 'featurestories', text: 'Feature Stories' }
-                    ]}
+                    <EuiButton type="primary" size="m" onClick={this.onClickHandler3}>Search</EuiButton>
+                    <EuiButton type="primary" color="secondary" onClick={this.predictionHandler} fill size="m" style={{ marginLeft: "20px" }}>Update Predictions</EuiButton>
+                  </div>
+                  <Vis picTimestamps={this.state.picTimestamps ? this.state.picTimestamps : []}
+                    censhareTimestamps={this.state.censhareTimestamps ? this.state.censhareTimestamps : []}
+                    queueSizeCenshare={this.state.queueSizeCenshare}
+                    queueSizePic={this.state.queueSizePic}
+                    queueItemsCenshare={this.state.queueItemsCenshare ? this.state.queueItemsCenshare : null}
+                    queueItemsPic={this.state.queueItemsPic ? this.state.queueItemsPic : null}
+                    updatedTimestamp={this.state.updatedTimestamp ? this.state.updatedTimestamp : undefined}
                   />
-                  <EuiButton type="primary" size="m" onClick={onClickHandler3}>Search</EuiButton>
-                  <EuiButton type="primary" color="secondary" onClick={predictionHandler} fill size="m" style={{ marginLeft: "20px" }}>Update Predictions</EuiButton>
-                </div>
-                <Vis picTimestamps={picTimestamps ? picTimestamps : []}
-                  censhareTimestamps={censhareTimestamps ? censhareTimestamps : []}
-                  queueSizeCenshare={queueSizeCenshare}
-                  queueSizePic={queueSizePic} 
-                  queueItemsCenshare={queueItemsCenshare}
-                  queueItemsPic={queueItemsPic}
-                  updatedTimestamp={updatedTimestamp ? updatedTimestamp : undefined}/>
-              </EuiPageContent>
-              <EuiPageContent>
-                <table>
-                  <thead>
-                <tr>
-                  <th>Tier</th>
-                  <th>Item</th> 
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                  <td>Censhare</td>
-                  <td>4288291908</td> 
-                </tr>
-                <tr>
-                  <td>Censhare</td>
-                  <td>3506464042</td> 
-                </tr>
-                <tr>
-                  <td>Censhare</td>
-                  <td>3810442950</td> 
-                </tr>
-                <tr>
-                  <td>Censhare</td>
-                  <td>2741829033</td> 
-                </tr>
-                <tr>
-                  <td>Pic</td>
-                  <td>1400457484</td> 
-                </tr>
-                <tr>
-                  <td>Pic</td>
-                  <td>3547747429</td> 
-                </tr>
-                <tr>
-                  <td>Pic</td>
-                  <td>322537720</td> 
-                </tr>
-                <tr>
-                  <td>Pic</td>
-                  <td>4181184071</td> 
-                </tr>
-                </tbody>
-              </table>
-              </EuiPageContent>
-              {/* <ResponseDisplay data={censhareTimestamps ? censhareTimestamps : []} />
-              <ResponseDisplay data={picTimestamps ? picTimestamps : []} /> */}
-            </EuiPageBody>
-          </EuiPage>
-        </>
-      </I18nProvider>
-    </Router>
-  );
-};
+                </EuiPageContent>
+                <EuiPageContent>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Tier</th>
+                        <th>Item</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Censhare</td>
+                        <td>4288291908</td>
+                      </tr>
+                      <tr>
+                        <td>Censhare</td>
+                        <td>3506464042</td>
+                      </tr>
+                      <tr>
+                        <td>Censhare</td>
+                        <td>3810442950</td>
+                      </tr>
+                      <tr>
+                        <td>Censhare</td>
+                        <td>2741829033</td>
+                      </tr>
+                      <tr>
+                        <td>Pic</td>
+                        <td>1400457484</td>
+                      </tr>
+                      <tr>
+                        <td>Pic</td>
+                        <td>3547747429</td>
+                      </tr>
+                      <tr>
+                        <td>Pic</td>
+                        <td>322537720</td>
+                      </tr>
+                      <tr>
+                        <td>Pic</td>
+                        <td>4181184071</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </EuiPageContent>
+              </EuiPageBody>
+            </EuiPage>
+          </>
+        </I18nProvider>
+      </Router>
+    )
+  }
+}
+export default QueuesPluginApp
 
 const ResponseDisplay = ({ data }) => {
   if (data) {
@@ -342,7 +315,6 @@ const searchBtn = {
   color: "white",
   padding: "5px 20px 5px 20px",
   cursor: "pointer",
-  // fontSize: ".8rem",
   border: "2px solid #FE9C6A",
   borderRadius: "50px"
 }
@@ -358,7 +330,6 @@ const predictionBtn = {
   height: "30px",
   color: "black",
   cursor: "pointer",
-  // fontSize: ".8rem",
   fontWeight: "bold" as "bold",
   border: "none",
   borderBottom: "2px solid #F5F9FC",

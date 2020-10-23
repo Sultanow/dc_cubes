@@ -46,361 +46,10 @@ exports.renderApp = renderApp;
 
 /***/ }),
 
-/***/ "./public/components/app.tsx":
-/*!***********************************!*\
-  !*** ./public/components/app.tsx ***!
-  \***********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.QueuesPluginApp = void 0;
-
-var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
-
-var _i18n = __webpack_require__(/*! @kbn/i18n */ "@kbn/i18n");
-
-var _react2 = __webpack_require__(/*! @kbn/i18n/react */ "@kbn/i18n/react");
-
-var _reactRouterDom = __webpack_require__(/*! react-router-dom */ "react-router-dom");
-
-__webpack_require__(/*! ../src/App.css */ "./public/src/App.css");
-
-var _Vis = __webpack_require__(/*! ../src/Vis */ "./public/src/Vis.tsx");
-
-var _eui = __webpack_require__(/*! @elastic/eui */ "@elastic/eui");
-
-var _common = __webpack_require__(/*! ../../common */ "./common/index.ts");
-
-function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
-
-/*
- * Licensed to Elasticsearch B.V. under one or more contributor
- * license agreements. See the NOTICE file distributed with
- * this work for additional information regarding copyright
- * ownership. Elasticsearch B.V. licenses this file to you under
- * the Apache License, Version 2.0 (the "License"); you may
- * not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *    http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
-const QueuesPluginApp = ({
-  basename,
-  notifications,
-  http,
-  navigation
-}) => {
-  // Use React hooks to manage state.
-  const [censhareTimestamps, setCenshareTimestamps] = (0, _react.useState)([]);
-  const [picTimestamps, setPicTimestamps] = (0, _react.useState)([]);
-  const [queueName, setQueueName] = (0, _react.useState)("products");
-  const [item, setItem] = (0, _react.useState)();
-  const [queueSizeCenshare, setQueueSizeCenshare] = (0, _react.useState)();
-  const [queueSizePic, setQueueSizePic] = (0, _react.useState)();
-  const [queueItemsCenshare, setQueueItemsCenshare] = (0, _react.useState)([]);
-  const [queueItemsPic, setQueueItemsPic] = (0, _react.useState)([]);
-  const [isAutoRefresh, setIsAutoRefresh] = (0, _react.useState)();
-  const [updatedTimestamp, setUpdatedTimestamp] = (0, _react.useState)();
-
-  const predictionHandler = () => {
-    http.get('http://localhost:5000/updatePrediction').then(res => {});
-    console.log('update button clicked');
-    let now = new Date();
-    console.log("now: ", now);
-    setUpdatedTimestamp(now.toDateString() + " " + now.toTimeString());
-    notifications.toasts.addSuccess(_i18n.i18n.translate('productQueues.dataUpdated', {
-      defaultMessage: 'Predicitons Updated!'
-    }));
-  };
-
-  const onClickHandler3 = () => {
-    const body = {
-      item: item,
-      name: "products"
-    };
-    http.post("/api/censhare/item", {
-      body: JSON.stringify(body)
-    }).then(res => {
-      if (res) {
-        console.log("DATA res cen: ", res.data.aggregations);
-        setCenshareTimestamps(res.data.aggregations);
-      }
-    });
-    http.post("/api/pic/item", {
-      body: JSON.stringify(body)
-    }).then(res2 => {
-      if (res2) {
-        console.log("DATA res pic: ", res2.data.aggregations);
-        setPicTimestamps(res2.data.aggregations);
-      }
-    });
-  };
-
-  function updateCenshareQueueItems() {
-    const body = {
-      name: "products"
-    };
-    http.post("/api/censhare/throughput/items", {
-      body: JSON.stringify(body)
-    }).then(res => {
-      if (res) {
-        //console.log("CEN Items DATA: ", res.data.aggregations);
-        setQueueItemsCenshare(res.data.aggregations);
-        console.log("items cen: ", queueItemsCenshare); //clearInterval(updateCenItems)
-      }
-    });
-  }
-
-  function updatePicQueueItems() {
-    const body = {
-      name: "products"
-    };
-    http.post("/api/pic/throughput/items", {
-      body: JSON.stringify(body)
-    }).then(res => {
-      if (res) {
-        //console.log("PIC Items DATA: ", res.data.aggregations);
-        console.log("items pic: ", queueItemsPic);
-        setQueueItemsPic(res.data.aggregations); //clearInterval(updatePicItems)
-      }
-    });
-  }
-
-  function updateCenshareQueueSize() {
-    const body = {
-      name: "products"
-    };
-    http.post("/api/censhare/size", {
-      body: JSON.stringify(body)
-    }).then(res => {
-      if (res) {
-        console.log("CEN SIZE DATA: ", res.data.hits.hits[0]._source.size);
-        setQueueSizeCenshare(res.data.hits.hits[0]._source.size);
-        clearInterval(updateCenSize);
-      }
-    });
-  } //TODO
-
-
-  function updatePicQueueSize() {
-    const body = {
-      name: "products"
-    };
-    http.post("/api/pic/size", {
-      body: JSON.stringify(body)
-    }).then(res => {
-      if (res) {
-        console.log("PIC SIZE DATA: ", res.data.hits.hits[0]._source.size);
-        setQueueSizePic(res.data.hits.hits[0]._source.size);
-        clearInterval(updatePicSize);
-      }
-    });
-  } // TODO
-
-
-  const updateCenSize = setInterval(updateCenshareQueueSize, 5000);
-  const updatePicSize = setInterval(updatePicQueueSize, 5000); //const updateCenItems = setInterval(updateCenshareQueueItems, 2000)
-  //const updatePicItems = setInterval(updatePicQueueItems, 2000)
-
-  const handleChange = event => {
-    setItem(event.target.value);
-  }; // TODO
-
-
-  const filterChange = event => {
-    // only for testing
-    if (isAutoRefresh == true) {
-      clearInterval(updatePicSize); //clearInterval(updateCenSize)
-
-      setIsAutoRefresh(false);
-    } else {
-      updateCenshareQueueItems();
-      updatePicQueueItems();
-      setIsAutoRefresh(true);
-    } //clearInterval(updateCenItems)
-    //clearInterval(updatePicItems)
-
-    /*
-    async function myStopFunction() {
-      clearInterval(updateCenSize)
-      clearInterval(updatePicSize)
-      return
-    }
-     async function afterFunction(){
-      await myStopFunction();
-       setQueueName(event.target.value)
-      console.log("current queue name: ",queueName)
-       updateCenshareQueueSize();
-      updatePicQueueSize();
-      console.log("target value filter: ", event.target.value)
-      console.log("current queue name: ", queueName)
-    };
-    */
-
-  }; // Render the application DOM.
-  // Note that `navigation.ui.TopNavMenu` is a stateful component exported on the `navigation` plugin's start contract.
-
-
-  return /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, {
-    basename: basename
-  }, /*#__PURE__*/_react.default.createElement(_react2.I18nProvider, null, /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(navigation.ui.TopNavMenu, {
-    appName: _common.PLUGIN_ID,
-    showSearchBar: true
-  }), /*#__PURE__*/_react.default.createElement(_eui.EuiPage, {
-    restrictWidth: "1500px"
-  }, /*#__PURE__*/_react.default.createElement(_eui.EuiPageBody, null, /*#__PURE__*/_react.default.createElement(_eui.EuiPageHeader, null, /*#__PURE__*/_react.default.createElement(_eui.EuiTitle, {
-    size: "l"
-  }, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
-    id: "productQueues.helloWorldText",
-    defaultMessage: "{name}",
-    values: {
-      name: _common.PLUGIN_NAME
-    }
-  })))), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("div", {
-    className: "filter-form-conatiner",
-    style: filterFormContainer
-  }, /*#__PURE__*/_react.default.createElement(_eui.EuiFormRow, {
-    label: ""
-  }, /*#__PURE__*/_react.default.createElement(_eui.EuiFieldText, {
-    placeholder: "Search Items...",
-    id: "productQueues.itemField",
-    onChange: handleChange
-  })), /*#__PURE__*/_react.default.createElement(_eui.EuiSelect, {
-    onChange: filterChange,
-    options: [{
-      value: 'products',
-      text: 'Products'
-    }, {
-      value: 'productrelation',
-      text: 'Product Relation'
-    }, {
-      value: 'csproducts',
-      text: 'CS Products'
-    }, {
-      value: 'stext',
-      text: 'S Text'
-    }, {
-      value: 'featurestories',
-      text: 'Feature Stories'
-    }]
-  }), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
-    type: "primary",
-    size: "m",
-    onClick: onClickHandler3
-  }, "Search"), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
-    type: "primary",
-    color: "secondary",
-    onClick: predictionHandler,
-    fill: true,
-    size: "m",
-    style: {
-      marginLeft: "20px"
-    }
-  }, "Update Predictions")), /*#__PURE__*/_react.default.createElement(_Vis.Vis, {
-    picTimestamps: picTimestamps ? picTimestamps : [],
-    censhareTimestamps: censhareTimestamps ? censhareTimestamps : [],
-    queueSizeCenshare: queueSizeCenshare,
-    queueSizePic: queueSizePic,
-    queueItemsCenshare: queueItemsCenshare,
-    queueItemsPic: queueItemsPic,
-    updatedTimestamp: updatedTimestamp ? updatedTimestamp : undefined
-  })), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("table", null, /*#__PURE__*/_react.default.createElement("thead", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("th", null, "Tier"), /*#__PURE__*/_react.default.createElement("th", null, "Item"))), /*#__PURE__*/_react.default.createElement("tbody", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "4288291908")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3506464042")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3810442950")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "2741829033")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "1400457484")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "3547747429")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "322537720")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "4181184071"))))))))));
-};
-
-exports.QueuesPluginApp = QueuesPluginApp;
-
-const ResponseDisplay = ({
-  data
-}) => {
-  if (data) {
-    return /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("pre", null, JSON.stringify(data, null, 2))));
-  }
-
-  return /*#__PURE__*/_react.default.createElement("div", null);
-};
-
-const filterFormContainer = {
-  backgroundColor: "#F5F9FC",
-  height: "80px",
-  justifyContent: "center",
-  display: "flex",
-  paddingTop: "30px"
-};
-const input = {
-  height: "40px",
-  border: "2px solid #dbdbdb",
-  borderRadius: "30px"
-};
-const select = {
-  color: "black",
-  lineHeight: "32px",
-  height: "46px",
-  padding: "5px 50px 5px 20px",
-  borderRadius: "30px",
-  border: "2px solid #dbdbdb",
-  cursor: "pointer"
-};
-const searchBtn = {
-  backgroundColor: "#FE9C6A",
-  height: "46px",
-  color: "white",
-  padding: "5px 20px 5px 20px",
-  cursor: "pointer",
-  // fontSize: ".8rem",
-  border: "2px solid #FE9C6A",
-  borderRadius: "50px"
-};
-const form = {
-  marginTop: "auto",
-  marginBottom: "auto",
-  display: "flex"
-};
-const predictionBtn = {
-  backgroundColor: "#F5F9FC",
-  height: "30px",
-  color: "black",
-  cursor: "pointer",
-  // fontSize: ".8rem",
-  fontWeight: "bold",
-  border: "none",
-  borderBottom: "2px solid #F5F9FC",
-  marginLeft: "50px",
-  marginTop: "auto",
-  marginBottom: "auto"
-};
-
-/***/ }),
-
-/***/ "./public/src/App.css":
-/*!****************************!*\
-  !*** ./public/src/App.css ***!
-  \****************************/
-/*! no static exports found */
-/***/ (function(module, exports) {
-
-
-
-/***/ }),
-
-/***/ "./public/src/Pipeline.tsx":
-/*!*********************************!*\
-  !*** ./public/src/Pipeline.tsx ***!
-  \*********************************/
+/***/ "./public/components/Pipeline.tsx":
+/*!****************************************!*\
+  !*** ./public/components/Pipeline.tsx ***!
+  \****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -414,7 +63,7 @@ exports.default = exports.Pipeline = void 0;
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
 
-var _Processor = _interopRequireDefault(__webpack_require__(/*! ./Processor */ "./public/src/Processor.tsx"));
+var _Processor = _interopRequireDefault(__webpack_require__(/*! ./Processor */ "./public/components/Processor.tsx"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -422,28 +71,9 @@ function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return 
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
 class Pipeline extends _react.Component {
   constructor(props) {
     super(props);
-
-    _defineProperty(this, "updateCenshareQueueSize", () => {
-      let http;
-      const body = {
-        name: "products"
-      };
-      http.post("/api/censhare/size", {
-        body: JSON.stringify(body)
-      }).then(res => {
-        if (res) {
-          console.log("CEN SIZE DATA pipeline: ", res.data.hits.hits[0]._source.size); //this.setState({queueSizeCenshare: res.data.hits.hits[0]._source.size})
-          //setQueueSizeCenshare(res.data.hits.hits[0]._source.size)
-          //clearInterval(updateCenSize)
-        }
-      });
-    });
-
     this.state = {
       censhareTimestamps: [],
       picTimestamps: [],
@@ -460,8 +90,7 @@ class Pipeline extends _react.Component {
 
   componentDidUpdate() {}
 
-  componentDidMount() {//this.updateCenshareQueueSize();
-  }
+  componentDidMount() {}
 
   render() {
     return /*#__PURE__*/_react.default.createElement("div", {
@@ -493,7 +122,7 @@ class Pipeline extends _react.Component {
       timestamps: this.props.picTimestamps,
       queueSize: this.props.queueSizePic,
       timeLeft: "",
-      queueItems: [],
+      queueItems: this.props.queueItemsCenshare,
       progessStatus: 0
     }), /*#__PURE__*/_react.default.createElement(_Processor.default, {
       isLastProcessor: true,
@@ -516,8 +145,6 @@ var _default = Pipeline;
 exports.default = _default;
 
 function getTimeLeft(enter, left) {
-  //console.log("enter in pipeline: ", enter)
-  //console.log("left in pipeline: ", left)
   if (enter && left && typeof enter.hits.hits[0] === "object" && typeof left.hits.hits[0] === "object") {
     console.log("type enter: ", typeof enter);
     console.log("type left: ", typeof left);
@@ -527,8 +154,6 @@ function getTimeLeft(enter, left) {
 }
 
 function hoursLeft(enter, left) {
-  //console.log("enter date: ", enter)
-  //console.log("left date: ", left)
   var enterDate = new Date(enter);
   var leftDate = new Date(left);
   var hours = Math.abs(enterDate.getTime() - leftDate.getTime()) / 36e5;
@@ -551,10 +176,10 @@ const pipelineContainer = {
 
 /***/ }),
 
-/***/ "./public/src/Processor.tsx":
-/*!**********************************!*\
-  !*** ./public/src/Processor.tsx ***!
-  \**********************************/
+/***/ "./public/components/Processor.tsx":
+/*!*****************************************!*\
+  !*** ./public/components/Processor.tsx ***!
+  \*****************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -568,11 +193,11 @@ exports.default = exports.Processor = void 0;
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
 
-var _TimeBox = _interopRequireDefault(__webpack_require__(/*! ./TimeBox */ "./public/src/TimeBox.tsx"));
+var _TimeBox = _interopRequireDefault(__webpack_require__(/*! ./TimeBox */ "./public/components/TimeBox.tsx"));
 
-var _ProcessorBox = _interopRequireDefault(__webpack_require__(/*! ./ProcessorBox */ "./public/src/ProcessorBox.tsx"));
+var _ProcessorBox = _interopRequireDefault(__webpack_require__(/*! ./ProcessorBox */ "./public/components/ProcessorBox.tsx"));
 
-var _QueueMetrics = _interopRequireDefault(__webpack_require__(/*! ./QueueMetrics */ "./public/src/QueueMetrics.tsx"));
+var _QueueMetrics = _interopRequireDefault(__webpack_require__(/*! ./QueueMetrics */ "./public/components/QueueMetrics.tsx"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -632,12 +257,20 @@ const processorContainer = {
   position: "relative"
 };
 
+function calculateQueueThroughput(queueItems) {
+  const sizeDocEarly = queueItems.doc_early.hits.hits[0]._source.size;
+  const sizeDocLate = queueItems.doc_late.hits.hits[0]._source.size;
+  const itemsDocEarly = queueItems.doc_early.hits.hits[0]._source.items;
+  const itemsDocLate = queueItems.doc_late.hits.hits[0]._source.items;
+  return 0;
+}
+
 /***/ }),
 
-/***/ "./public/src/ProcessorBox.tsx":
-/*!*************************************!*\
-  !*** ./public/src/ProcessorBox.tsx ***!
-  \*************************************/
+/***/ "./public/components/ProcessorBox.tsx":
+/*!********************************************!*\
+  !*** ./public/components/ProcessorBox.tsx ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -651,7 +284,7 @@ exports.default = exports.ProcessorBox = void 0;
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
 
-var _ProgressPipe = _interopRequireDefault(__webpack_require__(/*! ./ProgressPipe */ "./public/src/ProgressPipe.tsx"));
+var _ProgressPipe = _interopRequireDefault(__webpack_require__(/*! ./ProgressPipe */ "./public/components/ProgressPipe.tsx"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -744,9 +377,7 @@ const triangle = {
   position: "absolute",
   zIndex: 10,
   top: "101px",
-  left: "-6%" // marginTop: "auto", 
-  // marginBottom: "auto",
-
+  left: "-6%"
 };
 const metricsLine = {
   border: "3px dashed #D3DAE6",
@@ -763,14 +394,10 @@ const metricsLine = {
 const processorBox = {
   base: {
     backgroundColor: "#006BB4",
-    //55C1CE
     padding: "25px 0px",
     borderRadius: "0px",
-    // border: "2px solid rgb(66, 150, 190)",
     color: "white",
     cursor: "pointer",
-    //fontWeight: "bold" as "bold",
-    //boxShadow: "0px 0px 20px 1px rgba(0,0,0,0.2)", 
     position: "relative",
     textAlign: "center",
     fontSize: ".8rem"
@@ -808,10 +435,10 @@ const processorBoxProgressPipeContainerIsFirst = {
 
 /***/ }),
 
-/***/ "./public/src/ProgressPipe.tsx":
-/*!*************************************!*\
-  !*** ./public/src/ProgressPipe.tsx ***!
-  \*************************************/
+/***/ "./public/components/ProgressPipe.tsx":
+/*!********************************************!*\
+  !*** ./public/components/ProgressPipe.tsx ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1025,10 +652,10 @@ const progressStatusInfoBox = {
 
 /***/ }),
 
-/***/ "./public/src/QueueMetrics.tsx":
-/*!*************************************!*\
-  !*** ./public/src/QueueMetrics.tsx ***!
-  \*************************************/
+/***/ "./public/components/QueueMetrics.tsx":
+/*!********************************************!*\
+  !*** ./public/components/QueueMetrics.tsx ***!
+  \********************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1058,20 +685,7 @@ class QueueMetrics extends _react.Component {
       queueSize: 0,
       queueItems: [],
       queueUtilization: 0,
-      queueThroughput: 0,
-      isMouseInside: false
-    });
-
-    _defineProperty(this, "mouseEnter", () => {
-      this.setState({
-        isMouseInside: true
-      });
-    });
-
-    _defineProperty(this, "mouseLeave", () => {
-      this.setState({
-        isMouseInside: false
-      });
+      queueThroughput: 0
     });
 
     this.state = this.state;
@@ -1086,7 +700,8 @@ class QueueMetrics extends _react.Component {
 
   componentDidMount() {}
 
-  componentDidUpdate() {}
+  componentDidUpdate() {//console.log("items: ", this.state.queueItems)
+  }
 
   render() {
     return /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("div", {
@@ -1129,7 +744,7 @@ class QueueMetrics extends _react.Component {
       style: td
     }, this.state.queueSize ? this.state.queueSize : 0), /*#__PURE__*/_react.default.createElement("td", {
       style: td
-    }, this.state.queueThroughput, "/h"), /*#__PURE__*/_react.default.createElement("td", {
+    }, this.state.queueItems["doc_early"] ? calculateQueueThroughput(this.state.queueItems) : 0, "/h"), /*#__PURE__*/_react.default.createElement("td", {
       style: td
     }, this.state.queueUtilization, "%")))))));
   }
@@ -1140,8 +755,6 @@ exports.QueueMetrics = QueueMetrics;
 var _default = QueueMetrics;
 exports.default = _default;
 const table = {
-  // justifyContent:"center" as "center",
-  // marginRight: "auto", 
   marginLeft: "8px"
 };
 const tr = {};
@@ -1176,14 +789,38 @@ const metricsContainer = {
   fontSize: ".8rem",
   position: "relative",
   left: "-125px"
-};
+}; //Intersection between two Arrays
+
+function intersect(a, b) {
+  const setB = new Set(b);
+  return [...new Set(a)].filter(x => setB.has(x));
+}
+
+function calculateQueueThroughput(queueItems) {
+  if (queueItems.doc_early.hits.hits[0] != undefined && queueItems.doc_late.hits.hits[0] != undefined) {
+    const sizeDocEarly = queueItems.doc_early.hits.hits[0]._source.size;
+    const itemsDocEarly = queueItems.doc_early.hits.hits[0]._source.items;
+    const itemsDocLate = queueItems.doc_late.hits.hits[0]._source.items;
+    const itemsArrayEarly = itemsDocEarly.split(' '); // split string on space
+
+    const itemsArrayLate = itemsDocLate.split(' ');
+    const intersectItemsArray = intersect(itemsArrayEarly, itemsArrayLate);
+    const lenghIntersection = intersectItemsArray.length;
+    const diff = sizeDocEarly - lenghIntersection;
+    console.log("throughput: ", diff);
+    return diff;
+  } else {
+    console.log("throughput: ", 0);
+    return 0;
+  }
+}
 
 /***/ }),
 
-/***/ "./public/src/TimeBox.tsx":
-/*!********************************!*\
-  !*** ./public/src/TimeBox.tsx ***!
-  \********************************/
+/***/ "./public/components/TimeBox.tsx":
+/*!***************************************!*\
+  !*** ./public/components/TimeBox.tsx ***!
+  \***************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1284,8 +921,8 @@ const TimestampDisplay = ({
 };
 
 function hoursLeft(enter, left) {
-  console.log("enter date: ", enter);
-  console.log("left date: ", left);
+  //console.log("enter date: ", enter)
+  //console.log("left date: ", left)
   var enterDate = new Date(enter);
   var leftDate = new Date(left);
   var hours = Math.abs(enterDate.getTime() - leftDate.getTime()) / 36e5;
@@ -1357,10 +994,10 @@ const timebox = {
 
 /***/ }),
 
-/***/ "./public/src/Vis.tsx":
-/*!****************************!*\
-  !*** ./public/src/Vis.tsx ***!
-  \****************************/
+/***/ "./public/components/Vis.tsx":
+/*!***********************************!*\
+  !*** ./public/components/Vis.tsx ***!
+  \***********************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -1374,7 +1011,7 @@ exports.default = exports.Vis = void 0;
 
 var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
 
-var _Pipeline = _interopRequireDefault(__webpack_require__(/*! ../src/Pipeline */ "./public/src/Pipeline.tsx"));
+var _Pipeline = _interopRequireDefault(__webpack_require__(/*! ./Pipeline */ "./public/components/Pipeline.tsx"));
 
 var _eui = __webpack_require__(/*! @elastic/eui */ "@elastic/eui");
 
@@ -1411,9 +1048,7 @@ class Vis extends _react.default.Component {
       queueSizePic: this.props.queueSizePic,
       queueItemsCenshare: this.props.queueItemsCenshare,
       queueItemsPic: this.props.queueItemsPic
-    }), /*#__PURE__*/_react.default.createElement(_eui.EuiToast // title=""
-    // color="success"
-    , {
+    }), /*#__PURE__*/_react.default.createElement(_eui.EuiToast, {
       iconType: ""
     }, /*#__PURE__*/_react.default.createElement("p", null, /*#__PURE__*/_react.default.createElement("span", {
       style: {
@@ -1457,6 +1092,336 @@ function useWindowSize() {
   }, []);
   return size;
 }
+
+/***/ }),
+
+/***/ "./public/components/app.tsx":
+/*!***********************************!*\
+  !*** ./public/components/app.tsx ***!
+  \***********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = exports.QueuesPluginApp = void 0;
+
+var _react = _interopRequireWildcard(__webpack_require__(/*! react */ "react"));
+
+var _i18n = __webpack_require__(/*! @kbn/i18n */ "@kbn/i18n");
+
+var _react2 = __webpack_require__(/*! @kbn/i18n/react */ "@kbn/i18n/react");
+
+var _reactRouterDom = __webpack_require__(/*! react-router-dom */ "react-router-dom");
+
+__webpack_require__(/*! ../src/App.css */ "./public/src/App.css");
+
+var _Vis = __webpack_require__(/*! ./Vis */ "./public/components/Vis.tsx");
+
+var _eui = __webpack_require__(/*! @elastic/eui */ "@elastic/eui");
+
+var _common = __webpack_require__(/*! ../../common */ "./common/index.ts");
+
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+class QueuesPluginApp extends _react.Component {
+  constructor(props) {
+    super(props);
+
+    _defineProperty(this, "state", {
+      censhareTimestamps: [],
+      picTimestamps: [],
+      queueSizeCenshare: 0,
+      queueSizePic: 0,
+      queueItemsCenshare: [],
+      queueItemsPic: [],
+      updatedTimestamp: "undefined",
+      item: "undefined",
+      intervalId: null,
+      queueName: "undefined"
+    });
+
+    _defineProperty(this, "updateMetrics", () => {
+      this.updateCenshareQueueSize();
+      this.updatePicQueueSize();
+      this.updatePicQueueItems();
+      this.updateCenshareQueueItems();
+    });
+
+    _defineProperty(this, "predictionHandler", () => {
+      this.props.http.get('http://localhost:5000/updatePrediction').then(res => {});
+      console.log('update button clicked');
+      let now = new Date();
+      console.log("now: ", now);
+      this.setState({
+        updatedTimestamp: now.toDateString() + " " + now.toTimeString()
+      });
+      this.props.notifications.toasts.addSuccess(_i18n.i18n.translate('productQueues.dataUpdated', {
+        defaultMessage: 'Predicitons Updated!'
+      }));
+    });
+
+    _defineProperty(this, "onClickHandler3", () => {
+      const body = {
+        item: this.state.item,
+        name: "products"
+      };
+      this.props.http.post("/api/censhare/item", {
+        body: JSON.stringify(body)
+      }).then(res => {
+        if (res) {
+          //console.log("DATA res cen: ", res.data.aggregations)
+          this.setState({
+            censhareTimestamps: res.data.aggregations
+          });
+        }
+      });
+      this.props.http.post("/api/pic/item", {
+        body: JSON.stringify(body)
+      }).then(res2 => {
+        if (res2) {
+          //console.log("DATA res pic: ", res2.data.aggregations)
+          this.setState({
+            picTimestamps: res2.data.aggregations
+          });
+        }
+      });
+    });
+
+    _defineProperty(this, "updateCenshareQueueItems", () => {
+      const body = {
+        name: "products"
+      };
+      this.props.http.post("/api/censhare/throughput/items", {
+        body: JSON.stringify(body)
+      }).then(res => {
+        //console.log("censhare items obj: ", res);
+        this.setState({
+          queueItemsCenshare: res.data.aggregations
+        });
+      });
+    });
+
+    _defineProperty(this, "updatePicQueueItems", () => {
+      const body = {
+        name: "products"
+      };
+      this.props.http.post("/api/pic/throughput/items", {
+        body: JSON.stringify(body)
+      }).then(res => {
+        //console.log("pic items obj: ", res);
+        this.setState({
+          queueItemsPic: res.data.aggregations
+        });
+      });
+    });
+
+    _defineProperty(this, "updatePicQueueSize", () => {
+      const body = {
+        name: "products"
+      };
+      this.props.http.post("/api/pic/size", {
+        body: JSON.stringify(body)
+      }).then(res => {
+        this.setState({
+          queueSizePic: res.data.hits.hits[0]._source.size
+        });
+        console.log("pic queue size: ", res.data.hits.hits[0]._source.size);
+      });
+    });
+
+    _defineProperty(this, "handleChange", event => {
+      this.setState({
+        item: event.target.value
+      });
+    });
+
+    _defineProperty(this, "filterChange", event => {
+      console.log("Filter queue: ", event.target.value);
+      this.setState({
+        queueName: event.target.value
+      });
+    });
+
+    this.state = this.state;
+  }
+
+  componentDidMount() {
+    var intervalId = setInterval(this.updateMetrics, 5000);
+    this.setState({
+      intervalId: intervalId
+    });
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.state.intervalId);
+  }
+
+  updateCenshareQueueSize() {
+    const body = {
+      name: "products"
+    };
+    this.props.http.post("/api/censhare/size", {
+      body: JSON.stringify(body)
+    }).then(res => {
+      this.setState({
+        queueSizeCenshare: res.data.hits.hits[0]._source.size
+      });
+      console.log("cen queue size: ", res.data.hits.hits[0]._source.size);
+    });
+  }
+
+  // Render the application DOM.
+  // Note that `navigation.ui.TopNavMenu` is a stateful component exported on the `navigation` plugin's start contract.
+  render() {
+    return /*#__PURE__*/_react.default.createElement(_reactRouterDom.BrowserRouter, {
+      basename: this.props.basename
+    }, /*#__PURE__*/_react.default.createElement(_react2.I18nProvider, null, /*#__PURE__*/_react.default.createElement(_react.default.Fragment, null, /*#__PURE__*/_react.default.createElement(this.props.navigation.ui.TopNavMenu, {
+      appName: _common.PLUGIN_ID,
+      showSearchBar: true
+    }), /*#__PURE__*/_react.default.createElement(_eui.EuiPage, {
+      restrictWidth: "1500px"
+    }, /*#__PURE__*/_react.default.createElement(_eui.EuiPageBody, null, /*#__PURE__*/_react.default.createElement(_eui.EuiPageHeader, null, /*#__PURE__*/_react.default.createElement(_eui.EuiTitle, {
+      size: "l"
+    }, /*#__PURE__*/_react.default.createElement("h1", null, /*#__PURE__*/_react.default.createElement(_react2.FormattedMessage, {
+      id: "productQueues.helloWorldText",
+      defaultMessage: "{name}",
+      values: {
+        name: _common.PLUGIN_NAME
+      }
+    })))), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("div", {
+      className: "filter-form-conatiner",
+      style: filterFormContainer
+    }, /*#__PURE__*/_react.default.createElement(_eui.EuiFormRow, {
+      label: ""
+    }, /*#__PURE__*/_react.default.createElement(_eui.EuiFieldText, {
+      placeholder: "Search Items...",
+      id: "productQueues.itemField",
+      onChange: this.handleChange
+    })), /*#__PURE__*/_react.default.createElement(_eui.EuiSelect, {
+      onChange: this.filterChange,
+      options: [{
+        value: 'products',
+        text: 'Products'
+      }, {
+        value: 'productrelation',
+        text: 'Product Relation'
+      }, {
+        value: 'csproducts',
+        text: 'CS Products'
+      }, {
+        value: 'stext',
+        text: 'S Text'
+      }, {
+        value: 'featurestories',
+        text: 'Feature Stories'
+      }]
+    }), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
+      type: "primary",
+      size: "m",
+      onClick: this.onClickHandler3
+    }, "Search"), /*#__PURE__*/_react.default.createElement(_eui.EuiButton, {
+      type: "primary",
+      color: "secondary",
+      onClick: this.predictionHandler,
+      fill: true,
+      size: "m",
+      style: {
+        marginLeft: "20px"
+      }
+    }, "Update Predictions")), /*#__PURE__*/_react.default.createElement(_Vis.Vis, {
+      picTimestamps: this.state.picTimestamps ? this.state.picTimestamps : [],
+      censhareTimestamps: this.state.censhareTimestamps ? this.state.censhareTimestamps : [],
+      queueSizeCenshare: this.state.queueSizeCenshare,
+      queueSizePic: this.state.queueSizePic,
+      queueItemsCenshare: this.state.queueItemsCenshare ? this.state.queueItemsCenshare : null,
+      queueItemsPic: this.state.queueItemsPic ? this.state.queueItemsPic : null,
+      updatedTimestamp: this.state.updatedTimestamp ? this.state.updatedTimestamp : undefined
+    })), /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("table", null, /*#__PURE__*/_react.default.createElement("thead", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("th", null, "Tier"), /*#__PURE__*/_react.default.createElement("th", null, "Item"))), /*#__PURE__*/_react.default.createElement("tbody", null, /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "4288291908")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3506464042")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "3810442950")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Censhare"), /*#__PURE__*/_react.default.createElement("td", null, "2741829033")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "1400457484")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "3547747429")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "322537720")), /*#__PURE__*/_react.default.createElement("tr", null, /*#__PURE__*/_react.default.createElement("td", null, "Pic"), /*#__PURE__*/_react.default.createElement("td", null, "4181184071"))))))))));
+  }
+
+}
+
+exports.QueuesPluginApp = QueuesPluginApp;
+var _default = QueuesPluginApp;
+exports.default = _default;
+
+const ResponseDisplay = ({
+  data
+}) => {
+  if (data) {
+    return /*#__PURE__*/_react.default.createElement(_eui.EuiPageContent, null, /*#__PURE__*/_react.default.createElement("div", null, /*#__PURE__*/_react.default.createElement("pre", null, JSON.stringify(data, null, 2))));
+  }
+
+  return /*#__PURE__*/_react.default.createElement("div", null);
+};
+
+const filterFormContainer = {
+  backgroundColor: "#F5F9FC",
+  height: "80px",
+  justifyContent: "center",
+  display: "flex",
+  paddingTop: "30px"
+};
+const input = {
+  height: "40px",
+  border: "2px solid #dbdbdb",
+  borderRadius: "30px"
+};
+const select = {
+  color: "black",
+  lineHeight: "32px",
+  height: "46px",
+  padding: "5px 50px 5px 20px",
+  borderRadius: "30px",
+  border: "2px solid #dbdbdb",
+  cursor: "pointer"
+};
+const searchBtn = {
+  backgroundColor: "#FE9C6A",
+  height: "46px",
+  color: "white",
+  padding: "5px 20px 5px 20px",
+  cursor: "pointer",
+  border: "2px solid #FE9C6A",
+  borderRadius: "50px"
+};
+const form = {
+  marginTop: "auto",
+  marginBottom: "auto",
+  display: "flex"
+};
+const predictionBtn = {
+  backgroundColor: "#F5F9FC",
+  height: "30px",
+  color: "black",
+  cursor: "pointer",
+  fontWeight: "bold",
+  border: "none",
+  borderBottom: "2px solid #F5F9FC",
+  marginLeft: "50px",
+  marginTop: "auto",
+  marginBottom: "auto"
+};
+
+/***/ }),
+
+/***/ "./public/src/App.css":
+/*!****************************!*\
+  !*** ./public/src/App.css ***!
+  \****************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+
 
 /***/ })
 
