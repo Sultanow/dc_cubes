@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-
+import LoadingOverlay from 'fork-victorvhn-react-loading-overlay'
 
 import {
     EuiIcon
@@ -9,14 +9,15 @@ import {
 interface QueueMetricsState {
     queueSize: number,
     queueItems: Array<string>,
-    queueUtilization: any,
-    queueThroughput: any,
+    queueUtilization: number,
+    queueThroughput: number
 }
 
 interface QueueMetricsProps {
     queueSize: number,
     queueItems: object,
-    tierName: String
+    tierName: String,
+    isLoadingMetrics: Boolean
 }
 
 export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState> {
@@ -25,7 +26,7 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
         queueSize: 0,
         queueItems: [],
         queueUtilization: 0,
-        queueThroughput: 0,
+        queueThroughput: 0
     }
 
     constructor(props: any) {
@@ -40,15 +41,16 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
         return {
             queueSize: nextProps.queueSize,
             queueItems: nextProps.queueItems,
+            isLoadingMetrics: nextProps.isLoadingMetrics 
         };
     }
 
     componentDidMount() {
-        
+
     }
 
     componentDidUpdate() {
-        //console.log("items: ", this.state.queueItems)
+        
     }
 
     render() {
@@ -59,25 +61,34 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
                     <span style={{ fontWeight: "bold" }}>Tier: </span><span>{this.props.tierName}</span>
                 </div>
                 <div >
+
                     <div className="metrics-container" style={metricsContainer}>
+
+
                         <EuiIcon style={{ marginTop: "auto", marginBottom: "auto" }} size="l" type="visGauge" />
-                        <table className="metrics-table" style={table}>
-                            <thead style={thead}>
-                                <tr style={tr}>
-                                    <th style={th}>Queue Size:</th>
-                                    <th style={th}>Throughput:</th>
-                                    <th style={th}>Utilization:</th>
-                                </tr>
-                            </thead>
-                            <tbody style={tbody}>
-                                <tr>
-                                    <td style={td}>{this.state.queueSize ? this.state.queueSize : 0}</td>
-                                    <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueThroughput(this.state.queueItems): 0}/h</td>
-                                    <td style={td}>{this.state.queueUtilization}%</td>
-                                </tr>
-                            </tbody>
-                        </table>
+                        <LoadingOverlay
+                            active={this.props.isLoadingMetrics}
+                            spinner
+                            text='Loading your content...'>
+                            <table className="metrics-table" style={this.props.isLoadingMetrics ? table.isLoading : table}>
+                                <thead style={thead}>
+                                    <tr style={tr}>
+                                        <th style={th}>Queue Size:</th>
+                                        <th style={th}>Throughput:</th>
+                                        <th style={th}>Utilization:</th>
+                                    </tr>
+                                </thead>
+                                <tbody style={tbody}>
+                                    <tr>
+                                        <td style={td}>{this.state.queueSize ? this.state.queueSize : 0}</td>
+                                        <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueThroughput(this.state.queueItems) : 0}/h</td>
+                                        <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueUtilization(this.state.queueItems) : 0}%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </LoadingOverlay>
                     </div>
+
                 </div>
             </div>
         )
@@ -87,7 +98,13 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
 export default QueueMetrics
 
 const table = {
-    marginLeft: "8px"
+    
+    marginLeft: "8px",
+
+    isLoading:{
+        opacity: "0%",
+        marginLeft: "8px",
+    }
 }
 
 const tr = {
@@ -138,23 +155,102 @@ function intersect(a: Array<string>, b: Array<string>): Array<string> {
     return [...new Set(a)].filter(x => setB.has(x));
 }
 
+//Differnce of two Array
+function arr_diff(a1:Array<string>, a2:Array<string>):Array<string> {
+    const a:Array<string> = [], diff:Array<string> = [];
+    for (var i = 0; i < a1.length; i++) {
+        a[a1[i]] = true;
+    }
+
+    for (var i = 0; i < a2.length; i++) {
+        if (a[a2[i]]) {
+            delete a[a2[i]];
+        } else {
+            a[a2[i]] = true;
+        }
+    }
+
+    for (var k in a) {
+        diff.push(k);
+    }
+
+    return diff;
+}
 
 function calculateQueueThroughput(queueItems: any): number {
-    if(queueItems.doc_early.hits.hits[0] != undefined && queueItems.doc_late.hits.hits[0] != undefined){
+    if (queueItems.doc_early.hits.hits[0] != undefined && queueItems.doc_late.hits.hits[0] != undefined) {
+        let itemsArrayEarly: Array<string>
+        let itemsArrayLate: Array<string>
+        
         const sizeDocEarly: number = queueItems.doc_early.hits.hits[0]._source.size
-        const itemsDocEarly: string = queueItems.doc_early.hits.hits[0]._source.items
-        const itemsDocLate: string = queueItems.doc_late.hits.hits[0]._source.items
-        const itemsArrayEarly: Array<string> = itemsDocEarly.split(' '); // split string on space
-        const itemsArrayLate: Array<string> = itemsDocLate.split(' '); 
+        const sizeDocLate: number = queueItems.doc_late.hits.hits[0]._source.size
+        const itemsDocEarly: string = queueItems.doc_early.hits.hits[0]._source.items.toString()
+        const itemsDocLate: string = queueItems.doc_late.hits.hits[0]._source.items.toString()
+        
+        if(itemsDocEarly.indexOf(' ') > 0 && itemsDocEarly !== ""){
+            itemsArrayEarly = itemsDocEarly.split(' '); // split string on space
+            itemsArrayLate = itemsDocLate.split(' ');
+        }
+        else{
+            itemsArrayEarly = []
+            itemsArrayLate = []
+        }
+        
         const intersectItemsArray: Array<string> = intersect(itemsArrayEarly, itemsArrayLate)
         const lenghIntersection: number = intersectItemsArray.length;
         const diff: number = sizeDocEarly - lenghIntersection
-        console.log("throughput: ", diff)
+
         return diff
     }
-    else{
-        console.log("throughput: ", 0)
+    else {
         return 0
-        
+
     }
 }
+
+function calculateQueueUtilization(queueItems: any): number{
+    if (queueItems.doc_early.hits.hits[0] != undefined && queueItems.doc_late.hits.hits[0] != undefined) {
+        let itemsArrayEarly: Array<string>
+        let itemsArrayLate: Array<string>
+        
+        const sizeDocLate: number = queueItems.doc_late.hits.hits[0]._source.size
+        const sizeDocEarly: number = queueItems.doc_late.hits.hits[0]._source.size
+        const itemsDocEarly: string = queueItems.doc_early.hits.hits[0]._source.items.toString()
+        const itemsDocLate: string = queueItems.doc_late.hits.hits[0]._source.items.toString()
+        
+        if(itemsDocEarly.indexOf(' ') > 0 && itemsDocEarly !== ""){
+            itemsArrayEarly = itemsDocEarly.split(' '); // split string on space
+            itemsArrayLate = itemsDocLate.split(' ');
+        }
+        else{
+            itemsArrayEarly = []
+            itemsArrayLate = []
+        }
+
+        const intersectItemsArray: Array<string> = intersect(itemsArrayEarly, itemsArrayLate)
+        const lenghIntersection: number = intersectItemsArray.length;
+
+        const diff: number = sizeDocEarly - lenghIntersection
+
+        const newItemsLength = arr_diff(itemsArrayEarly, itemsArrayLate).length
+
+        const utilization:number =  sizeDocEarly / diff
+
+        if(!Object.is(NaN, utilization)){
+            return Math.round(utilization)
+        }
+        else{
+            return 0
+        }
+        
+    }
+    else {
+        return 0
+
+    }
+}
+
+
+// 100  ... 120(+20) ... 30(-90)
+
+// 90 / 100 -> 90%

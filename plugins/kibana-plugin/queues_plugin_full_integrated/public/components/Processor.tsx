@@ -17,7 +17,8 @@ interface ProcessorProps {
     queueSize?: any,
     timeLeft: any,
     queueItems?: any,
-    progessStatus: number
+    progessStatus: number, 
+    isLoadingMetrics: Boolean
 }
 
 export class Processor extends Component<ProcessorProps,ProcessorState> {
@@ -46,7 +47,7 @@ export class Processor extends Component<ProcessorProps,ProcessorState> {
 
         return (
             <div className="processor-outer-container">
-                {!this.props.isFirstProcessor ? <QueueMetrics tierName={this.props.queueName} queueSize={this.props.queueSize} queueItems={this.props.queueItems}/> : null}
+                {!this.props.isFirstProcessor ? <QueueMetrics isLoadingMetrics={this.props.isLoadingMetrics} tierName={this.props.queueName} queueSize={this.props.queueSize} queueItems={this.props.queueItems}/> : null}
                 <div className="processor-container" style={processorContainer}>
                     {!this.props.isFirstProcessor ? <TimeBox isEnter={true} timestamp={this.props.timestamps.queue_enter}/> : null}
                     <ProcessorBox progessStatus={this.props.progessStatus} isLastProcessor={this.props.isLastProcessor}

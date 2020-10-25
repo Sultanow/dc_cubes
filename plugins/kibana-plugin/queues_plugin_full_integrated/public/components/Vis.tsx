@@ -16,7 +16,8 @@ interface VisProps {
     queueSizePic: number,
     queueItemsCenshare: object,
     queueItemsPic: object,
-    updatedTimestamp: string, 
+    updatedTimestamp: string,
+    isLoadingMetrics: Boolean
 
 }
 
@@ -49,7 +50,8 @@ export class Vis extends React.Component<VisProps, VisState> {
                     queueSizeCenshare={this.props.queueSizeCenshare}
                     queueSizePic={this.props.queueSizePic}
                     queueItemsCenshare={this.props.queueItemsCenshare}
-                    queueItemsPic={this.props.queueItemsPic} />
+                    queueItemsPic={this.props.queueItemsPic} 
+                    isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <EuiToast 
                     iconType="">
                     <p><span style={{fontWeight:"bold"}}>Last Prediction Update:</span><span> {this.state.updatedTimestamp != "unknown" && this.state.updatedTimestamp != undefined ? this.state.updatedTimestamp : 'Unknown' }</span></p>

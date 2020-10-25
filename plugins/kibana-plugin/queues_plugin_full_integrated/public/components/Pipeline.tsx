@@ -7,7 +7,8 @@ interface PipelineProps {
     queueSizeCenshare: number,
     queueSizePic: number,
     queueItemsCenshare: object,
-    queueItemsPic: object
+    queueItemsPic: object, 
+    isLoadingMetrics: Boolean
 }
 
 interface PipeLineState{
@@ -52,7 +53,8 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 isFirstProcessor={true}
                 processorName={"ERP"}
                 timeLeft={getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left)}
-                progessStatus={100}/>
+                progessStatus={100}
+                isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
                 processorName={"PIM Edit"}
@@ -61,8 +63,9 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 timestamps={this.props.censhareTimestamps}
                 queueSize={this.props.queueSizeCenshare}
                 timeLeft={getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left)}
-                queueItems={this.props.queueItemsPic}
-                progessStatus={100}/>
+                queueItems={this.props.queueItemsCenshare}
+                progessStatus={100}
+                isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
                 processorName={"PIM Browse/ B2B"}
@@ -71,8 +74,9 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 timestamps={this.props.picTimestamps}
                 queueSize={this.props.queueSizePic}
                 timeLeft={""}
-                queueItems={this.props.queueItemsCenshare}
-                progessStatus={0}/>
+                queueItems={this.props.queueItemsPic}
+                progessStatus={0}
+                isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={true}
                 isFirstProcessor={false}
                 processorName={"D2C"}
@@ -82,7 +86,8 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 queueSize={0}
                 timeLeft={""}
                 queueItems={[]}
-                progessStatus={0}/>
+                progessStatus={0}
+                isLoadingMetrics={this.props.isLoadingMetrics}/>
             </div>
         )
     }
@@ -93,8 +98,6 @@ export default Pipeline
 function getTimeLeft(enter: any, left: any): any{
 
     if(enter && left && typeof enter.hits.hits[0] === "object" && typeof left.hits.hits[0] === "object"){
-        console.log("type enter: ", typeof(enter))
-        console.log("type left: ", typeof(left))
         var hours = hoursLeft(new Date(enter.hits.hits[0]._source.timestamp).toString(), new Date(left.hits.hits[0]._source.timestamp).toString())
         return hours
     }
@@ -108,7 +111,6 @@ function hoursLeft(enter:string, left:string): number{
     var leftDate = new Date(left)
 
     var hours = Math.abs(enterDate.getTime() - leftDate.getTime()) / 36e5
-    console.log("Hours Left: ", hours)
     
     if(Math.round(hours) < 1){
         return hours

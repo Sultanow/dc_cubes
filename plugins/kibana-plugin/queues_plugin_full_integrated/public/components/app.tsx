@@ -52,7 +52,8 @@ type QueuesPluginAppState = {
   updatedTimestamp: string,
   item: string, 
   intervalId: any, 
-  queueName: string
+  queueName: string,
+  isLoadingMetrics: Boolean
 }
 
 interface QueuesPluginAppProps {
@@ -74,7 +75,8 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     updatedTimestamp: "undefined",
     item: "undefined",
     intervalId: null, 
-    queueName: "undefined"
+    queueName: "products",
+    isLoadingMetrics: true
   }
 
   constructor(props: any) {
@@ -85,8 +87,10 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
 
   }
 
+  //item in pic & censhare 3547747429
+
   componentDidMount() {
-    var intervalId = setInterval(this.updateMetrics, 5000);
+    var intervalId = setInterval(this.updateMetrics, 2000);
     this.setState({intervalId: intervalId});
   }
 
@@ -95,20 +99,22 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   }
 
   updateMetrics = () => {
+    this.setState({isLoadingMetrics: false})
     this.updateCenshareQueueSize();
     this.updatePicQueueSize();
     this.updatePicQueueItems();
     this.updateCenshareQueueItems();
+    console.log(".")
+    console.log("Queue metrics updated.")
   }
 
   predictionHandler = () => {
-
     this.props.http.get('http://localhost:5000/updatePrediction').then((res) => {
     });
 
     console.log('update button clicked')
     let now = new Date()
-    console.log("now: ", now)
+    //console.log("now: ", now)
 
     this.setState({ updatedTimestamp: now.toDateString() + " " + now.toTimeString() });
 
@@ -119,62 +125,72 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     );
   };
 
-  onClickHandler3 = () => {
-    const body = { item: this.state.item, name: "products" };
+  onClickSearchHandler = () => {
+    const body = { item: this.state.item, name: this.state.queueName };
     this.props.http.post("/api/censhare/item", { body: JSON.stringify(body) }).then(res => {
       if (res) {
         //console.log("DATA res cen: ", res.data.aggregations)
         this.setState({ censhareTimestamps: res.data.aggregations });
       }
     });
-    this.props.http.post("/api/pic/item", { body: JSON.stringify(body) }).then(res2 => {
-      if (res2) {
+    this.props.http.post("/api/pic/item", { body: JSON.stringify(body) }).then(res => {
+      if (res) {
         //console.log("DATA res pic: ", res2.data.aggregations)
-        this.setState({ picTimestamps: res2.data.aggregations })
+        this.setState({ picTimestamps: res.data.aggregations })
       }
     });
   };
 
   updateCenshareQueueItems  = () => {
-    const body = { name: "products" };
+    const body = { name: this.state.queueName };
     this.props.http.post("/api/censhare/throughput/items", { body: JSON.stringify(body) }).then(res => {
-      //console.log("censhare items obj: ", res);
-      this.setState({ queueItemsCenshare: res.data.aggregations });
+      console.log("censhare items obj: ", res);
+        this.setState({ queueItemsCenshare: res.data.aggregations });
     });
   }
 
   updatePicQueueItems = () => {
-    const body = { name: "products" };
+    const body = { name: this.state.queueName };
     this.props.http.post("/api/pic/throughput/items", { body: JSON.stringify(body) }).then(res => {
-      //console.log("pic items obj: ", res);
-      this.setState({ queueItemsPic: res.data.aggregations })
+      console.log("pic items obj: ", res);
+        this.setState({ queueItemsPic: res.data.aggregations })
     });
   }
 
   updateCenshareQueueSize() {
-    const body = { name: "products" };
+    const body = { name: this.state.queueName };
     this.props.http.post("/api/censhare/size", { body: JSON.stringify(body) }).then(res => {
-      this.setState({ queueSizeCenshare: res.data.hits.hits[0]._source.size })
-      console.log("cen queue size: ", res.data.hits.hits[0]._source.size);
+      console.log("test cen queue size: ", res.data);  
+      if(typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0){
+          this.setState({ queueSizeCenshare: res.data.hits.hits[0]._source.size })
+        }
+      
     });
   }
 
   updatePicQueueSize  = () => {
-    const body = { name: "products" };
+    const body = { name: this.state.queueName };
     this.props.http.post("/api/pic/size", { body: JSON.stringify(body) }).then(res => {
-      this.setState({ queueSizePic: res.data.hits.hits[0]._source.size })
-      console.log("pic queue size: ", res.data.hits.hits[0]._source.size);
+      if(typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0){
+        this.setState({ queueSizePic: res.data.hits.hits[0]._source.size })
+      }
     });
   }
 
-  handleChange = (event) => {
+  onChangeItemNameHandler = (event) => {
     this.setState({ item: event.target.value })
   };
 
-  // TODO
+  onfilterChangedCallback(){
+    this.onClickSearchHandler();
+    this.updateMetrics();
+  }
+
   filterChange = (event) => {
     console.log("Filter queue: ", event.target.value)
-    this.setState({ queueName: event.target.value })
+    this.setState({ queueName: event.target.value }, this.onfilterChangedCallback)
+    
+    //this.updateMetrics();
   }
 
   // Render the application DOM.
@@ -201,18 +217,18 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
                 <EuiPageContent>
                   <div className="filter-form-conatiner" style={filterFormContainer}>
                     <EuiFormRow label="">
-                      <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={this.handleChange} />
+                      <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={this.onChangeItemNameHandler} />
                     </EuiFormRow>
                     <EuiSelect onChange={this.filterChange}
                       options={[
                         { value: 'products', text: 'Products' },
-                        { value: 'productrelation', text: 'Product Relation' },
+                        { value: 'productrelations', text: 'Product Relation' },
                         { value: 'csproducts', text: 'CS Products' },
                         { value: 'stext', text: 'S Text' },
                         { value: 'featurestories', text: 'Feature Stories' }
                       ]}
                     />
-                    <EuiButton type="primary" size="m" onClick={this.onClickHandler3}>Search</EuiButton>
+                    <EuiButton type="primary" size="m" onClick={this.onClickSearchHandler}>Search</EuiButton>
                     <EuiButton type="primary" color="secondary" onClick={this.predictionHandler} fill size="m" style={{ marginLeft: "20px" }}>Update Predictions</EuiButton>
                   </div>
                   <Vis picTimestamps={this.state.picTimestamps ? this.state.picTimestamps : []}
@@ -222,51 +238,8 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
                     queueItemsCenshare={this.state.queueItemsCenshare ? this.state.queueItemsCenshare : null}
                     queueItemsPic={this.state.queueItemsPic ? this.state.queueItemsPic : null}
                     updatedTimestamp={this.state.updatedTimestamp ? this.state.updatedTimestamp : undefined}
+                    isLoadingMetrics={this.state.isLoadingMetrics}
                   />
-                </EuiPageContent>
-                <EuiPageContent>
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Tier</th>
-                        <th>Item</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>Censhare</td>
-                        <td>4288291908</td>
-                      </tr>
-                      <tr>
-                        <td>Censhare</td>
-                        <td>3506464042</td>
-                      </tr>
-                      <tr>
-                        <td>Censhare</td>
-                        <td>3810442950</td>
-                      </tr>
-                      <tr>
-                        <td>Censhare</td>
-                        <td>2741829033</td>
-                      </tr>
-                      <tr>
-                        <td>Pic</td>
-                        <td>1400457484</td>
-                      </tr>
-                      <tr>
-                        <td>Pic</td>
-                        <td>3547747429</td>
-                      </tr>
-                      <tr>
-                        <td>Pic</td>
-                        <td>322537720</td>
-                      </tr>
-                      <tr>
-                        <td>Pic</td>
-                        <td>4181184071</td>
-                      </tr>
-                    </tbody>
-                  </table>
                 </EuiPageContent>
               </EuiPageBody>
             </EuiPage>
