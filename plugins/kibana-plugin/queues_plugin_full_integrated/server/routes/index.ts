@@ -205,10 +205,10 @@ export function defineRoutes(router: IRouter) {
           { "match": { "tier": "pic" }},
           {"range" : {
             "timestamp" : {
-              "gte" : "2020-06-24T12:00:00",
-              "lt" :  "2020-06-24T13:00:00"
-              //"gte" : "now-1h",
-              //"lt" :  "now"
+              //"gte" : "2020-06-24T12:00:00",
+              //"lt" :  "2020-06-24T13:00:00"
+              "gte" : "now-1h",
+              "lt" :  "now"
           }}
       }
         ]
@@ -261,10 +261,10 @@ export function defineRoutes(router: IRouter) {
           { "match": { "tier": "censhare" }},
           {"range" : {
             "timestamp" : {
-              "gte" : "2020-06-24T12:00:00",
-              "lt" :  "2020-06-24T13:00:00"
-              //"gte" : "now-1h",
-              //"lt" :  "now"
+              //"gte" : "2020-06-24T12:00:00",
+              //"lt" :  "2020-06-24T13:00:00"
+              "gte" : "now-1h",
+              "lt" :  "now"
           }}
       }
         ]

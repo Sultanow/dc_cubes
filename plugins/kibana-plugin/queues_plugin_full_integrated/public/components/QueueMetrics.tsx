@@ -249,8 +249,3 @@ function calculateQueueUtilization(queueItems: any): number{
 
     }
 }
-
-
-// 100  ... 120(+20) ... 30(-90)
-
-// 90 / 100 -> 90%
