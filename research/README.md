@@ -10,6 +10,7 @@ In the following you will find a list of the scientific work, produced within th
 - [Thesis: Aufbau einer Integrationsarchitektur für ein Auslastungsanalysetool in Grafana](docs/theses/bachelorarbeit_odorfer.pdf)
 - [Thesis: Integration von Python-basierten Vorhersagemodellen in ein Monitoring-Webdashboard](docs/theses/Bachelorarbeit_Steindl_Sebastian.pdf)
 - [Thesis: Machine Learning für Zeitreihen – Modell zur Vorhersage von Serverauslastungen](docs/theses/bachelorarbeit_ivan_levarda.pdf)
+- [Thesis: Aufbau einer Integrationsarchitektur für ein Auslastungsanalysetool in Kibana](docs/theses/bachelorarbeit_burak_kayaalp.pdf)
 
 ## Talks
 - [Architecture Gathering](https://www.the-architecture-gathering.de/), 17. Oct 2019, _Eine Data Science-Architektur für die Analyse und Visualisierung von Rechenzentrumsdaten der Bundesagentur für Arbeit_ ([slides, german](docs/Do12-Sultanow-Sessler.pdf))
