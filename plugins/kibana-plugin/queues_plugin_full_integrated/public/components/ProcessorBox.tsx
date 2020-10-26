@@ -152,5 +152,5 @@ const processorBoxProgressPipeContainer = {
 const processorBoxProgressPipeContainerIsFirst = {
     display: "grid",
     gridTemplateColumns: "75% 25%",
-    marginTop: "209px"
+    marginTop: "205px"
 }
