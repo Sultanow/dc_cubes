@@ -29,7 +29,7 @@ node scripts/generate_plugin bsh_queue_viz
 
 cd C:\Development\kibana\plugins\bsh_queue_viz\
 yarn add @material-ui/core
-yarn add @material-ui/core
+yarn add @material-ui/lab
 yarn add @material-ui/icons --network-timeout 100000
 ```
 Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana runtime, for example into the runtime located in the "kibana-7.8.1" folder:
