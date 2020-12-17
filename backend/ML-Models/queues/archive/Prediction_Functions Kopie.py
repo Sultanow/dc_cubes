@@ -73,9 +73,7 @@ class predict():
         final_data = list()
 
         for date in datelist:
-            res = es.search(index="queues", body={
-                "from" : 0, "size" : 4000,
-                "query": {
+            res = es.search(index="queues", body={"query": {
                 "bool": {
                                                   "must": [
                                                       {"match": {
@@ -93,7 +91,7 @@ class predict():
                                                   ]
                                                   }
             }
-            })  # defined size of 2880 entries per day
+            }, size=2880)  # defined size of 2880 entries per day
             daily_data = [elem['_source'] for elem in res['hits']['hits']]
             final_data.extend(daily_data)
 
@@ -105,7 +103,9 @@ class predict():
         # Format the timestamp
         df.index = df["timestamp"]
         df.index = pd.to_datetime(df.index, format='%Y-%m-%dT%H:%M:%S.%f%z').sort_values()
-        df.drop(columns=['timestamp', 'name'], inplace=True)  # drop unnecessary columns
+        # Slice the dataframe
+        df = df[-720:]
+        df.drop(columns=['timestamp', 'name'], inplace=True)  # drop unnecassry columns
         # Create a list of the items
         df['items'] = [[str(x)] if len(str(x)) < 10 else str(x).split(" ")
                        for x in df['items']]  # convert items to list
@@ -125,7 +125,7 @@ class predict():
 
         Returns:
         data_x (list): list containing the selected sample items
-        maxlen (int): length of the dataframe
+        data_y (list): list containing the target sequences
         """
 
         # Create MultiLabelBinarized DataFrames for both queues
@@ -173,99 +173,85 @@ class predict():
         removed_q_two = q_two['n_removed_items'].values
 
         # Items to predict, which are left at the last timestamp in both queues
-        pred = q_one['items'][-1]+q_two['items'][-1]
+        pred_items = q_one['items'][-1] + q_two['items'][-1]
+        pred_items_q_one = q_one['items'][-1]
+        pred_items_q_two = q_two['items'][-1]
 
+        # List of samples
         data_x = list()
-
+        # print('len q one ', len(q_one))
+        # print('len q two ', len(q_two))
+        # print('len sizes q two', len(sizes_q_two))
+        # print('len size q one',len(sizes_q_one))
+        # print(sizes_q_one[424:452])
         # Create each sample
         for item in q_one_mlb.columns: #first queue
-            if item in pred:
-                if item in q_two_mlb.columns:
-                    # Mask the occurence of the item in both queues
-                    mask_q_one = q_one_mlb[item] != 0
-                    mask_q_two = q_two_mlb[item] != 0
-
-                    # Get the position it appears in the first queue and the first and last time in the second queue
-                    position_q_one_first = q_one_mlb[item][mask_q_one].index[0]
-                    position_q_two_first = q_two_mlb[item][mask_q_two].index[0]
-                    position_q_two_last = q_two_mlb[item][mask_q_two].index[-1]
-
-                    # Filter out odd behaviour (if it first appears in the second and afterwards in the first)
-                    # and slice the features based on the positions
-
-                    if position_q_one_first > position_q_two_last:
-                        diff = position_q_two_last - position_q_two_first
-                        size_one = sizes_q_one[position_q_two_first:position_q_two_last]
-                        size_two = sizes_q_two[position_q_two_first:position_q_two_last]
-                        added = added_q_two[position_q_two_first:position_q_two_last]
-                        removed = removed_q_two[position_q_two_first:position_q_two_last]
-                    else:
-                        diff = position_q_two_last - position_q_one_first
-                        size_one = sizes_q_one[position_q_one_first:position_q_two_last]
-                        size_two = sizes_q_two[position_q_one_first:position_q_two_last]
-                        added = added_q_two[position_q_one_first:position_q_two_last]
-                        removed = removed_q_two[position_q_one_first:position_q_two_last]
-
-                    # Create list of steps it stays in the queue
-                    steps_list = list(range(1, diff+1))
-
-                    # Create a dataframe and fill in the features
-                    X_item = pd.DataFrame(data=steps_list, columns=[item]).astype(str).astype(int)
-                    X_item['Q_size_one'] = size_one
-                    X_item['Q_size_two'] = size_two
-                    X_item['n_added_two'] = added
-                    X_item['n_removed_two'] = removed
-                    X_item['Q_start'] = 0 #mark that the item appeared in the first queue
-
-                    # Filter out items with no values
-                    if len(X_item) == 0:
-                        continue
-
-                    data_x.append(X_item)
-
-                else:
-                    mask_q_one = q_one_mlb[item] != 0
-
-                    position_q_one_first = q_one_mlb[item][mask_q_one].index[0]
-
-                    diff = len(q_two_mlb) - position_q_one_first
-                    size_one = sizes_q_one[position_q_one_first:]
-                    size_two = sizes_q_two[position_q_one_first:]
-                    added = added_q_two[position_q_one_first:]
-                    removed = removed_q_two[position_q_one_first:]
-
-                    steps_list = list(range(1, diff+1))
-
-                    # Create a dataframe and fill in the features
-                    X_item = pd.DataFrame(data=steps_list, columns=[item]).astype(str).astype(int)
-                    X_item['Q_size_one'] = size_one
-                    X_item['Q_size_two'] = size_two
-                    X_item['n_added_two'] = added
-                    X_item['n_removed_two'] = removed
-                    X_item['Q_start'] = 0 #mark that the item appeared in the first queue
-
-                    data_x.append(X_item)
-
-
-
-
-
-        for item in q_two_mlb.columns:
-            if ((item not in q_one_mlb.columns) and (item in pred)):
-
-                # Mark the occourence of the item in the queue
+            if item in pred_items_q_two:
+                # Mask the occurence of the item in both queues
+                mask_q_one = q_one_mlb[item] != 0
                 mask_q_two = q_two_mlb[item] != 0
 
-                # Get the first and last appearance of the item in the queue
+                # Get the position it appears in first and last in both queues
+                position_q_one_first = q_one_mlb[item][mask_q_one].index[0]
+                position_q_one_last = q_one_mlb[item][mask_q_one].index[-1]
                 position_q_two_first = q_two_mlb[item][mask_q_two].index[0]
                 position_q_two_last = q_two_mlb[item][mask_q_two].index[-1]
 
+                # Slice the features based on the position of the occurence
+                if position_q_two_first > position_q_one_last:
+                    diff = position_q_two_last - position_q_one_first
+                    size_one = sizes_q_one[position_q_one_first:position_q_two_last]
+                    size_two = sizes_q_two[position_q_one_first:position_q_two_last]
+                    added = added_q_two[position_q_one_first:position_q_two_last]
+                    removed = removed_q_two[position_q_one_first:position_q_two_last]
+
+                else:
+                    diff = position_q_two_last - position_q_two_first
+                    size_one = sizes_q_one[position_q_two_first:position_q_two_last]
+                    size_two = sizes_q_two[position_q_two_first:position_q_two_last]
+                    added = added_q_two[position_q_two_first:position_q_two_last]
+                    removed = removed_q_two[position_q_two_first:position_q_two_last]
+
+                # Create list of steps it stays in the queue
+                steps_list = list(range(1, diff+1))
+
+                # Create a dataframe and fill in the features
+                X_item = pd.DataFrame(data=steps_list, columns=[item]).astype(str).astype(int)
+                # print('item name: ', item)
+                # print('position_q_one_first', position_q_one_first)
+                # print('position_q_one_last', position_q_one_last)
+                # print('position_q_two_first', position_q_two_first)
+                # print('position_q_two_last', position_q_two_last)
+                # print('Length size one ',len(size_one))
+                # print('diff', diff)
+
+                X_item['Q_size_one'] = size_one
+                X_item['Q_size_two'] = size_two
+                X_item['n_added_two'] = added
+                X_item['n_removed_two'] = removed
+                X_item['Q_start'] = 0 #mark that the item appeared in the first queue
+
+
+                if len(X_item) == 0:
+                    continue
+
+                data_x.append(X_item)
+
+            elif item not in pred_items_q_two and item in pred_items_q_one:
+
+                # Mask the occurence of the item in the first queue
+                mask_q_one = q_one_mlb[item] != 0
+
+                # Get the position it appears in the first queue
+                position_q_one_first = q_one_mlb[item][mask_q_one].index[0]
+                position_q_one_last = q_one_mlb[item][mask_q_one].index[-1]
+
                 # Slice the features based on the positions
-                diff = position_q_two_last - position_q_two_first
-                size_one = sizes_q_one[position_q_two_first:position_q_two_last]
-                size_two = sizes_q_two[position_q_two_first:position_q_two_last]
-                added = added_q_two[position_q_two_first:position_q_two_last]
-                removed = removed_q_two[position_q_two_first:position_q_two_last]
+                diff = position_q_one_last - position_q_one_first
+                size_one = sizes_q_one[position_q_one_first:position_q_one_last]
+                size_two = sizes_q_two[position_q_one_first:position_q_one_last]
+                added = added_q_two[position_q_one_first:position_q_one_last]
+                removed = removed_q_two[position_q_one_first:position_q_one_last]
 
                 # Create list of steps it stays in the queue
                 steps_list = list(range(1, diff+1))
@@ -276,24 +262,58 @@ class predict():
                 X_item['Q_size_two'] = size_two
                 X_item['n_added_two'] = added
                 X_item['n_removed_two'] = removed
-                X_item['Q_start'] = 1 #mark that it didn't appear in the first queue
-                # Filter out items with no values
+                X_item['Q_start'] = 0 #mark that the item appeared in the first queue
+
                 if len(X_item) == 0:
                     continue
+
                 data_x.append(X_item)
 
             else:
                 continue
 
 
+        for item in q_two_mlb.columns:
+            if item in pred_items_q_two:
+                if item not in q_one_mlb.columns:
+                    # Mark the occourence of the item in the second queue
+                    mask_q_two = q_two_mlb[item] != 0
 
+                    # Get the first and last appearance of the item in the queue
+                    position_q_two_first = q_two_mlb[item][mask_q_two].index[0]
+                    position_q_two_last = q_two_mlb[item][mask_q_two].index[-1]
 
+                    # Slice the features based on the positions
+                    diff = position_q_two_last - position_q_two_first
+                    size_one = sizes_q_one[position_q_two_first:position_q_two_last]
+                    size_two = sizes_q_two[position_q_two_first:position_q_two_last]
+                    added = added_q_two[position_q_two_first:position_q_two_last]
+                    removed = removed_q_two[position_q_two_first:position_q_two_last]
+
+                    # Create list of steps it stays in the queue
+                    steps_list = list(range(1, diff+1))
+
+                    # Create a dataframe and fill in the features
+                    X_item = pd.DataFrame(data=steps_list, columns=[item]).astype(str).astype(int)
+                    X_item['Q_size_one'] = size_one
+                    X_item['Q_size_two'] = size_two
+                    X_item['n_added_two'] = added
+                    X_item['n_removed_two'] = removed
+                    X_item['Q_start'] = 1 #mark that it didn't appear in the first queue
+
+                    if len(X_item) == 0:
+                        continue
+
+                    data_x.append(X_item)
+
+                else:
+                    continue
 
 
         print(len(set(q_one['items'][-1])), " items in the first queue")
         print(len(set(q_two['items'][-1])), " items in the second queue")
-        print(len(pred), " items in the first and last queue combined")
-        print(len(set(pred)), " items in the first and last queue combined without duplicates")
+        print(len(pred_items), " items in the first and last queue combined")
+        print(len(set(pred_items)), " items in the first and last queue combined without duplicates")
         print(len(data_x), ' samples created in the dataset')
 
 
@@ -312,13 +332,14 @@ class predict():
         X_pad (list): list with padded sequences'''
 
         # Load the scaler used for training
-        scaler_X = pickle.load(open("scaler_x_2q_outlier.p", "rb"))
+        scaler_X = pickle.load(open("scaler_x_2q.p", "rb"))
 
         # Scale the dataset
+        _ = [scaler_X.partial_fit(x) for x in dataset]
         X_scaled = [scaler_X.transform(x) for x in dataset]
 
-
         # Pad the sequences
+
         def pad(sequence, maxlen):
             # fills list post (at the end) with 0s to make even sized sequences
             return pad_sequences(sequence, maxlen=maxlen, dtype='float32', padding='post', value=0.0)
@@ -348,7 +369,7 @@ class predict():
         # Load the pretrained model, predict and rescale the prediction
         model = load_model(model)  # "model_2q_10epochs.h5"
         pred = model.predict(dataset_scaled)
-        scaler_y = pickle.load(open("scaler_y_2q_outlier.p", "rb"))
+        scaler_y = pickle.load(open("scaler_y_2q.p", "rb"))
         pred_rescaled = scaler_y.inverse_transform(pred.reshape(-1, 1)).reshape(pred.shape)
 
         # Create a list containing the maximum number of steps for each item
