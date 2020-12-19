@@ -102,7 +102,7 @@ class predict():
 
         # Downsample the entries
         df = df.iloc[::s_rate, :].copy()  # take every nth entry
-        df = df[:720]
+        df = df[-720:]
         # Format the timestamp
         df.index = df["timestamp"]
         df.index = pd.to_datetime(df.index, format='%Y-%m-%dT%H:%M:%S.%f%z').sort_values()
