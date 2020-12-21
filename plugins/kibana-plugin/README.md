@@ -157,3 +157,82 @@ This is the most flexible way of developing the Plug-In, since we take advantage
 
 ### Conclusion
 Being focussed on dedicated functionality in visualizating the queue status, this approach is the most appropriate. We follow this approach in the first step and we can migrate the implemented functionality later into an more standardized solution, if the standard components or the Kibana Canvas API become more powerful.
+
+# build plugin distributable for production use
+
+The plugins `poc_eldar` and `queues_plugin_full_integrated` have already been developed for the [new plugin architecture](https://www.elastic.co/blog/introducing-a-new-architecture-for-kibana). In order to build production plugins they need to be packaged (see [doc](https://www.elastic.co/guide/en/kibana/7.10/plugin-tooling.html#_build_plugin_distributable)). The packaging scripts in kibana 7.8 and 7.9 were in a transition phase towards the new plugin architecture and broken. The [old way of packaging](https://github.com/elastic/kibana/tree/7.9/packages/kbn-plugin-helpers) did no longer work, while the [new one](https://github.com/elastic/kibana/tree/7.10/packages/kbn-plugin-helpers) not yet in place (see [#71762](https://github.com/elastic/kibana/issues/71762), [#74604](https://github.com/elastic/kibana/pull/74604), [#75019](https://github.com/elastic/kibana/pull/75019), [#71762](https://github.com/elastic/kibana/issues/71762), [#70412](https://github.com/elastic/kibana/issues/70412), [#70426](https://github.com/elastic/kibana/issues/70426), [#63069](https://github.com/elastic/kibana/issues/63069)).
+
+Make sure to have at least kibana 7.10 if not yet checked out and configured:
+```
+git checkout 7.10
+# install nvm
+https://github.com/nvm-sh/nvm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
+
+# reopen terminal to get updated environment variables
+# for kibana 4.9.1 the following node version is required
+nvm install 10.22.0
+
+Now using node v10.22.0 (npm v6.14.6)
+Creating default alias: default -> 10.22.0 (-> v10.22.0)
+
+# install yarn
+# https://classic.yarnpkg.com/en/docs/install/#centos-stable
+curl --silent --location https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.repo
+sudo yum install yarn
+
+yarn policies set-version 1.22.4
+```
+
+Then building the distributable is possible
+```
+cd kibana/plugins/queues_plugin_full_integrated
+yarn kbn bootstrap
+yarn build
+```
+
+will result in
+```
+yarn run v1.22.5
+$ yarn plugin-helpers build
+$ node ../../scripts/plugin_helpers build
+ info deleting the build and target directories
+ info running @kbn/optimizer
+ │ info initialized, 0 bundles cached
+ │ info starting worker [1 bundle]
+ │ succ 1 bundles compiled successfully after 20.6 sec
+ info copying source into the build and converting with babel
+ info running yarn to install dependencies
+ info compressing plugin into [queuesPlugin-7.8.1.zip]
+Done in 30.80s.
+```
+
+It is not yet possible to install these by
+```
+sudo /usr/share/kibana/bin/kibana-plugin install file:///queuesPlugin-7.8.1.zip --allow-root
+```
+[https://www.elastic.co/guide/en/kibana/7.10/kibana-plugins.html#install-plugin]
+Therefore unzip manually in production environment
+```
+cd /usr/share/kibana/plugins/
+unzip queuesPlugin-7.8.1.zip
+# remove obsolete nested layer
+mv kibana/queuesPlugin .
+rm -r kibana
+systemctl restart kibana
+```
+
+## hints
+```
+# in case yarn throws git errors
+mkdir -p "./--git-common-dir/hooks/ 
+
+# in case node runs out of memory
+export NODE_OPTIONS="--max_old_space_size=2048"
+https://www.elastic.co/guide/en/kibana/master/development-getting-started.html
+
+# packaging entire kibana should not be necessary
+# however if it is required skip os packages, since they currenty require
+# plattform specific code to be deployed and will fail otherwise
+yarn build --skip-os-packages
+```

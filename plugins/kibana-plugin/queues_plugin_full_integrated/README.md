@@ -124,7 +124,10 @@ To map the PIA queue data, the application was tested using test data that could
   - Important has to be named as "kibana"
 - ```git init```
 - Install missing module 
-  ```yarn add fsevents```
+  ```
+  yarn add fsevents
+  yarn add fork-victorvhn-react-loading-overlay
+  ```
 - Change node version with nvm:
   ```nvm use```
   - when not requested version installed install via nvm
