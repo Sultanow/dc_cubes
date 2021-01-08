@@ -2,11 +2,13 @@
 
 
 ### File Overview
-* **archive** folder that contains multiple concepts and previous build models for item and size prediction
-* **Train_Two_Queues_Items.ipynb** jupyter notebook showing the item training process for two queues
-* **Test_Two_Queues_Items.ipynb** jupyter notebook showing the item testing process for the prediction script
-* **Predict_Two_Queues_Items_Script_CLI.py** python script that runs the prediction process for two queues with CLI
-* **Prediction_Functions.py** containing the functions which are imported in the script
+* **models** folder that contains the models and scaler for training and prediction
+* **Train_Two_Queues.ipynb** jupyter notebook showing the item training process for two queues and additional test results
+* **Testing_Two_Queues_Items.ipynb** jupyter notebook showing the item testing process for the prediction script
+* **model_predict.py** python script that runs the prediction process for two queues with CLI
+* **model_train.py** python script that runs the training process for two queues 
+* **prediction_functions.py** containing the functions which are imported in the prediction script
+* **training_functions.py** containing the functions which are imported in the training script
 * **scaler_x_2q, scaler_y_2q** pickled StandardScaler from trainingsprocess
 * **model_2q_best.h5** keras H5 format, contains the model´s architecture, weight values and compile() information
 
@@ -236,30 +238,30 @@ Resampling rate is 20.
 
 #### Predictions
 
-Due to the inconsistency of the initial queue waiting time, the prediction is tailored for each item individually and has various lengths. Down below are 3 example comparisons of our target value und the predicted output. The target value is the actual number of steps the item is still in the queue.
+Due to the inconsistency of the initial queue waiting time, the prediction is tailored for each item individually and has various lengths. Down below are example comparisons of our target value und the predicted output from the best performing model. The target value is the actual number of steps the item is still in the queue. To compare the prediction there is also a mean and median prediction for each item. Both values have been calculated before over the dataset. E.g. if the median is 150 and the item is already 100 steps in the queue, the median model will then output 50 steps.  
 
 
-![Sample1](https://user-images.githubusercontent.com/9306218/90815747-77ba0500-e32b-11ea-97a2-0ddba9f87350.png)
-![Sample2](https://user-images.githubusercontent.com/9306218/90815875-aafc9400-e32b-11ea-9b5d-faa78527244c.png)
-![Sample3](https://user-images.githubusercontent.com/9306218/90815879-ac2dc100-e32b-11ea-8f06-ca9f7abc865a.png)
-![Sample4](https://user-images.githubusercontent.com/9306218/90815888-adf78480-e32b-11ea-9fe6-f96198ea5d77.png)
-![Sample5](https://user-images.githubusercontent.com/9306218/90815891-af28b180-e32b-11ea-831a-97b379ffcf11.png)
-![Sample6](https://user-images.githubusercontent.com/9306218/90815894-b059de80-e32b-11ea-946a-b1659dd70f1f.png)
+![figure_50epochs](https://user-images.githubusercontent.com/9306218/103972176-bfbbb600-516c-11eb-9774-4e59e8b89546.png)
 
-Below is a comparison of the actual item size and the item size based only on the predicted items for the 19th June.
+The predictions are also displayed in the notebook **Train_Two_Queues.ipynb**
 
-![Unknown-9](https://user-images.githubusercontent.com/9306218/90815971-d1baca80-e32b-11ea-9ccd-bdfc007ecb4e.png)
+Below is a comparison of the actual item size in the second queue and the item size based only on the predicted items for the 14th June. We consider items that started in the first queue aswell, the real size only shows items in the second queue. Because there is a gap before the items enter the second queue, that might explain why it takes some time until the queue size reaches 0.
 
+![14junerealvsitem](https://user-images.githubusercontent.com/9306218/103972357-1fb25c80-516d-11eb-937f-53697bce437a.png)
+
+The figure can also be seen in the notebook **Testing_Two_Queues.ipynb**
 
 #### Score based on epochs
 
 The score is based on each timestep for each item compared to prediction step by step. MAE in time is based on the 10 minute steps used in the model.
 
-| Number of epochs | MAE | MAE in time |
-| --- | --- | --- |
-| 5 | 24 | 4h |
-| 10 | 22 | 3:40h |
-| 20 | 23 | 3:50h |
+| Number of epochs | MAE |
+| --- | --- |
+| 10 | 41 |
+| 25 | 43 |
+| 50 | 39 |
+
+The best model performance shows a MAE of **39**, in comparison if we used the mean MAE it shows **76** and the median MAE shows **78**.
 
 
 ## Prediction Process
@@ -290,21 +292,21 @@ Screenshot of example predictions uploaded back into ES
 
 
 ### Start the script
-To start the script you need to have **Predict_Two_Queues_Items_Script_CLI.py**, **Prediction_Functions.py**, **model_2q_best.h5**, **scaler_x_2q.p** and **scaler_y_2q.p** all in the same folder and navigate your terminal to it before executing the following statements.
+To start the script you need to navigate your terminal to the folder containing **model_predict.py**, **prediction_functions.py** and in a subfolder ./models  **model_2q_best.h5**, **scaler_x_2q.p** and **scaler_y_2q.p** 
 
-To view the additional informations about the arguments for **Predict_Two_Queues_Items_Script_CLI.py** use:
+To view the additional informations about the arguments and default arguments for **model_predict.py** use:
 ```
 python Predict_Two_Queues_Items_Script_CLI.py -h
 ```
 
 An example call with defined start and end date would look like:
 ```
-python .\Predict_Two_Queues_Items_Script_CLI.py 2020-06-14 2020-06-18 localhost 9200 ./model_2q_best.h5 queues-prediction
+python .\model_predict.py  .\models\model.h5 .\models\scaler_x.p .\models\scaler_y.p --start 2020-06-14 --end 2020-06-18 
 ```
 
-If you wish to just take the last 5 days exchange the dates with an zero, like:
+If you wish to just take the last 5 days use:
 ```
-python .\Live_Predict_Two_Queues_Items_Script_CLI.py 0 0 localhost 9200 ./model_2q_best.h5 queues-prediction
+python .\model_predict.py  .\models\model.h5 .\models\scaler_x.p .\models\scaler_y.p
 ```
 
 
