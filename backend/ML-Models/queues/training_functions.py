@@ -93,15 +93,23 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port):
     # Create pandas dataframe from final_data list
     df = pd.DataFrame(final_data)
 
+    # Format the timestamp
+    df.index = df['timestamp']
+    df.index = pd.to_datetime(df.index, format='%Y-%m-%dT%H:%M:%S.%f%z')
+    
+    # Sort the index
+    df = df.sort_index().copy()
+
     # Downsample the entries
     df = df.iloc[::s_rate, :].copy()  # take every nth entry
-    # Format the timestamp
-    df.index = df["timestamp"]
-    df.index = pd.to_datetime(df.index, format='%Y-%m-%dT%H:%M:%S.%f%z').sort_values()
+    
+    # Drop unnecessary columns
     df.drop(columns=['timestamp', 'name'], inplace=True)  # drop unnecessary columns
+    
     # Create a list of the items
     df['items'] = [[str(x)] if len(str(x)) < 10 else str(x).split(" ")
                    for x in df['items']]  # convert items to list
+    
     # Change datatype of size
     df['size'] = pd.to_numeric(df['size'])
 
@@ -321,12 +329,17 @@ def get_max_len_list(y):
     return maxlenlist
 
 
-def scale(X, y, model_name=None):
+def scale(X, y, start_date, end_date, epochs, steps, s_rate, model_name=None):
     """ Scales the datasets and saves the scaler
 
     Parameters:
     X : preprocessed dataset including features
     y : preprocessed dataset with target variable
+    start_date (str) : start date of model training
+    end_date (str) : end date of model training
+    epochs (str) : number of epochs used for model training
+    steps (str) : maximum number of steps per item
+    s_rate (str) : the sample rate, each nth entry is taken
     model_name (str) : set model name to match the scaler to the model
 
     Returns:
@@ -348,8 +361,8 @@ def scale(X, y, model_name=None):
 
     # Save the scaler
     if model_name is not None:
-        pickle.dump(scaler_X, open(f"models/scaler_x_{model_name}_2q.p", "wb"))
-        pickle.dump(scaler_y, open(f"models/scaler_y_{model_name}_2q.p", "wb"))
+        pickle.dump(scaler_X, open(f"models/scalerx_{model_name}_{start_date}_{end_date}_{epochs}epochs_{steps}steps_{s_rate}srate.p", "wb"))
+        pickle.dump(scaler_y, open(f"models/scalery_{model_name}_{start_date}_{end_date}_{epochs}epochs_{steps}steps_{s_rate}srate.p", "wb"))
 
     end = time.time()
     logging.info(f'Scale: {end - start:.2f} time elapsed')
@@ -427,7 +440,7 @@ def downsample(X_train, X_test, y_train, y_test, rate):
     return X_train_sampled, X_test_sampled, y_train_sampled, y_test_sampled
 
 
-def build_model(X_train_sampled, y_train_sampled, max_steps, n_neurons, n_epochs, 
+def build_model(X_train_sampled, y_train_sampled, max_steps, n_neurons, n_epochs, start_date, end_date, s_rate,
                 masking=True, model_name='model_2q', sample_weight=False):
     """ Model building function
 
@@ -435,11 +448,15 @@ def build_model(X_train_sampled, y_train_sampled, max_steps, n_neurons, n_epochs
     X_train_sampled : preprocessed, scaled and downsampled dataset X
     y_train_sampled : preprocessed, scaled and downsampled dataset y
     max_steps (list) : list of maximum number of steps per item in the queue (maxlenlist)
-    neurons (int) : number of neurons per LSTM Layer
-    epochs (int) : number of epochs used for training
+    n_neurons (int) : number of neurons per LSTM Layer
+    n_epochs (int) : number of epochs used for training
+    start_date (str) : start date of model training
+    end_date (str) : end date of model training
+    s_rate (str) : the sample rate, each nth entry is taken
     masking (bool) : use masking layer
     model_name (str) : set model name
     sample_weight (bool) : use sampling weight
+    
 
     Returns:
     saves trained model in the directory
@@ -466,14 +483,15 @@ def build_model(X_train_sampled, y_train_sampled, max_steps, n_neurons, n_epochs
 
     # Define CallBacks
     early_stop = EarlyStopping(monitor='mae', mode='min', patience=10)
-    mcp_save = ModelCheckpoint('model_2q_best_outlier.h5', save_best_only=True, monitor='mae', mode='min')
+    mcp_save = ModelCheckpoint(f'models/best_{model_name}_{start_date}_{end_date}_{n_epochs}epochs_{n_steps}steps_{s_rate}srate.h5', 
+                                save_best_only=True, monitor='mae', mode='min')
 
     # Start training
     model.fit(X_train_sampled, y_train_sampled, epochs=n_epochs, validation_split=0.2,
               callbacks=[early_stop, mcp_save], sample_weight=sample_weight)
 
     # Save the model in models directory
-    model.save(f'models/{model_name}_{n_epochs}_epochs.h5')
+    model.save(f'models/{model_name}_{start_date}_{end_date}_{n_epochs}epochs_{n_steps}steps_{s_rate}srate.h5')
 
     end = time.time()
     logging.info(f'Model building: {end - start:.2f} time elapsed')
@@ -574,7 +592,7 @@ def plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median
                 axs[i, j].legend()
     plt.tight_layout()
     if save_fig:
-        plt.savefig(f'figures/{save_fig}.png')
+        plt.savefig(f'figures/{model_name}.png')
     plt.show()
 
 
@@ -623,8 +641,8 @@ def pred_mae(X_test_sampled, y_test_sampled, model, scaler_y, n_plots, seed, sav
     # Predict and rescale the prediction
     pred = model.predict(X_test_sampled)
     
-    pred_mean = pred_baseline(152, X_test_sampled, pred)
-    pred_median = pred_baseline(130, X_test_sampled, pred)
+    pred_mean = pred_baseline(100, X_test_sampled, pred)
+    pred_median = pred_baseline(86, X_test_sampled, pred)
     
     # Mask again to filter out the padded values
     y_test_sampled_masked = list()

@@ -33,18 +33,22 @@ if __name__ == '__main__':
 
     model, scaler_x, scaler_y, start, end, host, port, index_es = args.model, args.scaler_x, args.scaler_y, args.start, args.end, args.host, args.port, args.index_es
 
+    # Get steps and sample rate from model_name
+    steps = int(model.split('_')[-2].split('steps')[0])
+    srate = int(model.split('_')[-1].split('srate')[0])
+
     # Get data from ES
-    q_one = es_to_df(start, end, 20, "censhare", host, port)
-    q_two = es_to_df(start, end, 20, "pic", host, port)
+    q_one = es_to_df(start, end, 20, "censhare", host, port, steps)
+    q_two = es_to_df(start, end, 20, "pic", host, port, steps)
 
     # Create dataset
     X = create_dataset_predict(q_one, q_two)
-
+    
     # Scale
-    X_pad_scaled, X_pad = scale_pad(X, 720, scaler_x)
+    X_pad_scaled, X_pad = scale_pad(X, steps, scaler_x)
 
     # Predict and upload
-    predict_upload(q_two, X, X_pad, X_pad_scaled, scaler_y, host, port, model, index_es)
+    predict_upload(q_two, X, X_pad, X_pad_scaled, scaler_y, host, port, model, index_es, srate)
 
     end = time.time()
     logging.info(f'Prediction upload finished: {end - start_time:.2f} time elapsed')

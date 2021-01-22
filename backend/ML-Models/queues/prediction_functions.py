@@ -15,7 +15,7 @@ import logging
 
 # Functions
 
-def es_to_df(start_date, end_date, s_rate, tier, host, port):
+def es_to_df(start_date, end_date, s_rate, tier, host, port, steps):
     """
     Returns data from ES based on the given time period and tier.
     Transforms and downsamples the data into a pandas dataframe.
@@ -27,6 +27,7 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port):
     tier (str): name of the queue (tier) e.g. 'pic'
     host (str): name of the host e.g. 'localhost'
     port (int): number of port e.g. 9200
+    steps (int): number of steps used in training
 
     Returns:
     pd.DataFrame: pandas DataFrame
@@ -101,16 +102,24 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port):
     # Create pandas dataframe from final_data list
     df = pd.DataFrame(final_data)
 
-    # Downsample the entries
-    df = df.iloc[::s_rate, :].copy()  # take every nth entry
-    df = df[-720:]
     # Format the timestamp
     df.index = df['timestamp']
-    df.index = pd.to_datetime(df.index, format='%Y-%m-%dT%H:%M:%S.%f%z').sort_values()
+    df.index = pd.to_datetime(df.index, format='%Y-%m-%dT%H:%M:%S.%f%z')
+    
+    # Sort the index
+    df = df.sort_index().copy()
+
+    # Downsample the entries
+    df = df.iloc[::s_rate, :].copy()  # take every nth entry
+    df = df[-steps:]
+    
+    # Drop unnecessary columns
     df.drop(columns=['timestamp', 'name'], inplace=True)  # drop unnecessary columns
+    
     # Create a list of the items
     df['items'] = [[str(x)] if len(str(x)) < 10 else str(x).split(" ")
                     for x in df['items']]  # convert items to list
+    
     # Change datatype of size
     df['size'] = pd.to_numeric(df['size'])
 
@@ -341,7 +350,7 @@ def scale_pad(dataset, maxlen, scaler_x):
     return X_pad_scaled, X_pad
 
 
-def predict_upload(q_two, dataset, dataset_pad, dataset_scaled, scaler_y, host, port, model, index_es):
+def predict_upload(q_two, dataset, dataset_pad, dataset_scaled, scaler_y, host, port, model, index_es, srate):
     '''Generates a prediction for each item and uploads the
     transformed data to ES
 
@@ -401,9 +410,12 @@ def predict_upload(q_two, dataset, dataset_pad, dataset_scaled, scaler_y, host, 
     final_df['size'] = final_df['items'].apply(lambda x: len(
         x.split(" "))-1)  # calculate the size based on items
 
+    # Get time frequency through srate
+    tfreq = int(srate/2)
+
     # Generate timestamps based on the last timestamp
     time_stamps = pd.date_range(
-        start=q_two.index[-1]+datetime.timedelta(minutes=5), periods=len(final_df), freq='5min')
+        start=q_two.index[-1]+datetime.timedelta(minutes=tfreq), periods=len(final_df), freq='{0}min'.format(tfreq))
     final_df['timestamp'] = time_stamps
     final_df['timestamp'] = final_df.timestamp.map(
         lambda x: datetime.datetime.strftime(x, '%Y-%m-%dT%H:%M:%S.%f%z'))
