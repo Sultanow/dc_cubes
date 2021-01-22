@@ -28,6 +28,7 @@ import {
 
 import { CoreStart } from '..\..\../../src/core/public';
 import { NavigationPublicPluginStart } from '..\..\../../src/plugins/navigation/public';
+import { DataPublicPluginStart } from '..\..\../../src/plugins/data/public';
 
 import { PLUGIN_ID, PLUGIN_NAME } from '../../common';
 
@@ -72,9 +73,10 @@ interface BshQueueVizAppDeps {
   basename: string;
   http: CoreStart['http'];
   navigation: NavigationPublicPluginStart;
+  data: DataPublicPluginStart;
 }
 
-export const BshQueueVizApp = ({ basename, http, navigation }: BshQueueVizAppDeps) => {
+export const BshQueueVizApp = ({ basename, http, navigation, data }: BshQueueVizAppDeps) => {
   // Use React hooks to manage state.
   const [itemSearch, setItemSearch] = useState<string | string>(); 
   const [statusText, setStatusText] = useState<string | string>();
@@ -82,7 +84,19 @@ export const BshQueueVizApp = ({ basename, http, navigation }: BshQueueVizAppDep
   const [open, setOpen] = React.useState(false);
 
   const onClickHandler = () => {
-    const body = {item:itemSearch};
+
+    let gte = "";
+    let lte = "";
+
+    if ((data.query.timefilter.timefilter.getTime().from == data.query.timefilter.history.history.items[0].from) && (data.query.timefilter.timefilter.getTime().to == data.query.timefilter.history.history.items[0].to)) {
+      gte = data.query.timefilter.timefilter.getTime().from;
+      lte = data.query.timefilter.timefilter.getTime().to;
+    } else {
+      gte = data.query.timefilter.history.history.items[0].from;
+      lte = data.query.timefilter.history.history.items[0].to;
+    }
+
+    const body = { item: itemSearch, gte: gte, lte: lte };
     http.post("/api/bsh_queue_viz/itemsearch", {body: JSON.stringify(body)}).then(res => {
       //console.log(res.data.aggregations);
       let buckets = res.data.aggregations.group_by_queue.buckets;

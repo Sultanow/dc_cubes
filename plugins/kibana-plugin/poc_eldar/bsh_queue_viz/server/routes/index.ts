@@ -14,7 +14,9 @@ export function defineRoutes(router: IRouter) {
       //see https://discuss.elastic.co/t/extract-post-data-from-request/237962/2
       validate: {
         body: schema.object({
-            item: schema.string()
+            item: schema.string(),
+            gte: schema.string(),
+            lte: schema.string()
         }),
       }
     },
@@ -24,8 +26,11 @@ export function defineRoutes(router: IRouter) {
         body: {
           "_source": ["timestamp", "name", "size"],
           "query": {
-            "match": {
-              "items": request.body.item
+            "bool": {
+              "must": [
+                { "match": { "items": request.body.item }},
+                { "range": { "timestamp": { "gte": request.body.gte,  "lte": request.body.lte }}},
+              ]
             }
           },
           "aggs": {

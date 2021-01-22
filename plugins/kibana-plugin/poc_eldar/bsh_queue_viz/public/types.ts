@@ -1,4 +1,5 @@
 import { NavigationPublicPluginStart } from '..\..\../src/plugins/navigation/public';
+import { DataPublicPluginStart } from '..\..\../src/plugins/data/public';
 
 export interface BshQueueVizPluginSetup {
   getGreeting: () => string;
@@ -7,5 +8,6 @@ export interface BshQueueVizPluginSetup {
 export interface BshQueueVizPluginStart {}
 
 export interface AppPluginStartDependencies { 
-  navigation: NavigationPublicPluginStart 
+  navigation: NavigationPublicPluginStart;
+  data: DataPublicPluginStart; 
 };

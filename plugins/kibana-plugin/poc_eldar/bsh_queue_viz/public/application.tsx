@@ -7,7 +7,7 @@ import { BshQueueVizApp } from './components/app';
 
 export const renderApp = (
     { notifications, http }: CoreStart,
-    { navigation }: AppPluginStartDependencies,
+    { navigation, data }: AppPluginStartDependencies,
     { appBasePath, element }: AppMountParameters
   ) => {
     ReactDOM.render(
@@ -16,6 +16,7 @@ export const renderApp = (
         notifications={notifications}
         http={http}
         navigation={navigation}
+        data={data}
       />,
       element
     );
