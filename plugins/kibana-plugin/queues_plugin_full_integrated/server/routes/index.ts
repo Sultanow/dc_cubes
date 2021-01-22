@@ -14,7 +14,9 @@ export function defineRoutes(router: IRouter) {
       validate: {
         body: schema.object({
             item: schema.string(),
-            name: schema.string()
+            name: schema.string(),
+            gte: schema.string(),
+            lte: schema.string()
         }),
       }
     },
@@ -28,7 +30,8 @@ export function defineRoutes(router: IRouter) {
               "must": [
                 { "match": { "items": request.body.item }},
                 { "match": { "tier": "censhare" }},
-                { "match": { "name": request.body.name }}
+                { "match": { "name": request.body.name }},
+                { "range": { "timestamp": { "gte": request.body.gte,  "lte": request.body.lte }}},
               ]
             }
           },
@@ -65,7 +68,9 @@ export function defineRoutes(router: IRouter) {
       validate: {
         body: schema.object({
             item: schema.string(),
-            name: schema.string()
+            name: schema.string(),
+            gte: schema.string(),
+            lte: schema.string()
         }),
       }
     },
@@ -80,6 +85,7 @@ export function defineRoutes(router: IRouter) {
                 { "match": { "items": request.body.item }},
                 { "match": { "tier": "pic" }},
                 { "match": { "name": request.body.name }},
+                { "range": { "timestamp": { "gte": request.body.gte,  "lte": request.body.lte }}},
               ]
             }
           },

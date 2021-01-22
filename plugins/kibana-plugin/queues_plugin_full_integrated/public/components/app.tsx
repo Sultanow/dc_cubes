@@ -39,6 +39,7 @@ import {
 
 import { CoreStart, HttpStart, HttpSetup } from '../../../../src/core/public';
 import { NavigationPublicPluginStart } from '../../../../src/plugins/navigation/public';
+import { DataPublicPluginStart } from '../../../../src/plugins/data/public';
 import { PLUGIN_ID, PLUGIN_NAME } from '../../common';
 
 
@@ -50,8 +51,8 @@ type QueuesPluginAppState = {
   queueItemsCenshare: Array<string>,
   queueItemsPic: Array<string>,
   updatedTimestamp: string,
-  item: string, 
-  intervalId: any, 
+  item: string,
+  intervalId: any,
   queueName: string,
   isLoadingMetrics: Boolean
 }
@@ -61,6 +62,7 @@ interface QueuesPluginAppProps {
   notifications: CoreStart['notifications'];
   http: CoreStart['http'];
   navigation: NavigationPublicPluginStart;
+  data: DataPublicPluginStart;
 }
 
 export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPluginAppState>{
@@ -74,9 +76,9 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     queueItemsPic: [],
     updatedTimestamp: "undefined",
     item: "undefined",
-    intervalId: null, 
+    intervalId: null,
     queueName: "products",
-    isLoadingMetrics: true
+    isLoadingMetrics: true,
   }
 
   constructor(props: any) {
@@ -91,15 +93,16 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
 
   componentDidMount() {
     var intervalId = setInterval(this.updateMetrics, 2000);
-    this.setState({intervalId: intervalId});
+    this.props.data.query.timefilter.timefilter.setTime(this.props.data.query.timefilter.timefilter.timeDefaults);
+    this.setState({ intervalId: intervalId });
   }
 
-  componentWillUnmount(){
+  componentWillUnmount() {
     clearInterval(this.state.intervalId);
   }
 
   updateMetrics = () => {
-    this.setState({isLoadingMetrics: false})
+    this.setState({ isLoadingMetrics: false })
     this.updateCenshareQueueSize();
     this.updatePicQueueSize();
     this.updatePicQueueItems();
@@ -126,7 +129,14 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   };
 
   onClickSearchHandler = () => {
-    const body = { item: this.state.item, name: this.state.queueName };
+
+    let data = this.props.data;
+    let gte = data.query.timefilter.history.history.items[0].from;
+    let lte = data.query.timefilter.history.history.items[0].to;
+
+    const body = { item: this.state.item, name: this.state.queueName, gte: gte, lte: lte };
+    console.log(body);
+
     this.props.http.post("/api/censhare/item", { body: JSON.stringify(body) }).then(res => {
       if (res) {
         //console.log("DATA res cen: ", res.data.aggregations)
@@ -141,11 +151,11 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     });
   };
 
-  updateCenshareQueueItems  = () => {
+  updateCenshareQueueItems = () => {
     const body = { name: this.state.queueName };
     this.props.http.post("/api/censhare/throughput/items", { body: JSON.stringify(body) }).then(res => {
       console.log("censhare items obj: ", res);
-        this.setState({ queueItemsCenshare: res.data.aggregations });
+      this.setState({ queueItemsCenshare: res.data.aggregations });
     });
   }
 
@@ -153,25 +163,25 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     const body = { name: this.state.queueName };
     this.props.http.post("/api/pic/throughput/items", { body: JSON.stringify(body) }).then(res => {
       console.log("pic items obj: ", res);
-        this.setState({ queueItemsPic: res.data.aggregations })
+      this.setState({ queueItemsPic: res.data.aggregations })
     });
   }
 
   updateCenshareQueueSize() {
     const body = { name: this.state.queueName };
     this.props.http.post("/api/censhare/size", { body: JSON.stringify(body) }).then(res => {
-      console.log("test cen queue size: ", res.data);  
-      if(typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0){
-          this.setState({ queueSizeCenshare: res.data.hits.hits[0]._source.size })
-        }
-      
+      console.log("test cen queue size: ", res.data);
+      if (typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0) {
+        this.setState({ queueSizeCenshare: res.data.hits.hits[0]._source.size })
+      }
+
     });
   }
 
-  updatePicQueueSize  = () => {
+  updatePicQueueSize = () => {
     const body = { name: this.state.queueName };
     this.props.http.post("/api/pic/size", { body: JSON.stringify(body) }).then(res => {
-      if(typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0){
+      if (typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0) {
         this.setState({ queueSizePic: res.data.hits.hits[0]._source.size })
       }
     });
@@ -181,7 +191,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     this.setState({ item: event.target.value })
   };
 
-  onfilterChangedCallback(){
+  onfilterChangedCallback() {
     this.onClickSearchHandler();
     this.updateMetrics();
   }
@@ -189,7 +199,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   filterChange = (event) => {
     console.log("Filter queue: ", event.target.value)
     this.setState({ queueName: event.target.value }, this.onfilterChangedCallback)
-    
+
     //this.updateMetrics();
   }
 

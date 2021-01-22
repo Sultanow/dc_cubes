@@ -1,4 +1,5 @@
 import { NavigationPublicPluginStart } from '../../../src/plugins/navigation/public';
+import { DataPublicPluginStart } from '../../../src/plugins/data/public';
 
 export interface QueuesPluginPluginSetup {
   getGreeting: () => string;
@@ -8,4 +9,5 @@ export interface QueuesPluginPluginStart {}
 
 export interface AppPluginStartDependencies {
   navigation: NavigationPublicPluginStart;
+  data: DataPublicPluginStart; 
 }

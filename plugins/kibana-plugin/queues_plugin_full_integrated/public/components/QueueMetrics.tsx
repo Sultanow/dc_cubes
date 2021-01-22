@@ -75,14 +75,14 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
                                     <tr style={tr}>
                                         <th style={th}>Queue Size:</th>
                                         <th style={th}>Throughput:</th>
-                                        <th style={th}>Utilization:</th>
+                                      {/*   <th style={th}>Utilization:</th> */}
                                     </tr>
                                 </thead>
                                 <tbody style={tbody}>
                                     <tr>
                                         <td style={td}>{this.state.queueSize ? this.state.queueSize : 0}</td>
                                         <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueThroughput(this.state.queueItems) : 0}/h</td>
-                                        <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueUtilization(this.state.queueItems) : 0}%</td>
+                                       {/*  <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueUtilization(this.state.queueItems) : 0}%</td> */}
                                     </tr>
                                 </tbody>
                             </table>
