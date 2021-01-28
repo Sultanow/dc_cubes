@@ -1,6 +1,6 @@
 {
   "id": "bshQueueViz",
-  "version": "7.8.1",
+  "version": "7.10.2",
   "server": true,
   "ui": true,
   "requiredPlugins": ["navigation", "data"],

@@ -171,10 +171,10 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 
 # reopen terminal to get updated environment variables
 # for kibana 4.9.1 the following node version is required
-nvm install 10.22.0
+nvm install 10.23.1
 
-Now using node v10.22.0 (npm v6.14.6)
-Creating default alias: default -> 10.22.0 (-> v10.22.0)
+Now using node v10.23.1 (npm v6.14.6)
+Creating default alias: default -> 10.23.1 (-> v10.23.1)
 
 # install yarn
 # https://classic.yarnpkg.com/en/docs/install/#centos-stable
@@ -203,23 +203,19 @@ $ node ../../scripts/plugin_helpers build
  │ succ 1 bundles compiled successfully after 20.6 sec
  info copying source into the build and converting with babel
  info running yarn to install dependencies
- info compressing plugin into [queuesPlugin-7.8.1.zip]
+ info compressing plugin into [queuesPlugin-7.10.2.zip]
 Done in 30.80s.
 ```
 
-It is not yet possible to install these by
+Install:
 ```
-sudo /usr/share/kibana/bin/kibana-plugin install file:///queuesPlugin-7.8.1.zip --allow-root
+sudo /usr/share/kibana/bin/kibana-plugin --allow-root install file:///coremedia/home/picroot/queue/plugins/queuesPlugin-7.10.2.zip
 ```
 [https://www.elastic.co/guide/en/kibana/7.10/kibana-plugins.html#install-plugin]
-Therefore unzip manually in production environment
+
+and restart kibana:
 ```
-cd /usr/share/kibana/plugins/
-unzip queuesPlugin-7.8.1.zip
-# remove obsolete nested layer
-mv kibana/queuesPlugin .
-rm -r kibana
-systemctl restart kibana
+sudo systemctl restart kibana
 ```
 
 ## hints

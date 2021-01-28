@@ -19,10 +19,10 @@ https://github.com/coreybutler/nvm-windows/releases
 ```
 cd C:\Development\
 git clone https://github.com/elastic/kibana.git kibana
-git checkout v7.8.1
+git checkout v7.10.2
 cd C:\development\kibana\
-nvm install 10.21.0 --reinstall-packages-from=10.16.3
-nvm use 10.21.0
+nvm install 10.23.1 --reinstall-packages-from=10.16.3
+nvm use 10.23.1
 yarn policies set-version 1.22.4
 yarn kbn bootstrap
 node scripts/generate_plugin bsh_queue_viz
@@ -32,7 +32,7 @@ yarn add @material-ui/core
 yarn add @material-ui/lab
 yarn add @material-ui/icons --network-timeout 100000
 ```
-Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana runtime, for example into the runtime located in the "kibana-7.8.1" folder:
+Optionally you may link the plugin folder "bsh_queue_viz" into another Kibana runtime, for example into the runtime located in the "kibana-7.10.2" folder:
 ```
 new-item -itemtype symboliclink -path C:\Development\kibana-7.8.1\plugins\ -name bsh_queue_viz -value C:\Development\kibana\plugins\bsh_queue_viz
 ```
@@ -43,10 +43,10 @@ xpack.logstash.enabled: false
 xpack.canvas.enabled: false
 ```
 ## Start Elasticsearch
-We currently use Elasticsearch version 7.8.1.
+We currently use Elasticsearch version 7.10.2.
 ```
 set ES_JAVA_OPTS="-Xms4g -Xmx4g"
-cd c:\development\elasticsearch-7.8.1\bin
+cd c:\development\elasticsearch-7.10.2\bin
 .\elasticsearch.bat
 ```
 Does Elasticsearch run properly? Just check it by opening http://localhost:9200/_cat/indices in a browser.
