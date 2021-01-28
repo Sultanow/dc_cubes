@@ -51,13 +51,13 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 {/* Metrics data of a Processor component in subsequent Processor component. TODO: Refactor Sequence.*/}
                 <Processor isLastProcessor={false}
                 isFirstProcessor={true}
-                processorName={"ERP"}
+                processorName={"SAP CMD"}
                 timeLeft={getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left)}
                 progessStatus={100}
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
-                processorName={"PIM Edit"}
+                processorName={"censhare"}
                 queueName={"censhare"}
                 queueType={null}
                 timestamps={this.props.censhareTimestamps}
@@ -68,7 +68,7 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={false}
                 isFirstProcessor={false}
-                processorName={"PIM Browse/ B2B"}
+                processorName={"PICenter"}
                 queueName={"pic"}
                 queueType={null}
                 timestamps={this.props.picTimestamps}
@@ -79,7 +79,7 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={true}
                 isFirstProcessor={false}
-                processorName={"D2C"}
+                processorName={"ICore"}
                 queueName={"undefined"}
                 queueType={null}
                 timestamps={[]}
