@@ -6,7 +6,7 @@
 * **Train_Two_Queues.ipynb** jupyter notebook showing the item training process for two queues and additional test results
 * **Testing_Two_Queues_Items.ipynb** jupyter notebook showing the item testing process for the prediction script
 * **model_predict.py** python script that runs the prediction process for two queues with CLI
-* **model_train.py** python script that runs the training process for two queues 
+* **model_train.py** python script that runs the training process for two queues
 * **prediction_functions.py** containing the functions which are imported in the prediction script
 * **training_functions.py** containing the functions which are imported in the training script
 * **scaler_x_2q, scaler_y_2q** pickled StandardScaler from trainingsprocess
@@ -46,8 +46,18 @@ Overview of the item size in the censhare queue in June:
 
 Overview of the item size in the pic queue in June:
 
-
 ![june_pic](https://user-images.githubusercontent.com/9306218/90045532-76575f80-dccf-11ea-818b-6ece0ee21e4e.jpeg)
+
+
+Another timeframe considered in training is November, where the overall performance of the data throughput is improved and items get processed faster.
+
+Overview of the item size in the censhare queue in November:
+
+![q_one_11](https://user-images.githubusercontent.com/9306218/106216655-ed2bda80-61d3-11eb-8e57-fc21aa02602a.png)
+
+Overview of the item size in the pic queue in November:
+
+![q_two_11](https://user-images.githubusercontent.com/9306218/106216661-eef59e00-61d3-11eb-8ba6-ef7694fa34b3.png)
 
 
 
@@ -166,7 +176,6 @@ Sample data y for item ***1000***
 
 We first standardize the features with the StandardScaler and afterwards pad the sequences (adding additional 0s) to even the length of each item sample. Our prepared datasets now have the form of (number of samples, number of timesteps, number of features). At last we split our samples into training and test set.
 
-
 #### Training
 
 Model Summary:
@@ -190,10 +199,20 @@ Non-trainable params: 0
 ___________________________
 ```
 
+#### Training statistics
+
+Our standard model in the timeframe 2020-06-09 - 2020-06-13 with around **14.200 sample items** and a **sampling rate of 20** has the following times per section:
+
+| ES to Df | Dataset creation | Scaling | Pad Split | Downsampling | Time per epoch |
+| --- | --- | --- | --- | --- | --- |
+| 4s | 19s | 73s | 0.4s | 0.1s | 74s |
+
+
 ## Testing
 
 
 #### Testing environment
+
 All models have been trained on a PC with a AMD Ryzen 5 2600 Six-Core Processor with 3400 MHz and 16 GB of RAM.
 
 
@@ -240,36 +259,59 @@ Resampling rate is 20.
 
 Due to the inconsistency of the initial queue waiting time, the prediction is tailored for each item individually and has various lengths. Down below are example comparisons of our target value und the predicted output from the best performing model. The target value is the actual number of steps the item is still in the queue. To compare the prediction there is also a mean and median prediction for each item. Both values have been calculated before over the dataset. E.g. if the median is 150 and the item is already 100 steps in the queue, the median model will then output 50 steps.  
 
+![outlier_10_300_2020-06-09_2020-06-13_20epochs_720steps_20srate h5_mae_23 16_mean_63 26_median_67 86](https://user-images.githubusercontent.com/9306218/106234147-75bc7200-61f8-11eb-882f-bca25d15c824.png)
 
-![figure_50epochs](https://user-images.githubusercontent.com/9306218/103972176-bfbbb600-516c-11eb-9774-4e59e8b89546.png)
 
-The predictions are also displayed in the notebook **Train_Two_Queues.ipynb**
+Below is a comparison of the actual item size of both queues and the predicted item size for the 14th June in kibana.
 
-Below is a comparison of the actual item size in the second queue and the item size based only on the predicted items for the 14th June. We consider items that started in the first queue aswell, the real size only shows items in the second queue. Because there is a gap before the items enter the second queue, that might explain why it takes some time until the queue size reaches 0.
+![prediction14june](https://user-images.githubusercontent.com/9306218/106233056-e9a94b00-61f5-11eb-950c-fbcebd2e6253.PNG)
 
-![14junerealvsitem](https://user-images.githubusercontent.com/9306218/103972357-1fb25c80-516d-11eb-937f-53697bce437a.png)
 
-The figure can also be seen in the notebook **Testing_Two_Queues.ipynb**
+### Score based on ...
 
-#### Score based on epochs
+The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE. Models used for the comparisons can be found in the models subfolder.
 
-The score is based on each timestep for each item compared to prediction step by step. MAE in time is based on the 10 minute steps used in the model.
+#### Epochs
 
 | Number of epochs | MAE |
 | --- | --- |
-| 10 | 41 |
-| 25 | 43 |
-| 50 | 39 |
+| 10 | 37 |
+| 25 | 38 |
+| 50 | 34 |
 
-The best model performance shows a MAE of **39**, in comparison if we used the mean MAE it shows **76** and the median MAE shows **78**.
+The best model performance shows a MAE of **34**, in comparison if we used the mean MAE it shows **82** and the median MAE shows **88**.
 
+#### Neurons
+
+The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE.
+
+| Number of neurons | MAE |
+| --- | --- |
+| 10 | 38 |
+| 25 | 36 |
+| 50 | 35 |
+
+The best model performance shows a MAE of **35**, in comparison if we used the mean MAE it shows **83** and the median MAE shows **87**.
+
+#### Outlier
+
+The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE.
+
+| Outlier Min | Outlier Max | MAE |
+| --- | --- | --- |
+| 10 | 300 | 23 |
+| 25 | 300 | 25 |
+| 10 | 400 | 27 |
+| 25 | 400 | 28 |
+
+The best model performance shows a MAE of **23**, in comparison if we used the mean MAE it shows **63** and the median MAE shows **67**.
 
 ## Prediction Process
 
 We load 5 days (or how many days we took for training) from ES. Then create our dataset similiar to the training process, except that we only take the items for predicting which are present at the last timestamp and leave out generating our target variables. After loading our pretrained model, we can start the prediction. As we only need one value, we create a list, storing the number of steps each item has been in the queue and match that with the indice of our prediction. In order to store our data the same way we retrieved it earlier, we create a dataframe in the structure of our loaded data. That means at each timestamp, there is a list of item numbers which are in the queue at that point and the amount of items is stored under size.
 
 
-#### Prediction Statistics
+#### Prediction statistics
 
 ![Predictionprocess](https://user-images.githubusercontent.com/9306218/90158161-eed12580-dd8e-11ea-8723-0d2a629eb666.png)
 
@@ -291,22 +333,43 @@ Screenshot of example predictions uploaded back into ES
 ![Bildschirmfoto 2020-08-14 um 00 44 02](https://user-images.githubusercontent.com/9306218/90194310-45f2ec80-ddc7-11ea-860e-042bb584c451.png)
 
 
-### Start the script
-To start the script you need to navigate your terminal to the folder containing **model_predict.py**, **prediction_functions.py** and in a subfolder ./models  **model_2q_best.h5**, **scaler_x_2q.p** and **scaler_y_2q.p** 
+### Start the prediction script
+
+To start the script you need to navigate your terminal to the folder containing **model_predict.py**, **prediction_functions.py** and in a subfolder ./models  **model_2q_best.h5**, **scaler_x_2q.p** and **scaler_y_2q.p**
 
 To view the additional informations about the arguments and default arguments for **model_predict.py** use:
 ```
-python Predict_Two_Queues_Items_Script_CLI.py -h
+python model_predict.py -h
 ```
 
 An example call with defined start and end date would look like:
 ```
-python .\model_predict.py  .\models\model.h5 .\models\scaler_x.p .\models\scaler_y.p --start 2020-06-14 --end 2020-06-18 
+python .\model_predict.py  .\models\model.h5 .\models\scaler_x.p .\models\scaler_y.p --start 2020-06-14 --end 2020-06-18
 ```
 
 If you wish to just take the last 5 days use:
 ```
 python .\model_predict.py  .\models\model.h5 .\models\scaler_x.p .\models\scaler_y.p
+```
+
+### Start the training script
+
+To start the script you need to navigate your terminal to the folder containing **model_train.py**, **training_functions.py**
+In the subfolder ./models a model.h5 and two scaler.p files will be saved in the process. Furthermore in the subfolder ./figures a visualization of example samples will be saved. The naming of it will contain the MAE, Mean MAE and Median MAE.   
+
+To view the additional informations about the arguments and default arguments for **model_predict.py** use:
+```
+python model_train.py -h
+```
+
+An example call with defined start and end date would look like:
+```
+python .\model_train.py example_model 2020-06-14 2020-06-18
+```
+
+If you wish to use multiple parameters an example call would look like:
+```
+python .\model_train.py example_model 2020-06-14 2020-06-18 --outlier_min 15 -- outlier_max 300 --neurons 20 --epochs 50
 ```
 
 

@@ -313,7 +313,7 @@ def create_dataset_train(q_one, q_two, outlier_min=0, outlier_max=10000):
     return data_x, data_y, maxlen
 
 
-def get_max_len_list(y):
+def get_max_len_list_mean_median(y):
     """ Creates a list containing the maximum number of steps for every item
 
     Parameters:
@@ -321,12 +321,18 @@ def get_max_len_list(y):
 
     Returns:
     maxlenlist (list) : list containing only the maximum number of steps
+    mean (int) : mean of the item lengths
+    median (int) : median of the item lenths
     """
 
     maxlenlist = []
     for x in y:
         maxlenlist.append(x.iloc[0][0])
-    return maxlenlist
+
+    mean = int(np.mean(maxlenlist))
+    median = int(np.median(maxlenlist))
+
+    return maxlenlist, mean, median
 
 
 def scale(X, y, start_date, end_date, epochs, steps, s_rate, model_name=None):
@@ -493,8 +499,11 @@ def build_model(X_train_sampled, y_train_sampled, max_steps, n_neurons, n_epochs
     # Save the model in models directory
     model.save(f'models/{model_name}_{start_date}_{end_date}_{n_epochs}epochs_{n_steps}steps_{s_rate}srate.h5')
 
+    m_name = (f'models/{model_name}_{start_date}_{end_date}_{n_epochs}epochs_{n_steps}steps_{s_rate}srate.h5')
+
     end = time.time()
     logging.info(f'Model building: {end - start:.2f} time elapsed')
+    return m_name
 
 
 def compute_pred_list(pred, y_target, y_test_sampled):
@@ -552,20 +561,22 @@ def compute_mae(pred_list, target_list):
     return mae
 
 
-def plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median_list, target_list):
+def plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median_list, target_list, 
+                pred_mae, pred_mean_mae, pred_median_mae, model_name):
     """ Plot the samples together with mean/median and save the figures
 
     Parameters:
     n_plot (int) : number of sample plots to display (gets squared)
     seed (int) : seed used to recreate the displayed samples
-    save_fig (str) : set the figure name
+    save_fig (bool) : control the figure saving
     pred_list (list) : list of all the predictions for each sample
     pred_mean_list (list) : list of all the mean predictions for each sample
     pred_median_list (list) : list of all the median predictions for each sample
     target_list (list) : list of all target values for each sample
+    model_name (str) : set model name to name figure
 
     Returns:
-    displays the figures
+    displays the figures and
     """
 
     # Set the seed
@@ -576,6 +587,7 @@ def plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median
 
     # Create the plots
     fig, axs = plt.subplots(nrows=n_plots, ncols=n_plots, sharex=True, sharey=True, figsize=(12, 12))
+
     for i in range(n_plots):
         for j in range(n_plots):
             x = sample_list[i*n_plots+j]
@@ -583,7 +595,7 @@ def plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median
             axs[i, j].plot(pred_list[x], label='Prediction')
             axs[i, j].plot(pred_mean_list[x], label='Prediction Mean')
             axs[i, j].plot(pred_median_list[x], label='Prediction Median')
-            #axs[i, j].set_title('Sample ' + str(count), fontsize=8)
+            axs[0, 0].set_title(f'{model_name}', fontsize=7)
             if i == n_plots - 1:
                 axs[i, j].set_xlabel('Step')
             if j == 0:
@@ -592,7 +604,7 @@ def plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median
                 axs[i, j].legend()
     plt.tight_layout()
     if save_fig:
-        plt.savefig(f'figures/{model_name}.png')
+        plt.savefig(f'figures/{model_name}_mae_{pred_mae:.2f}_mean_{pred_mean_mae:.2f}_median_{pred_median_mae:.2f}.png')
     plt.show()
 
 
@@ -618,12 +630,13 @@ def pred_baseline(value, X, pred):
     return pred
 
 
-def pred_mae(X_test_sampled, y_test_sampled, model, scaler_y, n_plots, seed, save_fig=None):
+def pred_mae(X_test_sampled, y_test_sampled, y, model, scaler_y, n_plots, seed, model_name, save_fig):
     """ Calculates the predictions and the MAE and displays the plots
     
     Parameters:
     X_test_sampled : preprocessed, scaled and downsampled test dataset X
     y_test_sampled : preprocessed, scaled and downsampled test dataset y
+    y : preprocessed and scaled datasets with target variable
     model (str) : filepath to the model
     scaler_y (str) : filepath to the y scaler
     n_plots (int) : number of sample plots to display (gets squared)
@@ -637,12 +650,14 @@ def pred_mae(X_test_sampled, y_test_sampled, model, scaler_y, n_plots, seed, sav
 
     # Load the pretrained model
     model = load_model(model)
+
+    # Get mean and median
+    _, mean, median = get_max_len_list_mean_median(y)
     
     # Predict and rescale the prediction
     pred = model.predict(X_test_sampled)
-    
-    pred_mean = pred_baseline(100, X_test_sampled, pred)
-    pred_median = pred_baseline(86, X_test_sampled, pred)
+    pred_mean = pred_baseline(mean, X_test_sampled, pred)
+    pred_median = pred_baseline(median, X_test_sampled, pred)
     
     # Mask again to filter out the padded values
     y_test_sampled_masked = list()
@@ -660,13 +675,14 @@ def pred_mae(X_test_sampled, y_test_sampled, model, scaler_y, n_plots, seed, sav
     pred_mean_list, _ = compute_pred_list(pred_mean, y_target, y_test_sampled)
     pred_median_list, _ = compute_pred_list(pred_median, y_target, y_test_sampled)
     
-    pred_mae = compute_mae(pred_list, target_list)
-    pred_mean_mae = compute_mae(pred_mean_list, target_list)
-    pred_median_mae = compute_mae(pred_median_list, target_list)
+    pred_mae = round(compute_mae(pred_list, target_list), 2)
+    pred_mean_mae = round(compute_mae(pred_mean_list, target_list), 2)
+    pred_median_mae = round(compute_mae(pred_median_list, target_list), 2)
     print('MAE        : ', pred_mae)
     print('MAE Mean   : ', pred_mean_mae)
     print('MAE Median : ', pred_median_mae)
     
-    plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median_list, target_list)
+    plot_samples(n_plots, seed, save_fig, pred_list, pred_mean_list, pred_median_list, target_list, 
+                pred_mae, pred_mean_mae, pred_median_mae, model_name)
     
 
