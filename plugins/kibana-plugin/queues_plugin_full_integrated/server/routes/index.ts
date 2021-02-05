@@ -8,15 +8,13 @@ const client = new elasticsearch.Client({
 });
 
 export function defineRoutes(router: IRouter) {
+
   router.post(
     {
-      path: '/api/censhare/item',
+      path: '/api/contenttypes',
       validate: {
         body: schema.object({
-            item: schema.string(),
-            name: schema.string(),
-            gte: schema.string(),
-            lte: schema.string()
+          item: schema.string()
         }),
       }
     },
@@ -28,26 +26,17 @@ export function defineRoutes(router: IRouter) {
           "query": {
             "bool": {
               "must": [
-                { "match": { "items": request.body.item }},
-                { "match": { "tier": "censhare" }},
-                { "match": { "name": request.body.name }},
-                { "range": { "timestamp": { "gte": request.body.gte,  "lte": request.body.lte }}},
+                { "match": { "items": request.body.item } },
+                { "match": { "tier": "pic" } },
+                { "match": { "name": "products" } }
               ]
             }
           },
           "aggs": {
-            "queue_enter" : {
-              "top_hits": {
-                "size": 1,
-                "sort": [ { "timestamp": { "order": "asc" } } ],
-                "_source": { "includes": [ "timestamp", "name", "size", "tier" ] }
-              }
-            },
-            "queue_left" : {
-              "top_hits": {
-                "size": 1,
-                "sort": [ { "timestamp": { "order": "desc" } } ],
-                "_source": { "includes": [ "timestamp", "name", "size", "tier" ] }
+            "media types": {
+              "terms": {
+                "field": "contenttype." + request.body.item,
+                "order": { "_key": "asc" }
               }
             }
           }
@@ -59,7 +48,62 @@ export function defineRoutes(router: IRouter) {
           data: data,
         },
       });
-		}
+    }
+  );
+
+
+  router.post(
+    {
+      path: '/api/censhare/item',
+      validate: {
+        body: schema.object({
+          item: schema.string(),
+          name: schema.string(),
+          gte: schema.string(),
+          lte: schema.string()
+        }),
+      }
+    },
+    async (context, request, response) => {
+      const data = await client.search({
+        index: 'queues',
+        body: {
+          "_source": ["timestamp", "name", "size", "tier"],
+          "query": {
+            "bool": {
+              "must": [
+                { "match": { "items": request.body.item } },
+                { "match": { "tier": "censhare" } },
+                { "match": { "name": request.body.name } },
+                { "range": { "timestamp": { "gte": request.body.gte, "lte": request.body.lte } } },
+              ]
+            }
+          },
+          "aggs": {
+            "queue_enter": {
+              "top_hits": {
+                "size": 1,
+                "sort": [{ "timestamp": { "order": "asc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier"] }
+              }
+            },
+            "queue_left": {
+              "top_hits": {
+                "size": 1,
+                "sort": [{ "timestamp": { "order": "desc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier"] }
+              }
+            }
+          }
+        },
+        "size": 0
+      });
+      return response.ok({
+        body: {
+          data: data,
+        },
+      });
+    }
   );
 
   router.post(
@@ -67,10 +111,11 @@ export function defineRoutes(router: IRouter) {
       path: '/api/pic/item',
       validate: {
         body: schema.object({
-            item: schema.string(),
-            name: schema.string(),
-            gte: schema.string(),
-            lte: schema.string()
+          item: schema.string(),
+          name: schema.string(),
+          contenttype: schema.string(),
+          gte: schema.string(),
+          lte: schema.string()
         }),
       }
     },
@@ -82,26 +127,27 @@ export function defineRoutes(router: IRouter) {
           "query": {
             "bool": {
               "must": [
-                { "match": { "items": request.body.item }},
-                { "match": { "tier": "pic" }},
-                { "match": { "name": request.body.name }},
-                { "range": { "timestamp": { "gte": request.body.gte,  "lte": request.body.lte }}},
+                { "match": { "items": request.body.item } },
+                { "match": { "tier": "pic" } },
+                { "match": { "name": request.body.name } },
+                { ...(request.body.name == "products" ? { "match": { ["contenttype." + request.body.item]: request.body.contenttype } } : { "match_all": {} }) },
+                { "range": { "timestamp": { "gte": request.body.gte, "lte": request.body.lte } } },
               ]
             }
           },
           "aggs": {
-            "queue_enter" : {
+            "queue_enter": {
               "top_hits": {
                 "size": 1,
-                "sort": [ { "timestamp": { "order": "asc" } } ],
-                "_source": { "includes": [ "timestamp", "name", "size", "tier" ] }
+                "sort": [{ "timestamp": { "order": "asc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier"] }
               }
             },
-            "queue_left" : {
+            "queue_left": {
               "top_hits": {
                 "size": 1,
-                "sort": [ { "timestamp": { "order": "desc" } } ],
-                "_source": { "includes": [ "timestamp", "name", "size", "tier" ] }
+                "sort": [{ "timestamp": { "order": "desc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier"] }
               }
             }
           }
@@ -113,7 +159,7 @@ export function defineRoutes(router: IRouter) {
           data: data,
         },
       });
-		}
+    }
   );
 
   router.post(
@@ -121,7 +167,7 @@ export function defineRoutes(router: IRouter) {
       path: '/api/censhare/size',
       validate: {
         body: schema.object({
-            name: schema.string()
+          name: schema.string()
         }),
       }
     },
@@ -133,8 +179,8 @@ export function defineRoutes(router: IRouter) {
           "query": {
             "bool": {
               "must": [
-                { "match": { "name": request.body.name  }},
-                { "match": { "tier": "censhare" }}
+                { "match": { "name": request.body.name } },
+                { "match": { "tier": "censhare" } }
               ]
             }
           },
@@ -142,15 +188,16 @@ export function defineRoutes(router: IRouter) {
             "timestamp": {
               "order": "desc"
             }
-        }],
-        "size": 1
-       }});
+          }],
+          "size": 1
+        }
+      });
       return response.ok({
         body: {
           data: data,
         },
       });
-		}
+    }
   );
 
   router.post(
@@ -158,7 +205,7 @@ export function defineRoutes(router: IRouter) {
       path: '/api/pic/size',
       validate: {
         body: schema.object({
-            name: schema.string()
+          name: schema.string()
         }),
       }
     },
@@ -170,8 +217,8 @@ export function defineRoutes(router: IRouter) {
           "query": {
             "bool": {
               "must": [
-                { "match": { "name": request.body.name  }},
-                { "match": { "tier": "pic" }}
+                { "match": { "name": request.body.name } },
+                { "match": { "tier": "pic" } }
               ]
             }
           },
@@ -179,15 +226,16 @@ export function defineRoutes(router: IRouter) {
             "timestamp": {
               "order": "desc"
             }
-        }],
-        "size": 1
-       }});
+          }],
+          "size": 1
+        }
+      });
       return response.ok({
         body: {
           data: data,
         },
       });
-		}
+    }
   );
 
   router.post(
@@ -195,7 +243,7 @@ export function defineRoutes(router: IRouter) {
       path: '/api/pic/throughput/items',
       validate: {
         body: schema.object({
-            name: schema.string()
+          name: schema.string()
         }),
       }
     },
@@ -204,45 +252,49 @@ export function defineRoutes(router: IRouter) {
         index: 'queues',
         body: {
           "_source": ["timestamp", "name", "size", "tier"],
-  "query": {
-    "bool": {
-        "must": [
-          { "match": { "name": request.body.name }},
-          { "match": { "tier": "pic" }},
-          {"range" : {
-            "timestamp" : {
-              //"gte" : "2020-06-24T12:00:00",
-              //"lt" :  "2020-06-24T13:00:00"
-              "gte" : "now-1h",
-              "lt" :  "now"
-          }}
-      }
-        ]
-      }
-    },
-    "aggs": {
-      "doc_early" : {
-        "top_hits": {
-          "size": 1,
-          "sort": [ { "timestamp": { "order": "asc" } } ],
-          "_source": { "includes": [ "timestamp", "name", "size", "tier", "items" ] }
+          "query": {
+            "bool": {
+              "must": [
+                { "match": { "name": request.body.name } },
+                { "match": { "tier": "pic" } },
+                {
+                  "range": {
+                    "timestamp": {
+                      //"gte" : "2020-06-24T12:00:00",
+                      //"lt" :  "2020-06-24T13:00:00"
+                      "gte": "now-1h",
+                      "lt": "now"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "aggs": {
+            "doc_early": {
+              "top_hits": {
+                "size": 1,
+                "sort": [{ "timestamp": { "order": "asc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier", "items"] }
+              }
+            },
+            "doc_late": {
+              "top_hits": {
+                "size": 1,
+                "sort": [{ "timestamp": { "order": "desc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier", "items"] }
+              }
+            }
+          },
+          "size": 1
         }
-      },
-      "doc_late" : {
-        "top_hits": {
-          "size": 1,
-          "sort": [ { "timestamp": { "order": "desc" } } ],
-          "_source": { "includes": [ "timestamp", "name", "size", "tier", "items" ] }
-        }
-      }
-    },
-    "size": 1}});
+      });
       return response.ok({
         body: {
           data: data,
         },
       });
-		}
+    }
   );
 
 
@@ -251,7 +303,7 @@ export function defineRoutes(router: IRouter) {
       path: '/api/censhare/throughput/items',
       validate: {
         body: schema.object({
-            name: schema.string()
+          name: schema.string()
         }),
       }
     },
@@ -260,45 +312,49 @@ export function defineRoutes(router: IRouter) {
         index: 'queues',
         body: {
           "_source": ["timestamp", "name", "size", "tier"],
-  "query": {
-    "bool": {
-        "must": [
-          { "match": { "name": request.body.name }},
-          { "match": { "tier": "censhare" }},
-          {"range" : {
-            "timestamp" : {
-              //"gte" : "2020-06-24T12:00:00",
-              //"lt" :  "2020-06-24T13:00:00"
-              "gte" : "now-1h",
-              "lt" :  "now"
-          }}
-      }
-        ]
-      }
-    },
-    "aggs": {
-      "doc_early" : {
-        "top_hits": {
-          "size": 1,
-          "sort": [ { "timestamp": { "order": "asc" } } ],
-          "_source": { "includes": [ "timestamp", "name", "size", "tier", "items" ] }
+          "query": {
+            "bool": {
+              "must": [
+                { "match": { "name": request.body.name } },
+                { "match": { "tier": "censhare" } },
+                {
+                  "range": {
+                    "timestamp": {
+                      //"gte" : "2020-06-24T12:00:00",
+                      //"lt" :  "2020-06-24T13:00:00"
+                      "gte": "now-1h",
+                      "lt": "now"
+                    }
+                  }
+                }
+              ]
+            }
+          },
+          "aggs": {
+            "doc_early": {
+              "top_hits": {
+                "size": 1,
+                "sort": [{ "timestamp": { "order": "asc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier", "items"] }
+              }
+            },
+            "doc_late": {
+              "top_hits": {
+                "size": 1,
+                "sort": [{ "timestamp": { "order": "desc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier", "items"] }
+              }
+            }
+          },
+          "size": 1
         }
-      },
-      "doc_late" : {
-        "top_hits": {
-          "size": 1,
-          "sort": [ { "timestamp": { "order": "desc" } } ],
-          "_source": { "includes": [ "timestamp", "name", "size", "tier", "items" ] }
-        }
-      }
-    },
-    "size": 1}});
+      });
       return response.ok({
         body: {
           data: data,
         },
       });
-		}
+    }
   );
 
 }
