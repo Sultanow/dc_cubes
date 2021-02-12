@@ -37,9 +37,27 @@ if __name__ == '__main__':
     steps = int(model.split('_')[-2].split('steps')[0])
     srate = int(model.split('_')[-1].split('srate')[0])
 
+    # Find out number of days used for training
+    start_date = model.split('_')[-5]
+    slist = start_date.split("-")
+    slist = map(int, slist)
+    slist = list(slist)
+    
+    end_date = model.split('_')[-4]
+    elist = end_date.split("-")
+    elist = map(int, elist)
+    elist = list(elist)
+
+    sdate = datetime.date(slist[0], slist[1], slist[2])
+    edate = datetime.date(elist[0], elist[1], elist[2])
+
+    delta = edate - sdate
+    
+    time_range = delta.days
+
     # Get data from ES
-    q_one = es_to_df(start, end, 20, "censhare", host, port, steps)
-    q_two = es_to_df(start, end, 20, "pic", host, port, steps)
+    q_one = es_to_df(start, end, 20, "censhare", host, port, steps, time_range)
+    q_two = es_to_df(start, end, 20, "pic", host, port, steps, time_range)
 
     # Create dataset
     X = create_dataset_predict(q_one, q_two)

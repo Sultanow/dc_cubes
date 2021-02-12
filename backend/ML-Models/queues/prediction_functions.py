@@ -15,19 +15,20 @@ import logging
 
 # Functions
 
-def es_to_df(start_date, end_date, s_rate, tier, host, port, steps):
+def es_to_df(start_date, end_date, s_rate, tier, host, port, steps, time_range=None):
     """
     Returns data from ES based on the given time period and tier.
     Transforms and downsamples the data into a pandas dataframe.
 
     Parameters:
-    start (str): start date in format "yyyy-MM-dd"
-    end (str): end date in format "yyyy-MM-dd"
+    start (str): start date in format "yyyy-MM-dd HH:mm:ss"
+    end (str): end date in format "yyyy-MM-dd HH:mm:ss"
     s_rate (int): the sample rate, each nth entry is taken
     tier (str): name of the queue (tier) e.g. 'pic'
     host (str): name of the host e.g. 'localhost'
     port (int): number of port e.g. 9200
     steps (int): number of steps used in training
+    time_range (int): number of days used in training
 
     Returns:
     pd.DataFrame: pandas DataFrame
@@ -43,21 +44,23 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port, steps):
 
     if start_date == '0' and end_date == '0':
         end_date = datetime.date.today()
-        start_date = end_date - datetime.timedelta(days=6)
+        start_date = end_date - datetime.timedelta(days=time_range)
 
-        datelist = list()
+        first_dates = list()
 
-        for i in range(6):
+        for i in range(time_range + 1):
             day = start_date + datetime.timedelta(days=i)
-            datelist.append(day)
+            first_dates.append(day)
 
     else:
         # Create a list of the given dates between start date and end date
-        slist = start_date.split("-")
+        start_date_split = start_date.split(' ')[0]
+        slist = start_date_split.split("-")
         slist = map(int, slist)
         slist = list(slist)
 
-        elist = end_date.split("-")
+        end_date_split = end_date.split(' ')[0]
+        elist = end_date_split.split("-")
         elist = map(int, elist)
         elist = list(elist)
 
@@ -71,10 +74,12 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port, steps):
             day = sdate + datetime.timedelta(days=i)
             datelist.append(day)
 
+        first_dates = datelist[:-1]
+
     # Get the matching data for each day and store it in a list
     final_data = list()
 
-    for date in datelist:
+    for date in first_dates:
         res = es.search(index="queues", body={
             "from" : 0, "size" : 4000,
             "query": {
@@ -89,6 +94,31 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port, steps):
                                                             "gte": str(date),
                                                             "lte": str(date),
                                                             "format": "yyyy-MM-dd"
+                                                        }
+                                                    }
+                                                    }
+                                                ]
+                                                }
+        }
+        })  # defined size of 2880 entries per day
+        daily_data = [elem['_source'] for elem in res['hits']['hits']]
+        final_data.extend(daily_data)
+
+    if start_date != '0' and end_date != '0':
+        res = es.search(index="queues", body={
+            "from" : 0, "size" : 4000,
+            "query": {
+            "bool": {
+                                                "must": [
+                                                    {"match": {
+                                                        "name": "products"}},
+                                                    {"match": {
+                                                        "tier": tier}},
+                                                    {"range": {
+                                                        "timestamp": {
+                                                            "gt": datelist[-1].strftime("%Y-%m-%d %H:%M:%S"),
+                                                            "lte": str(end_date),
+                                                            "format": "yyyy-MM-dd HH:mm:ss"
                                                         }
                                                     }
                                                     }
