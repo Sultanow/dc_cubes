@@ -112,7 +112,7 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
             <div className="progress-pipe-container" style={progressPipeContainer}>
                 <div className="progress-bar-status" style={this.setUpProgressBarStatus()}></div>
                 <div className="progress-status-info-box" style={progressStatusInfoBox} onClick={this.onClickTest}>
-                    {this.state.timeLeft ? <span>T-{this.state.timeLeft}h</span>: <span>- - -</span>}
+                    {/* this.state.timeLeft ? <span>T-{this.state.timeLeft}h</span>:  */<span>- - -</span>}
                 </div>
 
             </div>

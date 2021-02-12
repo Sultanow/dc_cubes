@@ -54,6 +54,8 @@ type QueuesPluginAppState = {
   item: string,
   intervalId: any,
   queueName: string,
+  informationType: string,
+  informationTypeOptions: Array<string>,
   isLoadingMetrics: Boolean
 }
 
@@ -78,6 +80,8 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     item: "undefined",
     intervalId: null,
     queueName: "products",
+    informationType: "CORE",
+    informationTypeOptions: [],
     isLoadingMetrics: true,
   }
 
@@ -134,18 +138,18 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     let gte = data.query.timefilter.history.history.items[0].from;
     let lte = data.query.timefilter.history.history.items[0].to;
 
-    const body = { item: this.state.item, name: this.state.queueName, gte: gte, lte: lte };
-    console.log(body);
-
-    this.props.http.post("/api/censhare/item", { body: JSON.stringify(body) }).then(res => {
+    const bodyCenshare = { item: this.state.item, name: this.state.queueName, gte: gte, lte: lte };
+    this.props.http.post("/api/censhare/item", { body: JSON.stringify(bodyCenshare) }).then(res => {
       if (res) {
         //console.log("DATA res cen: ", res.data.aggregations)
         this.setState({ censhareTimestamps: res.data.aggregations });
       }
     });
-    this.props.http.post("/api/pic/item", { body: JSON.stringify(body) }).then(res => {
+
+    const bodyPic = { item: this.state.item, name: this.state.queueName, contenttype: this.state.informationType, gte: gte, lte: lte };
+    this.props.http.post("/api/pic/item", { body: JSON.stringify(bodyPic) }).then(res => {
       if (res) {
-        //console.log("DATA res pic: ", res2.data.aggregations)
+        //console.log("DATA res pic: ", res.data.aggregations)
         this.setState({ picTimestamps: res.data.aggregations })
       }
     });
@@ -154,7 +158,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   updateCenshareQueueItems = () => {
     const body = { name: this.state.queueName };
     this.props.http.post("/api/censhare/throughput/items", { body: JSON.stringify(body) }).then(res => {
-      console.log("censhare items obj: ", res);
+      //console.log("censhare items obj: ", res);
       this.setState({ queueItemsCenshare: res.data.aggregations });
     });
   }
@@ -162,7 +166,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   updatePicQueueItems = () => {
     const body = { name: this.state.queueName };
     this.props.http.post("/api/pic/throughput/items", { body: JSON.stringify(body) }).then(res => {
-      console.log("pic items obj: ", res);
+      //console.log("pic items obj: ", res);
       this.setState({ queueItemsPic: res.data.aggregations })
     });
   }
@@ -170,7 +174,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   updateCenshareQueueSize() {
     const body = { name: this.state.queueName };
     this.props.http.post("/api/censhare/size", { body: JSON.stringify(body) }).then(res => {
-      console.log("test cen queue size: ", res.data);
+      //console.log("test cen queue size: ", res.data);
       if (typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0) {
         this.setState({ queueSizeCenshare: res.data.hits.hits[0]._source.size })
       }
@@ -181,6 +185,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   updatePicQueueSize = () => {
     const body = { name: this.state.queueName };
     this.props.http.post("/api/pic/size", { body: JSON.stringify(body) }).then(res => {
+      //console.log("test pic queue size: ", res.data);
       if (typeof res.data.hits.hits !== 'undefined' && res.data.hits.hits.length > 0) {
         this.setState({ queueSizePic: res.data.hits.hits[0]._source.size })
       }
@@ -191,7 +196,28 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     this.setState({ item: event.target.value })
   };
 
+  onBlurItemNameHandler = (event) => {
+    if (event.target.value != "" /* && this.state.queueName == "products" */) {
+      const body = { item: event.target.value };
+      this.props.http.post("/api/contenttypes", { body: JSON.stringify(body) }).then(res => {
+        if (res) {
+          let contentTypes = res.data.aggregations["media types"].buckets.map(item => {
+            return item.key
+          });
+
+          this.setState({ informationType: contentTypes[0] });
+          this.setState({ informationTypeOptions: contentTypes }, this.onfilterChangedCallback);
+        }
+      });
+    } else {
+      this.setState({ informationTypeOptions: [] }, this.onfilterChangedCallback)
+    }
+  };
+
   onfilterChangedCallback() {
+    console.log("INFOTYPE:" + this.state.informationType);
+    console.log("TIMEFILTER:");
+    console.log(this.props.data);
     this.onClickSearchHandler();
     this.updateMetrics();
   }
@@ -201,6 +227,11 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     this.setState({ queueName: event.target.value }, this.onfilterChangedCallback)
 
     //this.updateMetrics();
+  }
+
+  onChangeInformationType = (event) => {
+    this.setState({ informationType: event.target.value }, this.onfilterChangedCallback)
+    console.log("selected information type" + this.state.informationType);
   }
 
   // Render the application DOM.
@@ -227,7 +258,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
                 <EuiPageContent>
                   <div className="filter-form-conatiner" style={filterFormContainer}>
                     <EuiFormRow label="">
-                      <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={this.onChangeItemNameHandler} />
+                      <EuiFieldText placeholder="Search Items..." id="productQueues.itemField" onChange={this.onChangeItemNameHandler} onBlur={this.onBlurItemNameHandler} />
                     </EuiFormRow>
                     <EuiSelect onChange={this.filterChange}
                       options={[
@@ -238,6 +269,15 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
                         { value: 'featurestories', text: 'Feature Stories' }
                       ]}
                     />
+                    <div style={{ display: this.state.queueName == "products" ? 'block' : 'none' }}>
+                      <EuiSelect value={this.state.informationType} disabled={this.state.informationTypeOptions.length == 0 ? true : false} onChange={this.onChangeInformationType}
+                        options={
+                          this.state.informationTypeOptions.map(option => {
+                            return { value: option, text: option }
+                          })
+                        }
+                      />
+                    </div>
                     <EuiButton type="primary" size="m" onClick={this.onClickSearchHandler}>Search</EuiButton>
                     <EuiButton type="primary" color="secondary" onClick={this.predictionHandler} fill size="m" style={{ marginLeft: "20px" }}>Update Predictions</EuiButton>
                   </div>
