@@ -15,7 +15,7 @@ interface ProcessorBoxProps {
     queueName: String,
     queueType: String,
     timeLeft: any,
-    progessStatus: number
+    progressStatus: number
 }
 
 export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState> {
@@ -69,7 +69,7 @@ export class ProcessorBox extends Component<ProcessorBoxProps, ProcessorBoxState
                         {/* <div className={this.state.isProcessing ? "border-loading-spin" : "hidden"}></div> */}
                         {this.props.processorName}
                     </div>
-                    {this.props.isLastProcessor ? null : <ProgressPipe progessStatus={this.props.progessStatus} queueName={this.props.queueName} queueType={this.props.queueType} timeLeft={this.props.timeLeft} />}
+                    {this.props.isLastProcessor ? null : <ProgressPipe progressStatus={this.props.progressStatus} queueName={this.props.queueName} queueType={this.props.queueType} timeLeft={this.props.timeLeft} />}
                 </div>
                 {!this.props.isFirstProcessor ? <div className="line-dashed-bottom" style={lineDashedBottom}></div> : null}
             </div>

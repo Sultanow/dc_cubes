@@ -41,7 +41,7 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
         return {
             queueSize: nextProps.queueSize,
             queueItems: nextProps.queueItems,
-            isLoadingMetrics: nextProps.isLoadingMetrics 
+            isLoadingMetrics: nextProps.isLoadingMetrics
         };
     }
 
@@ -50,7 +50,7 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
     }
 
     componentDidUpdate() {
-        
+
     }
 
     render() {
@@ -64,25 +64,25 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
 
                     <div className="metrics-container" style={metricsContainer}>
 
-
                         <EuiIcon style={{ marginTop: "auto", marginBottom: "auto" }} size="l" type="visGauge" />
                         <LoadingOverlay
                             active={this.props.isLoadingMetrics}
                             spinner
                             text='Loading your content...'>
+
                             <table className="metrics-table" style={this.props.isLoadingMetrics ? table.isLoading : table}>
-                                <thead style={thead}>
-                                    <tr style={tr}>
-                                        <th style={th}>Queue Size:</th>
-                                        <th style={th}>Throughput:</th>
-                                      {/*   <th style={th}>Utilization:</th> */}
-                                    </tr>
-                                </thead>
                                 <tbody style={tbody}>
                                     <tr>
-                                        <td style={td}>{this.state.queueSize ? this.state.queueSize : 0}</td>
-                                        <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueThroughput(this.state.queueItems) : 0}/h</td>
-                                       {/*  <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueUtilization(this.state.queueItems) : 0}%</td> */}
+                                        <th style={th}>Queue Size:</th>
+                                        <td style={td}>{this.state.queueSize ? "~"+(valueFormatter(this.state.queueSize*1)) : 0}</td>
+                                    </tr>
+                                    <tr>
+                                        <th style={th}>Throughput:</th>
+                                        <td style={td}>{this.state.queueItems["doc_early"] ? "~"+(valueFormatter(calculateQueueThroughput(this.state.queueItems) * 12)) : 0}/1h</td>
+                                    </tr>
+                                    <tr>
+                                        {/*   <th style={th}>Utilization:</th> */}
+                                        {/*  <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueUtilization(this.state.queueItems) : 0}%</td> */}
                                     </tr>
                                 </tbody>
                             </table>
@@ -98,10 +98,10 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
 export default QueueMetrics
 
 const table = {
-    
+
     marginLeft: "8px",
 
-    isLoading:{
+    isLoading: {
         opacity: "0%",
         marginLeft: "8px",
     }
@@ -117,18 +117,19 @@ const thead = {
 }
 
 const tbody = {
-    display: "block",
+    display: "block-inline",
     float: "right" as "right"
 }
 
 const th = {
-    display: "block",
+    display: "block-inline",
     textAlign: "left" as "left",
     padding: "1px"
 }
 
 const td = {
-    display: "block",
+    overflow: "visible",
+    display: "flex",
     padding: "1px"
 }
 
@@ -156,8 +157,8 @@ function intersect(a: Array<string>, b: Array<string>): Array<string> {
 }
 
 //Differnce of two Array
-function arr_diff(a1:Array<string>, a2:Array<string>):Array<string> {
-    const a:Array<string> = [], diff:Array<string> = [];
+function arr_diff(a1: Array<string>, a2: Array<string>): Array<string> {
+    const a: Array<string> = [], diff: Array<string> = [];
     for (var i = 0; i < a1.length; i++) {
         a[a1[i]] = true;
     }
@@ -177,25 +178,36 @@ function arr_diff(a1:Array<string>, a2:Array<string>):Array<string> {
     return diff;
 }
 
+function valueFormatter(value: any): string {
+    var suffixes = ["", "k", "m", "b", "t"];
+    var suffixNum = Math.floor(("" + value).length / 3);
+    var shortValue = parseFloat((suffixNum != 0 ? (value / Math.pow(1000, suffixNum)) : value).toPrecision(2));
+    var result = shortValue.toString();
+    if (shortValue % 1 != 0) {
+        result = shortValue.toFixed(1);
+    }
+    return result + suffixes[suffixNum];
+}
+
 function calculateQueueThroughput(queueItems: any): number {
     if (queueItems.doc_early.hits.hits[0] != undefined && queueItems.doc_late.hits.hits[0] != undefined) {
         let itemsArrayEarly: Array<string>
         let itemsArrayLate: Array<string>
-        
+
         const sizeDocEarly: number = queueItems.doc_early.hits.hits[0]._source.size
         const sizeDocLate: number = queueItems.doc_late.hits.hits[0]._source.size
         const itemsDocEarly: string = queueItems.doc_early.hits.hits[0]._source.items.toString()
         const itemsDocLate: string = queueItems.doc_late.hits.hits[0]._source.items.toString()
-        
-        if(itemsDocEarly.indexOf(' ') > 0 && itemsDocEarly !== ""){
+
+        if (itemsDocEarly.indexOf(' ') > 0 && itemsDocEarly !== "") {
             itemsArrayEarly = itemsDocEarly.split(' '); // split string on space
             itemsArrayLate = itemsDocLate.split(' ');
         }
-        else{
+        else {
             itemsArrayEarly = []
             itemsArrayLate = []
         }
-        
+
         const intersectItemsArray: Array<string> = intersect(itemsArrayEarly, itemsArrayLate)
         const lenghIntersection: number = intersectItemsArray.length;
         const diff: number = sizeDocEarly - lenghIntersection
@@ -208,21 +220,21 @@ function calculateQueueThroughput(queueItems: any): number {
     }
 }
 
-function calculateQueueUtilization(queueItems: any): number{
+function calculateQueueUtilization(queueItems: any): number {
     if (queueItems.doc_early.hits.hits[0] != undefined && queueItems.doc_late.hits.hits[0] != undefined) {
         let itemsArrayEarly: Array<string>
         let itemsArrayLate: Array<string>
-        
+
         const sizeDocLate: number = queueItems.doc_late.hits.hits[0]._source.size
         const sizeDocEarly: number = queueItems.doc_late.hits.hits[0]._source.size
         const itemsDocEarly: string = queueItems.doc_early.hits.hits[0]._source.items.toString()
         const itemsDocLate: string = queueItems.doc_late.hits.hits[0]._source.items.toString()
-        
-        if(itemsDocEarly.indexOf(' ') > 0 && itemsDocEarly !== ""){
+
+        if (itemsDocEarly.indexOf(' ') > 0 && itemsDocEarly !== "") {
             itemsArrayEarly = itemsDocEarly.split(' '); // split string on space
             itemsArrayLate = itemsDocLate.split(' ');
         }
-        else{
+        else {
             itemsArrayEarly = []
             itemsArrayLate = []
         }
@@ -234,15 +246,15 @@ function calculateQueueUtilization(queueItems: any): number{
 
         const newItemsLength = arr_diff(itemsArrayEarly, itemsArrayLate).length
 
-        const utilization:number =  sizeDocEarly / diff
+        const utilization: number = sizeDocEarly / diff
 
-        if(!Object.is(NaN, utilization)){
+        if (!Object.is(NaN, utilization)) {
             return Math.round(utilization)
         }
-        else{
+        else {
             return 0
         }
-        
+
     }
     else {
         return 0

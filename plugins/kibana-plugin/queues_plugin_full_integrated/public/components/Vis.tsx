@@ -4,9 +4,10 @@ import Pipeline from "./Pipeline";
 import FilterForm from "./FilterForm";
 import { FormattedMessage, I18nProvider } from '@kbn/i18n/react';
 import { EuiToast } from '@elastic/eui';
+import { CoreStart, HttpStart, HttpSetup } from '../../../../src/core/public';
 
 type VisState = {
-    updatedTimestamp: string, 
+    updatedTimestamp: string,
 }
 
 interface VisProps {
@@ -14,11 +15,16 @@ interface VisProps {
     picTimestamps: any,
     queueSizeCenshare: number,
     queueSizePic: number,
+    queueSizeD2C: number,
     queueItemsCenshare: object,
     queueItemsPic: object,
     updatedTimestamp: string,
-    isLoadingMetrics: Boolean
-
+    isLoadingMetrics: Boolean,
+    item: string,
+    informationType: string,
+    gte: string,
+    lte: string,
+    http: CoreStart['http'],
 }
 
 export class Vis extends React.Component<VisProps, VisState> {
@@ -27,7 +33,7 @@ export class Vis extends React.Component<VisProps, VisState> {
         super(props);
 
         this.state = {
-            updatedTimestamp: undefined, 
+            updatedTimestamp: undefined,
         }
     }
 
@@ -45,16 +51,22 @@ export class Vis extends React.Component<VisProps, VisState> {
     render() {
         return (
             <div className="visualization-container" style={vis}>
-                <Pipeline picTimestamps={this.props.picTimestamps}
+                <Pipeline item={this.props.item}
+                    informationType={this.props.informationType}
+                    http={this.props.http}
+                    gte={this.props.gte}
+                    lte={this.props.lte}
+                    picTimestamps={this.props.picTimestamps}
                     censhareTimestamps={this.props.censhareTimestamps}
                     queueSizeCenshare={this.props.queueSizeCenshare}
                     queueSizePic={this.props.queueSizePic}
+                    queueSizeD2C={this.props.queueSizeD2C}
                     queueItemsCenshare={this.props.queueItemsCenshare}
-                    queueItemsPic={this.props.queueItemsPic} 
-                    isLoadingMetrics={this.props.isLoadingMetrics}/>
-                <EuiToast 
+                    queueItemsPic={this.props.queueItemsPic}
+                    isLoadingMetrics={this.props.isLoadingMetrics} />
+                <EuiToast
                     iconType="">
-                    <p><span style={{fontWeight:"bold"}}>Last Prediction Update:</span><span> {this.state.updatedTimestamp != "unknown" && this.state.updatedTimestamp != undefined ? this.state.updatedTimestamp : 'Unknown' }</span></p>
+                    <p><span style={{ fontWeight: "bold" }}>Last Prediction Update:</span><span> {this.state.updatedTimestamp != "unknown" && this.state.updatedTimestamp != undefined ? this.state.updatedTimestamp : 'Unknown'}</span></p>
                 </EuiToast>
             </div>
         )
@@ -64,7 +76,7 @@ export class Vis extends React.Component<VisProps, VisState> {
 export default Vis
 
 const vis = {
-    
+
 }
 
 

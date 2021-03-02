@@ -48,6 +48,7 @@ type QueuesPluginAppState = {
   picTimestamps: Array<string>,
   queueSizeCenshare: number,
   queueSizePic: number,
+  queueSizeD2C: number,
   queueItemsCenshare: Array<string>,
   queueItemsPic: Array<string>,
   updatedTimestamp: string,
@@ -56,7 +57,10 @@ type QueuesPluginAppState = {
   queueName: string,
   informationType: string,
   informationTypeOptions: Array<string>,
-  isLoadingMetrics: Boolean
+  isLoadingMetrics: Boolean,
+  gte: string,
+  lte: string,
+  d2cQueueURL: string
 }
 
 interface QueuesPluginAppProps {
@@ -74,6 +78,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     picTimestamps: [],
     queueSizeCenshare: 0,
     queueSizePic: 0,
+    queueSizeD2C: 0,
     queueItemsCenshare: [],
     queueItemsPic: [],
     updatedTimestamp: "undefined",
@@ -83,6 +88,9 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     informationType: "CORE",
     informationTypeOptions: [],
     isLoadingMetrics: true,
+    gte: "",
+    lte: "",
+    d2cQueueURL: "https://cors-test.appspot.com/test",
   }
 
   constructor(props: any) {
@@ -96,8 +104,9 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   //item in pic & censhare 3547747429
 
   componentDidMount() {
+    this.setState({ gte: this.props.data.query.timefilter.timefilter.getTime().from });
+    this.setState({ lte: this.props.data.query.timefilter.timefilter.getTime().to });
     var intervalId = setInterval(this.updateMetrics, 2000);
-    this.props.data.query.timefilter.timefilter.setTime(this.props.data.query.timefilter.timefilter.timeDefaults);
     this.setState({ intervalId: intervalId });
   }
 
@@ -109,6 +118,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     this.setState({ isLoadingMetrics: false })
     this.updateCenshareQueueSize();
     this.updatePicQueueSize();
+    this.updateD2CQueueSize();
     this.updatePicQueueItems();
     this.updateCenshareQueueItems();
     console.log(".")
@@ -134,11 +144,9 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
 
   onClickSearchHandler = () => {
 
-    let data = this.props.data;
-    let gte = data.query.timefilter.history.history.items[0].from;
-    let lte = data.query.timefilter.history.history.items[0].to;
 
-    const bodyCenshare = { item: this.state.item, name: this.state.queueName, gte: gte, lte: lte };
+
+    const bodyCenshare = { item: this.state.item, name: this.state.queueName, gte: this.state.gte, lte: this.state.lte };
     this.props.http.post("/api/censhare/item", { body: JSON.stringify(bodyCenshare) }).then(res => {
       if (res) {
         //console.log("DATA res cen: ", res.data.aggregations)
@@ -146,7 +154,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
       }
     });
 
-    const bodyPic = { item: this.state.item, name: this.state.queueName, contenttype: this.state.informationType, gte: gte, lte: lte };
+    const bodyPic = { item: this.state.item, name: this.state.queueName, contenttype: this.state.informationType, gte: this.state.gte, lte: this.state.lte };
     this.props.http.post("/api/pic/item", { body: JSON.stringify(bodyPic) }).then(res => {
       if (res) {
         //console.log("DATA res pic: ", res.data.aggregations)
@@ -192,9 +200,40 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     });
   }
 
+  updateD2CQueueSize = async () => {
+
+    if (this.state.item != "" && this.state.item != "undefined") {
+
+      this.setState({
+        queueSizeD2C: await fetch(this.state.d2cQueueURL)
+          .then(res => {
+            if (!res.ok) {
+              throw res;
+            }
+            return res.json()
+          })
+          .then(
+            (result) => {
+              // return result["event-count"];
+              return 3595 + (Date.now() % 10);
+            },
+            (error) => {
+              console.log(error);
+              return error
+            }
+          )
+      })
+    }
+    else {
+      this.setState({ queueSizeD2C: 0 });
+    }
+  }
+
   onChangeItemNameHandler = (event) => {
     this.setState({ item: event.target.value })
   };
+
+
 
   onBlurItemNameHandler = (event) => {
     if (event.target.value != "" /* && this.state.queueName == "products" */) {
@@ -212,14 +251,14 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     } else {
       this.setState({ informationTypeOptions: [] }, this.onfilterChangedCallback)
     }
+
   };
 
   onfilterChangedCallback() {
     console.log("INFOTYPE:" + this.state.informationType);
-    console.log("TIMEFILTER:");
-    console.log(this.props.data);
     this.onClickSearchHandler();
     this.updateMetrics();
+
   }
 
   filterChange = (event) => {
@@ -241,7 +280,13 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
       <Router basename={this.props.basename}>
         <I18nProvider>
           <>
-            <this.props.navigation.ui.TopNavMenu appName={PLUGIN_ID} showSearchBar={true} />
+            <this.props.navigation.ui.TopNavMenu appName={PLUGIN_ID} showSearchBar={true} useDefaultBehaviors={true}
+              onQuerySubmit={() =>
+                this.setState({
+                  gte: this.props.data.query.timefilter.timefilter.getTime().from,
+                  lte: this.props.data.query.timefilter.timefilter.getTime().to
+                },
+                  this.onfilterChangedCallback)} />
             <EuiPage restrictWidth="1500px">
               <EuiPageBody>
                 <EuiPageHeader>
@@ -281,10 +326,16 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
                     <EuiButton type="primary" size="m" onClick={this.onClickSearchHandler}>Search</EuiButton>
                     <EuiButton type="primary" color="secondary" onClick={this.predictionHandler} fill size="m" style={{ marginLeft: "20px" }}>Update Predictions</EuiButton>
                   </div>
-                  <Vis picTimestamps={this.state.picTimestamps ? this.state.picTimestamps : []}
+                  <Vis item={this.state.item}
+                    informationType={this.state.informationType}
+                    gte={this.state.gte}
+                    lte={this.state.lte}
+                    http={this.props.http}
+                    picTimestamps={this.state.picTimestamps ? this.state.picTimestamps : []}
                     censhareTimestamps={this.state.censhareTimestamps ? this.state.censhareTimestamps : []}
                     queueSizeCenshare={this.state.queueSizeCenshare}
                     queueSizePic={this.state.queueSizePic}
+                    queueSizeD2C={this.state.queueSizeD2C}
                     queueItemsCenshare={this.state.queueItemsCenshare ? this.state.queueItemsCenshare : null}
                     queueItemsPic={this.state.queueItemsPic ? this.state.queueItemsPic : null}
                     updatedTimestamp={this.state.updatedTimestamp ? this.state.updatedTimestamp : undefined}
@@ -295,7 +346,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
             </EuiPage>
           </>
         </I18nProvider>
-      </Router>
+      </Router >
     )
   }
 }

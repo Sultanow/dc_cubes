@@ -1,6 +1,7 @@
 import { IRouter } from '../../../../src/core/server';
 import { schema } from '@kbn/config-schema';
-import elasticsearch from 'elasticsearch'
+import elasticsearch from 'elasticsearch';
+import { VisualizationNoResults } from '../../../../src/plugins/visualizations/public';
 
 const client = new elasticsearch.Client({
   host: 'localhost:9200',
@@ -8,6 +9,76 @@ const client = new elasticsearch.Client({
 });
 
 export function defineRoutes(router: IRouter) {
+
+  router.post(
+    {
+      path: '/api/censhare/xml',
+      validate: {
+        body: schema.object({
+          item: schema.string()
+        }),
+      }
+    },
+    
+    async (context, request, response) => {
+      const data = await fetch("https://cors-test.appspot.com/test?")
+      .then(res => res.json())
+      .then(
+          (result) => {
+              console.log(result);
+              return result;
+          },
+          (error) => {
+              console.log(error);
+              return error
+          }
+      )
+      return response.ok({
+        body: {
+          data: "test",
+        },
+      });
+    }
+  );
+
+  router.post(
+    {
+      path: '/api/pic/xml',
+      validate: {
+        body: schema.object({
+          item: schema.string(),
+        }),
+      }
+    },
+    async (context, request, response) => {
+      const data = await client.search({
+        index: 'queues',
+        body: {
+          "_source": ["timestamp", "name", "tier"],
+          "query": {
+            "bool": {
+              "must": [
+                { "match": { "items": request.body.item } },
+                { "match": { "tier": "pic" } },
+                { "match": { "name": "products" } },
+              ]
+            }
+          },
+          "aggs": {
+            "size": 1,
+            "sort": [{ "timestamp": { "order": "desc" } }],
+            "_source": { "includes": ["timestamp", "name", "tier"] }
+          }
+        },
+        "size": 0
+      });
+      return response.ok({
+        body: {
+          data: data,
+        },
+      });
+    }
+  );
 
   router.post(
     {
@@ -50,7 +121,6 @@ export function defineRoutes(router: IRouter) {
       });
     }
   );
-
 
   router.post(
     {
@@ -262,7 +332,7 @@ export function defineRoutes(router: IRouter) {
                     "timestamp": {
                       //"gte" : "2020-06-24T12:00:00",
                       //"lt" :  "2020-06-24T13:00:00"
-                      "gte": "now-1h",
+                      "gte": "now-5m",
                       "lt": "now"
                     }
                   }
@@ -322,7 +392,7 @@ export function defineRoutes(router: IRouter) {
                     "timestamp": {
                       //"gte" : "2020-06-24T12:00:00",
                       //"lt" :  "2020-06-24T13:00:00"
-                      "gte": "now-1h",
+                      "gte": "now-5m",
                       "lt": "now"
                     }
                   }

@@ -1,14 +1,21 @@
 import React, { Component } from 'react'
 import Processor from "./Processor"
+import { CoreStart, HttpStart, HttpSetup } from '../../../../src/core/public';
 
 interface PipelineProps {
     censhareTimestamps: object,
     picTimestamps: object,
     queueSizeCenshare: number,
     queueSizePic: number,
+    queueSizeD2C: number,
     queueItemsCenshare: object,
     queueItemsPic: object, 
-    isLoadingMetrics: Boolean
+    isLoadingMetrics: Boolean,
+    item: string,
+    informationType: string,
+    gte: string,
+    lte: string,
+    http: CoreStart['http'],
 }
 
 interface PipeLineState{
@@ -50,12 +57,20 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
             <div className="pipeline-container" style={pipelineContainer}>
                 {/* Metrics data of a Processor component in subsequent Processor component. TODO: Refactor Sequence.*/}
                 <Processor isLastProcessor={false}
+                http={this.props.http}
+                item={this.props.item}
+                gte={this.props.gte}
+                lte={this.props.lte}
                 isFirstProcessor={true}
                 processorName={"SAP CMD"}
                 timeLeft={getTimeLeft(this.state.censhareTimestamps.queue_enter, this.state.censhareTimestamps.queue_left)}
-                progessStatus={100}
+                progressStatus={100}
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={false}
+                http={this.props.http}
+                item={this.props.item}
+                gte={this.props.gte}
+                lte={this.props.lte}
                 isFirstProcessor={false}
                 processorName={"censhare"}
                 queueName={"censhare"}
@@ -64,9 +79,13 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 queueSize={this.props.queueSizeCenshare}
                 timeLeft={getTimeLeft(this.state.picTimestamps.queue_enter, this.state.picTimestamps.queue_left)}
                 queueItems={this.props.queueItemsCenshare}
-                progessStatus={100}
+                progressStatus={100}
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={false}
+                http={this.props.http}
+                gte={this.props.gte}
+                lte={this.props.lte}
+                item={this.props.item}
                 isFirstProcessor={false}
                 processorName={"PICenter"}
                 queueName={"pic"}
@@ -75,9 +94,29 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 queueSize={this.props.queueSizePic}
                 timeLeft={""}
                 queueItems={this.props.queueItemsPic}
-                progessStatus={0}
+                progressStatus={0}
+                isLoadingMetrics={this.props.isLoadingMetrics}/>
+                <Processor isLastProcessor={false}
+                http={this.props.http}
+                gte={this.props.gte}
+                lte={this.props.lte}
+                item={this.props.item}
+                informationType={this.props.informationType}
+                isFirstProcessor={false}
+                processorName={"Mule D2C"}
+                queueName={"d2c"}
+                queueType={null}
+                timestamps={[]}
+                queueSize={this.props.queueSizeD2C}
+                timeLeft={""}
+                queueItems={[]}
+                progressStatus={0}
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={true}
+                http={this.props.http}
+                gte={this.props.gte}
+                lte={this.props.lte}
+                item={this.props.item}
                 isFirstProcessor={false}
                 processorName={"ICore"}
                 queueName={"undefined"}
@@ -86,7 +125,7 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 queueSize={0}
                 timeLeft={""}
                 queueItems={[]}
-                progessStatus={0}
+                progressStatus={0}
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
             </div>
         )
