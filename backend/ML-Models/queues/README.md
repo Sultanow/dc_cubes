@@ -6,11 +6,37 @@
 * **Train_Two_Queues.ipynb** jupyter notebook showing the item training process for two queues and additional test results
 * **Testing_Two_Queues_Items.ipynb** jupyter notebook showing the item testing process for the prediction script
 * **model_predict.py** python script that runs the prediction process for two queues with CLI
-* **model_train.py** python script that runs the training process for two queues 
+* **model_train.py** python script that runs the training process for two queues
 * **prediction_functions.py** containing the functions which are imported in the prediction script
 * **training_functions.py** containing the functions which are imported in the training script
 * **scaler_x_2q, scaler_y_2q** pickled StandardScaler from trainingsprocess
 * **model_2q_best.h5** keras H5 format, contains the model´s architecture, weight values and compile() information
+
+
+### Flask files Overview
+
+* **flask** folder that contains the files prepared for the flask framework with the following structure
+
+```
+flask
+│   run_flask.py
+│   run_predict.py
+│   prediction_functions.py
+│   requirements.txt    
+│
+└───models
+    │   model.h5
+    │   scalerx.p
+    │   scalery.p
+
+```
+
+
+* **requirements.txt** requirements textfile
+* **run_flask.py** start the flask framework and initiates the prediction
+* **run_predict.py** script for the prediction process
+* **prediction_functions.py** containing the functions which are imported in the *run_predict.py script*
+* **models** folder containing the used model and scaler for the prediction
 
 
 ### Requirements.txt
@@ -19,7 +45,6 @@ To install all needed librarys and tools use (or requirements_predict.txt):
 ```
 pip install -r requirements.txt
 ```
-
 
 
 ## Data Exploration
@@ -49,7 +74,7 @@ Overview of the item size in the pic queue in June:
 ![june_pic](https://user-images.githubusercontent.com/9306218/90045532-76575f80-dccf-11ea-818b-6ece0ee21e4e.jpeg)
 
 
-Another timeframe considered in training is November, where the overall performance of the data throughput is improved and items get processed faster. 
+Another timeframe considered in training is November, where the overall performance of the data throughput is improved and items get processed faster.
 
 Overview of the item size in the censhare queue in November:
 
@@ -176,7 +201,7 @@ Sample data y for item ***1000***
 
 We first standardize the features with the StandardScaler and afterwards pad the sequences (adding additional 0s) to even the length of each item sample. Our prepared datasets now have the form of (number of samples, number of timesteps, number of features). At last we split our samples into training and test set.
 
-#### Training 
+#### Training
 
 Model Summary:
 
@@ -262,14 +287,14 @@ Due to the inconsistency of the initial queue waiting time, the prediction is ta
 ![outlier_10_300_2020-06-09_2020-06-13_20epochs_720steps_20srate h5_mae_23 16_mean_63 26_median_67 86](https://user-images.githubusercontent.com/9306218/106234147-75bc7200-61f8-11eb-882f-bca25d15c824.png)
 
 
-Below is a comparison of the actual item size of both queues and the predicted item size for the 14th June in kibana. 
+Below is a comparison of the actual item size of both queues and the predicted item size for the 14th June in kibana.
 
 ![prediction14june](https://user-images.githubusercontent.com/9306218/106233056-e9a94b00-61f5-11eb-950c-fbcebd2e6253.PNG)
 
 
 ### Score based on ...
 
-The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE. Models used for the comparisons can be found in the models subfolder. 
+The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE. Models used for the comparisons can be found in the models subfolder.
 
 #### Epochs
 
@@ -283,7 +308,7 @@ The best model performance shows a MAE of **34**, in comparison if we used the m
 
 #### Neurons
 
-The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE. 
+The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE.
 
 | Number of neurons | MAE |
 | --- | --- |
@@ -295,7 +320,7 @@ The best model performance shows a MAE of **35**, in comparison if we used the m
 
 #### Outlier
 
-The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE. 
+The score is based on each timestep for each item compared to prediction step by step. Based on the different train and test set in the same timeframe, there will be some small deviation in the final MAE.
 
 | Outlier Min | Outlier Max | MAE |
 | --- | --- | --- |
@@ -335,7 +360,7 @@ Screenshot of example predictions uploaded back into ES
 
 ### Start the prediction script
 
-To start the script you need to navigate your terminal to the folder containing **model_predict.py**, **prediction_functions.py** and in a subfolder ./models  **model_2q_best.h5**, **scaler_x_2q.p** and **scaler_y_2q.p** 
+To start the script you need to navigate your terminal to the folder containing **model_predict.py**, **prediction_functions.py** and in a subfolder ./models  **model_2q_best.h5**, **scaler_x_2q.p** and **scaler_y_2q.p**
 
 To view the additional informations about the arguments and default arguments for **model_predict.py** use:
 ```
@@ -354,11 +379,11 @@ python .\model_predict.py  .\models\model.h5 .\models\scaler_x.p .\models\scaler
 
 **NOTE: To properly start the prediction script the timerange chosen must fit to the trained model. If the model has a trainings range of 5 days consider using a timerange of 6 days! **
 
-The prediction scripts knows because of the model name how many steps are considered in the trainingsprocess. E.g. with a sample rate of 20 and 5 days of training there are 720 steps. If you choose the timerange to be 5 days and there are some datapoints missing it can occur, that less than 720 steps can be collected from the data. 
+The prediction scripts knows because of the model name how many steps are considered in the trainingsprocess. E.g. with a sample rate of 20 and 5 days of training there are 720 steps. If you choose the timerange to be 5 days and there are some datapoints missing it can occur, that less than 720 steps can be collected from the data.
 
 ### Start the training script
 
-To start the script you need to navigate your terminal to the folder containing **model_train.py**, **training_functions.py** 
+To start the script you need to navigate your terminal to the folder containing **model_train.py**, **training_functions.py**
 In the subfolder ./models a model.h5 and two scaler.p files will be saved in the process. Furthermore in the subfolder ./figures a visualization of example samples will be saved. The naming of it will contain the MAE, Mean MAE and Median MAE.   
 
 To view the additional informations about the arguments and default arguments for **model_predict.py** use:
@@ -368,13 +393,33 @@ python model_train.py -h
 
 An example call with defined start and end date would look like:
 ```
-python .\model_train.py example_model 2020-06-14 2020-06-18 
+python .\model_train.py example_model 2020-06-14 2020-06-18
 ```
 
 If you wish to use multiple parameters an example call would look like:
 ```
 python .\model_train.py example_model 2020-06-14 2020-06-18 --outlier_min 15 -- outlier_max 300 --neurons 20 --epochs 50
 ```
+
+### Flask
+
+To use the flask version of the prediction script you first need to install the requirements.txt in the flask folder.
+
+```
+pip install -r requirements.txt
+```
+
+Navigate to the flask folder in your command line and start the server by typing:
+
+```
+python run_flask.py
+```
+
+Afterwards you can visit 127.0.0.1:5000 in your preferred browser. You can either follow the link or navigate to
+127.0.0.1:5000/run_prediction to start the prediction script. The URL can now activate the prediction process via GET requests.
+
+**Notice!** At the moment the script is in 'live' mode, that means it calculates the current day and based on the model given calculates enough days to gather the needed data from ES. If you want to use set start and ending dates you need to change the variables *start* and *end* in the *run_predict.py* file.
+Another important aspect is that you can only have one model and each one x and y scaler in the *models* folder, because these files get automatically detected and used in the prediction process. Multiple files would lead to false output.
 
 
 ## Previous tests
