@@ -5,6 +5,7 @@ import { CoreStart, HttpStart, HttpSetup } from '../../../../src/core/public';
 interface PipelineProps {
     censhareTimestamps: object,
     picTimestamps: object,
+    d2cTimestamp: object,
     queueSizeCenshare: number,
     queueSizePic: number,
     queueSizeD2C: number,
@@ -21,6 +22,7 @@ interface PipelineProps {
 interface PipeLineState{
     censhareTimestamps: any,
     picTimestamps: any,
+    d2cTimestamp: any,
     queueSizeCenshare: number
 }
 
@@ -32,6 +34,7 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
         this.state = {
             censhareTimestamps: [],
             picTimestamps: [],
+            d2cTimestamp: [],
             queueSizeCenshare: 0
         }
 
@@ -40,7 +43,8 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
     static getDerivedStateFromProps(nextProps, prevState) {
         return {
             censhareTimestamps: nextProps.censhareTimestamps,
-            picTimestamps: nextProps.picTimestamps
+            picTimestamps: nextProps.picTimestamps,
+            d2cTimestamp: nextProps.d2cTimestamp
         };
     }
 
@@ -69,6 +73,7 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 <Processor isLastProcessor={false}
                 http={this.props.http}
                 item={this.props.item}
+                informationType={this.props.informationType}
                 gte={this.props.gte}
                 lte={this.props.lte}
                 isFirstProcessor={false}
@@ -86,15 +91,16 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 gte={this.props.gte}
                 lte={this.props.lte}
                 item={this.props.item}
+                informationType={this.props.informationType}
                 isFirstProcessor={false}
                 processorName={"PICenter"}
-                queueName={"pic"}
+                queueName={"PICenter"}
                 queueType={null}
                 timestamps={this.props.picTimestamps}
                 queueSize={this.props.queueSizePic}
                 timeLeft={""}
                 queueItems={this.props.queueItemsPic}
-                progressStatus={0}
+                progressStatus={100}
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={false}
                 http={this.props.http}
@@ -104,22 +110,23 @@ export class Pipeline extends Component<PipelineProps, PipeLineState> {
                 informationType={this.props.informationType}
                 isFirstProcessor={false}
                 processorName={"Mule D2C"}
-                queueName={"d2c"}
+                queueName={"D2C"}
                 queueType={null}
-                timestamps={[]}
+                timestamps={this.props.d2cTimestamp}
                 queueSize={this.props.queueSizeD2C}
                 timeLeft={""}
                 queueItems={[]}
-                progressStatus={0}
+                progressStatus={100}
                 isLoadingMetrics={this.props.isLoadingMetrics}/>
                 <Processor isLastProcessor={true}
                 http={this.props.http}
                 gte={this.props.gte}
                 lte={this.props.lte}
                 item={this.props.item}
+                informationType={this.props.informationType}
                 isFirstProcessor={false}
-                processorName={"ICore"}
-                queueName={"undefined"}
+                processorName={"iCore"}
+                queueName={"iCore"}
                 queueType={null}
                 timestamps={[]}
                 queueSize={0}

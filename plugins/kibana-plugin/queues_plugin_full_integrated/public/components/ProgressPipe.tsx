@@ -103,6 +103,7 @@ export class ProgressPipe extends Component<ProgressPipeProps, ProgressPipeState
                 break;
         }
     }
+    
     onClickTest = () => {
         console.log("progress pipe clicked")
     }

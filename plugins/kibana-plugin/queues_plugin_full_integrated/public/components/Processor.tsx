@@ -62,7 +62,7 @@ export class Processor extends Component<ProcessorProps, ProcessorState> {
                             gte={this.props.gte}
                             lte={this.props.lte}
                             queueName={this.props.queueName}
-                            timestamp={this.props.timestamps.queue_enter} />
+                            timestamp={this.props.queueName == "D2C" ? "" : this.props.timestamps.queue_enter} />
                         : null}
                     <ProcessorBox progressStatus={this.props.progressStatus} isLastProcessor={this.props.isLastProcessor}
                         processorName={this.props.processorName}
@@ -71,7 +71,14 @@ export class Processor extends Component<ProcessorProps, ProcessorState> {
                         isFirstProcessor={this.props.isFirstProcessor}
                         timeLeft={this.props.timeLeft} />
                     {!this.props.isFirstProcessor ?
-                        <TimeBox isEnter={false} item={this.props.item} http={this.props.http} gte={this.props.gte} lte={this.props.lte} queueName={this.props.queueName} timestamp={this.props.timestamps.queue_left} /> : null}
+                        <TimeBox isEnter={false}
+                            item={this.props.item}
+                            http={this.props.http}
+                            gte={this.props.gte}
+                            lte={this.props.lte}
+                            queueName={this.props.queueName}
+                            timestamp={this.props.queueName == "D2C" ? this.props.timestamps : this.props.timestamps.queue_left} />
+                        : null}
                 </div>
             </div>
         )

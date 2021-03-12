@@ -13,6 +13,7 @@ type VisState = {
 interface VisProps {
     censhareTimestamps: any,
     picTimestamps: any,
+    d2cTimestamp: any,
     queueSizeCenshare: number,
     queueSizePic: number,
     queueSizeD2C: number,
@@ -58,6 +59,7 @@ export class Vis extends React.Component<VisProps, VisState> {
                     lte={this.props.lte}
                     picTimestamps={this.props.picTimestamps}
                     censhareTimestamps={this.props.censhareTimestamps}
+                    d2cTimestamp={this.props.d2cTimestamp}
                     queueSizeCenshare={this.props.queueSizeCenshare}
                     queueSizePic={this.props.queueSizePic}
                     queueSizeD2C={this.props.queueSizeD2C}

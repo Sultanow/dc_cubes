@@ -6,7 +6,7 @@ import 'brace/mode/xml';
 import 'brace/theme/github';
 import 'brace/theme/chrome';
 import AceEditor from "react-ace";
-import { testValue } from "./stringXML"
+import { iCoreDataURL, d2cDataUrl, censhareDataUrl, fetchWithTimeout, prettifyXml } from "./Utils";
 import { CoreStart } from '../../../../src/core/public';
 // import {FontAwesomeIcon} from "@fortawesome/react-fontawesome"
 // import {faClock} from "@fortawesome/free-solid-svg-icons"
@@ -18,16 +18,16 @@ import {
     EuiFlyoutHeader,
     EuiTitle,
     EuiFlyoutBody,
-    EuiButton,
     EuiButtonEmpty,
-    EuiModal,
-    EuiModalBody,
-    EuiModalFooter,
-    EuiModalHeaderTitle,
-    EuiModalHeader,
-    EuiOverlayMask,
-    EuiFlyoutFooter
+    EuiFlyoutFooter,
+    EuiBottomBar,
+    EuiFlexGroup,
+    EuiFlexItem,
+    EuiTextColor
+
 } from '@elastic/eui';
+import { AuthResultType } from '../../../../src/core/server';
+import { hasLeadingWildcard } from '../../../../src/plugins/data/common/es_query/kuery/node_types/wildcard';
 
 type TimeboxState = {
     timePosition: String,
@@ -36,11 +36,11 @@ type TimeboxState = {
     queueName: String,
     isHistoric: Boolean,
     isFlyOutVisible: boolean,
+    isErrorVisible: boolean,
     windowWidth: number,
     windowHeight: number,
-    censhareDataUrl: string,
-    d2cDataUrl: string,
-    XMLContent: string
+    XMLContent: string,
+    errorMessage: string
 }
 
 interface TimeboxProps {
@@ -65,11 +65,11 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
             queueName: this.props.queueName,
             isHistoric: true,
             isFlyOutVisible: false,
+            isErrorVisible: false,
             windowWidth: window.innerWidth,
             windowHeight: window.innerHeight,
-            censhareDataUrl: "https://cors-test.appspot.com/test?censhare:asset.name=#{vib}",
-            d2cDataUrl: "https://cors-test.appspot.com/test?censhare:asset.name=#{vib}", //http://fe0vm2671.bsh.corp.bshg.com:8799/d2c-feed-service/d2c-vib-file-info/vib/#{vib}/brand/#{brand}/locale/#{locale}
-            XMLContent: ""
+            XMLContent: "<Loading.../>",
+            errorMessage: ""
         }
     }
 
@@ -100,16 +100,47 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
         //checkDates(this.state.timestamp);
     }
 
+    showError() {
+        if (this.state.isErrorVisible == true) {
+            var errorbar =
+                <EuiBottomBar>
+                    <EuiFlexGroup justifyContent="spaceBetween">
+                        <EuiFlexItem grow={false}>
+                            <EuiFlexGroup gutterSize="s">
+                                <EuiFlexItem grow={false}>
+                                    <EuiTextColor color="ghost">{this.state.errorMessage} </EuiTextColor>
+                                </EuiFlexItem>
+                            </EuiFlexGroup>
+                        </EuiFlexItem>
+                        <EuiFlexItem grow={false}>
+                            <EuiFlexGroup gutterSize="s">
+                                <EuiFlexItem grow={false}>
+                                    <EuiButtonEmpty
+                                        onClick={() => this.setState({ isErrorVisible: false })}
+                                        color="danger"
+                                        size="s"
+                                        iconType="cross">
+                                        close
+                                    </EuiButtonEmpty>
+                                </EuiFlexItem>
+                            </EuiFlexGroup>
+                        </EuiFlexItem>
+                    </EuiFlexGroup>
+                </EuiBottomBar >
+            return errorbar
+        }
+    }
+
     showFlyOut() {
         if (this.state.isFlyOutVisible == true) {
             var flyOut =
                 <EuiFlyout
                     size="l"
-                    onClose={() => this.setState({ isFlyOutVisible: false })}
+                    onClose={() => this.setState({ isFlyOutVisible: false, isErrorVisible: false })}
                     aria-labelledby="flyoutTitle">
                     <EuiFlyoutHeader hasBorder>
                         <EuiTitle size="m">
-                            <h2 id="flyoutTitle">{this.props.item}</h2>
+                            <h2 id="flyoutTitle">{this.props.item == "undefined" || this.props.item == "" ? "No item selected" : this.props.item + " (" + this.state.queueName + ")"}</h2>
                         </EuiTitle>
                     </EuiFlyoutHeader>
                     <EuiFlyoutBody>
@@ -119,158 +150,164 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
                                 height="100%"
                                 mode="xml"
                                 theme="chrome"
-                                value={this.prettifyXml(this.state.XMLContent)}
+                                value={this.state.XMLContent}
                                 editorProps={{ $blockScrolling: true }}
                                 readOnly={true}
                             />
                         </div>
                     </EuiFlyoutBody>
                     <EuiFlyoutFooter>
-                        <EuiButtonEmpty onClick={() => this.setState({ isFlyOutVisible: false })}>Cancel</EuiButtonEmpty>
+                        <EuiButtonEmpty onClick={() => this.setState({ isFlyOutVisible: false, isErrorVisible: false })}>Cancel</EuiButtonEmpty>
                     </EuiFlyoutFooter>
                 </EuiFlyout>
             return flyOut
         }
     }
 
-    prettifyXml(sourceXml) {
-        const xmlDoc = new DOMParser().parseFromString(sourceXml, 'application/xml');
-        const xsltDoc = new DOMParser().parseFromString([
-            // describes how we want to modify the XML - indent everything
-            '<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform">',
-            '  <xsl:strip-space elements="*"/>',
-            '  <xsl:template match="para[content-style][not(text())]">', // change to just text() to strip space in text nodes
-            '    <xsl:value-of select="normalize-space(.)"/>',
-            '  </xsl:template>',
-            '  <xsl:template match="node()|@*">',
-            '    <xsl:copy><xsl:apply-templates select="node()|@*"/></xsl:copy>',
-            '  </xsl:template>',
-            '  <xsl:output indent="yes"/>',
-            '</xsl:stylesheet>',
-        ].join('\n'), 'application/xml');
-
-        const xsltProcessor = new XSLTProcessor();
-        xsltProcessor.importStylesheet(xsltDoc);
-        const resultDoc = xsltProcessor.transformToDocument(xmlDoc);
-        const resultXml = new XMLSerializer().serializeToString(resultDoc);
-        return resultXml;
-    }
 
     async copyToClipBoard() {
-        navigator.clipboard.writeText(this.prettifyXml(await this.getXMLContents()));
+        navigator.clipboard.writeText(prettifyXml(await this.getXMLContents()));
     }
 
     async getXMLContents(): Promise<string> {
         if (this.props.item != "" && this.props.item != "undefined") {
+            if (this.props.informationType == undefined) {
+                this.setState({ errorMessage: "Item could not be found", isErrorVisible: true, XMLContent: "<Item_could_not_be_found.../>" });
+                return "<Item_could_not_be_found.../>";
+            }
+            else {
+                let dataUrl;
+                switch (this.state.queueName) {
+                    case "censhare":
+                        dataUrl = censhareDataUrl.replace("#{vib}", this.props.item);
+                        return await fetchWithTimeout(dataUrl)
+                            .then(res => {
+                                if (!res.ok) {
+                                    this.setState({ errorMessage: "Censhare XML response has status " + res.status + "; Error Message: " + res.statusText, isErrorVisible: true });
+                                    throw new Error(`${res.status}: ${res.statusText}`);
+                                }
+                                return res.text();
+                            })
+                            .then(result => {
+                                this.setState({ XMLContent: prettifyXml(result) });
+                                return result;
+                            })
+                            .catch((error) => {
+                                this.setState({ errorMessage: "Error in censahre XML fetch: " + error.message + "; Request URL:  " + dataUrl, isErrorVisible: true });
+                                return ("Error in censahre XML fetch: " + error.message);
+                            })
 
-            const bodyPicXML = { item: this.props.item };
-            switch (this.state.queueName) {
-                case "censhare":
-                    /* 
-                    this.props.http.post("/api/censhare/xml", { body: JSON.stringify(bodyPicXML) }).then(res => {
-                        if (res) {
-                            console.log(res);
-                                            }
-                    });
-                    */
-
-                    let censhareDataUrl = this.state.censhareDataUrl.replace("#{vib}", this.props.item);
-                    await this.fetchWithTimeout(censhareDataUrl)
-                        .then(res => {
-                            if (!res.ok) {
-                                throw new Error(`${res.status}: ${res.statusText}`);
-                            }
-                            return res.json()
-                        })
-                        .then(result => {
-                            this.setState({ XMLContent: result["status"] });
-                            return result["status"];
-                        })
-                        .catch((error) => {
-                            console.error("Error in censahre XML fetch: " + error.message)
-                        })
-
-                    break;
-
-                case "pic":
-
-                    this.props.http.post("/api/pic/xml", { body: JSON.stringify(bodyPicXML) }).then(res => {
-                        if (res) {
-                            this.setState({ XMLContent: "xml pic" });
-                            return "Elasticsearch request has to be tested";
-                        }
-                    });
-                    break;
-
-                case "d2c":
-
-                    let d2cDataUrl = this.state.d2cDataUrl.replace("#{vib}", this.props.item);
-                    d2cDataUrl = d2cDataUrl.replace("#{brand}", "A23");
-                    d2cDataUrl = d2cDataUrl.replace("#{locale}", this.props.informationType);
-
-                    await this.fetchWithTimeout(d2cDataUrl)
-                        .then(res => {
-                            if (!res.ok) {
-                                throw new Error(`${res.status}: ${res.statusText}`);
-                            }
-                            return res.json()
-                        })
-                        .then(async result => {
-                            let d2cXMLURL = result["xml-content"];
-                            return await this.fetchWithTimeout(d2cXMLURL)
-                                .then(res2 => {
-                                    if (!res2.ok) {
-                                        throw new Error(`${res2.status}: ${res2.statusText}`);
-                                    }
-                                    return res2.json()
-                                })
-                                .then(result2 => {
-                                    this.setState({ XMLContent: result2 });
-                                    return result2;
-                                })
-                                .catch(error => {
-                                    console.error('Error in D2C XML second request fetch: ', error);
-                                });
-                        })
-                        .catch(error => {
-                            console.error('Error in D2C XML first request fetch:: ', error);
+                    case "PICenter":
+                        dataUrl = "/api/pic//mock";
+                        const body = { item: this.props.item };
+                        this.props.http.post(dataUrl, { body: JSON.stringify(body) }).then(res => {
+                            this.setState({ XMLContent: "TEST" })
+                            return "TEST";
                         });
 
-                    break;
+                    case "D2C":
 
-                default:
-                    this.setState({ XMLContent: "Not implemented yet" });
-                    console.log("Not implemented yet...");
-                    return;
+                        dataUrl = d2cDataUrl.replace("#{vib}", this.props.item);
+                        dataUrl = dataUrl.replace("#{brand}", "A01");
+                        dataUrl = dataUrl.replace("#{locale}", this.props.informationType);
+
+                        return await fetchWithTimeout(dataUrl)
+                            .then(res => {
+                                if (!res.ok) {
+                                    this.setState({ errorMessage: "D2C XML first response has status " + res.status + "; Error Message: " + res.statusText, isErrorVisible: true });
+                                    throw new Error(`${res.status}: ${res.statusText}`);
+                                }
+                                return res.json()
+                            })
+                            .then(async result => {
+                                let d2cXMLURL = result["xml-content"];
+                                if (d2cXMLURL.startsWith("http") || d2cXMLURL.startsWith("//") || d2cXMLURL.startsWith("../")) {
+                                    return await fetchWithTimeout(d2cXMLURL)
+                                        .then(innerXML => {
+                                            if (!innerXML.ok) {
+                                                this.setState({ errorMessage: "D2C XML second response has status " + innerXML.status + "; Error Message: " + innerXML.statusText, isErrorVisible: true });
+                                                throw new Error(`${innerXML.status}: ${innerXML.statusText}`);
+                                            }
+                                            return innerXML.text()
+                                        })
+                                        .then(innerResult => {
+                                            this.setState({ XMLContent: prettifyXml(innerResult) });
+                                            return innerResult;
+                                        })
+                                        .catch(error => {
+                                            this.setState({ errorMessage: "Error in D2C XML second request fetch: " + error.message, isErrorVisible: true });
+                                            return ("Error in D2C XML first request fetch: " + error.message);
+                                        });
+                                } else {
+                                    this.setState({ errorMessage: "Error in D2C XML first request response. XMLURL: " + d2cXMLURL, isErrorVisible: true });
+                                    return ("Error in D2C XML first request response. XMLURL: " + d2cXMLURL);
+                                }
+                            })
+                            .catch(error => {
+                                this.setState({ errorMessage: "Error in D2C XML first request fetch: " + error.message, isErrorVisible: true });
+                                return ("Error in D2C XML first request fetch: " + error.message);
+                            });
+
+                    case "iCore":
+
+                        let iCoreSite = ['MCW', 'MOK', 'SHA', 'SGP'];
+                        let iCoreSiteUnit = 'PROD';
+                        let producttype = 'VIB';
+
+                        dataUrl = iCoreDataURL + iCoreSite[0] + '%20' + iCoreSiteUnit + '%20' + producttype + '%20' + this.props.item + '%20' + this.props.informationType;
+
+                        return await fetchWithTimeout(dataUrl)
+                            .then(res => {
+                                if (!res.ok) {
+                                    this.setState({ errorMessage: "iCore XML first response has status " + res.status + "; Error Message: " + res.statusText, isErrorVisible: true });
+                                    throw new Error(`${res.status}: ${res.statusText}`);
+                                }
+                                return res.json()
+                            })
+                            .then(async result => {
+                                let iCoreXMLURL = result["_source"]["docUrl"];
+                                if (iCoreXMLURL.startsWith("http") || iCoreXMLURL.startsWith("//") || iCoreXMLURL.startsWith("../")) {
+                                    return await fetchWithTimeout(iCoreXMLURL)
+                                        .then(innerXML => {
+                                            if (!innerXML.ok) {
+                                                this.setState({ errorMessage: "iCore XML second response has status " + innerXML.status + "; Error Message: " + innerXML.statusText, isErrorVisible: true });
+                                                throw new Error(`${innerXML.status}: ${innerXML.statusText}`);
+                                            }
+                                            return innerXML.text()
+                                        })
+                                        .then(innerResult => {
+                                            this.setState({ XMLContent: prettifyXml(innerResult) });
+                                            return innerResult;
+                                        })
+                                        .catch(error => {
+                                            this.setState({ errorMessage: "Error in iCore XML second request fetch: " + error.message, isErrorVisible: true });
+                                            return ("Error in iCore XML first request fetch: " + error.message);
+                                        });
+                                } else {
+                                    this.setState({ errorMessage: "Error in iCore XML first request response. XMLURL: " + iCoreXMLURL, isErrorVisible: true });
+                                    return ("Error in D2C XML first request response. XMLURL: " + iCoreXMLURL);
+                                }
+                            })
+                            .catch(error => {
+                                this.setState({ errorMessage: "Error in iCore XML first request fetch: " + error.message, isErrorVisible: true });
+                                return ("Error in iCore XML first request fetch: " + error.message);
+                            });
+
+
+                    default:
+                        this.setState({ XMLContent: "<Not_implemented_yet.../>" });
+                        return "<Not_implemented_yet.../>";
+                }
             }
         }
         else {
-            this.setState({ XMLContent: "No item selected" });
-            return "No item selected...";
+            this.setState({ errorMessage: "No item selected", isErrorVisible: true, XMLContent: "<No_item_selected.../>" });
+            return "<No_item_selected.../>";
         }
     }
 
-    fetchWithTimeout = (uri, options = {}, time = 5000) => {
-        const controller = new AbortController()
-        const config = { ...options, signal: controller.signal }
-
-        const timeout = setTimeout(() => {
-            controller.abort()
-        }, time)
-
-        return fetch(uri, config)
-            .then((response) => response)
-            .catch((error) => {
-                if (error.name === 'AbortError') {
-                    throw new Error('Response timed out')
-                }
-                throw new Error(error.message)
-            })
-    }
-
-
     async downloadXML() {
-        var xmltext = this.prettifyXml(await this.getXMLContents());
+        var xmltext = prettifyXml(await this.getXMLContents());
 
         var pom = document.createElement('a');
 
@@ -296,7 +333,7 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
                         <EuiIcon type="clock" />  {this.state.isHistoric ? "Inbox" : "Forecast"} {this.props.isEnter ? "Entered" : "Left"}:
                     </div>
                     <div className="timebox-inner-bottom" style={timeboxInnerBottom}>
-                        <TimestampDisplay timestamp={this.state.timestamp} />
+                        <TimestampDisplay data={this.state.timestamp} queueName={this.state.queueName} isEnter={this.props.isEnter} />
                     </div>
                     {this.props.isEnter ? <div className="icons-block">
                         <EuiButtonIcon
@@ -304,6 +341,7 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
                             aria-label={'Show XML'}
                             iconType={'document'}
                             onClick={() => {
+                                this.setState({ XMLContent: "<Loading.../>" });
                                 this.getXMLContents();
                                 this.setState({ isFlyOutVisible: true })
                             }}
@@ -329,7 +367,7 @@ export class TimeBox extends React.Component<TimeboxProps, TimeboxState>{
                     </div> : <div></div>}
 
                     {this.showFlyOut()}
-
+                    {this.showError()}
                 </div>
             </div >
         )
@@ -350,10 +388,20 @@ function checkDates(timestamp) {
 
 // .toLocaleDateString('de-DE', {timeZoneName:'short'}).toString()
 
-const TimestampDisplay = ({ timestamp }) => {
+const TimestampDisplay = ({ data, queueName, isEnter }) => {
     var offset = new Date().getTimezoneOffset();
-    if (timestamp != null && typeof timestamp.hits.hits[0] === "object") {
-        return <div style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>{new Date(timestamp.hits.hits[0]._source.timestamp).toDateString() + " " + new Date(timestamp.hits.hits[0]._source.timestamp).toLocaleTimeString('de-DE', { timeZoneName: 'short' }).toString()}</div>;
+
+    if (queueName == "D2C") {
+        if (!isEnter) {
+            //TODO correct formatting
+            let timestamp = data.toString();
+            timestamp = timestamp.replace("CET", "MEZ");
+            timestamp = timestamp.slice(0, -5);
+            return <div style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>{timestamp}</div>;
+        }
+    } else if (data != null && typeof data.hits.hits[0] === "object") {
+        return <div style={{ paddingTop: "5px", whiteSpace: "nowrap" }}>
+            {new Date(data.hits.hits[0]._source.timestamp).toDateString() + " " + new Date(data.hits.hits[0]._source.timestamp).toLocaleTimeString('de-DE', { timeZoneName: 'short' }).toString()}</div>;
     }
     return <div style={{ textAlign: "center", paddingTop: "8px" }}>- - - - - - -</div>;
 };

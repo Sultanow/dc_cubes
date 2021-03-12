@@ -24,6 +24,7 @@ import { BrowserRouter as Router } from 'react-router-dom';
 
 import "../src/App.css"
 import { Vis } from "./Vis"
+import { d2cQueueSizeURL, d2cDataUrl } from "./Utils";
 
 import {
   EuiButton,
@@ -46,6 +47,7 @@ import { PLUGIN_ID, PLUGIN_NAME } from '../../common';
 type QueuesPluginAppState = {
   censhareTimestamps: Array<string>,
   picTimestamps: Array<string>,
+  d2cTimestamp: string,
   queueSizeCenshare: number,
   queueSizePic: number,
   queueSizeD2C: number,
@@ -59,8 +61,7 @@ type QueuesPluginAppState = {
   informationTypeOptions: Array<string>,
   isLoadingMetrics: Boolean,
   gte: string,
-  lte: string,
-  d2cQueueURL: string
+  lte: string
 }
 
 interface QueuesPluginAppProps {
@@ -76,6 +77,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
   state = {
     censhareTimestamps: [],
     picTimestamps: [],
+    d2cTimestamp: "",
     queueSizeCenshare: 0,
     queueSizePic: 0,
     queueSizeD2C: 0,
@@ -89,8 +91,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     informationTypeOptions: [],
     isLoadingMetrics: true,
     gte: "",
-    lte: "",
-    d2cQueueURL: "https://cors-test.appspot.com/test",
+    lte: ""
   }
 
   constructor(props: any) {
@@ -144,8 +145,6 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
 
   onClickSearchHandler = () => {
 
-
-
     const bodyCenshare = { item: this.state.item, name: this.state.queueName, gte: this.state.gte, lte: this.state.lte };
     this.props.http.post("/api/censhare/item", { body: JSON.stringify(bodyCenshare) }).then(res => {
       if (res) {
@@ -161,6 +160,28 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
         this.setState({ picTimestamps: res.data.aggregations })
       }
     });
+
+    if (this.state.item != "" && this.state.item != "undefined") {
+      let dataUrl = d2cDataUrl.replace("#{vib}", this.state.item);
+      dataUrl = dataUrl.replace("#{brand}", "A01");
+      dataUrl = dataUrl.replace("#{locale}", this.state.informationType);
+      fetch(dataUrl)
+        .then(res => {
+          if (!res.ok) {
+            throw res;
+          }
+          return res.json()
+        })
+        .then(
+          (result) => {
+            this.setState({ d2cTimestamp: result["last-modified-date"] });
+          },
+          (error) => {
+            console.log(error);
+            return error
+          }
+        )
+    }
   };
 
   updateCenshareQueueItems = () => {
@@ -205,7 +226,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
     if (this.state.item != "" && this.state.item != "undefined") {
 
       this.setState({
-        queueSizeD2C: await fetch(this.state.d2cQueueURL)
+        queueSizeD2C: await fetch(d2cQueueSizeURL)
           .then(res => {
             if (!res.ok) {
               throw res;
@@ -214,8 +235,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
           })
           .then(
             (result) => {
-              // return result["event-count"];
-              return 3595 + (Date.now() % 10);
+              return result["event-count"];
             },
             (error) => {
               console.log(error);
@@ -333,6 +353,7 @@ export class QueuesPluginApp extends Component<QueuesPluginAppProps, QueuesPlugi
                     http={this.props.http}
                     picTimestamps={this.state.picTimestamps ? this.state.picTimestamps : []}
                     censhareTimestamps={this.state.censhareTimestamps ? this.state.censhareTimestamps : []}
+                    d2cTimestamp={this.state.d2cTimestamp != "" ? this.state.d2cTimestamp : []}
                     queueSizeCenshare={this.state.queueSizeCenshare}
                     queueSizePic={this.state.queueSizePic}
                     queueSizeD2C={this.state.queueSizeD2C}

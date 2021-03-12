@@ -2,6 +2,8 @@ import { IRouter } from '../../../../src/core/server';
 import { schema } from '@kbn/config-schema';
 import elasticsearch from 'elasticsearch';
 import { VisualizationNoResults } from '../../../../src/plugins/visualizations/public';
+import { testValue, timeWindow } from "../../public/components/Utils";
+
 
 const client = new elasticsearch.Client({
   host: 'localhost:9200',
@@ -10,72 +12,141 @@ const client = new elasticsearch.Client({
 
 export function defineRoutes(router: IRouter) {
 
-  router.post(
-    {
-      path: '/api/censhare/xml',
-      validate: {
-        body: schema.object({
-          item: schema.string()
-        }),
-      }
-    },
-    
+  router.get({
+    path: '/api/censhare/mock',
+    validate: false
+  },
     async (context, request, response) => {
-      const data = await fetch("https://cors-test.appspot.com/test?")
-      .then(res => res.json())
-      .then(
-          (result) => {
-              console.log(result);
-              return result;
-          },
-          (error) => {
-              console.log(error);
-              return error
-          }
-      )
+      const data = testValue;
+      if (!data) return response.notFound();
       return response.ok({
-        body: {
-          data: "test",
-        },
+        body: data,
+        headers: {
+          'content-type': 'application/text'
+        }
       });
     }
   );
 
-  router.post(
-    {
-      path: '/api/pic/xml',
-      validate: {
-        body: schema.object({
-          item: schema.string(),
-        }),
-      }
-    },
+  router.post({
+    path: '/api/pic/mock',
+    validate: {
+      body: schema.object({
+        item: schema.string()
+      }),
+    }
+  },
     async (context, request, response) => {
       const data = await client.search({
         index: 'queues',
         body: {
-          "_source": ["timestamp", "name", "tier"],
+          "_source": ["timestamp", "name", "size", "tier"],
           "query": {
             "bool": {
               "must": [
                 { "match": { "items": request.body.item } },
                 { "match": { "tier": "pic" } },
                 { "match": { "name": "products" } },
+                { "match": { "event": "inbox" } },
+                { "match": { "brand": "A01" } }
               ]
             }
           },
           "aggs": {
-            "size": 1,
-            "sort": [{ "timestamp": { "order": "desc" } }],
-            "_source": { "includes": ["timestamp", "name", "tier"] }
+            "content": {
+              "top_hits": {
+                "size": 1,
+                "sort": [{ "timestamp": { "order": "asc" } }],
+                "_source": { "includes": ["timestamp", "name", "size", "tier", "content"] }
+              }
+            }
           }
         },
         "size": 0
       });
       return response.ok({
-        body: {
-          data: data,
-        },
+        body: data,
+        headers: {
+          'content-type': 'application/json'
+        }
+      });
+    }
+  );
+
+  router.get({
+    path: '/api/d2c/mock',
+    validate: false
+  },
+    async (context, request, response) => {
+      const data = {
+        "vib": "3CB4030X0",
+        "brand": "A23",
+        "locale": "es-ES",
+        "xml-content": "../api/censhare/mock",
+        "last-modified-date": "Thu Jan 21 18:45:03 CET 2021",
+        "zip-content": "http://fe0vm2671.bsh.corp.bshg.com:8203/d2cvib/zipcontent/es-ES/VIB_202101142T025349264_es-ES.zip"
+      };
+      if (!data) return response.notFound();
+      return response.ok({
+        body: data,
+        headers: {
+          'content-type': 'application/json'
+        }
+      });
+    }
+  );
+
+  router.get({
+    path: '/api/d2c/queueSize/mock',
+    validate: false
+  },
+    async (context, request, response) => {
+      const data = {
+        "event-count": "3595",
+        "locale": "ALL"
+      };
+      if (!data) return response.notFound();
+      return response.ok({
+        body: data,
+        headers: {
+          'content-type': 'application/json'
+        }
+      });
+    }
+  );
+
+  router.get({
+    path: '/api/icore/mock',
+    validate: false
+  },
+    async (context, request, response) => {
+      const data = {
+        "_index" : "pimdatab",
+        "_type" : "data",
+        "_id" : "SGP PROD VIB SMU8ZDS01A en-NZ",
+        "_version" : 4,
+        "found" : true,
+        "_source" : {
+          "@timestamp" : "2021-03-05T06:00:06.752Z",
+          "ICoreSite" : "SGP",
+          "ICoreSiteUnit" : "PROD",
+          "brand" : "A01",
+          "createdat" : "2021-03-05T05:53:12.000Z",
+          "locale" : "en-NZ",
+          "logtype" : "pim-data",
+          "docUrl" : "../api/censhare/mock",
+          "docType" : "",
+          "docSize" : 81496,
+          "product" : "SMU8ZDS01A",
+          "producttype" : "VIB"
+        }
+      };
+      if (!data) return response.notFound();
+      return response.ok({
+        body: data,
+        headers: {
+          'content-type': 'application/json'
+        }
       });
     }
   );
@@ -332,7 +403,7 @@ export function defineRoutes(router: IRouter) {
                     "timestamp": {
                       //"gte" : "2020-06-24T12:00:00",
                       //"lt" :  "2020-06-24T13:00:00"
-                      "gte": "now-5m",
+                      "gte": "now-" + timeWindow + "m",
                       "lt": "now"
                     }
                   }
@@ -392,7 +463,7 @@ export function defineRoutes(router: IRouter) {
                     "timestamp": {
                       //"gte" : "2020-06-24T12:00:00",
                       //"lt" :  "2020-06-24T13:00:00"
-                      "gte": "now-5m",
+                      "gte": "now-" + timeWindow + "m",
                       "lt": "now"
                     }
                   }

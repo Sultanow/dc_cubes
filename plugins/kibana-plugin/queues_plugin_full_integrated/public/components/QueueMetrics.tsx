@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import LoadingOverlay from 'fork-victorvhn-react-loading-overlay'
+import { timeWindow } from "./Utils";
 
 import {
     EuiIcon
@@ -74,12 +75,21 @@ export class QueueMetrics extends Component<QueueMetricsProps, QueueMetricsState
                                 <tbody style={tbody}>
                                     <tr>
                                         <th style={th}>Queue Size:</th>
-                                        <td style={td}>{this.state.queueSize ? "~"+(valueFormatter(this.state.queueSize*1)) : 0}</td>
+                                        <td style={td}>{this.state.queueSize ? "~" + (valueFormatter(this.state.queueSize * 1)) : 0}</td>
                                     </tr>
-                                    <tr>
-                                        <th style={th}>Throughput:</th>
-                                        <td style={td}>{this.state.queueItems["doc_early"] ? "~"+(valueFormatter(calculateQueueThroughput(this.state.queueItems) * 12)) : 0}/1h</td>
-                                    </tr>
+
+                                    {this.props.tierName == "D2C" ?
+                                        <tr>
+                                            <th style={th}> </th>
+                                        </tr>
+                                        :
+                                        <tr>
+                                            <th style={th}>Throughput:</th>
+                                            <td style={td}>
+                                                {this.state.queueItems["doc_early"] ? "~" + (valueFormatter(calculateQueueThroughput(this.state.queueItems) * Math.round(60 / timeWindow))) : 0}/1h
+                                            </td>
+                                        </tr>
+                                    }
                                     <tr>
                                         {/*   <th style={th}>Utilization:</th> */}
                                         {/*  <td style={td}>{this.state.queueItems["doc_early"] ? calculateQueueUtilization(this.state.queueItems) : 0}%</td> */}
