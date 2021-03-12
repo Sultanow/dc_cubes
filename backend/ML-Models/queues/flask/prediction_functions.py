@@ -42,6 +42,10 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port, steps, time_range=N
     # Establish connection
     es = Elasticsearch([host], port=port)
 
+    # Get the matching data for each day and store it in a list
+    final_data = list()
+    
+    # Automatic date detection mode
     if start_date == '0' and end_date == '0':
         end_date = datetime.date.today()
         start_date = end_date - datetime.timedelta(days=time_range)
@@ -74,11 +78,36 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port, steps, time_range=N
             day = sdate + datetime.timedelta(days=i)
             datelist.append(day)
 
+        # Cut off the last day to filter out the day with a given end time
         first_dates = datelist[:-1]
 
-    # Get the matching data for each day and store it in a list
-    final_data = list()
+        # Get the data for the last day
+        res = es.search(index="queues", body={
+            "from" : 0, "size" : 4000,
+            "query": {
+            "bool": {
+                                                "must": [
+                                                    {"match": {
+                                                        "name": "products"}},
+                                                    {"match": {
+                                                        "tier": tier}},
+                                                    {"range": {
+                                                        "timestamp": {
+                                                            "gt": datelist[-1].strftime("%Y-%m-%d %H:%M:%S"),
+                                                            "lte": str(end_date),
+                                                            "format": "yyyy-MM-dd HH:mm:ss"
+                                                        }
+                                                    }
+                                                    }
+                                                ]
+                                                }
+        }
+        })
+        daily_data = [elem['_source'] for elem in res['hits']['hits']]
+        final_data.extend(daily_data)
 
+    
+    # Get the data from all days selected
     for date in first_dates:
         res = es.search(index="queues", body={
             "from" : 0, "size" : 4000,
@@ -100,35 +129,11 @@ def es_to_df(start_date, end_date, s_rate, tier, host, port, steps, time_range=N
                                                 ]
                                                 }
         }
-        })  # defined size of 2880 entries per day
+        })
         daily_data = [elem['_source'] for elem in res['hits']['hits']]
         final_data.extend(daily_data)
 
-    if start_date != '0' and end_date != '0':
-        res = es.search(index="queues", body={
-            "from" : 0, "size" : 4000,
-            "query": {
-            "bool": {
-                                                "must": [
-                                                    {"match": {
-                                                        "name": "products"}},
-                                                    {"match": {
-                                                        "tier": tier}},
-                                                    {"range": {
-                                                        "timestamp": {
-                                                            "gt": datelist[-1].strftime("%Y-%m-%d %H:%M:%S"),
-                                                            "lte": str(end_date),
-                                                            "format": "yyyy-MM-dd HH:mm:ss"
-                                                        }
-                                                    }
-                                                    }
-                                                ]
-                                                }
-        }
-        })  # defined size of 2880 entries per day
-        daily_data = [elem['_source'] for elem in res['hits']['hits']]
-        final_data.extend(daily_data)
-
+       
     # Create pandas dataframe from final_data list
     df = pd.DataFrame(final_data)
 
@@ -221,6 +226,9 @@ def create_dataset_predict(q_one, q_two):
     # Items to predict, which are left at the last timestamp in both queues
     pred = q_one['items'][-1]+q_two['items'][-1]
 
+    # Remove unwanted item number from the prediction
+    pred.remove('5381')
+
     data_x = list()
 
     # Create each sample
@@ -295,7 +303,6 @@ def create_dataset_predict(q_one, q_two):
 
 
 
-
     for item in q_two_mlb.columns:
         if ((item not in q_one_mlb.columns) and (item in pred)):
 
@@ -308,13 +315,22 @@ def create_dataset_predict(q_one, q_two):
 
             # Slice the features based on the positions
             diff = position_q_two_last - position_q_two_first
-            size_one = sizes_q_one[position_q_two_first:position_q_two_last]
-            size_two = sizes_q_two[position_q_two_first:position_q_two_last]
-            added = added_q_two[position_q_two_first:position_q_two_last]
-            removed = removed_q_two[position_q_two_first:position_q_two_last]
 
-            # Create list of steps it stays in the queue
-            steps_list = list(range(1, diff+1))
+            if diff == 0 and position_q_two_last == q_two_mlb.index[-1]:
+                size_one = sizes_q_one[-1]
+                size_two = sizes_q_two[-1]
+                added = added_q_two[-1]
+                removed = removed_q_two[-1]
+                steps_list = [1]
+            else:
+                size_one = sizes_q_one[position_q_two_first:position_q_two_last]
+                size_two = sizes_q_two[position_q_two_first:position_q_two_last]
+                added = added_q_two[position_q_two_first:position_q_two_last]
+                removed = removed_q_two[position_q_two_first:position_q_two_last]
+
+                # Create list of steps it stays in the queue
+                steps_list = list(range(1, diff+1))
+            
             start_Q = 1
 
             # Create a dataframe and fill in the features
@@ -322,21 +338,19 @@ def create_dataset_predict(q_one, q_two):
             columns = [item, 'Q_size_one', 'Q_size_two', 'n_added_two', 'n_removed_two', 'Q_start']
             X_item = pd.DataFrame.from_dict({col: d for col, d in zip(columns, data)})
             
-            # Filter out items with no values
-            if len(X_item) == 0:
-                continue
             data_x.append(X_item)
 
         else:
             continue
 
-
+    
+    # Set info variables
     lenqone = len(set(q_one['items'][-1]))
     lenqtwo = len(set(q_two['items'][-1]))
 
-    logging.info(f'{lenqone} items in the first queue')
-    logging.info(f'{lenqtwo} items in the second queue')
-    logging.info(f'{len(pred)} items in the first and second queue combined')
+    logging.info(f'{len(pred)} items in the first and second queue combined with duplicates')
+    logging.info(f'{lenqone} items in the first queue without duplicates')
+    logging.info(f'{lenqtwo} items in the second queue without duplicates')
     logging.info(f'{len(set(pred))} items in the first and second queue combined without duplicates')
     logging.info(f'{len(data_x)} samples created in the dataset')
 
@@ -441,7 +455,7 @@ def predict_upload(q_two, dataset, dataset_pad, dataset_scaled, scaler_y, host, 
         x.split(" "))-1)  # calculate the size based on items
 
     # Get time frequency through srate
-    tfreq = int(srate/2)
+    tfreq = srate/2
 
     # Generate timestamps based on the last timestamp
     time_stamps = pd.date_range(
@@ -455,6 +469,8 @@ def predict_upload(q_two, dataset, dataset_pad, dataset_scaled, scaler_y, host, 
     es.indices.delete(index=index_es, ignore=[400, 404])
     # Create new index to store again
     es.indices.create(index=index_es, ignore=400)
+    logging.info(f'Index {index_es} has been refreshed')
+
 
     count = 0
     for index, row in final_df.iterrows():
@@ -473,6 +489,7 @@ def predict_upload(q_two, dataset, dataset_pad, dataset_scaled, scaler_y, host, 
             print(str(count) + " Elemente hochgeladen")
 
     end = time.time()
-    logging.info(f'Prediction and upload: {end - start:.2f} time elapsed')
+    last_ts = q_two.index[-1]
+    logging.info(f'Prediction and upload for {last_ts}: {end - start:.2f} time elapsed')
 
     return final_df
