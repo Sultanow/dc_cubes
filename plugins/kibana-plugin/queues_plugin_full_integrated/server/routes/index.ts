@@ -2,7 +2,7 @@ import { IRouter } from '../../../../src/core/server';
 import { schema } from '@kbn/config-schema';
 import elasticsearch from 'elasticsearch';
 import { VisualizationNoResults } from '../../../../src/plugins/visualizations/public';
-import { testValue, timeWindow } from "../../public/components/Utils";
+import { testValue, timeWindow } from "../Utils";
 
 
 const client = new elasticsearch.Client({
