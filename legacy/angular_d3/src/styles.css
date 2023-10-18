@@ -1,0 +1,53 @@
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+
+/* You can add global styles to this file, and also import other style files */
+* {
+    margin: 0;
+    padding: 0;
+    font-family: 'Roboto', sans-serif;
+} 
+
+.mat-tab-group {position: relative !important;}
+.mat-tab-body-wrapper {overflow: visible !important;}
+.mat-tab-body {overflow: visible !important;}
+.mat-tab-body-content {overflow: visible !important;}
+
+body{
+    background-color: #f1f3f9!important;
+    height: 100vh;
+    width: 100vw;
+}
+
+
+.mat-slider{
+    
+    height: 100%;
+}
+
+.mat-subheader {
+    padding: 0 !important;
+    margin-top: 5%;
+    margin-bottom: 5%
+}
+
+.viewer {
+    width: 100%;
+    height:90%;
+    margin: 1%;
+    margin-top: 0%;
+    background-color: white;
+    display:inline-block
+    
+    
+
+}
+
+.mat-list-item-content{
+    margin-top: 3%;
+
+  }
+
+.wrapper{
+    opacity: inherit;
+    z-index: -1;
+}

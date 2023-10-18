@@ -1,0 +1,20 @@
+{
+  "name": "dc_cubes_backend",
+  "version": "0.1.0",
+  "description": "Backend for DC Cubes",
+  "main": "backend.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc",
+    "start": "tsc && node ./build/backend.js"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.1",
+    "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "elasticsearch": "^16.6.0",
+    "express": "^4.17.1"
+  }
+}

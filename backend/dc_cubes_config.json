@@ -1,0 +1,8 @@
+{
+    "backendPort": 8080,
+    "solrSettings": {
+        "historicalDataCore": "dc_cubes",
+        "forecastDataCore": "dc_cubes_forecast"
+    },
+
+}

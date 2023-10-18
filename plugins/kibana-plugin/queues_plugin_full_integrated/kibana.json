@@ -1,0 +1,8 @@
+{
+  "id": "queuesPlugin",
+  "version": "7.10.2",
+  "server": true,
+  "ui": true,
+  "requiredPlugins": ["navigation", "data"],
+  "optionalPlugins": []
+}

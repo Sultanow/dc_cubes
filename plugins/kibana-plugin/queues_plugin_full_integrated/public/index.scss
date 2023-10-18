@@ -1,0 +1,113 @@
+.border-loading-spin {
+    border: 2px dashed white;
+    border-radius: 50px;
+    height: 20px;
+    width: 20px;
+    animation: spin 10s linear infinite;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    z-index: 1;
+    visibility: visible;;
+  }
+  
+  
+  @keyframes spin { 
+    100% { 
+      transform: rotateZ(360deg); 
+    }
+  }
+  
+  .hidden {
+    visibility: hidden;
+  }
+  
+  .time-box:hover{
+    border: 2px solid #bdbdbd!important;
+  }
+  
+  input{
+      background-color: white!important;
+      border:1px solid #006BB4!important;
+      border-right: none!important;
+    // font-family: "Inter"!important;
+    // font-size: .8rem;
+    // color: black!important;
+    // padding-left: 10px;
+    // padding-right: 10px;
+  }
+  
+//   input:hover{
+//     border: 2px solid #8a8a8a!important;
+//   }
+  
+  select{
+    background-color: white!important;
+    border:1px solid #006BB4!important;
+    // -moz-appearance: none;
+    // -webkit-appearance: none;
+    // appearance: none;
+    // border: none;
+  }
+  
+//   select:hover{
+//     border: 2px solid #8a8a8a!important;
+//   }
+  
+  .select-container {
+    /* ... */
+    position: relative;
+  }
+  /*
+  .select-container::before {
+    font-family: "Font Awesome 5 Free";
+    content: "\f078";
+    font-size: 16px;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    color: black;
+    pointer-events:none;
+  }
+  */
+  
+  .prediction-btn:hover{
+    border-bottom: 2px solid black!important;
+  }
+  
+  #search-btn:hover{
+    background-color: rgb(238, 146, 99)!important;
+    border: 2px solid rgb(238, 146, 99)!important;
+  }
+  
+  .progress-pipe-container:hover{
+    border-top: 5px solid #a8a8a8!important;
+    border-bottom: 5px solid #a8a8a8!important; 
+  }
+  
+  .processor-box:hover{
+    background-color: #0082d8!important;
+    opacity: 90%;
+  }
+
+  td{
+    // padding: 5px;
+  }
+
+  .triangle-rotate{
+    -moz-transform: rotate(90deg);
+    -ms-transform: rotate(90deg);
+    -o-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+
+    transform: rotate(90deg);
+  }
+
+  .processor-outer-container:hover{
+    // background-color: rgba(255, 192, 203, 0.199);
+    // cursor: pointer;
+  }
+
+  ._loading_overlay_overlay{
+    background-color: transparent!important;
+  }

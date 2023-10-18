@@ -1,0 +1,35 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/backend/node_modules
+/plugins/grafana-plugin/dc_cubes/node_modules
+/plugins/grafana-plugin/dc_cubes/dist/*
+/plugins/grafana-plugin/dc_cubes/dist
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# Models and similiar binary files, because they are too big
+#/research/scripts/forecast/*.h5
+#/research/scripts/forecast/*.pckl
+#/research/scripts/forecast/*.pkl
+!/research/scripts/forecast/4week_transformed_droppedErrors_filled.pkl
+# production
+/build
+/backend/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+/backend/.idea/*
+.vscode
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

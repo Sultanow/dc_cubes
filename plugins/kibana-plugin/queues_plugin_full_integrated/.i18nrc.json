@@ -1,0 +1,10 @@
+{
+    "prefix": "queuesPlugin",
+    "paths": {
+      "queuesPlugin": "."
+    },
+    "translations": [
+      "translations/ja-JP.json"
+    ]
+  }
+  

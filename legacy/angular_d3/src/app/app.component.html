@@ -1,0 +1,182 @@
+﻿<div [ngClass]="{view: inProgress===true,all: inProgress!=true}">
+
+
+  <mat-toolbar id="toolbar" style="border:1px solid #808080">
+    <span><h1>{{title}} {{temporalAxis[pointInTime]}} {{pointInTime}}</h1></span>
+    <span class=toolbarspacer></span>
+    <mat-slide-toggle id="liveslider" (change)="goLive()">go Live</mat-slide-toggle>
+
+    <button class=iconbutton mat-icon-button>
+        <mat-icon>search</mat-icon>
+    </button>
+
+
+    <button class=iconbutton mat-icon-button>
+        <mat-icon>settings</mat-icon>
+    </button>
+    
+    <button class=iconbutton mat-icon-button>
+        <mat-icon>menu</mat-icon>
+    </button>
+
+
+  </mat-toolbar>
+
+  <div cdkDropList cdkDropListOrientation="horizontal" class="maincontent" id="maincontent" (cdkDropListDropped)="droppanels($event)" style="width:100%">
+    <div *ngFor="let panel of panels" cdkDrag>
+
+      <!-- change bool here to change live function-->
+
+    
+      <div *ngIf="panel=='controll'">
+        <div class=config>
+          <div class="example-handle" cdkDragHandle>
+            <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+              <path d="M0 0h24v24H0z" fill="none"></path>
+            </svg>
+          </div>
+        
+        
+          <div cdkDropList role="list" class="draglist" (cdkDropListDropped)="drop($event)">
+            <div class="example-box" *ngFor="let head of headers" cdkDrag>
+              <h4 mat-subheader>{{head}}</h4>
+              <div *ngIf="head=='Datasources'">
+                <mat-radio-group
+                        aria-labelledby="example-radio-group-label"
+                        class="example-radio-group"
+                        [(ngModel)]="datasources[i]">
+                  <mat-radio-button class="example-radio-button" *ngFor="let source of datasources" [value]="source">
+                    {{source}}
+                  </mat-radio-button>
+                </mat-radio-group>
+              <!--  <mat-form-field>
+                  <mat-select id = "selectSource" placeholder="Source: " [(ngModel)]="datasources[i]">
+                    <mat-option *ngFor="let source of datasources" [value]="source">
+                      {{source}}
+                    </mat-option>
+                  </mat-select>
+                </mat-form-field> -->
+
+              </div>
+              <div *ngIf="head=='Data'" class=gridcontainer> 
+                <mat-list-item class="grid_item_1">Datacenters:</mat-list-item>
+                <span class="grid_item_1-1">{{viewdc}}</span>
+                <mat-list-item class="grid_item_2">Instances:</mat-list-item>
+                <span class="grid_item_2-2">{{viewinstances}}</span>
+                <mat-list-item class="grid_item_3">Clusters:</mat-list-item>
+                <span class="grid_item_3-3">{{viewclusters}}</span>
+                <mat-list-item class="grid_item_4">Max Value:</mat-list-item>
+                <span class="grid_item_4-4">{{viewmaxValue}}</span>
+              </div>
+              <div *ngIf="head=='Visualisierung'" class=gridcontainer>
+
+                <mat-list-item class="grid_item_1">Max_Z:</mat-list-item>
+                <span class="grid_item_1-1">{{maxZ}}</span> 
+
+                <mat-list-item class="grid_item_2">Logarithmic Scale </mat-list-item>
+                <span class="grid_item_2-2">{{adjustfactor}}</span> 
+
+              </div>
+            </div>
+          </div>
+        </div>
+     
+       
+      </div>
+    
+    <div *ngIf="panel=='view'" style="width:100%">
+      <div class="diagram" id="diagram" style="border:1px solid #808080">
+        <div class="example-handle" cdkDragHandle>
+          <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+            <path d="M0 0h24v24H0z" fill="none"></path>
+          </svg>
+        </div>
+    
+    
+        <div id="view">
+          <svg id="diagram"></svg>  
+        </div>
+          
+        <!--<mat-slider  --max Z Slider--
+          id="maxZslider"
+          value="3"
+          min="1" max="10"
+          step="1" 
+          tickInterval="1" 
+          thumbLabel 
+          
+          (change)="changemaxZ($event)" 
+      ></mat-slider>-->
+    
+    
+        <mat-slider
+            id ="valueslider"
+            min="0" max="{{pointInTimeCount - 1}}"
+            step="1" 
+            tickInterval="20" 
+            thumbLabel 
+            value="1"
+            [(ngModel)]="pointInTime"
+            (change)="changePointInTime(pointInTime)" 
+      ></mat-slider>
+      
+      </div>
+    </div>
+    
+  
+  
+    
+  </div>
+
+
+
+    
+
+        <!--
+        <mat-list role="list">            
+            <h2 mat-subheader>Datasources</h2>
+            <mat-list-item>
+              <mat-form-field>
+                <mat-select id = "selectSource" placeholder="Source: " [(ngModel)]="datasources[i]">
+                  <mat-option *ngFor="let source of datasources" [value]="source">
+                    {{source}}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </mat-list-item>
+    
+            <mat-divider></mat-divider>
+            <h2 mat-subheader>Data</h2>
+            <mat-list-item>Datacenters: </mat-list-item>
+            <mat-list-item>Instances: </mat-list-item>
+            <mat-list-item>Clusters: </mat-list-item>
+            <mat-list-item>Max Value: </mat-list-item>
+            <mat-divider></mat-divider>
+            <h2 mat-subheader>Visualisierung</h2>
+            <mat-list-item>Max Z : </mat-list-item>
+            <mat-list-item>Logartithmic <br> Scale: </mat-list-item>
+            <mat-divider></mat-divider>
+          </mat-list>
+          -->
+      
+      
+  
+
+
+  </div>
+
+    
+
+ 
+
+  
+
+  <div class="settings">
+    <my-controllpanel [title]="title" [filestring]="filestring" [instancesAddColor]="instancesAddColor" (fileChanged)="fileChanged($event)" (datechanged)="datechanged($event)" (colorChanged)="changecolorofinstance($event)" (updateData)="changeData($event)"></my-controllpanel>
+  </div>
+  
+</div>
+<mat-spinner id="progressbar" *ngIf="inProgress===true"></mat-spinner>
+

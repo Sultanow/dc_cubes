@@ -1,0 +1,5 @@
+{
+    "port": 8080,
+    "historicalDataCore": "dc_cubes",
+    "forecastDataCore": "dc_cubes_forecast" 
+}

@@ -1,0 +1,90 @@
+.toppanelbutton {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 2px;
+    margin-left: 2px;
+    background-color: #e7e7e7; color:black;
+    border: none;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    
+}
+
+[type="file"] {
+    border: 0;
+    clip: rect(0, 0, 0, 0);
+    height: 1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute !important;
+    white-space: nowrap;
+    width: 1px;  
+  }
+
+  [type="file"] + label {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-right: 2px;
+    margin-left: 2px;
+    background-color: #e7e7e7; 
+    color:black;
+    border: none;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+  }
+  
+  
+  [type="file"]:focus + label {
+    outline: 1px dotted #000;
+    outline: -webkit-focus-ring-color auto 5px;
+  }
+
+
+#title {
+    float: middle
+}
+
+#colorbar{
+    float: right;
+}
+ 
+#datepicker{
+    margin-top: 20px;;
+}
+
+.controller{
+    min-width: 0!important;
+    padding: 3px!important;
+    margin: 3px!important;
+}
+
+
+.submitbutton {
+    margin-left: 1%;
+    margin-top: 4%;
+    background-color: #e7e7e7; color:black;
+    border: none;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    
+}
+
+.jsfield{
+    height:30px;
+    width: 100vh; 
+    margin: 1%;
+    padding: 1%
+}
+
+.configlist{
+    
+}

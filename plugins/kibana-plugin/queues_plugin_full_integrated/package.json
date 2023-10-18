@@ -1,0 +1,13 @@
+{
+  "name": "queuesPlugin",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "build": "yarn plugin-helpers build",
+    "plugin-helpers": "node ../../scripts/plugin_helpers",
+    "kbn": "node ../../scripts/kbn"
+  },
+  "dependencies": {
+    "fork-victorvhn-react-loading-overlay": "^1.2.0"
+  }
+}

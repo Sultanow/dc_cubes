@@ -1,0 +1,29 @@
+{
+  "type": "panel",
+  "name": "DC Cubes",
+  "id": "dc_cubes",
+
+  "info": {
+    "description": "3D-Visualization with Cubes",
+    "author": {
+      "name": "Your Name"
+    },
+    "keywords": ["Simple"],
+    "logos": {
+      "small": "img/cubes_blor.svg",
+      "large": "img/cubes_blor.svg"
+    },
+    "links": [
+      {"name": "Website", "url": "https://github.com/grafana/simple-react-panel"},
+      {"name": "License", "url": "https://github.com/grafana/simple-react-panel/blob/master/LICENSE"}
+    ],
+    "screenshots": [],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+
+  "dependencies": {
+    "grafanaVersion": "6.3.x",
+    "plugins": []
+  }
+}
